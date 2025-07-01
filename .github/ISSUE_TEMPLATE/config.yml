@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 ドキュメント / Documentation
+    url: https://github.com/tkwest3143/solo-app/wiki
+    about: アプリの使い方やFAQについては、まずドキュメントをご確認ください / Please check the documentation first for usage and FAQ
+  - name: 💬 ディスカッション / Discussions  
+    url: https://github.com/tkwest3143/solo-app/discussions
+    about: 一般的な質問や機能の提案については、ディスカッションをご利用ください / Use discussions for general questions and feature suggestions
