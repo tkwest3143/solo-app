@@ -11,32 +11,64 @@ class AddUserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => nextRouting(context, RouterDefinition.addUser),
-      child: DottedBorder(
-        color: Colors.grey,
-        borderType: BorderType.RRect,
-        radius: Radius.circular(10),
-        strokeWidth: 2.0,
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.5 - 20,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.add,
-                size: 50.0,
-                color: Colors.grey,
-              ),
-              SizedBox(height: 10.0),
-              Text(
-                '追加する',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 20.0,
+    return Material(
+      borderRadius: BorderRadius.circular(20),
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.1),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () => nextRouting(context, RouterDefinition.addUser),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                const Color(0xFF667eea).withOpacity(0.1),
+                const Color(0xFF764ba2).withOpacity(0.1),
+              ],
+            ),
+            border: Border.all(
+              color: const Color(0xFF667eea).withOpacity(0.3),
+              width: 2,
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFF667eea).withOpacity(0.2),
+                        const Color(0xFF764ba2).withOpacity(0.2),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: const Icon(
+                    Icons.add_rounded,
+                    size: 30.0,
+                    color: Color(0xFF667eea),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16.0),
+                Text(
+                  '追加する',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: const Color(0xFF667eea),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -51,7 +83,12 @@ class UserCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return GestureDetector(
+    return Material(
+      borderRadius: BorderRadius.circular(20),
+      elevation: 8,
+      shadowColor: Colors.black.withOpacity(0.1),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
         onTap: () {
           ref.read(globalStateProvider.notifier).state = user;
           // 状態が更新された後に画面遷移を行う
@@ -59,52 +96,102 @@ class UserCard extends ConsumerWidget {
             nextRouting(context, RouterDefinition.home);
           });
         },
-        child: Card(
-            color: Theme.of(context).cardColor,
-            shadowColor: Theme.of(context).shadowColor,
-            elevation: 8,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Column(
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFFffffff),
+                Color(0xFFf8f9fa),
+              ],
+            ),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(height: 10.0),
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF667eea),
+                            Color(0xFF764ba2),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: const Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
                     Text(
                       user.name,
-                      style: TextStyle(
-                        fontSize: 20.0,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 5.0),
+                    const SizedBox(height: 8.0),
                     Text(
                       user.email,
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.grey,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      textAlign: TextAlign.center,
                     ),
-                    if (user.lastLoginTime != null)
-                      Text(
-                        '最終にアクセスした日: ${formatDate(user.lastLoginTime!, format: 'yyyy/M/d')}',
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.grey,
+                    if (user.lastLoginTime != null) ...[
+                      const SizedBox(height: 8.0),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF11998e).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '最終: ${formatDate(user.lastLoginTime!, format: 'M/d')}',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: const Color(0xFF11998e),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
+                    ],
                   ],
                 ),
-                Align(
-                  alignment: Alignment.topRight,
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: IconButton(
-                    iconSize: 36.0,
-                    icon: Icon(Icons.close_rounded, color: Colors.grey),
+                    iconSize: 20.0,
+                    icon: Icon(Icons.close_rounded, color: Colors.red.shade400),
                     onPressed: () {
                       // Handle user deletion
                     },
                   ),
                 ),
-              ],
-            )));
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
