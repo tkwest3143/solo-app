@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'drift.dart';
+part of '../drift.dart';
 
 // ignore_for_file: type=lint
 class $UsersTable extends Users with TableInfo<$UsersTable, User> {
@@ -49,8 +49,8 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       const VerificationMeta('defaultWorkSettingId');
   @override
   late final GeneratedColumn<int> defaultWorkSettingId = GeneratedColumn<int>(
-      'default_work_setting_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      'default_work_setting_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -105,8 +105,6 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
           _defaultWorkSettingIdMeta,
           defaultWorkSettingId.isAcceptableOrUnknown(
               data['default_work_setting_id']!, _defaultWorkSettingIdMeta));
-    } else if (isInserting) {
-      context.missing(_defaultWorkSettingIdMeta);
     }
     return context;
   }
@@ -130,7 +128,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       lastLoginTime: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}last_login_time']),
       defaultWorkSettingId: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}default_work_setting_id'])!,
+          DriftSqlType.int, data['${effectivePrefix}default_work_setting_id']),
     );
   }
 
@@ -147,7 +145,7 @@ class User extends DataClass implements Insertable<User> {
   final String name;
   final String email;
   final DateTime? lastLoginTime;
-  final int defaultWorkSettingId;
+  final int? defaultWorkSettingId;
   const User(
       {required this.id,
       this.createdAt,
@@ -155,7 +153,7 @@ class User extends DataClass implements Insertable<User> {
       required this.name,
       required this.email,
       this.lastLoginTime,
-      required this.defaultWorkSettingId});
+      this.defaultWorkSettingId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -171,7 +169,9 @@ class User extends DataClass implements Insertable<User> {
     if (!nullToAbsent || lastLoginTime != null) {
       map['last_login_time'] = Variable<DateTime>(lastLoginTime);
     }
-    map['default_work_setting_id'] = Variable<int>(defaultWorkSettingId);
+    if (!nullToAbsent || defaultWorkSettingId != null) {
+      map['default_work_setting_id'] = Variable<int>(defaultWorkSettingId);
+    }
     return map;
   }
 
@@ -189,7 +189,9 @@ class User extends DataClass implements Insertable<User> {
       lastLoginTime: lastLoginTime == null && nullToAbsent
           ? const Value.absent()
           : Value(lastLoginTime),
-      defaultWorkSettingId: Value(defaultWorkSettingId),
+      defaultWorkSettingId: defaultWorkSettingId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(defaultWorkSettingId),
     );
   }
 
@@ -204,7 +206,7 @@ class User extends DataClass implements Insertable<User> {
       email: serializer.fromJson<String>(json['email']),
       lastLoginTime: serializer.fromJson<DateTime?>(json['lastLoginTime']),
       defaultWorkSettingId:
-          serializer.fromJson<int>(json['defaultWorkSettingId']),
+          serializer.fromJson<int?>(json['defaultWorkSettingId']),
     );
   }
   @override
@@ -217,7 +219,7 @@ class User extends DataClass implements Insertable<User> {
       'name': serializer.toJson<String>(name),
       'email': serializer.toJson<String>(email),
       'lastLoginTime': serializer.toJson<DateTime?>(lastLoginTime),
-      'defaultWorkSettingId': serializer.toJson<int>(defaultWorkSettingId),
+      'defaultWorkSettingId': serializer.toJson<int?>(defaultWorkSettingId),
     };
   }
 
@@ -228,7 +230,7 @@ class User extends DataClass implements Insertable<User> {
           String? name,
           String? email,
           Value<DateTime?> lastLoginTime = const Value.absent(),
-          int? defaultWorkSettingId}) =>
+          Value<int?> defaultWorkSettingId = const Value.absent()}) =>
       User(
         id: id ?? this.id,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
@@ -237,7 +239,9 @@ class User extends DataClass implements Insertable<User> {
         email: email ?? this.email,
         lastLoginTime:
             lastLoginTime.present ? lastLoginTime.value : this.lastLoginTime,
-        defaultWorkSettingId: defaultWorkSettingId ?? this.defaultWorkSettingId,
+        defaultWorkSettingId: defaultWorkSettingId.present
+            ? defaultWorkSettingId.value
+            : this.defaultWorkSettingId,
       );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -292,7 +296,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String> name;
   final Value<String> email;
   final Value<DateTime?> lastLoginTime;
-  final Value<int> defaultWorkSettingId;
+  final Value<int?> defaultWorkSettingId;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -309,10 +313,9 @@ class UsersCompanion extends UpdateCompanion<User> {
     required String name,
     required String email,
     this.lastLoginTime = const Value.absent(),
-    required int defaultWorkSettingId,
+    this.defaultWorkSettingId = const Value.absent(),
   })  : name = Value(name),
-        email = Value(email),
-        defaultWorkSettingId = Value(defaultWorkSettingId);
+        email = Value(email);
   static Insertable<User> custom({
     Expression<int>? id,
     Expression<DateTime>? createdAt,
@@ -341,7 +344,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       Value<String>? name,
       Value<String>? email,
       Value<DateTime?>? lastLoginTime,
-      Value<int>? defaultWorkSettingId}) {
+      Value<int?>? defaultWorkSettingId}) {
     return UsersCompanion(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
@@ -967,25 +970,25 @@ class $WorkTimesTable extends WorkTimes
   static const VerificationMeta _startMeta = const VerificationMeta('start');
   @override
   late final GeneratedColumn<DateTime> start = GeneratedColumn<DateTime>(
-      'start', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      'start', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _endMeta = const VerificationMeta('end');
   @override
   late final GeneratedColumn<DateTime> end = GeneratedColumn<DateTime>(
-      'end', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      'end', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _restStartMeta =
       const VerificationMeta('restStart');
   @override
   late final GeneratedColumn<DateTime> restStart = GeneratedColumn<DateTime>(
-      'rest_start', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      'rest_start', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _restEndMeta =
       const VerificationMeta('restEnd');
   @override
   late final GeneratedColumn<DateTime> restEnd = GeneratedColumn<DateTime>(
-      'rest_end', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+      'rest_end', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _memoMeta = const VerificationMeta('memo');
   @override
   late final GeneratedColumn<String> memo = GeneratedColumn<String>(
@@ -1042,26 +1045,18 @@ class $WorkTimesTable extends WorkTimes
     if (data.containsKey('start')) {
       context.handle(
           _startMeta, start.isAcceptableOrUnknown(data['start']!, _startMeta));
-    } else if (isInserting) {
-      context.missing(_startMeta);
     }
     if (data.containsKey('end')) {
       context.handle(
           _endMeta, end.isAcceptableOrUnknown(data['end']!, _endMeta));
-    } else if (isInserting) {
-      context.missing(_endMeta);
     }
     if (data.containsKey('rest_start')) {
       context.handle(_restStartMeta,
           restStart.isAcceptableOrUnknown(data['rest_start']!, _restStartMeta));
-    } else if (isInserting) {
-      context.missing(_restStartMeta);
     }
     if (data.containsKey('rest_end')) {
       context.handle(_restEndMeta,
           restEnd.isAcceptableOrUnknown(data['rest_end']!, _restEndMeta));
-    } else if (isInserting) {
-      context.missing(_restEndMeta);
     }
     if (data.containsKey('memo')) {
       context.handle(
@@ -1091,13 +1086,13 @@ class $WorkTimesTable extends WorkTimes
       targetDay: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}target_day'])!,
       start: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}start'])!,
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}start']),
       end: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}end'])!,
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}end']),
       restStart: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}rest_start'])!,
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}rest_start']),
       restEnd: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}rest_end'])!,
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}rest_end']),
       memo: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}memo']),
       userId: attachedDatabase.typeMapping
@@ -1116,10 +1111,10 @@ class WorkTime extends DataClass implements Insertable<WorkTime> {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final String targetDay;
-  final DateTime start;
-  final DateTime end;
-  final DateTime restStart;
-  final DateTime restEnd;
+  final DateTime? start;
+  final DateTime? end;
+  final DateTime? restStart;
+  final DateTime? restEnd;
   final String? memo;
   final int userId;
   const WorkTime(
@@ -1127,10 +1122,10 @@ class WorkTime extends DataClass implements Insertable<WorkTime> {
       this.createdAt,
       this.updatedAt,
       required this.targetDay,
-      required this.start,
-      required this.end,
-      required this.restStart,
-      required this.restEnd,
+      this.start,
+      this.end,
+      this.restStart,
+      this.restEnd,
       this.memo,
       required this.userId});
   @override
@@ -1144,10 +1139,18 @@ class WorkTime extends DataClass implements Insertable<WorkTime> {
       map['updated_at'] = Variable<DateTime>(updatedAt);
     }
     map['target_day'] = Variable<String>(targetDay);
-    map['start'] = Variable<DateTime>(start);
-    map['end'] = Variable<DateTime>(end);
-    map['rest_start'] = Variable<DateTime>(restStart);
-    map['rest_end'] = Variable<DateTime>(restEnd);
+    if (!nullToAbsent || start != null) {
+      map['start'] = Variable<DateTime>(start);
+    }
+    if (!nullToAbsent || end != null) {
+      map['end'] = Variable<DateTime>(end);
+    }
+    if (!nullToAbsent || restStart != null) {
+      map['rest_start'] = Variable<DateTime>(restStart);
+    }
+    if (!nullToAbsent || restEnd != null) {
+      map['rest_end'] = Variable<DateTime>(restEnd);
+    }
     if (!nullToAbsent || memo != null) {
       map['memo'] = Variable<String>(memo);
     }
@@ -1165,10 +1168,15 @@ class WorkTime extends DataClass implements Insertable<WorkTime> {
           ? const Value.absent()
           : Value(updatedAt),
       targetDay: Value(targetDay),
-      start: Value(start),
-      end: Value(end),
-      restStart: Value(restStart),
-      restEnd: Value(restEnd),
+      start:
+          start == null && nullToAbsent ? const Value.absent() : Value(start),
+      end: end == null && nullToAbsent ? const Value.absent() : Value(end),
+      restStart: restStart == null && nullToAbsent
+          ? const Value.absent()
+          : Value(restStart),
+      restEnd: restEnd == null && nullToAbsent
+          ? const Value.absent()
+          : Value(restEnd),
       memo: memo == null && nullToAbsent ? const Value.absent() : Value(memo),
       userId: Value(userId),
     );
@@ -1182,10 +1190,10 @@ class WorkTime extends DataClass implements Insertable<WorkTime> {
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
       targetDay: serializer.fromJson<String>(json['targetDay']),
-      start: serializer.fromJson<DateTime>(json['start']),
-      end: serializer.fromJson<DateTime>(json['end']),
-      restStart: serializer.fromJson<DateTime>(json['restStart']),
-      restEnd: serializer.fromJson<DateTime>(json['restEnd']),
+      start: serializer.fromJson<DateTime?>(json['start']),
+      end: serializer.fromJson<DateTime?>(json['end']),
+      restStart: serializer.fromJson<DateTime?>(json['restStart']),
+      restEnd: serializer.fromJson<DateTime?>(json['restEnd']),
       memo: serializer.fromJson<String?>(json['memo']),
       userId: serializer.fromJson<int>(json['userId']),
     );
@@ -1198,10 +1206,10 @@ class WorkTime extends DataClass implements Insertable<WorkTime> {
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
       'targetDay': serializer.toJson<String>(targetDay),
-      'start': serializer.toJson<DateTime>(start),
-      'end': serializer.toJson<DateTime>(end),
-      'restStart': serializer.toJson<DateTime>(restStart),
-      'restEnd': serializer.toJson<DateTime>(restEnd),
+      'start': serializer.toJson<DateTime?>(start),
+      'end': serializer.toJson<DateTime?>(end),
+      'restStart': serializer.toJson<DateTime?>(restStart),
+      'restEnd': serializer.toJson<DateTime?>(restEnd),
       'memo': serializer.toJson<String?>(memo),
       'userId': serializer.toJson<int>(userId),
     };
@@ -1212,10 +1220,10 @@ class WorkTime extends DataClass implements Insertable<WorkTime> {
           Value<DateTime?> createdAt = const Value.absent(),
           Value<DateTime?> updatedAt = const Value.absent(),
           String? targetDay,
-          DateTime? start,
-          DateTime? end,
-          DateTime? restStart,
-          DateTime? restEnd,
+          Value<DateTime?> start = const Value.absent(),
+          Value<DateTime?> end = const Value.absent(),
+          Value<DateTime?> restStart = const Value.absent(),
+          Value<DateTime?> restEnd = const Value.absent(),
           Value<String?> memo = const Value.absent(),
           int? userId}) =>
       WorkTime(
@@ -1223,10 +1231,10 @@ class WorkTime extends DataClass implements Insertable<WorkTime> {
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
         targetDay: targetDay ?? this.targetDay,
-        start: start ?? this.start,
-        end: end ?? this.end,
-        restStart: restStart ?? this.restStart,
-        restEnd: restEnd ?? this.restEnd,
+        start: start.present ? start.value : this.start,
+        end: end.present ? end.value : this.end,
+        restStart: restStart.present ? restStart.value : this.restStart,
+        restEnd: restEnd.present ? restEnd.value : this.restEnd,
         memo: memo.present ? memo.value : this.memo,
         userId: userId ?? this.userId,
       );
@@ -1286,10 +1294,10 @@ class WorkTimesCompanion extends UpdateCompanion<WorkTime> {
   final Value<DateTime?> createdAt;
   final Value<DateTime?> updatedAt;
   final Value<String> targetDay;
-  final Value<DateTime> start;
-  final Value<DateTime> end;
-  final Value<DateTime> restStart;
-  final Value<DateTime> restEnd;
+  final Value<DateTime?> start;
+  final Value<DateTime?> end;
+  final Value<DateTime?> restStart;
+  final Value<DateTime?> restEnd;
   final Value<String?> memo;
   final Value<int> userId;
   const WorkTimesCompanion({
@@ -1309,17 +1317,13 @@ class WorkTimesCompanion extends UpdateCompanion<WorkTime> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     required String targetDay,
-    required DateTime start,
-    required DateTime end,
-    required DateTime restStart,
-    required DateTime restEnd,
+    this.start = const Value.absent(),
+    this.end = const Value.absent(),
+    this.restStart = const Value.absent(),
+    this.restEnd = const Value.absent(),
     this.memo = const Value.absent(),
     required int userId,
   })  : targetDay = Value(targetDay),
-        start = Value(start),
-        end = Value(end),
-        restStart = Value(restStart),
-        restEnd = Value(restEnd),
         userId = Value(userId);
   static Insertable<WorkTime> custom({
     Expression<int>? id,
@@ -1352,10 +1356,10 @@ class WorkTimesCompanion extends UpdateCompanion<WorkTime> {
       Value<DateTime?>? createdAt,
       Value<DateTime?>? updatedAt,
       Value<String>? targetDay,
-      Value<DateTime>? start,
-      Value<DateTime>? end,
-      Value<DateTime>? restStart,
-      Value<DateTime>? restEnd,
+      Value<DateTime?>? start,
+      Value<DateTime?>? end,
+      Value<DateTime?>? restStart,
+      Value<DateTime?>? restEnd,
       Value<String?>? memo,
       Value<int>? userId}) {
     return WorkTimesCompanion(
@@ -1785,7 +1789,7 @@ typedef $$UsersTableCreateCompanionBuilder = UsersCompanion Function({
   required String name,
   required String email,
   Value<DateTime?> lastLoginTime,
-  required int defaultWorkSettingId,
+  Value<int?> defaultWorkSettingId,
 });
 typedef $$UsersTableUpdateCompanionBuilder = UsersCompanion Function({
   Value<int> id,
@@ -1794,7 +1798,7 @@ typedef $$UsersTableUpdateCompanionBuilder = UsersCompanion Function({
   Value<String> name,
   Value<String> email,
   Value<DateTime?> lastLoginTime,
-  Value<int> defaultWorkSettingId,
+  Value<int?> defaultWorkSettingId,
 });
 
 final class $$UsersTableReferences
@@ -2038,7 +2042,7 @@ class $$UsersTableTableManager extends RootTableManager<
             Value<String> name = const Value.absent(),
             Value<String> email = const Value.absent(),
             Value<DateTime?> lastLoginTime = const Value.absent(),
-            Value<int> defaultWorkSettingId = const Value.absent(),
+            Value<int?> defaultWorkSettingId = const Value.absent(),
           }) =>
               UsersCompanion(
             id: id,
@@ -2056,7 +2060,7 @@ class $$UsersTableTableManager extends RootTableManager<
             required String name,
             required String email,
             Value<DateTime?> lastLoginTime = const Value.absent(),
-            required int defaultWorkSettingId,
+            Value<int?> defaultWorkSettingId = const Value.absent(),
           }) =>
               UsersCompanion.insert(
             id: id,
@@ -2487,10 +2491,10 @@ typedef $$WorkTimesTableCreateCompanionBuilder = WorkTimesCompanion Function({
   Value<DateTime?> createdAt,
   Value<DateTime?> updatedAt,
   required String targetDay,
-  required DateTime start,
-  required DateTime end,
-  required DateTime restStart,
-  required DateTime restEnd,
+  Value<DateTime?> start,
+  Value<DateTime?> end,
+  Value<DateTime?> restStart,
+  Value<DateTime?> restEnd,
   Value<String?> memo,
   required int userId,
 });
@@ -2499,10 +2503,10 @@ typedef $$WorkTimesTableUpdateCompanionBuilder = WorkTimesCompanion Function({
   Value<DateTime?> createdAt,
   Value<DateTime?> updatedAt,
   Value<String> targetDay,
-  Value<DateTime> start,
-  Value<DateTime> end,
-  Value<DateTime> restStart,
-  Value<DateTime> restEnd,
+  Value<DateTime?> start,
+  Value<DateTime?> end,
+  Value<DateTime?> restStart,
+  Value<DateTime?> restEnd,
   Value<String?> memo,
   Value<int> userId,
 });
@@ -2724,10 +2728,10 @@ class $$WorkTimesTableTableManager extends RootTableManager<
             Value<DateTime?> createdAt = const Value.absent(),
             Value<DateTime?> updatedAt = const Value.absent(),
             Value<String> targetDay = const Value.absent(),
-            Value<DateTime> start = const Value.absent(),
-            Value<DateTime> end = const Value.absent(),
-            Value<DateTime> restStart = const Value.absent(),
-            Value<DateTime> restEnd = const Value.absent(),
+            Value<DateTime?> start = const Value.absent(),
+            Value<DateTime?> end = const Value.absent(),
+            Value<DateTime?> restStart = const Value.absent(),
+            Value<DateTime?> restEnd = const Value.absent(),
             Value<String?> memo = const Value.absent(),
             Value<int> userId = const Value.absent(),
           }) =>
@@ -2748,10 +2752,10 @@ class $$WorkTimesTableTableManager extends RootTableManager<
             Value<DateTime?> createdAt = const Value.absent(),
             Value<DateTime?> updatedAt = const Value.absent(),
             required String targetDay,
-            required DateTime start,
-            required DateTime end,
-            required DateTime restStart,
-            required DateTime restEnd,
+            Value<DateTime?> start = const Value.absent(),
+            Value<DateTime?> end = const Value.absent(),
+            Value<DateTime?> restStart = const Value.absent(),
+            Value<DateTime?> restEnd = const Value.absent(),
             Value<String?> memo = const Value.absent(),
             required int userId,
           }) =>

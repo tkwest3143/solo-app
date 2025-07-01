@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
-ThemeData lightThema = ThemeData(
-  primaryColor: Colors.tealAccent,
+ThemeData lightTheme = ThemeData(
+  primaryColor: const Color.fromARGB(255, 197, 248, 236),
   brightness: Brightness.light,
+  cardColor: const Color.fromARGB(255, 186, 251, 251),
+  shadowColor: const Color.fromARGB(255, 151, 152, 152),
 );
 ThemeData darkThema = ThemeData(
-  primaryColor: Colors.tealAccent,
+  primaryColor: const Color.fromARGB(255, 197, 248, 236),
   brightness: Brightness.dark,
+  cardColor: const Color.fromARGB(255, 186, 251, 251),
+  shadowColor: const Color.fromARGB(255, 186, 251, 251),
 );

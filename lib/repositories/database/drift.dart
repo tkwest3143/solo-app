@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:solo/database/tables/table.dart';
+import 'package:solo/repositories/database/table.dart';
 import 'package:path/path.dart' as path;
 
-part 'drift.g.dart';
+part 'build/drift.g.dart';
 
 @DriftDatabase(tables: [Users, WorkSettings, WorkTimes, JapaneseHolidays])
 class AppDatabase extends _$AppDatabase {

@@ -5,12 +5,12 @@ class DefaultTableColumns extends Table {
   DateTimeColumn get createdAt => dateTime().nullable()();
   DateTimeColumn get updatedAt => dateTime().nullable()();
 }
+
 class Users extends DefaultTableColumns {
   TextColumn get name => text()();
   TextColumn get email => text()();
   DateTimeColumn get lastLoginTime => dateTime().nullable()();
-  IntColumn get defaultWorkSettingId =>
-      integer()();
+  IntColumn get defaultWorkSettingId => integer().nullable()();
 }
 
 class WorkSettings extends DefaultTableColumns {
@@ -26,10 +26,10 @@ class WorkSettings extends DefaultTableColumns {
 
 class WorkTimes extends DefaultTableColumns {
   TextColumn get targetDay => text()();
-  DateTimeColumn get start => dateTime()();
-  DateTimeColumn get end => dateTime()();
-  DateTimeColumn get restStart => dateTime()();
-  DateTimeColumn get restEnd => dateTime()();
+  DateTimeColumn get start => dateTime().nullable()();
+  DateTimeColumn get end => dateTime().nullable()();
+  DateTimeColumn get restStart => dateTime().nullable()();
+  DateTimeColumn get restEnd => dateTime().nullable()();
   TextColumn get memo => text().nullable()();
   IntColumn get userId => integer().references(Users, #id)();
 }

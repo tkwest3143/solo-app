@@ -1,8 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:solo/screen/router.dart';
+import 'package:solo/screen/states/global.dart';
 
-class AppHeader extends StatelessWidget implements PreferredSizeWidget {
+class BulderWidget extends StatelessWidget {
+  const BulderWidget({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      child: child,
+    );
+  }
+}
+
+class UserSelectedWidget extends ConsumerWidget {
+  const UserSelectedWidget({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return BulderWidget(
+      child: GlobalLayout(
+        child: child,
+      ),
+    );
+  }
+}
+
+class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
   final VoidCallback onSettingsPressed;
 
   const AppHeader({
@@ -11,15 +42,19 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(globalStateProvider);
     return AppBar(
       title: Text("solo", textAlign: TextAlign.center),
       actions: [
         IconButton(
-          icon: const Icon(Icons.settings),
-          onPressed: onSettingsPressed,
-        ),
+            icon: const Icon(Icons.person_rounded),
+            onPressed: onSettingsPressed),
       ],
+      leading: IconButton(
+        icon: const Icon(Icons.home),
+        onPressed: () => nextRouting(context, RouterDefinition.home),
+      ),
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(4.0),
         child: Container(
@@ -42,67 +77,84 @@ class GlobalLayout extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppHeader(
-        onSettingsPressed: () {
-          // Handle settings press
-        },
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: const Text('Menu'),
-            ),
-            ListTile(
-              title: const Text('Home'),
-              onTap: () => context.go('/'),
-            ),
-            ListTile(
-              title: const Text('Settings'),
-              onTap: () {
-                // Handle settings menu item press
-              },
-            ),
-          ],
-        ),
-      ),
+      appBar: AppHeader(onSettingsPressed: () {}),
+      bottomNavigationBar: FooterMenu(),
       body: child,
     );
   }
 }
 
-class Menu extends StatelessWidget {
-  const Menu({super.key});
+class FooterMenu extends HookWidget {
+  const FooterMenu({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: Colors.blue,
-            ),
-            child: const Text('Menu'),
-          ),
-          ListTile(
-            title: const Text('Home'),
-            onTap: () {
-              // Handle home menu item press
-            },
-          ),
-          ListTile(
-            title: const Text('Settings'),
-            onTap: () {
-              // Handle settings menu item press
-            },
-          ),
-        ],
+    final selectedIndex = useState(0);
+    return BottomNavigationBar(
+      backgroundColor: const Color.fromARGB(31, 57, 57, 57),
+      selectedItemColor: Colors.white,
+      unselectedItemColor: Colors.white54,
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'ホーム',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.list),
+          label: 'リスト',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.settings),
+          label: '設定',
+        ),
+      ],
+      currentIndex: selectedIndex.value,
+      onTap: (index) {
+        switch (index) {
+          case 0:
+            nextRouting(context, RouterDefinition.home);
+            break;
+          case 1:
+            nextRouting(context, RouterDefinition.workList);
+            break;
+          case 2:
+            nextRouting(context, RouterDefinition.root);
+            break;
+        }
+        selectedIndex.value = index;
+      },
+    );
+  }
+}
+
+class TimeInputForm extends StatelessWidget {
+  final TextEditingController controller;
+  final String? label;
+
+  const TimeInputForm({
+    super.key,
+    this.label,
+    required this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      ).then((time) {
+        if (time != null && context.mounted) {
+          controller.text = time.format(context);
+        }
+      }),
+      child: AbsorbPointer(
+        child: TextField(
+          decoration: label != null ? InputDecoration(labelText: label) : null,
+          controller: controller,
+          keyboardType: TextInputType.none,
+          readOnly: true,
+        ),
       ),
     );
   }

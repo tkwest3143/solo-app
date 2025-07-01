@@ -3,5 +3,6 @@
     "source.fixAll": "explicit"
   },
   "editor.formatOnSave": true,
-  "editor.formatOnSaveMode": "file"
+  "editor.formatOnSaveMode": "file",
+  "dart.flutterSdkPath": ".fvm/versions/stable"
 }

@@ -26,28 +26,117 @@ class CurrentTime extends HookWidget {
       return timer.cancel;
     }, []);
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          formatDate(currentTime.value, format: 'yyyy/MM/dd (EEE)'),
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        Text(
-          formatDate(currentTime.value, format: 'HH:mm:ss'),
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            working.icon,
-            Text(
-              working.toString(),
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        )
-      ],
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(90.0),
+      ),
+      color: Theme.of(context).primaryColor,
+      elevation: 8,
+      shadowColor: Colors.black54,
+      margin: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            formatDate(currentTime.value, format: 'yyyy/M/d (EEE)'),
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 80,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, -0.3),
+                        end: const Offset(0, 0),
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+                  child: Text(
+                    formatDate(currentTime.value, format: 'HH'),
+                    key: ValueKey<String>(
+                        formatDate(currentTime.value, format: 'HH')),
+                    style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              const Text(':',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+              SizedBox(
+                width: 80,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, -0.3),
+                        end: const Offset(0, 0),
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+                  child: Text(
+                    formatDate(currentTime.value, format: 'mm'),
+                    key: ValueKey<String>(
+                        formatDate(currentTime.value, format: 'mm')),
+                    style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              const Text(':',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+              SizedBox(
+                width: 80,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, -0.3),
+                        end: const Offset(0, 0),
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+                  child: Text(
+                    formatDate(currentTime.value, format: 'ss'),
+                    key: ValueKey<String>(
+                        formatDate(currentTime.value, format: 'ss')),
+                    style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              working.icon,
+              const SizedBox(width: 10),
+              Text(
+                working.toString(),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
     );
   }
 }
@@ -138,6 +227,13 @@ class WorkActionButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: !disable ? color : Colors.grey,
               borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color.fromARGB(137, 98, 97, 97),
+                  blurRadius: 8,
+                  offset: const Offset(2, 2),
+                )
+              ],
             ),
             child: Row(children: [
               Padding(

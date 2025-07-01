@@ -14,3 +14,16 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Dependency Rules
+
+```mermaid
+graph TD;
+    A[App] --> B[State Management];
+    B --> C[User State];
+    A --> D[UI Components];
+    D --> E[Widgets];
+    E --> C;
+```
+
+## ar
