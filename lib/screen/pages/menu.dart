@@ -7,14 +7,11 @@ class MenuPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFF8F9FA),
-            Color(0xFFE9ECEF),
-          ],
+          colors: Theme.of(context).colorScheme.backgroundGradient,
         ),
       ),
       child: Center(
@@ -25,13 +22,10 @@ class MenuPage extends HookConsumerWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF667eea),
-                    Color(0xFF764ba2),
-                  ],
+                  colors: Theme.of(context).colorScheme.primaryGradient,
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -53,7 +47,7 @@ class MenuPage extends HookConsumerWidget {
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2C3E50),
+                color: Theme.of(context).colorScheme.primaryTextColor,
                 letterSpacing: 1.2,
               ),
             ),
@@ -75,7 +69,7 @@ class MenuPage extends HookConsumerWidget {
                 'アプリ設定・その他機能（準備中）',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Color(0xFF6C757D),
+                  color: Theme.of(context).colorScheme.secondaryTextColor,
                   fontWeight: FontWeight.w500,
                 ),
               ),

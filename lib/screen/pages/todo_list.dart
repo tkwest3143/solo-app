@@ -14,10 +14,7 @@ class TodoListPage extends HookConsumerWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFF8F9FA),
-            Color(0xFFE9ECEF),
-          ],
+          colors: Theme.of(context).colorScheme.backgroundGradient,
         ),
       ),
       child: SafeArea(
@@ -26,7 +23,7 @@ class TodoListPage extends HookConsumerWidget {
             // Header
             Container(
               padding: const EdgeInsets.all(20),
-              child: const Row(
+              child: Row(
                 children: [
                   SizedBox(width: 12),
                   Text(
@@ -34,7 +31,7 @@ class TodoListPage extends HookConsumerWidget {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C3E50),
+                      color: Theme.of(context).colorScheme.primaryTextColor,
                     ),
                   ),
                 ],
@@ -101,9 +98,9 @@ class TodoCard extends StatelessWidget {
         color: Colors.white,
         border: Border.all(
           color: isOverdue
-              ? Colors.red.withValues(alpha: 0.3)
+              ? Theme.of(context).colorScheme.errorColor.withValues(alpha: 0.3)
               : isToday
-                  ? const Color(0xFF667eea).withValues(alpha: 0.3)
+                  ? Theme.of(context).colorScheme.todayTagColor.withValues(alpha: 0.3)
                   : Colors.transparent,
           width: 2,
         ),
@@ -126,12 +123,12 @@ class TodoCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: todo.isCompleted
-                      ? const Color(0xFF4CAF50)
+                      ? Theme.of(context).colorScheme.successColor
                       : Colors.transparent,
                   border: Border.all(
                     color: todo.isCompleted
-                        ? const Color(0xFF4CAF50)
-                        : const Color(0xFFE0E0E0),
+                        ? Theme.of(context).colorScheme.successColor
+                        : Theme.of(context).colorScheme.outline,
                     width: 2,
                   ),
                 ),
@@ -151,8 +148,8 @@ class TodoCard extends StatelessWidget {
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: todo.isCompleted
-                        ? const Color(0xFF9E9E9E)
-                        : const Color(0xFF2C3E50),
+                        ? Theme.of(context).colorScheme.mutedTextColor
+                        : Theme.of(context).colorScheme.primaryTextColor,
                     decoration: todo.isCompleted
                         ? TextDecoration.lineThrough
                         : TextDecoration.none,
@@ -165,13 +162,13 @@ class TodoCard extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: Colors.red.withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.errorBackgroundColor,
                   ),
                   child: const Text(
                     '期限切れ',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.red,
+                      color: Theme.of(context).colorScheme.errorColor,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -182,13 +179,13 @@ class TodoCard extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: const Color(0xFF667eea).withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.todayTagBackgroundColor,
                   ),
-                  child: const Text(
+                  child: Text(
                     '今日',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF667eea),
+                      color: Theme.of(context).colorScheme.todayTagColor,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -203,8 +200,8 @@ class TodoCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 color: todo.isCompleted
-                    ? const Color(0xFFBDBDBD)
-                    : const Color(0xFF6C757D),
+                    ? Theme.of(context).colorScheme.mutedTextColor
+                    : Theme.of(context).colorScheme.secondaryTextColor,
               ),
             ),
           ],
@@ -215,8 +212,8 @@ class TodoCard extends StatelessWidget {
                 Icons.schedule_rounded,
                 size: 16,
                 color: isOverdue && !todo.isCompleted
-                    ? Colors.red
-                    : const Color(0xFF9E9E9E),
+                    ? Theme.of(context).colorScheme.errorColor
+                    : Theme.of(context).colorScheme.mutedTextColor,
               ),
               const SizedBox(width: 4),
               Text(
@@ -224,8 +221,8 @@ class TodoCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   color: isOverdue && !todo.isCompleted
-                      ? Colors.red
-                      : const Color(0xFF9E9E9E),
+                      ? Theme.of(context).colorScheme.errorColor
+                      : Theme.of(context).colorScheme.mutedTextColor,
                 ),
               ),
             ],

@@ -24,7 +24,7 @@ class MyApp extends ConsumerWidget {
         canPop: false,
         child: MaterialApp.router(
           theme: lightTheme,
-          darkTheme: darkThema,
+          darkTheme: darkTheme,
           routeInformationParser: router.routeInformationParser,
           routerDelegate: router.routerDelegate,
           routeInformationProvider: router.routeInformationProvider,

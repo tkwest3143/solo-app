@@ -49,9 +49,8 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF667eea),
-            Color(0xFF764ba2),
-            Color(0xFF667eea),
+            ...Theme.of(context).colorScheme.primaryGradient,
+            Theme.of(context).colorScheme.primaryGradient.first,
           ],
           stops: [0.0, 0.5, 1.0],
         ),
@@ -144,10 +143,7 @@ class FooterMenu extends HookWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF667eea),
-            Color(0xFF764ba2),
-          ],
+          colors: Theme.of(context).colorScheme.primaryGradient,
         ),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
@@ -261,7 +257,7 @@ class TimeInputForm extends StatelessWidget {
                   ),
               suffixIcon: const Icon(
                 Icons.access_time_rounded,
-                color: Color(0xFF667eea),
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             controller: controller,

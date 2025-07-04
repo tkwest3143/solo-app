@@ -9,14 +9,11 @@ class HomePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFF8F9FA),
-            Color(0xFFE9ECEF),
-          ],
+          colors: Theme.of(context).colorScheme.backgroundGradient,
         ),
       ),
       child: SafeArea(
@@ -32,14 +29,14 @@ class HomePage extends HookConsumerWidget {
               const TodayTodosWidget(),
               const SizedBox(height: 24),
               // Quick Actions
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   'クイックアクション',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2C3E50),
+                    color: Theme.of(context).colorScheme.primaryTextColor,
                   ),
                 ),
               ),
