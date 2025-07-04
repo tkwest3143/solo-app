@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:solo/screen/router.dart';
 
 class BulderWidget extends StatelessWidget {
@@ -118,6 +119,24 @@ class FooterMenu extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final selectedIndex = useState(0);
+    
+    // Get current route to set correct tab index
+    final location = GoRouterState.of(context).uri.path;
+    switch (location) {
+      case '/':
+        selectedIndex.value = 0;
+        break;
+      case '/calendar':
+        selectedIndex.value = 1;
+        break;
+      case '/timer':
+        selectedIndex.value = 2;
+        break;
+      case '/menu':
+        selectedIndex.value = 3;
+        break;
+    }
+    
     return BottomNavigationBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -133,14 +152,19 @@ class FooterMenu extends HookWidget {
           label: 'ホーム',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.home_rounded),
-          activeIcon: Icon(Icons.home_rounded, size: 28),
-          label: 'ホーム',
+          icon: Icon(Icons.calendar_today),
+          activeIcon: Icon(Icons.calendar_today, size: 28),
+          label: 'カレンダー',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.home_rounded),
-          activeIcon: Icon(Icons.home_rounded, size: 28),
-          label: 'ホーム',
+          icon: Icon(Icons.timer),
+          activeIcon: Icon(Icons.timer, size: 28),
+          label: 'タイマー',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.menu),
+          activeIcon: Icon(Icons.menu, size: 28),
+          label: 'メニュー',
         ),
       ],
       currentIndex: selectedIndex.value,
@@ -149,8 +173,16 @@ class FooterMenu extends HookWidget {
           case 0:
             nextRouting(context, RouterDefinition.root);
             break;
+          case 1:
+            nextRouting(context, RouterDefinition.calendar);
+            break;
+          case 2:
+            nextRouting(context, RouterDefinition.timer);
+            break;
+          case 3:
+            nextRouting(context, RouterDefinition.menu);
+            break;
         }
-        selectedIndex.value = index;
       },
     );
   }
