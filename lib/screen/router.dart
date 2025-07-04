@@ -5,6 +5,7 @@ import 'package:solo/screen/pages/home.dart';
 import 'package:solo/screen/pages/calendar.dart';
 import 'package:solo/screen/pages/timer.dart';
 import 'package:solo/screen/pages/menu.dart';
+import 'package:solo/screen/pages/todo_list.dart';
 import 'package:solo/screen/widgets/global.dart';
 
 class Route {
@@ -34,6 +35,11 @@ class RouterDefinition {
       path: '/menu',
       name: '/menu',
       builder: (context, state) => BulderWidget(child: const MenuPage()));
+  
+  static Route todoList = Route(
+      path: '/todo-list',
+      name: '/todo-list',
+      builder: (context, state) => const TodoListPage());
 }
 
 nextRouting(BuildContext context, Route route) {
@@ -68,6 +74,10 @@ final appRouter = Provider<GoRouter>((ref) {
             builder: RouterDefinition.menu.builder,
           ),
         ],
+      ),
+      GoRoute(
+        path: RouterDefinition.todoList.name,
+        builder: RouterDefinition.todoList.builder,
       ),
     ],
     initialLocation: RouterDefinition.root.name,
