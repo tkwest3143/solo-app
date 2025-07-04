@@ -121,14 +121,14 @@ class FooterMenu extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final selectedIndex = useState(0);
-    
+
     // Get current route to set correct tab index
     final location = GoRouterState.of(context).uri.path;
     switch (location) {
       case '/':
         selectedIndex.value = 0;
         break;
-      case '/calendar':
+      case '/todo-list':
         selectedIndex.value = 1;
         break;
       case '/timer':
@@ -138,7 +138,7 @@ class FooterMenu extends HookWidget {
         selectedIndex.value = 3;
         break;
     }
-    
+
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -176,9 +176,9 @@ class FooterMenu extends HookWidget {
             label: 'ホーム',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_rounded),
-            activeIcon: Icon(Icons.calendar_today_rounded, size: 28),
-            label: 'カレンダー',
+            icon: Icon(Icons.checklist_rounded),
+            activeIcon: Icon(Icons.checklist_rounded, size: 28),
+            label: 'Todo',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.timer_rounded),
@@ -186,8 +186,8 @@ class FooterMenu extends HookWidget {
             label: 'タイマー',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.more_horiz_rounded),
-            activeIcon: Icon(Icons.more_horiz_rounded, size: 28),
+            icon: Icon(Icons.menu),
+            activeIcon: Icon(Icons.menu, size: 28),
             label: 'メニュー',
           ),
         ],
@@ -198,7 +198,7 @@ class FooterMenu extends HookWidget {
               nextRouting(context, RouterDefinition.root);
               break;
             case 1:
-              nextRouting(context, RouterDefinition.calendar);
+              nextRouting(context, RouterDefinition.todoList);
               break;
             case 2:
               nextRouting(context, RouterDefinition.timer);
