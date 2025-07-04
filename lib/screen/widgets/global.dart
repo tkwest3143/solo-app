@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:solo/screen/router.dart';
 
 class BulderWidget extends StatelessWidget {
@@ -50,45 +51,47 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
           colors: [
             Color(0xFF667eea),
             Color(0xFF764ba2),
+            Color(0xFF667eea),
           ],
+          stops: [0.0, 0.5, 1.0],
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        centerTitle: true,
-        title: Text(
-          "Solo",
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
+        centerTitle: false,
+        title: Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: Text(
+            "Solo",
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+          ),
         ),
         actions: [
           Container(
-            margin: const EdgeInsets.only(right: 8),
+            margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withValues(alpha: 0.2),
             ),
             child: IconButton(
-              icon: const Icon(Icons.person_rounded, color: Colors.white),
+              icon: const Icon(Icons.settings_rounded, color: Colors.white),
               onPressed: onSettingsPressed,
             ),
           ),
         ],
-        leading: Container(
-          margin: const EdgeInsets.only(left: 8),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white.withValues(alpha: 0.2),
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.home_rounded, color: Colors.white),
-            onPressed: () => nextRouting(context, RouterDefinition.root),
-          ),
-        ),
+        automaticallyImplyLeading: false,
       ),
     );
   }
@@ -118,40 +121,94 @@ class FooterMenu extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final selectedIndex = useState(0);
-    return BottomNavigationBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      selectedItemColor: Colors.white,
-      unselectedItemColor: Colors.white.withValues(alpha: 0.6),
-      selectedFontSize: 12,
-      unselectedFontSize: 10,
-      type: BottomNavigationBarType.fixed,
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_rounded),
-          activeIcon: Icon(Icons.home_rounded, size: 28),
-          label: 'ホーム',
+    
+    // Get current route to set correct tab index
+    final location = GoRouterState.of(context).uri.path;
+    switch (location) {
+      case '/':
+        selectedIndex.value = 0;
+        break;
+      case '/calendar':
+        selectedIndex.value = 1;
+        break;
+      case '/timer':
+        selectedIndex.value = 2;
+        break;
+      case '/menu':
+        selectedIndex.value = 3;
+        break;
+    }
+    
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF667eea),
+            Color(0xFF764ba2),
+          ],
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_rounded),
-          activeIcon: Icon(Icons.home_rounded, size: 28),
-          label: 'ホーム',
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_rounded),
-          activeIcon: Icon(Icons.home_rounded, size: 28),
-          label: 'ホーム',
-        ),
-      ],
-      currentIndex: selectedIndex.value,
-      onTap: (index) {
-        switch (index) {
-          case 0:
-            nextRouting(context, RouterDefinition.root);
-            break;
-        }
-        selectedIndex.value = index;
-      },
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 10,
+            offset: Offset(0, -5),
+          ),
+        ],
+      ),
+      child: BottomNavigationBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white.withValues(alpha: 0.7),
+        selectedFontSize: 12,
+        unselectedFontSize: 10,
+        type: BottomNavigationBarType.fixed,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_rounded),
+            activeIcon: Icon(Icons.home_rounded, size: 28),
+            label: 'ホーム',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today_rounded),
+            activeIcon: Icon(Icons.calendar_today_rounded, size: 28),
+            label: 'カレンダー',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.timer_rounded),
+            activeIcon: Icon(Icons.timer_rounded, size: 28),
+            label: 'タイマー',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.more_horiz_rounded),
+            activeIcon: Icon(Icons.more_horiz_rounded, size: 28),
+            label: 'メニュー',
+          ),
+        ],
+        currentIndex: selectedIndex.value,
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              nextRouting(context, RouterDefinition.root);
+              break;
+            case 1:
+              nextRouting(context, RouterDefinition.calendar);
+              break;
+            case 2:
+              nextRouting(context, RouterDefinition.timer);
+              break;
+            case 3:
+              nextRouting(context, RouterDefinition.menu);
+              break;
+          }
+        },
+      ),
     );
   }
 }

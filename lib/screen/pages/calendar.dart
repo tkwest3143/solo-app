@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class HomePage extends HookConsumerWidget {
-  const HomePage({super.key});
+class CalendarPage extends HookConsumerWidget {
+  const CalendarPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,14 +42,14 @@ class HomePage extends HookConsumerWidget {
                 ],
               ),
               child: const Icon(
-                Icons.check_circle_outline_rounded,
+                Icons.calendar_today_rounded,
                 size: 80,
                 color: Colors.white,
               ),
             ),
             const SizedBox(height: 24),
             const Text(
-              'ホーム',
+              'カレンダー',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -72,7 +72,7 @@ class HomePage extends HookConsumerWidget {
                 ],
               ),
               child: const Text(
-                'Todo管理（準備中）',
+                'カレンダー機能（準備中）',
                 style: TextStyle(
                   fontSize: 16,
                   color: Color(0xFF6C757D),
