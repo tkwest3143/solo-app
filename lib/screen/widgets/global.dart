@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:solo/screen/router.dart';
-import 'package:solo/screen/states/global.dart';
 
 class BulderWidget extends StatelessWidget {
   const BulderWidget({super.key, required this.child});
@@ -43,23 +42,52 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(globalStateProvider);
-    return AppBar(
-      title: Text("solo", textAlign: TextAlign.center),
-      actions: [
-        IconButton(
-            icon: const Icon(Icons.person_rounded),
-            onPressed: onSettingsPressed),
-      ],
-      leading: IconButton(
-        icon: const Icon(Icons.home),
-        onPressed: () => nextRouting(context, RouterDefinition.home),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF667eea),
+            Color(0xFF764ba2),
+          ],
+        ),
       ),
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(4.0),
-        child: Container(
-          color: Colors.grey,
-          height: 2.0,
+      child: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          "Solo",
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.2),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.person_rounded, color: Colors.white),
+              onPressed: onSettingsPressed,
+            ),
+          ),
+        ],
+        leading: Container(
+          margin: const EdgeInsets.only(left: 8),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.2),
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.home_rounded, color: Colors.white),
+            onPressed: () => nextRouting(context, RouterDefinition.root),
+          ),
         ),
       ),
     );
@@ -91,33 +119,34 @@ class FooterMenu extends HookWidget {
   Widget build(BuildContext context) {
     final selectedIndex = useState(0);
     return BottomNavigationBar(
-      backgroundColor: const Color.fromARGB(31, 57, 57, 57),
+      backgroundColor: Colors.transparent,
+      elevation: 0,
       selectedItemColor: Colors.white,
-      unselectedItemColor: Colors.white54,
+      unselectedItemColor: Colors.white.withValues(alpha: 0.6),
+      selectedFontSize: 12,
+      unselectedFontSize: 10,
+      type: BottomNavigationBarType.fixed,
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-          icon: Icon(Icons.home),
+          icon: Icon(Icons.home_rounded),
+          activeIcon: Icon(Icons.home_rounded, size: 28),
           label: 'ホーム',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.list),
-          label: 'リスト',
+          icon: Icon(Icons.home_rounded),
+          activeIcon: Icon(Icons.home_rounded, size: 28),
+          label: 'ホーム',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.settings),
-          label: '設定',
+          icon: Icon(Icons.home_rounded),
+          activeIcon: Icon(Icons.home_rounded, size: 28),
+          label: 'ホーム',
         ),
       ],
       currentIndex: selectedIndex.value,
       onTap: (index) {
         switch (index) {
           case 0:
-            nextRouting(context, RouterDefinition.home);
-            break;
-          case 1:
-            nextRouting(context, RouterDefinition.workList);
-            break;
-          case 2:
             nextRouting(context, RouterDefinition.root);
             break;
         }
@@ -149,11 +178,40 @@ class TimeInputForm extends StatelessWidget {
         }
       }),
       child: AbsorbPointer(
-        child: TextField(
-          decoration: label != null ? InputDecoration(labelText: label) : null,
-          controller: controller,
-          keyboardType: TextInputType.none,
-          readOnly: true,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: Theme.of(context).cardColor,
+            border: Border.all(
+              color: Colors.grey.withValues(alpha: 0.3),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: TextField(
+            decoration: InputDecoration(
+              labelText: label,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.all(16),
+              labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey.shade600,
+                  ),
+              suffixIcon: const Icon(
+                Icons.access_time_rounded,
+                color: Color(0xFF667eea),
+              ),
+            ),
+            controller: controller,
+            keyboardType: TextInputType.none,
+            readOnly: true,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
         ),
       ),
     );

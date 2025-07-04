@@ -8,7 +8,7 @@ import 'package:path/path.dart' as path;
 
 part 'build/drift.g.dart';
 
-@DriftDatabase(tables: [Users, WorkSettings, WorkTimes, JapaneseHolidays])
+@DriftDatabase(tables: [Todos])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
