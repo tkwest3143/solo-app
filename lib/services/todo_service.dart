@@ -19,4 +19,43 @@ class TodoService {
             ))
         .toList();
   }
+
+  Future<List<TodoModel>> getTodayTodos() async {
+    final allTodos = await getTodo();
+    final today = DateTime.now();
+    
+    return allTodos.where((todo) {
+      final todoDate = todo.dueDate;
+      return todoDate.year == today.year &&
+          todoDate.month == today.month &&
+          todoDate.day == today.day;
+    }).toList();
+  }
+
+  Future<List<TodoModel>> getUpcomingTodos() async {
+    final allTodos = await getTodo();
+    final today = DateTime.now();
+    final weekFromNow = today.add(const Duration(days: 7));
+    
+    return allTodos.where((todo) {
+      final todoDate = todo.dueDate;
+      final isToday = todoDate.year == today.year &&
+          todoDate.month == today.month &&
+          todoDate.day == today.day;
+      return !isToday && todoDate.isAfter(today) && todoDate.isBefore(weekFromNow);
+    }).toList();
+  }
+
+  Future<List<TodoModel>> getFilteredTodos({
+    bool? isCompleted,
+    String? category,
+  }) async {
+    final allTodos = await getTodo();
+    
+    return allTodos.where((todo) {
+      bool matchesCompletion = isCompleted == null || todo.isCompleted == isCompleted;
+      bool matchesCategory = category == null || category.isEmpty || todo.color == category;
+      return matchesCompletion && matchesCategory;
+    }).toList();
+  }
 }
