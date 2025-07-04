@@ -97,7 +97,7 @@ class TodayTodosWidget extends HookConsumerWidget {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.lightShadowColor,
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),

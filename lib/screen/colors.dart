@@ -28,9 +28,15 @@ class AppColors {
   static const Color success = Color(0xFF4CAF50);
   static const Color successBackground = Color(0xFFE8F5E8);
   static const Color warning = Color(0xFFFF9800);
-  static const Color warningBackground = Color(0xFFFFF3E0);
+  static const Color warningBackground = Color(0xFFF3E5F5);
   static const Color error = Colors.red;
   static const Color errorBackground = Color(0xFFFFEBEE);
+  static const Color info = Color(0xFF2196F3);
+  static const Color infoBackground = Color(0xFFE3F2FD);
+  static const Color accent = Color(0xFFE91E63);
+  static const Color accentBackground = Color(0xFFF8BBD9);
+  static const Color purple = Color(0xFF9C27B0);
+  static const Color purpleBackground = Color(0xFFF3E5F5);
   
   // Special colors
   static const Color todayTag = primaryBlue;
@@ -84,6 +90,24 @@ extension AppColorScheme on ColorScheme {
   Color get errorBackgroundColor => brightness == Brightness.light
       ? AppColors.errorBackground
       : AppColors.error.withValues(alpha: 0.2);
+  
+  // Info colors
+  Color get infoColor => AppColors.info;
+  Color get infoBackgroundColor => brightness == Brightness.light
+      ? AppColors.infoBackground
+      : AppColors.info.withValues(alpha: 0.2);
+  
+  // Accent colors
+  Color get accentColor => AppColors.accent;
+  Color get accentBackgroundColor => brightness == Brightness.light
+      ? AppColors.accentBackground
+      : AppColors.accent.withValues(alpha: 0.2);
+  
+  // Purple colors
+  Color get purpleColor => AppColors.purple;
+  Color get purpleBackgroundColor => brightness == Brightness.light
+      ? AppColors.purpleBackground
+      : AppColors.purple.withValues(alpha: 0.2);
   
   // Special colors
   Color get todayTagColor => brightness == Brightness.light

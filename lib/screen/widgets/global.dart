@@ -56,7 +56,7 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black26,
+            color: Theme.of(context).colorScheme.mediumShadowColor,
             blurRadius: 8,
             offset: Offset(0, 4),
           ),
@@ -151,7 +151,7 @@ class FooterMenu extends HookWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black26,
+            color: Theme.of(context).colorScheme.mediumShadowColor,
             blurRadius: 10,
             offset: Offset(0, -5),
           ),
@@ -241,7 +241,7 @@ class TimeInputForm extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Theme.of(context).colorScheme.lightShadowColor,
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
