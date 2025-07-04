@@ -39,7 +39,7 @@ class RouterDefinition {
   static Route todoList = Route(
       path: '/todo-list',
       name: '/todo-list',
-      builder: (context, state) => const TodoListPage());
+      builder: (context, state) => BulderWidget(child: const TodoListPage()));
 }
 
 nextRouting(BuildContext context, Route route) {
@@ -70,14 +70,10 @@ final appRouter = Provider<GoRouter>((ref) {
             builder: RouterDefinition.timer.builder,
           ),
           GoRoute(
-            path: RouterDefinition.menu.name,
-            builder: RouterDefinition.menu.builder,
+            path: RouterDefinition.todoList.name,
+            builder: RouterDefinition.todoList.builder,
           ),
         ],
-      ),
-      GoRoute(
-        path: RouterDefinition.todoList.name,
-        builder: RouterDefinition.todoList.builder,
       ),
     ],
     initialLocation: RouterDefinition.root.name,

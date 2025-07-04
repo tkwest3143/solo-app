@@ -36,6 +36,7 @@ class CurrentDateTime extends StatelessWidget {
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             formattedDate,
@@ -44,6 +45,7 @@ class CurrentDateTime extends StatelessWidget {
               fontWeight: FontWeight.w500,
               color: Colors.white,
             ),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
@@ -53,6 +55,7 @@ class CurrentDateTime extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

@@ -26,17 +26,10 @@ class TodoListPage extends HookConsumerWidget {
             // Header
             Container(
               padding: const EdgeInsets.all(20),
-              child: Row(
+              child: const Row(
                 children: [
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(
-                      Icons.arrow_back_rounded,
-                      color: Color(0xFF2C3E50),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
+                  SizedBox(width: 12),
+                  Text(
                     'Todo一覧',
                     style: TextStyle(
                       fontSize: 24,

@@ -134,7 +134,7 @@ class FooterMenu extends HookWidget {
       case '/timer':
         selectedIndex.value = 2;
         break;
-      case '/menu':
+      case '/todo-list':
         selectedIndex.value = 3;
         break;
     }
@@ -186,9 +186,9 @@ class FooterMenu extends HookWidget {
             label: 'タイマー',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.more_horiz_rounded),
-            activeIcon: Icon(Icons.more_horiz_rounded, size: 28),
-            label: 'メニュー',
+            icon: Icon(Icons.checklist_rounded),
+            activeIcon: Icon(Icons.checklist_rounded, size: 28),
+            label: 'Todo',
           ),
         ],
         currentIndex: selectedIndex.value,
@@ -204,7 +204,7 @@ class FooterMenu extends HookWidget {
               nextRouting(context, RouterDefinition.timer);
               break;
             case 3:
-              nextRouting(context, RouterDefinition.menu);
+              nextRouting(context, RouterDefinition.todoList);
               break;
           }
         },
