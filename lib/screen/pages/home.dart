@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/widgets/home.dart';
 import 'package:solo/screen/router.dart';
 
@@ -54,7 +55,8 @@ class HomePage extends HookConsumerWidget {
                         subtitle: '集中タイマー',
                         icon: Icons.timer_rounded,
                         iconColor: Colors.white,
-                        backgroundColor: Theme.of(context).colorScheme.accentColor,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.accentColor,
                         onTap: () {
                           nextRouting(context, RouterDefinition.timer);
                         },
@@ -67,7 +69,8 @@ class HomePage extends HookConsumerWidget {
                         subtitle: 'タスク一覧',
                         icon: Icons.checklist_rounded,
                         iconColor: Colors.white,
-                        backgroundColor: Theme.of(context).colorScheme.infoColor,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.infoColor,
                         onTap: () {
                           nextRouting(context, RouterDefinition.todoList);
                         },
@@ -103,7 +106,9 @@ class HomePage extends HookConsumerWidget {
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Theme.of(context).colorScheme.purpleBackgroundColor,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .purpleBackgroundColor,
                           ),
                           child: Icon(
                             Icons.lightbulb_rounded,
@@ -117,7 +122,8 @@ class HomePage extends HookConsumerWidget {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primaryTextColor,
+                            color:
+                                Theme.of(context).colorScheme.primaryTextColor,
                           ),
                         ),
                       ],

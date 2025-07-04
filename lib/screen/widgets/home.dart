@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:solo/screen/colors.dart';
 import 'package:solo/utilities/date.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/models/todo_model.dart';
@@ -118,7 +119,7 @@ class TodayTodosWidget extends HookConsumerWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                const Expanded(
+                Expanded(
                   child: Text(
                     '今日のタスクはありません',
                     style: TextStyle(
@@ -156,7 +157,8 @@ class TodayTodosWidget extends HookConsumerWidget {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Theme.of(context).colorScheme.warningBackgroundColor,
+                      color:
+                          Theme.of(context).colorScheme.warningBackgroundColor,
                     ),
                     child: Icon(
                       Icons.today,
@@ -195,7 +197,8 @@ class TodayTodosWidget extends HookConsumerWidget {
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      color: Theme.of(context).colorScheme.todayTagBackgroundColor,
+                      color:
+                          Theme.of(context).colorScheme.todayTagBackgroundColor,
                     ),
                     child: Text(
                       'すべてのタスクを見る →',

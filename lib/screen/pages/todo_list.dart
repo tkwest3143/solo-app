@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:solo/screen/colors.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/models/todo_model.dart';
 import 'package:solo/utilities/date.dart';
@@ -10,7 +11,7 @@ class TodoListPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -100,7 +101,10 @@ class TodoCard extends StatelessWidget {
           color: isOverdue
               ? Theme.of(context).colorScheme.errorColor.withValues(alpha: 0.3)
               : isToday
-                  ? Theme.of(context).colorScheme.todayTagColor.withValues(alpha: 0.3)
+                  ? Theme.of(context)
+                      .colorScheme
+                      .todayTagColor
+                      .withValues(alpha: 0.3)
                   : Colors.transparent,
           width: 2,
         ),
@@ -164,7 +168,7 @@ class TodoCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     color: Theme.of(context).colorScheme.errorBackgroundColor,
                   ),
-                  child: const Text(
+                  child: Text(
                     '期限切れ',
                     style: TextStyle(
                       fontSize: 12,
@@ -179,7 +183,8 @@ class TodoCard extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: Theme.of(context).colorScheme.todayTagBackgroundColor,
+                    color:
+                        Theme.of(context).colorScheme.todayTagBackgroundColor,
                   ),
                   child: Text(
                     '今日',

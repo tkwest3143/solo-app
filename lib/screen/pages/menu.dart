@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:solo/screen/colors.dart';
 
 class MenuPage extends HookConsumerWidget {
   const MenuPage({super.key});
@@ -42,7 +43,7 @@ class MenuPage extends HookConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'メニュー',
               style: TextStyle(
                 fontSize: 32,
@@ -65,7 +66,7 @@ class MenuPage extends HookConsumerWidget {
                   ),
                 ],
               ),
-              child: const Text(
+              child: Text(
                 'アプリ設定・その他機能（準備中）',
                 style: TextStyle(
                   fontSize: 16,

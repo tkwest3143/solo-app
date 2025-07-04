@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/router.dart';
 
 class BulderWidget extends StatelessWidget {
@@ -44,7 +45,7 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -139,7 +140,7 @@ class FooterMenu extends HookWidget {
     }
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -255,7 +256,7 @@ class TimeInputForm extends StatelessWidget {
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey.shade600,
                   ),
-              suffixIcon: const Icon(
+              suffixIcon: Icon(
                 Icons.access_time_rounded,
                 color: Theme.of(context).colorScheme.primary,
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:solo/screen/colors.dart';
 
 class CalendarPage extends HookConsumerWidget {
   const CalendarPage({super.key});
@@ -42,7 +43,7 @@ class CalendarPage extends HookConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'カレンダー',
               style: TextStyle(
                 fontSize: 32,
@@ -65,7 +66,7 @@ class CalendarPage extends HookConsumerWidget {
                   ),
                 ],
               ),
-              child: const Text(
+              child: Text(
                 'カレンダー機能（準備中）',
                 style: TextStyle(
                   fontSize: 16,
