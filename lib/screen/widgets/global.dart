@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/router.dart';
 
 class BulderWidget extends StatelessWidget {
@@ -44,20 +45,19 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF667eea),
-            Color(0xFF764ba2),
-            Color(0xFF667eea),
+            ...Theme.of(context).colorScheme.primaryGradient,
+            Theme.of(context).colorScheme.primaryGradient.first,
           ],
           stops: [0.0, 0.5, 1.0],
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black26,
+            color: Theme.of(context).colorScheme.mediumShadowColor,
             blurRadius: 8,
             offset: Offset(0, 4),
           ),
@@ -140,14 +140,11 @@ class FooterMenu extends HookWidget {
     }
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF667eea),
-            Color(0xFF764ba2),
-          ],
+          colors: Theme.of(context).colorScheme.primaryGradient,
         ),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
@@ -155,7 +152,7 @@ class FooterMenu extends HookWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black26,
+            color: Theme.of(context).colorScheme.mediumShadowColor,
             blurRadius: 10,
             offset: Offset(0, -5),
           ),
@@ -245,7 +242,7 @@ class TimeInputForm extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Theme.of(context).colorScheme.lightShadowColor,
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -259,9 +256,9 @@ class TimeInputForm extends StatelessWidget {
               labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey.shade600,
                   ),
-              suffixIcon: const Icon(
+              suffixIcon: Icon(
                 Icons.access_time_rounded,
-                color: Color(0xFF667eea),
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             controller: controller,

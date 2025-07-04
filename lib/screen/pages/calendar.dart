@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:solo/screen/colors.dart';
 
 class CalendarPage extends HookConsumerWidget {
   const CalendarPage({super.key});
@@ -7,14 +8,11 @@ class CalendarPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFF8F9FA),
-            Color(0xFFE9ECEF),
-          ],
+          colors: Theme.of(context).colorScheme.backgroundGradient,
         ),
       ),
       child: Center(
@@ -25,17 +23,14 @@ class CalendarPage extends HookConsumerWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF667eea),
-                    Color(0xFF764ba2),
-                  ],
+                  colors: Theme.of(context).colorScheme.primaryGradient,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
+                    color: Theme.of(context).colorScheme.mediumShadowColor,
                     blurRadius: 15,
                     offset: const Offset(0, 8),
                   ),
@@ -48,12 +43,12 @@ class CalendarPage extends HookConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'カレンダー',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2C3E50),
+                color: Theme.of(context).colorScheme.primaryTextColor,
                 letterSpacing: 1.2,
               ),
             ),
@@ -65,17 +60,17 @@ class CalendarPage extends HookConsumerWidget {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.lightShadowColor,
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
                 ],
               ),
-              child: const Text(
+              child: Text(
                 'カレンダー機能（準備中）',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Color(0xFF6C757D),
+                  color: Theme.of(context).colorScheme.secondaryTextColor,
                   fontWeight: FontWeight.w500,
                 ),
               ),

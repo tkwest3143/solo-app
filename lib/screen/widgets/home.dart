@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:solo/screen/colors.dart';
 import 'package:solo/utilities/date.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/models/todo_model.dart';
@@ -30,17 +31,14 @@ class CurrentDateTime extends HookConsumerWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF667eea),
-            Color(0xFF764ba2),
-          ],
+          colors: Theme.of(context).colorScheme.primaryGradient,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.lightShadowColor,
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -100,7 +98,7 @@ class TodayTodosWidget extends HookConsumerWidget {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.lightShadowColor,
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),
@@ -110,24 +108,24 @@ class TodayTodosWidget extends HookConsumerWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color(0xFFE8F5E8),
+                    color: Theme.of(context).colorScheme.successBackgroundColor,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.check_circle,
-                    color: Color(0xFF4CAF50),
+                    color: Theme.of(context).colorScheme.successColor,
                     size: 24,
                   ),
                 ),
                 const SizedBox(width: 16),
-                const Expanded(
+                Expanded(
                   child: Text(
                     '今日のタスクはありません',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF2C3E50),
+                      color: Theme.of(context).colorScheme.primaryTextColor,
                     ),
                   ),
                 ),
@@ -141,10 +139,10 @@ class TodayTodosWidget extends HookConsumerWidget {
           margin: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.lightShadowColor,
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -157,23 +155,24 @@ class TodayTodosWidget extends HookConsumerWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Color(0xFFFFF3E0),
+                      color:
+                          Theme.of(context).colorScheme.warningBackgroundColor,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.today,
-                      color: Color(0xFFFF9800),
+                      color: Theme.of(context).colorScheme.warningColor,
                       size: 24,
                     ),
                   ),
                   const SizedBox(width: 16),
                   Text(
                     '今日のタスク (${incompleteTodos.length}件)',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C3E50),
+                      color: Theme.of(context).colorScheme.primaryTextColor,
                     ),
                   ),
                 ],
@@ -182,9 +181,9 @@ class TodayTodosWidget extends HookConsumerWidget {
                 const SizedBox(height: 12),
                 Text(
                   incompleteTodos.first.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF6C757D),
+                    color: Theme.of(context).colorScheme.secondaryTextColor,
                   ),
                 ),
               ] else ...[
@@ -198,14 +197,15 @@ class TodayTodosWidget extends HookConsumerWidget {
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      color: const Color(0xFF667eea).withValues(alpha: 0.1),
+                      color:
+                          Theme.of(context).colorScheme.todayTagBackgroundColor,
                     ),
-                    child: const Text(
+                    child: Text(
                       'すべてのタスクを見る →',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF667eea),
+                        color: Theme.of(context).colorScheme.todayTagColor,
                       ),
                     ),
                   ),
@@ -258,10 +258,10 @@ class NavigationCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.lightShadowColor,
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -284,18 +284,18 @@ class NavigationCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2C3E50),
+                color: Theme.of(context).colorScheme.primaryTextColor,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: Color(0xFF6C757D),
+                color: Theme.of(context).colorScheme.secondaryTextColor,
               ),
               textAlign: TextAlign.center,
             ),
