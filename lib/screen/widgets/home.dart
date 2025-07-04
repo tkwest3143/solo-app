@@ -1,18 +1,29 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:solo/utilities/date.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/models/todo_model.dart';
 import 'package:solo/screen/router.dart';
 
-class CurrentDateTime extends StatelessWidget {
+class CurrentDateTime extends HookConsumerWidget {
   const CurrentDateTime({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final formattedDate = formatDate(now, format: 'yyyy年MM月dd日 (EEE)');
-    final formattedTime = formatDate(now, format: 'HH:mm');
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dateTime = useState(DateTime.now());
+
+    useEffect(() {
+      final timer = Timer.periodic(const Duration(seconds: 1), (_) {
+        dateTime.value = DateTime.now();
+      });
+      return () => timer.cancel();
+    }, const []);
+
+    final formattedDate =
+        formatDate(dateTime.value, format: 'yyyy年MM月dd日 (EEE)');
+    final formattedTime = formatDate(dateTime.value, format: 'HH:mm:ss');
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -35,13 +46,14 @@ class CurrentDateTime extends StatelessWidget {
           ),
         ],
       ),
+      width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             formattedDate,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 24,
               fontWeight: FontWeight.w500,
               color: Colors.white,
             ),
@@ -51,7 +63,7 @@ class CurrentDateTime extends StatelessWidget {
           Text(
             formattedTime,
             style: const TextStyle(
-              fontSize: 32,
+              fontSize: 36,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -76,7 +88,8 @@ class TodayTodosWidget extends HookConsumerWidget {
         }
 
         final todayTodos = snapshot.data ?? [];
-        final incompleteTodos = todayTodos.where((todo) => !todo.isCompleted).toList();
+        final incompleteTodos =
+            todayTodos.where((todo) => !todo.isCompleted).toList();
 
         if (incompleteTodos.isEmpty) {
           return Container(
@@ -181,7 +194,8 @@ class TodayTodosWidget extends HookConsumerWidget {
                     nextRouting(context, RouterDefinition.todoList);
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       color: const Color(0xFF667eea).withValues(alpha: 0.1),
@@ -208,12 +222,12 @@ class TodayTodosWidget extends HookConsumerWidget {
     final todoService = TodoService();
     final allTodos = await todoService.getTodo();
     final today = DateTime.now();
-    
+
     return allTodos.where((todo) {
       final todoDate = todo.dueDate;
       return todoDate.year == today.year &&
-             todoDate.month == today.month &&
-             todoDate.day == today.day;
+          todoDate.month == today.month &&
+          todoDate.day == today.day;
     }).toList();
   }
 }

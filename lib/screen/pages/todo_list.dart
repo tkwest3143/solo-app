@@ -40,80 +40,40 @@ class TodoListPage extends HookConsumerWidget {
                 ],
               ),
             ),
-            
+
             // Todo List
             Expanded(
               child: FutureBuilder<List<TodoModel>>(
-                future: TodoService().getTodo(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
+                  future: TodoService().getTodo(),
+                  builder: (context, snapshot) {
+                    // ダミーデータを表示
+                    final dummyData = [
+                      TodoModel(
+                          id: 1,
+                          title: 'ダミーTodo 1',
+                          description: '詳細 1',
+                          dueDate: DateTime.now(),
+                          isCompleted: false),
+                      TodoModel(
+                          id: 2,
+                          title: 'ダミーTodo 2',
+                          description: '詳細 2',
+                          dueDate: DateTime.now().add(Duration(days: 1)),
+                          isCompleted: false),
+                    ];
 
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'エラーが発生しました: ${snapshot.error}',
-                        style: const TextStyle(
-                          color: Color(0xFF6C757D),
-                        ),
-                      ),
+                    return ListView.builder(
+                      itemCount: dummyData.length,
+                      itemBuilder: (context, index) {
+                        final todo = dummyData[index];
+                        return ListTile(
+                          title: Text(todo.title),
+                          subtitle: Text(todo.description ?? ''),
+                          trailing: Text(formatDate(todo.dueDate)),
+                        );
+                      },
                     );
-                  }
-
-                  final todos = snapshot.data ?? [];
-                  
-                  if (todos.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xFFF0F0F0),
-                            ),
-                            child: const Icon(
-                              Icons.checklist_rounded,
-                              size: 60,
-                              color: Color(0xFF9E9E9E),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'まだTodoがありません',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF6C757D),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            '新しいタスクを追加してみましょう',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF9E9E9E),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: todos.length,
-                    itemBuilder: (context, index) {
-                      final todo = todos[index];
-                      return TodoCard(todo: todo);
-                    },
-                  );
-                },
-              ),
+                  }),
             ),
           ],
         ),
@@ -130,7 +90,8 @@ class TodoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isToday = _isToday(todo.dueDate);
-    final isOverdue = todo.dueDate.isBefore(DateTime.now()) && !todo.isCompleted;
+    final isOverdue =
+        todo.dueDate.isBefore(DateTime.now()) && !todo.isCompleted;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -200,7 +161,8 @@ class TodoCard extends StatelessWidget {
               ),
               if (isOverdue && !todo.isCompleted) ...[
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: Colors.red.withValues(alpha: 0.1),
@@ -216,7 +178,8 @@ class TodoCard extends StatelessWidget {
                 ),
               ] else if (isToday && !todo.isCompleted) ...[
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: const Color(0xFF667eea).withValues(alpha: 0.1),
@@ -275,7 +238,7 @@ class TodoCard extends StatelessWidget {
   bool _isToday(DateTime date) {
     final now = DateTime.now();
     return date.year == now.year &&
-           date.month == now.month &&
-           date.day == now.day;
+        date.month == now.month &&
+        date.day == now.day;
   }
 }

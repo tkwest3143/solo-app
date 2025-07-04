@@ -27,14 +27,10 @@ class HomePage extends HookConsumerWidget {
             children: [
               // Current Date and Time
               const CurrentDateTime(),
-              
               const SizedBox(height: 24),
-              
               // Today's Todos
               const TodayTodosWidget(),
-              
               const SizedBox(height: 24),
-              
               // Quick Actions
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
@@ -47,9 +43,9 @@ class HomePage extends HookConsumerWidget {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Navigation Cards
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -83,9 +79,9 @@ class HomePage extends HookConsumerWidget {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Welcome Message or Tips
               Container(
                 padding: const EdgeInsets.all(20),

@@ -20,22 +20,22 @@ class RouterDefinition {
       path: '/',
       name: '/',
       builder: (context, state) => BulderWidget(child: const HomePage()));
-  
+
   static Route calendar = Route(
       path: '/calendar',
       name: '/calendar',
       builder: (context, state) => BulderWidget(child: const CalendarPage()));
-  
+
   static Route timer = Route(
       path: '/timer',
       name: '/timer',
       builder: (context, state) => BulderWidget(child: const TimerPage()));
-  
+
   static Route menu = Route(
       path: '/menu',
       name: '/menu',
       builder: (context, state) => BulderWidget(child: const MenuPage()));
-  
+
   static Route todoList = Route(
       path: '/todo-list',
       name: '/todo-list',
@@ -72,6 +72,10 @@ final appRouter = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouterDefinition.todoList.name,
             builder: RouterDefinition.todoList.builder,
+          ),
+          GoRoute(
+            path: RouterDefinition.menu.name,
+            builder: RouterDefinition.menu.builder,
           ),
         ],
       ),
