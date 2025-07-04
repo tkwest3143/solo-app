@@ -35,12 +35,181 @@ class TodoListPage extends HookConsumerWidget {
                   Row(
                     children: [
                       const SizedBox(width: 12),
-                      Text(
-                        'Todo一覧',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primaryTextColor,
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          // Todo追加画面への遷移やダイアログ表示など
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) => Padding(
+                              padding: EdgeInsets.only(
+                                bottom:
+                                    MediaQuery.of(context).viewInsets.bottom,
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(28),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.08),
+                                      blurRadius: 24,
+                                      offset: const Offset(0, -8),
+                                    ),
+                                  ],
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 32),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(Icons.add_circle_rounded,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            size: 28),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '新しいTodoを追加',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primaryTextColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 20),
+                                    TextField(
+                                      autofocus: true,
+                                      decoration: InputDecoration(
+                                        hintText: 'タイトルを入力',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        filled: true,
+                                        fillColor: Theme.of(context)
+                                            .colorScheme
+                                            .surface
+                                            .withValues(alpha: 0.05),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.schedule_rounded,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '期限を選択',
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondaryTextColor,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            // 日付選択ダイアログ
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withValues(alpha: 0.08),
+                                            foregroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 8),
+                                            elevation: 0,
+                                          ),
+                                          child: const Text('日付を選択'),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 24),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          // Todo追加処理
+                                          Navigator.of(context).pop();
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text('Todoを追加しました')),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 16),
+                                          elevation: 0,
+                                        ),
+                                        child: const Text(
+                                          '追加する',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.add_circle_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 28,
+                        ),
+                        label: Text(
+                          'Todoを追加',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color:
+                                Theme.of(context).colorScheme.primaryTextColor,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white.withValues(alpha: 0.7),
+                          foregroundColor:
+                              Theme.of(context).colorScheme.primaryTextColor,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
                         ),
                       ),
                       const Spacer(),
@@ -54,7 +223,7 @@ class TodoListPage extends HookConsumerWidget {
                           color: Theme.of(context).colorScheme.primaryTextColor,
                         ),
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.2),
+                          backgroundColor: Colors.white.withValues(alpha: 0.2),
                           padding: const EdgeInsets.all(12),
                         ),
                       ),
@@ -84,7 +253,8 @@ class TodoListPage extends HookConsumerWidget {
                                 ),
                               ],
                               selected: {filter},
-                              onSelectionChanged: (Set<TodoFilter> newSelection) {
+                              onSelectionChanged:
+                                  (Set<TodoFilter> newSelection) {
                                 filterNotifier.value = newSelection.first;
                               },
                             );
@@ -121,25 +291,32 @@ class TodoListPage extends HookConsumerWidget {
                       }
 
                       final sections = snapshot.data ?? {};
-                      
+
                       return ListView(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         children: [
                           if (sections['today']?.isNotEmpty == true) ...[
-                            _buildSectionHeader(context, '今日が期限', sections['today']!.length),
-                            ...sections['today']!.map((todo) => _buildTodoCard(context, todo)),
+                            _buildSectionHeader(
+                                context, '今日が期限', sections['today']!.length),
+                            ...sections['today']!
+                                .map((todo) => _buildTodoCard(context, todo)),
                             const SizedBox(height: 20),
                           ],
                           if (sections['upcoming']?.isNotEmpty == true) ...[
-                            _buildSectionHeader(context, '期限が近い', sections['upcoming']!.length),
-                            ...sections['upcoming']!.map((todo) => _buildTodoCard(context, todo)),
+                            _buildSectionHeader(
+                                context, '期限が近い', sections['upcoming']!.length),
+                            ...sections['upcoming']!
+                                .map((todo) => _buildTodoCard(context, todo)),
                             const SizedBox(height: 20),
                           ],
                           if (sections['all']?.isNotEmpty == true) ...[
-                            _buildSectionHeader(context, 'すべてのTodo', sections['all']!.length),
-                            ...sections['all']!.map((todo) => _buildTodoCard(context, todo)),
+                            _buildSectionHeader(
+                                context, 'すべてのTodo', sections['all']!.length),
+                            ...sections['all']!
+                                .map((todo) => _buildTodoCard(context, todo)),
                           ],
-                          if (sections.values.every((list) => list.isEmpty)) ...[
+                          if (sections.values
+                              .every((list) => list.isEmpty)) ...[
                             const SizedBox(height: 60),
                             Center(
                               child: Column(
@@ -147,14 +324,18 @@ class TodoListPage extends HookConsumerWidget {
                                   Icon(
                                     Icons.task_alt,
                                     size: 64,
-                                    color: Theme.of(context).colorScheme.mutedTextColor,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .mutedTextColor,
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
                                     'Todoがありません',
                                     style: TextStyle(
                                       fontSize: 18,
-                                      color: Theme.of(context).colorScheme.mutedTextColor,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .mutedTextColor,
                                     ),
                                   ),
                                 ],
@@ -171,15 +352,6 @@ class TodoListPage extends HookConsumerWidget {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Navigate to add todo screen
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Todo追加機能は実装予定です')),
-          );
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }
@@ -268,9 +440,10 @@ class TodoListPage extends HookConsumerWidget {
     );
   }
 
-  Future<Map<String, List<TodoModel>>> _getTodoSections(TodoFilter filter) async {
+  Future<Map<String, List<TodoModel>>> _getTodoSections(
+      TodoFilter filter) async {
     final todoService = TodoService();
-    
+
     // For prototype, use dummy data. In real implementation, these would come from the service
     final dummyData = [
       TodoModel(
@@ -339,9 +512,9 @@ class TodoListPage extends HookConsumerWidget {
       final isToday = todo.dueDate.year == today.year &&
           todo.dueDate.month == today.month &&
           todo.dueDate.day == today.day;
-      
-      final isUpcoming = !isToday && 
-          todo.dueDate.isAfter(today) && 
+
+      final isUpcoming = !isToday &&
+          todo.dueDate.isAfter(today) &&
           todo.dueDate.isBefore(today.add(const Duration(days: 7)));
 
       if (isToday) {
@@ -368,7 +541,7 @@ class TodoCard extends StatelessWidget {
   final VoidCallback? onDelete;
 
   const TodoCard({
-    super.key, 
+    super.key,
     required this.todo,
     this.onToggleComplete,
     this.onEdit,
