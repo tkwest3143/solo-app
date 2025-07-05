@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:solo/main.dart';
 import 'package:solo/screen/pages/menu.dart';
 import 'package:solo/screen/pages/settings.dart';
 import 'package:solo/screen/pages/about.dart';
@@ -9,7 +8,8 @@ import 'package:solo/screen/widgets/menu_card.dart';
 
 void main() {
   group('Menu Navigation Tests', () {
-    testWidgets('Menu page displays navigation cards correctly', (WidgetTester tester) async {
+    testWidgets('Menu page displays navigation cards correctly',
+        (WidgetTester tester) async {
       // Build the app with Riverpod
       await tester.pumpWidget(
         ProviderScope(
@@ -36,16 +36,17 @@ void main() {
       expect(find.byIcon(Icons.dashboard_rounded), findsOneWidget);
     });
 
-    testWidgets('MenuNavigationCard renders correctly', (WidgetTester tester) async {
+    testWidgets('MenuNavigationCard renders correctly',
+        (WidgetTester tester) async {
       bool tapped = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: MenuNavigationCard(
               title: 'Test Title',
               subtitle: 'Test Subtitle',
-              icon: Icons.test_rounded,
+              icon: Icons.west_rounded,
               onTap: () => tapped = true,
               isHighlighted: true,
             ),
@@ -56,14 +57,15 @@ void main() {
       // Verify card content
       expect(find.text('Test Title'), findsOneWidget);
       expect(find.text('Test Subtitle'), findsOneWidget);
-      expect(find.byIcon(Icons.test_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.west_rounded), findsOneWidget);
 
       // Test tap functionality
       await tester.tap(find.byType(MenuNavigationCard));
       expect(tapped, isTrue);
     });
 
-    testWidgets('Settings page displays correctly', (WidgetTester tester) async {
+    testWidgets('Settings page displays correctly',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -95,7 +97,8 @@ void main() {
       expect(find.byIcon(Icons.apps_rounded), findsOneWidget);
     });
 
-    testWidgets('Menu cards have appropriate styling for highlighted items', (WidgetTester tester) async {
+    testWidgets('Menu cards have appropriate styling for highlighted items',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -124,7 +127,7 @@ void main() {
       // Both cards should be present
       expect(find.text('Highlighted'), findsOneWidget);
       expect(find.text('Regular'), findsOneWidget);
-      
+
       // Both should be tappable
       expect(find.byType(MenuNavigationCard), findsNWidgets(2));
     });
