@@ -1194,14 +1194,45 @@ class TodoDetailDialog {
   }
 }
 
-class _TodoDetailContent extends StatelessWidget {
+class _TodoDetailContent extends HookConsumerWidget {
   final TodoModel todo;
   final VoidCallback? onRefresh;
   const _TodoDetailContent({required this.todo, this.onRefresh});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final color = TodoColor.getColorFromString(todo.color);
+    final checklistItems = useState<List<TodoCheckListItemModel>>([]);
+    final isLoading = useState<bool>(true);
+
+    // Load checklist items
+    useEffect(() {
+      void loadChecklistItems() async {
+        try {
+          isLoading.value = true;
+          final items = await TodoCheckListItemService()
+              .getCheckListItemsForTodo(todo.id);
+          checklistItems.value = items;
+        } finally {
+          isLoading.value = false;
+        }
+      }
+      
+      loadChecklistItems();
+      return null;
+    }, [todo.id]);
+
+    // Refresh checklist items when refresh is called
+    void refreshChecklistItems() async {
+      try {
+        isLoading.value = true;
+        final items = await TodoCheckListItemService()
+            .getCheckListItemsForTodo(todo.id);
+        checklistItems.value = items;
+      } finally {
+        isLoading.value = false;
+      }
+    }
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -1399,52 +1430,37 @@ class _TodoDetailContent extends StatelessWidget {
                           ),
                         ],
                         // Checklist items
-                        FutureBuilder<List<TodoCheckListItemModel>>(
-                          future: TodoCheckListItemService()
-                              .getCheckListItemsForTodo(todo.id),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const SizedBox.shrink();
-                            }
-
-                            final checklistItems = snapshot.data ?? [];
-                            if (checklistItems.isEmpty) {
-                              return const SizedBox.shrink();
-                            }
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 14),
-                                Row(
-                                  children: [
-                                    Icon(Icons.checklist,
-                                        size: 16,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondaryTextColor),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'チェックリスト (${checklistItems.where((item) => item.isCompleted).length}/${checklistItems.length})',
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondaryTextColor,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                        if (checklistItems.value.isNotEmpty)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 14),
+                              Row(
+                                children: [
+                                  Icon(Icons.checklist,
+                                      size: 16,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondaryTextColor),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'チェックリスト (${checklistItems.value.where((item) => item.isCompleted).length}/${checklistItems.value.length})',
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondaryTextColor,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                ...checklistItems.map((item) =>
-                                    _buildChecklistItemRow(
-                                        context, item, todo)),
-                              ],
-                            );
-                          },
-                        ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              ...checklistItems.value.map((item) =>
+                                  _buildChecklistItemRow(
+                                      context, item, todo, refreshChecklistItems)),
+                            ],
+                          ),
                       ],
                     ),
                   ),
@@ -1590,7 +1606,7 @@ class _TodoDetailContent extends StatelessWidget {
   }
 
   Widget _buildChecklistItemRow(
-      BuildContext context, TodoCheckListItemModel item, TodoModel todo) {
+      BuildContext context, TodoCheckListItemModel item, TodoModel todo, VoidCallback refreshChecklistItems) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Material(
@@ -1614,6 +1630,7 @@ class _TodoDetailContent extends StatelessWidget {
             }
 
             // Refresh the UI
+            refreshChecklistItems();
             onRefresh?.call();
           },
           child: Container(
