@@ -1,68 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/models/timer_model.dart';
 import 'package:solo/screen/states/timer_state.dart';
 import 'package:solo/screen/widgets/timer_widgets.dart';
 
-class TimerPage extends HookWidget {
+class TimerPage extends ConsumerWidget {
   const TimerPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final timerController = useState(TimerStateController());
-    final showSettings = useState(false);
-
-    useEffect(() {
-      return timerController.value.dispose;
-    }, []);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final timerSession = ref.watch(timerStateProvider);
+    final timerController = ref.read(timerStateProvider.notifier);
+    final showSettings = ValueNotifier(false);
 
     // Only allow settings for Pomodoro mode
     void openSettings() {
-      if (timerController.value.session.mode == TimerMode.pomodoro) {
+      if (timerSession.mode == TimerMode.pomodoro) {
         showSettings.value = true;
       }
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: Theme.of(context).colorScheme.backgroundGradient,
-        ),
-      ),
-      child: SafeArea(
-        child: showSettings.value &&
-                timerController.value.session.mode == TimerMode.pomodoro
-            ? TimerSettingsWidget(
-                timerController: timerController.value,
-                onClose: () => showSettings.value = false,
-              )
-            : TimerMainWidget(
-                timerController: timerController.value,
-                onOpenSettings: openSettings,
-              ),
-      ),
+    return ValueListenableBuilder<bool>(
+      valueListenable: showSettings,
+      builder: (context, show, _) {
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: Theme.of(context).colorScheme.backgroundGradient,
+            ),
+          ),
+          child: SafeArea(
+            child: show && timerSession.mode == TimerMode.pomodoro
+                ? TimerSettingsWidget(
+                    onClose: () => showSettings.value = false,
+                  )
+                : TimerMainWidget(
+                    timerController: timerController,
+                    timerSession: timerSession,
+                    onOpenSettings: openSettings,
+                  ),
+          ),
+        );
+      },
     );
   }
 }
 
-class TimerMainWidget extends HookWidget {
-  final TimerStateController timerController;
+class TimerMainWidget extends StatelessWidget {
+  final TimerState timerController;
+  final TimerSession timerSession;
   final VoidCallback onOpenSettings;
 
   const TimerMainWidget({
     super.key,
     required this.timerController,
+    required this.timerSession,
     required this.onOpenSettings,
   });
 
   @override
   Widget build(BuildContext context) {
-    useListenable(timerController);
-    final timerSession = timerController.session;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Column(
@@ -72,7 +72,7 @@ class TimerMainWidget extends HookWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Center(
-              child: TimerModeSwitch(timerController: timerController),
+              child: TimerModeSwitch(),
             ),
           ),
 
@@ -105,7 +105,7 @@ class TimerMainWidget extends HookWidget {
                         const SizedBox(height: 12),
 
                         // Timer controls
-                        TimerControls(timerController: timerController),
+                        TimerControls(),
 
                         if (timerSession.mode == TimerMode.pomodoro) ...[
                           const SizedBox(height: 12),

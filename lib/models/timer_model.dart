@@ -14,7 +14,7 @@ enum PomodoroPhase {
   longBreak,
 }
 
-enum TimerState {
+enum TimerStatus {
   idle,
   running,
   paused,
@@ -38,7 +38,7 @@ class TimerSettings with _$TimerSettings {
 class TimerSession with _$TimerSession {
   const factory TimerSession({
     @Default(TimerMode.pomodoro) TimerMode mode,
-    @Default(TimerState.idle) TimerState state,
+    @Default(TimerStatus.idle) TimerStatus state,
     @Default(PomodoroPhase.work) PomodoroPhase currentPhase,
     @Default(0) int remainingSeconds,
     @Default(0) int elapsedSeconds,

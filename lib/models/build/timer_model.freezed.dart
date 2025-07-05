@@ -243,7 +243,7 @@ TimerSession _$TimerSessionFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$TimerSession {
   TimerMode get mode => throw _privateConstructorUsedError;
-  TimerState get state => throw _privateConstructorUsedError;
+  TimerStatus get state => throw _privateConstructorUsedError;
   PomodoroPhase get currentPhase => throw _privateConstructorUsedError;
   int get remainingSeconds => throw _privateConstructorUsedError;
   int get elapsedSeconds => throw _privateConstructorUsedError;
@@ -269,7 +269,7 @@ abstract class $TimerSessionCopyWith<$Res> {
   @useResult
   $Res call(
       {TimerMode mode,
-      TimerState state,
+      TimerStatus state,
       PomodoroPhase currentPhase,
       int remainingSeconds,
       int elapsedSeconds,
@@ -312,7 +312,7 @@ class _$TimerSessionCopyWithImpl<$Res, $Val extends TimerSession>
       state: null == state
           ? _value.state
           : state // ignore: cast_nullable_to_non_nullable
-              as TimerState,
+              as TimerStatus,
       currentPhase: null == currentPhase
           ? _value.currentPhase
           : currentPhase // ignore: cast_nullable_to_non_nullable
@@ -361,7 +361,7 @@ abstract class _$$TimerSessionImplCopyWith<$Res>
   @useResult
   $Res call(
       {TimerMode mode,
-      TimerState state,
+      TimerStatus state,
       PomodoroPhase currentPhase,
       int remainingSeconds,
       int elapsedSeconds,
@@ -403,7 +403,7 @@ class __$$TimerSessionImplCopyWithImpl<$Res>
       state: null == state
           ? _value.state
           : state // ignore: cast_nullable_to_non_nullable
-              as TimerState,
+              as TimerStatus,
       currentPhase: null == currentPhase
           ? _value.currentPhase
           : currentPhase // ignore: cast_nullable_to_non_nullable
@@ -437,7 +437,7 @@ class __$$TimerSessionImplCopyWithImpl<$Res>
 class _$TimerSessionImpl implements _TimerSession {
   const _$TimerSessionImpl(
       {this.mode = TimerMode.pomodoro,
-      this.state = TimerState.idle,
+      this.state = TimerStatus.idle,
       this.currentPhase = PomodoroPhase.work,
       this.remainingSeconds = 0,
       this.elapsedSeconds = 0,
@@ -453,7 +453,7 @@ class _$TimerSessionImpl implements _TimerSession {
   final TimerMode mode;
   @override
   @JsonKey()
-  final TimerState state;
+  final TimerStatus state;
   @override
   @JsonKey()
   final PomodoroPhase currentPhase;
@@ -530,7 +530,7 @@ class _$TimerSessionImpl implements _TimerSession {
 abstract class _TimerSession implements TimerSession {
   const factory _TimerSession(
       {final TimerMode mode,
-      final TimerState state,
+      final TimerStatus state,
       final PomodoroPhase currentPhase,
       final int remainingSeconds,
       final int elapsedSeconds,
@@ -544,7 +544,7 @@ abstract class _TimerSession implements TimerSession {
   @override
   TimerMode get mode;
   @override
-  TimerState get state;
+  TimerStatus get state;
   @override
   PomodoroPhase get currentPhase;
   @override

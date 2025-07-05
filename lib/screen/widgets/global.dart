@@ -46,15 +46,7 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            ...Theme.of(context).colorScheme.primaryGradient,
-            Theme.of(context).colorScheme.primaryGradient.first,
-          ],
-          stops: [0.0, 0.5, 1.0],
-        ),
+        color: Theme.of(context).colorScheme.headerFooterColor,
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).colorScheme.mediumShadowColor,
@@ -72,7 +64,7 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
           child: Text(
             "Solo",
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.headerFooterTextColor,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
                 ),
@@ -83,10 +75,14 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Theme.of(context)
+                  .colorScheme
+                  .headerFooterIconColor
+                  .withValues(alpha: 0.2),
             ),
             child: IconButton(
-              icon: const Icon(Icons.settings_rounded, color: Colors.white),
+              icon: Icon(Icons.settings_rounded,
+                  color: Theme.of(context).colorScheme.headerFooterIconColor),
               onPressed: onSettingsPressed,
             ),
           ),
@@ -141,11 +137,7 @@ class FooterMenu extends HookWidget {
 
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: Theme.of(context).colorScheme.primaryGradient,
-        ),
+        color: Theme.of(context).colorScheme.headerFooterColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -161,8 +153,11 @@ class FooterMenu extends HookWidget {
       child: BottomNavigationBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white.withValues(alpha: 0.7),
+        selectedItemColor: Theme.of(context).colorScheme.headerFooterTextColor,
+        unselectedItemColor: Theme.of(context)
+            .colorScheme
+            .headerFooterTextColor
+            .withValues(alpha: 0.7),
         selectedFontSize: 12,
         unselectedFontSize: 10,
         type: BottomNavigationBarType.fixed,

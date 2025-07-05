@@ -1,23 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/states/timer_state.dart';
 import 'package:solo/models/timer_model.dart';
 
-class TimerModeSwitch extends HookWidget {
-  final TimerStateController timerController;
-
-  const TimerModeSwitch({
-    super.key,
-    required this.timerController,
-  });
+class TimerModeSwitch extends ConsumerWidget {
+  const TimerModeSwitch({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    useListenable(timerController);
-    final timerSession = timerController.session;
-
+  Widget build(BuildContext context, WidgetRef ref) {
+    final timerSession = ref.watch(timerStateProvider);
+    final timerController = ref.read(timerStateProvider.notifier);
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
@@ -443,25 +437,18 @@ class TimerCircle extends StatelessWidget {
   }
 }
 
-class TimerControls extends HookWidget {
-  final TimerStateController timerController;
-
-  const TimerControls({
-    super.key,
-    required this.timerController,
-  });
+class TimerControls extends ConsumerWidget {
+  const TimerControls({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    useListenable(timerController);
-    final timerSession = timerController.session;
-
-    final canStart = timerSession.state == TimerState.idle ||
-        timerSession.state == TimerState.paused;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final timerSession = ref.watch(timerStateProvider);
+    final timerController = ref.read(timerStateProvider.notifier);
+    final canStart = timerSession.state == TimerStatus.idle ||
+        timerSession.state == TimerStatus.paused;
     final showSkip = timerSession.mode == TimerMode.pomodoro &&
-        (timerSession.state == TimerState.running ||
-            timerSession.state == TimerState.paused);
-
+        (timerSession.state == TimerStatus.running ||
+            timerSession.state == TimerStatus.paused);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
@@ -711,39 +698,46 @@ class _ProgressItem extends StatelessWidget {
   }
 }
 
-class TimerSettingsWidget extends HookWidget {
-  final TimerStateController timerController;
+class TimerSettingsWidget extends ConsumerStatefulWidget {
   final VoidCallback onClose;
+  const TimerSettingsWidget({super.key, required this.onClose});
+  @override
+  ConsumerState<TimerSettingsWidget> createState() =>
+      _TimerSettingsWidgetState();
+}
 
-  const TimerSettingsWidget({
-    super.key,
-    required this.timerController,
-    required this.onClose,
-  });
+class _TimerSettingsWidgetState extends ConsumerState<TimerSettingsWidget> {
+  late int workMinutes;
+  late int shortBreakMinutes;
+  late int longBreakMinutes;
+  late int cyclesUntilLongBreak;
+
+  @override
+  void initState() {
+    super.initState();
+    final timerSession = ref.read(timerStateProvider);
+    final timerSettings = timerSession.settings;
+    workMinutes = timerSettings.workMinutes;
+    shortBreakMinutes = timerSettings.shortBreakMinutes;
+    longBreakMinutes = timerSettings.longBreakMinutes;
+    cyclesUntilLongBreak = timerSettings.cyclesUntilLongBreak;
+  }
+
+  void saveSettings() {
+    final timerController = ref.read(timerStateProvider.notifier);
+    final newSettings = TimerSettings(
+      workMinutes: workMinutes,
+      shortBreakMinutes: shortBreakMinutes,
+      longBreakMinutes: longBreakMinutes,
+      cyclesUntilLongBreak: cyclesUntilLongBreak,
+    );
+    timerController.updateSettings(newSettings);
+    timerController.resetTimer();
+    widget.onClose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    useListenable(timerController);
-    final timerSettings = timerController.session.settings;
-
-    final workMinutes = useState(timerSettings.workMinutes);
-    final shortBreakMinutes = useState(timerSettings.shortBreakMinutes);
-    final longBreakMinutes = useState(timerSettings.longBreakMinutes);
-    final cyclesUntilLongBreak = useState(timerSettings.cyclesUntilLongBreak);
-
-    void saveSettings() {
-      final newSettings = TimerSettings(
-        workMinutes: workMinutes.value,
-        shortBreakMinutes: shortBreakMinutes.value,
-        longBreakMinutes: longBreakMinutes.value,
-        cyclesUntilLongBreak: cyclesUntilLongBreak.value,
-      );
-      timerController.updateSettings(newSettings);
-      // 設定変更後にタイマーをリセット
-      timerController.resetTimer();
-      onClose();
-    }
-
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -787,7 +781,7 @@ class TimerSettingsWidget extends HookWidget {
                         Icons.close_rounded,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
-                      onPressed: onClose,
+                      onPressed: widget.onClose,
                     ),
                   ),
                 ],
@@ -804,9 +798,11 @@ class TimerSettingsWidget extends HookWidget {
                     _SettingItem(
                       title: '作業時間',
                       subtitle: '集中して作業する時間',
-                      value: workMinutes.value,
+                      value: workMinutes,
                       unit: '分',
-                      onChanged: (value) => workMinutes.value = value,
+                      onChanged: (value) => setState(() {
+                        workMinutes = value;
+                      }),
                       min: 1,
                       max: 60,
                       color: Theme.of(context).colorScheme.accentColor,
@@ -815,9 +811,11 @@ class TimerSettingsWidget extends HookWidget {
                     _SettingItem(
                       title: '短い休憩',
                       subtitle: '作業の間の短い休憩時間',
-                      value: shortBreakMinutes.value,
+                      value: shortBreakMinutes,
                       unit: '分',
-                      onChanged: (value) => shortBreakMinutes.value = value,
+                      onChanged: (value) => setState(() {
+                        shortBreakMinutes = value;
+                      }),
                       min: 1,
                       max: 30,
                       color: Theme.of(context).colorScheme.infoColor,
@@ -826,9 +824,11 @@ class TimerSettingsWidget extends HookWidget {
                     _SettingItem(
                       title: '長い休憩',
                       subtitle: '複数サイクル後の長い休憩時間',
-                      value: longBreakMinutes.value,
+                      value: longBreakMinutes,
                       unit: '分',
-                      onChanged: (value) => longBreakMinutes.value = value,
+                      onChanged: (value) => setState(() {
+                        longBreakMinutes = value;
+                      }),
                       min: 1,
                       max: 60,
                       color: Theme.of(context).colorScheme.purpleColor,
@@ -837,9 +837,11 @@ class TimerSettingsWidget extends HookWidget {
                     _SettingItem(
                       title: '長い休憩までのサイクル数',
                       subtitle: '何回の作業サイクル後に長い休憩をとるか',
-                      value: cyclesUntilLongBreak.value,
+                      value: cyclesUntilLongBreak,
                       unit: 'サイクル',
-                      onChanged: (value) => cyclesUntilLongBreak.value = value,
+                      onChanged: (value) => setState(() {
+                        cyclesUntilLongBreak = value;
+                      }),
                       min: 2,
                       max: 10,
                       color: Theme.of(context).colorScheme.successColor,
@@ -884,7 +886,7 @@ class TimerSettingsWidget extends HookWidget {
   }
 }
 
-class _SettingItem extends HookWidget {
+class _SettingItem extends StatefulWidget {
   final String title;
   final String subtitle;
   final int value;
@@ -906,42 +908,64 @@ class _SettingItem extends HookWidget {
   });
 
   @override
+  State<_SettingItem> createState() => _SettingItemState();
+}
+
+class _SettingItemState extends State<_SettingItem> {
+  late TextEditingController textController;
+
+  @override
+  void initState() {
+    super.initState();
+    textController = TextEditingController(text: widget.value.toString());
+  }
+
+  @override
+  void didUpdateWidget(covariant _SettingItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value) {
+      textController.text = widget.value.toString();
+    }
+  }
+
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final textController = useTextEditingController(text: value.toString());
-    final isTimeUnit = unit == '分';
+    final isTimeUnit = widget.unit == '分';
 
     // テキスト入力での値変更を処理
     void handleTextInput(String text) {
       final newValue = int.tryParse(text);
-      if (newValue != null && newValue >= min && newValue <= max) {
-        onChanged(newValue);
+      if (newValue != null &&
+          newValue >= widget.min &&
+          newValue <= widget.max) {
+        widget.onChanged(newValue);
       }
     }
 
     // 5分刻みでの変更
     void incrementByStep() {
       final step = isTimeUnit ? 5 : 1;
-      final newValue = value + step;
-      if (newValue <= max) {
-        onChanged(newValue);
+      final newValue = widget.value + step;
+      if (newValue <= widget.max) {
+        widget.onChanged(newValue);
         textController.text = newValue.toString();
       }
     }
 
     void decrementByStep() {
       final step = isTimeUnit ? 5 : 1;
-      final newValue = value - step;
-      if (newValue >= min) {
-        onChanged(newValue);
+      final newValue = widget.value - step;
+      if (newValue >= widget.min) {
+        widget.onChanged(newValue);
         textController.text = newValue.toString();
       }
     }
-
-    // 値が変更されたときにテキストコントローラーを更新
-    useEffect(() {
-      textController.text = value.toString();
-      return null;
-    }, [value]);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -949,18 +973,18 @@ class _SettingItem extends HookWidget {
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(
           colors: [
-            color.withValues(alpha: 0.1),
-            color.withValues(alpha: 0.05),
+            widget.color.withValues(alpha: 0.1),
+            widget.color.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         border: Border.all(
-          color: color.withValues(alpha: 0.2),
+          color: widget.color.withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.1),
+            color: widget.color.withValues(alpha: 0.1),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -975,11 +999,11 @@ class _SettingItem extends HookWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color.withValues(alpha: 0.2),
+                  color: widget.color.withValues(alpha: 0.2),
                 ),
                 child: Icon(
-                  _getIconForTitle(title),
-                  color: color,
+                  _getIconForTitle(widget.title),
+                  color: widget.color,
                   size: 20,
                 ),
               ),
@@ -989,7 +1013,7 @@ class _SettingItem extends HookWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      title,
+                      widget.title,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
@@ -998,7 +1022,7 @@ class _SettingItem extends HookWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      subtitle,
+                      widget.subtitle,
                       style: TextStyle(
                         color: Theme.of(context)
                             .colorScheme
@@ -1018,24 +1042,32 @@ class _SettingItem extends HookWidget {
             children: [
               _ControlButton(
                 icon: Icons.remove_rounded,
-                onPressed: (isTimeUnit ? value > min + 4 : value > min)
+                onPressed: (isTimeUnit
+                        ? widget.value > widget.min + 4
+                        : widget.value > widget.min)
                     ? decrementByStep
                     : null,
-                color: color,
+                color: widget.color,
                 isTimeUnit: isTimeUnit,
               ),
               // タップで入力可能なテキストフィールド
               GestureDetector(
-                onTap: () => _showInputDialog(context, textController,
-                    handleTextInput, min, max, unit, color),
+                onTap: () => _showInputDialog(
+                    context,
+                    textController,
+                    handleTextInput,
+                    widget.min,
+                    widget.max,
+                    widget.unit,
+                    widget.color),
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    color: color.withValues(alpha: 0.15),
+                    color: widget.color.withValues(alpha: 0.15),
                     border: Border.all(
-                      color: color.withValues(alpha: 0.3),
+                      color: widget.color.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -1043,9 +1075,9 @@ class _SettingItem extends HookWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        '$value $unit',
+                        '${widget.value} ${widget.unit}',
                         style: TextStyle(
-                          color: color,
+                          color: widget.color,
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),
@@ -1053,7 +1085,7 @@ class _SettingItem extends HookWidget {
                       const SizedBox(width: 8),
                       Icon(
                         Icons.edit_rounded,
-                        color: color.withValues(alpha: 0.7),
+                        color: widget.color.withValues(alpha: 0.7),
                         size: 16,
                       ),
                     ],
@@ -1062,10 +1094,12 @@ class _SettingItem extends HookWidget {
               ),
               _ControlButton(
                 icon: Icons.add_rounded,
-                onPressed: (isTimeUnit ? value < max - 4 : value < max)
+                onPressed: (isTimeUnit
+                        ? widget.value < widget.max - 4
+                        : widget.value < widget.max)
                     ? incrementByStep
                     : null,
-                color: color,
+                color: widget.color,
                 isTimeUnit: isTimeUnit,
               ),
             ],
@@ -1102,7 +1136,7 @@ class _SettingItem extends HookWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('$title を設定'),
+        title: Text('${widget.title} を設定'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

@@ -27,8 +27,8 @@ _$TimerSessionImpl _$$TimerSessionImplFromJson(Map<String, dynamic> json) =>
     _$TimerSessionImpl(
       mode: $enumDecodeNullable(_$TimerModeEnumMap, json['mode']) ??
           TimerMode.pomodoro,
-      state: $enumDecodeNullable(_$TimerStateEnumMap, json['state']) ??
-          TimerState.idle,
+      state: $enumDecodeNullable(_$TimerStatusEnumMap, json['state']) ??
+          TimerStatus.idle,
       currentPhase:
           $enumDecodeNullable(_$PomodoroPhaseEnumMap, json['currentPhase']) ??
               PomodoroPhase.work,
@@ -43,7 +43,7 @@ _$TimerSessionImpl _$$TimerSessionImplFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$$TimerSessionImplToJson(_$TimerSessionImpl instance) =>
     <String, dynamic>{
       'mode': _$TimerModeEnumMap[instance.mode]!,
-      'state': _$TimerStateEnumMap[instance.state]!,
+      'state': _$TimerStatusEnumMap[instance.state]!,
       'currentPhase': _$PomodoroPhaseEnumMap[instance.currentPhase]!,
       'remainingSeconds': instance.remainingSeconds,
       'elapsedSeconds': instance.elapsedSeconds,
@@ -57,11 +57,11 @@ const _$TimerModeEnumMap = {
   TimerMode.countUp: 'countUp',
 };
 
-const _$TimerStateEnumMap = {
-  TimerState.idle: 'idle',
-  TimerState.running: 'running',
-  TimerState.paused: 'paused',
-  TimerState.completed: 'completed',
+const _$TimerStatusEnumMap = {
+  TimerStatus.idle: 'idle',
+  TimerStatus.running: 'running',
+  TimerStatus.paused: 'paused',
+  TimerStatus.completed: 'completed',
 };
 
 const _$PomodoroPhaseEnumMap = {

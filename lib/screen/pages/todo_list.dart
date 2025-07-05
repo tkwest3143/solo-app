@@ -302,7 +302,6 @@ class TodoListPage extends HookConsumerWidget {
         filteredData = dummyTodos.where((todo) => !todo.isCompleted).toList();
         break;
       case TodoFilter.all:
-      default:
         filteredData = dummyTodos;
         break;
     }
