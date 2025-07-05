@@ -73,6 +73,32 @@ class TodoListPage extends HookConsumerWidget {
                         ),
                       ),
                       const Spacer(),
+                      // Category filter button
+                      IconButton(
+                        onPressed: () async {
+                          final result = await showTodoFilterDialog(
+                            context: context,
+                            initialCategoryId: null, // TODO: Track selected filter
+                            initialStatus: null,
+                          );
+                          if (result != null) {
+                            // TODO: Handle filter result
+                            print('Filter result: $result');
+                          }
+                        },
+                        icon: Icon(
+                          Icons.filter_alt,
+                          color: Theme.of(context).colorScheme.primaryTextColor,
+                        ),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withValues(alpha: 0.2),
+                          padding: const EdgeInsets.all(12),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       // Calendar navigation button
                       IconButton(
                         onPressed: () {
@@ -270,46 +296,21 @@ class TodoListPage extends HookConsumerWidget {
 
   Future<Map<String, List<TodoModel>>> _getTodoSections(
       TodoFilter filter) async {
-    // ダミーデータを返す
-    final now = DateTime.now();
-    final dummyTodos = [
-      TodoModel(
-        id: 1,
-        title: 'ダミーTodo 1',
-        description: 'ダミー詳細 1',
-        dueDate: now,
-        isCompleted: false,
-        color: 'blue',
-      ),
-      TodoModel(
-        id: 2,
-        title: 'ダミーTodo 2',
-        description: 'ダミー詳細 2',
-        dueDate: now.add(const Duration(days: 1)),
-        isCompleted: true,
-        color: 'orange',
-      ),
-      TodoModel(
-        id: 3,
-        title: 'ダミーTodo 3',
-        description: 'ダミー詳細 3',
-        dueDate: now.add(const Duration(days: 3)),
-        isCompleted: false,
-        color: 'green',
-      ),
-    ];
+    // Get todos from the service instead of using dummy data
+    final todoService = TodoService();
+    final allTodos = await todoService.getTodo();
 
-    // フィルタ適用
+    // Apply filter
     List<TodoModel> filteredData;
     switch (filter) {
       case TodoFilter.completed:
-        filteredData = dummyTodos.where((todo) => todo.isCompleted).toList();
+        filteredData = allTodos.where((todo) => todo.isCompleted).toList();
         break;
       case TodoFilter.incomplete:
-        filteredData = dummyTodos.where((todo) => !todo.isCompleted).toList();
+        filteredData = allTodos.where((todo) => !todo.isCompleted).toList();
         break;
       case TodoFilter.all:
-        filteredData = dummyTodos;
+        filteredData = allTodos;
         break;
     }
 

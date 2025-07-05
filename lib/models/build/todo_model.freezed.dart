@@ -26,6 +26,7 @@ mixin _$TodoModel {
   bool get isCompleted => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   String? get color => throw _privateConstructorUsedError;
+  int? get categoryId => throw _privateConstructorUsedError;
   String? get icon => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt =>
