@@ -1,29 +1,29 @@
 import 'package:flutter/material.dart';
 
 // Custom color definitions for the app
-class AppColors {
+class _AppColors {
   // Primary brand colors
   static const Color primaryBlue = Color(0xFF667eea);
   static const Color primaryPurple = Color(0xFF764ba2);
-  
+
   // Text colors
   static const Color primaryText = Color(0xFF2C3E50);
   static const Color secondaryText = Color(0xFF6C757D);
   static const Color mutedText = Color(0xFF9E9E9E);
   static const Color disabledText = Color(0xFFBDBDBD);
-  
+
   // Background colors
   static const Color lightBackgroundStart = Color(0xFFF8F9FA);
   static const Color lightBackgroundEnd = Color(0xFFE9ECEF);
   static const Color darkBackgroundStart = Color(0xFF1A1A1A);
   static const Color darkBackgroundEnd = Color(0xFF2D2D2D);
-  
+
   // Surface colors
   static const Color lightSurface = Colors.white;
   static const Color darkSurface = Color(0xFF3A3A3A);
   static const Color lightBorder = Color(0xFFE0E0E0);
   static const Color darkBorder = Color(0xFF4A4A4A);
-  
+
   // Functional colors
   static const Color success = Color(0xFF4CAF50);
   static const Color successBackground = Color(0xFFE8F5E8);
@@ -37,95 +37,102 @@ class AppColors {
   static const Color accentBackground = Color(0xFFF8BBD9);
   static const Color purple = Color(0xFF9C27B0);
   static const Color purpleBackground = Color(0xFFF3E5F5);
-  
+
   // Special colors
   static const Color todayTag = primaryBlue;
   static const Color completedTask = success;
-  
+
   // Shadow colors
   static Color lightShadow = Colors.black.withValues(alpha: 0.1);
   static Color mediumShadow = Colors.black.withValues(alpha: 0.2);
   static Color darkShadowLight = Colors.black26;
   static Color darkShadowDark = Colors.black54;
+
+  // Calendar selected day color
+  static const Color calendarSelectedDay = Color(0xFFE3F0FF); // 薄い青
 }
 
 // Custom color scheme extension
 extension AppColorScheme on ColorScheme {
   // Gradient colors
   List<Color> get primaryGradient => brightness == Brightness.light
-      ? [AppColors.primaryBlue, AppColors.primaryPurple]
-      : [AppColors.primaryBlue.withValues(alpha: 0.8), AppColors.primaryPurple.withValues(alpha: 0.8)];
-  
+      ? [_AppColors.primaryBlue, _AppColors.primaryPurple]
+      : [
+          _AppColors.primaryBlue.withValues(alpha: 0.8),
+          _AppColors.primaryPurple.withValues(alpha: 0.8)
+        ];
+
   List<Color> get backgroundGradient => brightness == Brightness.light
-      ? [AppColors.lightBackgroundStart, AppColors.lightBackgroundEnd]
-      : [AppColors.darkBackgroundStart, AppColors.darkBackgroundEnd];
-  
+      ? [_AppColors.lightBackgroundStart, _AppColors.lightBackgroundEnd]
+      : [_AppColors.darkBackgroundStart, _AppColors.darkBackgroundEnd];
+
   // Text colors
-  Color get primaryTextColor => brightness == Brightness.light
-      ? AppColors.primaryText
-      : Colors.white;
-  
+  Color get primaryTextColor =>
+      brightness == Brightness.light ? _AppColors.primaryText : Colors.white;
+
   Color get secondaryTextColor => brightness == Brightness.light
-      ? AppColors.secondaryText
+      ? _AppColors.secondaryText
       : Colors.white70;
-  
-  Color get mutedTextColor => brightness == Brightness.light
-      ? AppColors.mutedText
-      : Colors.white54;
-  
+
+  Color get mutedTextColor =>
+      brightness == Brightness.light ? _AppColors.mutedText : Colors.white54;
+
   // Success colors
-  Color get successColor => AppColors.success;
+  Color get successColor => _AppColors.success;
   Color get successBackgroundColor => brightness == Brightness.light
-      ? AppColors.successBackground
-      : AppColors.success.withValues(alpha: 0.2);
-  
+      ? _AppColors.successBackground
+      : _AppColors.success.withValues(alpha: 0.2);
+
   // Warning colors
-  Color get warningColor => AppColors.warning;
+  Color get warningColor => _AppColors.warning;
   Color get warningBackgroundColor => brightness == Brightness.light
-      ? AppColors.warningBackground
-      : AppColors.warning.withValues(alpha: 0.2);
-  
+      ? _AppColors.warningBackground
+      : _AppColors.warning.withValues(alpha: 0.2);
+
   // Error colors
-  Color get errorColor => AppColors.error;
+  Color get errorColor => _AppColors.error;
   Color get errorBackgroundColor => brightness == Brightness.light
-      ? AppColors.errorBackground
-      : AppColors.error.withValues(alpha: 0.2);
-  
+      ? _AppColors.errorBackground
+      : _AppColors.error.withValues(alpha: 0.2);
+
   // Info colors
-  Color get infoColor => AppColors.info;
+  Color get infoColor => _AppColors.info;
   Color get infoBackgroundColor => brightness == Brightness.light
-      ? AppColors.infoBackground
-      : AppColors.info.withValues(alpha: 0.2);
-  
+      ? _AppColors.infoBackground
+      : _AppColors.info.withValues(alpha: 0.2);
+
   // Accent colors
-  Color get accentColor => AppColors.accent;
+  Color get accentColor => _AppColors.accent;
   Color get accentBackgroundColor => brightness == Brightness.light
-      ? AppColors.accentBackground
-      : AppColors.accent.withValues(alpha: 0.2);
-  
+      ? _AppColors.accentBackground
+      : _AppColors.accent.withValues(alpha: 0.2);
+
   // Purple colors
-  Color get purpleColor => AppColors.purple;
+  Color get purpleColor => _AppColors.purple;
   Color get purpleBackgroundColor => brightness == Brightness.light
-      ? AppColors.purpleBackground
-      : AppColors.purple.withValues(alpha: 0.2);
-  
+      ? _AppColors.purpleBackground
+      : _AppColors.purple.withValues(alpha: 0.2);
+
   // Special colors
   Color get todayTagColor => brightness == Brightness.light
-      ? AppColors.todayTag
-      : AppColors.todayTag.withValues(alpha: 0.8);
-  
+      ? _AppColors.todayTag
+      : _AppColors.todayTag.withValues(alpha: 0.8);
+
   Color get todayTagBackgroundColor => brightness == Brightness.light
-      ? AppColors.todayTag.withValues(alpha: 0.1)
-      : AppColors.todayTag.withValues(alpha: 0.3);
-  
+      ? _AppColors.todayTag.withValues(alpha: 0.1)
+      : _AppColors.todayTag.withValues(alpha: 0.3);
+
   // Shadow colors
   Color get lightShadowColor => brightness == Brightness.light
-      ? AppColors.lightShadow
-      : AppColors.darkShadowDark;
-  
+      ? _AppColors.lightShadow
+      : _AppColors.darkShadowDark;
+
   Color get mediumShadowColor => brightness == Brightness.light
-      ? AppColors.mediumShadow
-      : AppColors.darkShadowDark;
+      ? _AppColors.mediumShadow
+      : _AppColors.darkShadowDark;
+
+  // Calendar selected day color
+  Color get calendarSelectedDayColor => _AppColors.calendarSelectedDay;
 }
 
 // Light theme definition
@@ -133,17 +140,17 @@ ThemeData lightTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.light,
   colorScheme: const ColorScheme.light(
-    primary: AppColors.primaryBlue,
-    secondary: AppColors.primaryPurple,
-    surface: AppColors.lightSurface,
-    surfaceContainerHighest: AppColors.lightBackgroundEnd,
-    onSurface: AppColors.primaryText,
-    onSurfaceVariant: AppColors.secondaryText,
-    outline: AppColors.lightBorder,
+    primary: _AppColors.primaryBlue,
+    secondary: _AppColors.primaryPurple,
+    surface: _AppColors.lightSurface,
+    surfaceContainerHighest: _AppColors.lightBackgroundEnd,
+    onSurface: _AppColors.primaryText,
+    onSurfaceVariant: _AppColors.secondaryText,
+    outline: _AppColors.lightBorder,
   ),
-  cardColor: AppColors.lightSurface,
-  shadowColor: AppColors.lightShadow,
-  dividerColor: AppColors.lightBorder,
+  cardColor: _AppColors.lightSurface,
+  shadowColor: _AppColors.lightShadow,
+  dividerColor: _AppColors.lightBorder,
 );
 
 // Dark theme definition
@@ -151,15 +158,15 @@ ThemeData darkTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
   colorScheme: const ColorScheme.dark(
-    primary: AppColors.primaryBlue,
-    secondary: AppColors.primaryPurple,
-    surface: AppColors.darkSurface,
-    surfaceContainerHighest: AppColors.darkBackgroundEnd,
+    primary: _AppColors.primaryBlue,
+    secondary: _AppColors.primaryPurple,
+    surface: _AppColors.darkSurface,
+    surfaceContainerHighest: _AppColors.darkBackgroundEnd,
     onSurface: Colors.white,
     onSurfaceVariant: Colors.white70,
-    outline: AppColors.darkBorder,
+    outline: _AppColors.darkBorder,
   ),
-  cardColor: AppColors.darkSurface,
-  shadowColor: AppColors.darkShadowDark,
-  dividerColor: AppColors.darkBorder,
+  cardColor: _AppColors.darkSurface,
+  shadowColor: _AppColors.darkShadowDark,
+  dividerColor: _AppColors.darkBorder,
 );
