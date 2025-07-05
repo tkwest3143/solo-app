@@ -378,4 +378,66 @@ class TodoService {
     _inMemoryTodos.add(nextInstance);
     return nextInstance;
   }
+
+  /// Auto-generate recurring todos when needed
+  Future<List<TodoModel>> generateUpcomingRecurringTodos() async {
+    final allTodos = await getTodo();
+    final now = DateTime.now();
+    final oneWeekFromNow = now.add(const Duration(days: 7));
+    final generatedTodos = <TodoModel>[];
+
+    for (final todo in allTodos) {
+      if (todo.isRecurring == true && !todo.isCompleted) {
+        // Check if we need to generate upcoming instances
+        var currentTodo = todo;
+        
+        // Generate up to 3 future instances within the next week
+        for (int i = 0; i < 3; i++) {
+          final nextDate = calculateNextRecurringDate(currentTodo);
+          if (nextDate == null || nextDate.isAfter(oneWeekFromNow)) break;
+          
+          // Check if we've passed the end date
+          if (todo.recurringEndDate != null && 
+              nextDate.isAfter(todo.recurringEndDate!)) break;
+
+          // Check if this instance already exists
+          final existingInstance = allTodos.any((t) => 
+            t.title == todo.title &&
+            t.dueDate.year == nextDate.year &&
+            t.dueDate.month == nextDate.month &&
+            t.dueDate.day == nextDate.day &&
+            t.dueDate.hour == nextDate.hour &&
+            t.dueDate.minute == nextDate.minute
+          );
+
+          if (!existingInstance) {
+            final nextInstance = TodoModel(
+              id: _nextId++,
+              title: todo.title,
+              description: todo.description,
+              dueDate: nextDate,
+              isCompleted: false,
+              color: todo.color,
+              icon: todo.icon,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+              isRecurring: todo.isRecurring,
+              recurringType: todo.recurringType,
+              recurringEndDate: todo.recurringEndDate,
+              recurringDayOfWeek: todo.recurringDayOfWeek,
+              recurringDayOfMonth: todo.recurringDayOfMonth,
+            );
+
+            _inMemoryTodos.add(nextInstance);
+            generatedTodos.add(nextInstance);
+            currentTodo = nextInstance;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+
+    return generatedTodos;
+  }
 }
