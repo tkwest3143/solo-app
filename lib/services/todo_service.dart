@@ -1,5 +1,6 @@
 import 'package:solo/models/todo_model.dart';
 import 'package:solo/repositories/database.dart';
+import 'package:solo/services/todo_checklist_item_service.dart';
 
 class TodoService {
   // In-memory storage for prototype - in real app this would be persisted
@@ -185,6 +186,7 @@ class TodoService {
       dueDate: oldTodo.dueDate,
       isCompleted: !oldTodo.isCompleted,
       color: oldTodo.color,
+      categoryId: oldTodo.categoryId,
       icon: oldTodo.icon,
       createdAt: oldTodo.createdAt,
       updatedAt: DateTime.now(),
@@ -197,6 +199,42 @@ class TodoService {
 
     _inMemoryTodos[index] = updatedTodo;
     return updatedTodo;
+  }
+
+  /// Check if todo should be auto-completed based on checklist items
+  Future<bool> checkAndUpdateTodoCompletionByChecklist(int todoId) async {
+    final checklistService = TodoCheckListItemService();
+    final allItemsCompleted = await checklistService.areAllCheckListItemsCompleted(todoId);
+    
+    if (allItemsCompleted) {
+      // Find and update the todo to completed
+      final index = _inMemoryTodos.indexWhere((todo) => todo.id == todoId);
+      if (index != -1) {
+        final oldTodo = _inMemoryTodos[index];
+        if (!oldTodo.isCompleted) {
+          final updatedTodo = TodoModel(
+            id: oldTodo.id,
+            title: oldTodo.title,
+            description: oldTodo.description,
+            dueDate: oldTodo.dueDate,
+            isCompleted: true,
+            color: oldTodo.color,
+            categoryId: oldTodo.categoryId,
+            icon: oldTodo.icon,
+            createdAt: oldTodo.createdAt,
+            updatedAt: DateTime.now(),
+            isRecurring: oldTodo.isRecurring,
+            recurringType: oldTodo.recurringType,
+            recurringEndDate: oldTodo.recurringEndDate,
+            recurringDayOfWeek: oldTodo.recurringDayOfWeek,
+            recurringDayOfMonth: oldTodo.recurringDayOfMonth,
+          );
+          _inMemoryTodos[index] = updatedTodo;
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   Future<List<TodoModel>> getTodayTodos() async {

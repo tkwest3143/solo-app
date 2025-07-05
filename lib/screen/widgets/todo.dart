@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/models/todo_model.dart';
 import 'package:solo/models/category_model.dart';
+import 'package:solo/models/todo_checklist_item_model.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/services/category_service.dart';
+import 'package:solo/services/todo_checklist_item_service.dart';
 import 'package:solo/utilities/date.dart';
 import 'package:solo/enums/todo_color.dart';
 import 'package:solo/enums/recurring_type.dart';
+import 'package:solo/screen/widgets/todo_checklist_widget.dart';
 
 class TodoCard extends StatelessWidget {
   final TodoModel todo;
@@ -401,6 +404,18 @@ class AddTodoDialog {
       initialTodo?.recurringDayOfMonth,
     );
 
+    // Checklist state
+    final checklistItems = ValueNotifier<List<TodoCheckListItemModel>>([]);
+    
+    // Load existing checklist items if editing a todo
+    if (initialTodo != null) {
+      TodoCheckListItemService()
+          .getCheckListItemsForTodo(initialTodo.id)
+          .then((items) {
+        checklistItems.value = items;
+      });
+    }
+
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -485,6 +500,17 @@ class AddTodoDialog {
                           .withValues(alpha: 0.05),
                     ),
                     maxLines: 3,
+                  ),
+                  const SizedBox(height: 16),
+                  ValueListenableBuilder<List<TodoCheckListItemModel>>(
+                    valueListenable: checklistItems,
+                    builder: (context, items, _) => TodoChecklistWidget(
+                      todoId: initialTodo?.id,
+                      initialItems: items,
+                      onChecklistChanged: (updatedItems) {
+                        checklistItems.value = updatedItems;
+                      },
+                    ),
                   ),
                   const SizedBox(height: 16),
                   ValueListenableBuilder<DateTime>(
@@ -999,9 +1025,21 @@ class AddTodoDialog {
                                 ? recurringDayOfMonth.value
                                 : null,
                           );
+
+                          // Update checklist items for existing todo
+                          final checklistService = TodoCheckListItemService();
+                          await checklistService.deleteAllCheckListItemsForTodo(initialTodo.id);
+                          for (int i = 0; i < checklistItems.value.length; i++) {
+                            final item = checklistItems.value[i];
+                            await checklistService.createCheckListItem(
+                              todoId: initialTodo.id,
+                              title: item.title,
+                              order: i,
+                            );
+                          }
                         } else {
                           // Create new todo
-                          await TodoService().createTodo(
+                          final newTodo = await TodoService().createTodo(
                             title: titleController.text.trim(),
                             description:
                                 descriptionController.text.trim().isEmpty
@@ -1027,6 +1065,17 @@ class AddTodoDialog {
                                 ? recurringDayOfMonth.value
                                 : null,
                           );
+
+                          // Create checklist items for new todo
+                          final checklistService = TodoCheckListItemService();
+                          for (int i = 0; i < checklistItems.value.length; i++) {
+                            final item = checklistItems.value[i];
+                            await checklistService.createCheckListItem(
+                              todoId: newTodo.id,
+                              title: item.title,
+                              order: i,
+                            );
+                          }
                         }
 
                         if (context.mounted) {
@@ -1354,6 +1403,49 @@ class _TodoDetailContent extends StatelessWidget {
                             ],
                           ),
                         ],
+                        // Checklist items
+                        FutureBuilder<List<TodoCheckListItemModel>>(
+                          future: TodoCheckListItemService().getCheckListItemsForTodo(todo.id),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const SizedBox.shrink();
+                            }
+
+                            final checklistItems = snapshot.data ?? [];
+                            if (checklistItems.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 14),
+                                Row(
+                                  children: [
+                                    Icon(Icons.checklist,
+                                        size: 16,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondaryTextColor),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'チェックリスト (${checklistItems.where((item) => item.isCompleted).length}/${checklistItems.length})',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondaryTextColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                ...checklistItems.map((item) => _buildChecklistItemRow(context, item, todo)),
+                              ],
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -1496,6 +1588,73 @@ class _TodoDetailContent extends StatelessWidget {
     if (recurringType == null) return '';
     final type = RecurringType.fromString(recurringType);
     return type?.label ?? '';
+  }
+
+  Widget _buildChecklistItemRow(BuildContext context, TodoCheckListItemModel item, TodoModel todo) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          const SizedBox(width: 22), // Align with icon above
+          GestureDetector(
+            onTap: () async {
+              // Toggle checklist item completion
+              final checklistService = TodoCheckListItemService();
+              await checklistService.toggleCheckListItemComplete(item.id);
+              
+              // Check if todo should be auto-completed
+              final todoService = TodoService();
+              final wasCompleted = await todoService.checkAndUpdateTodoCompletionByChecklist(todo.id);
+              
+              if (wasCompleted && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('${todo.title}を完了にしました')),
+                );
+              }
+              
+              // Refresh the UI
+              onRefresh?.call();
+            },
+            child: Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: item.isCompleted
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.transparent,
+                border: Border.all(
+                  color: item.isCompleted
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.outline,
+                  width: 1.5,
+                ),
+              ),
+              child: item.isCompleted
+                  ? Icon(
+                      Icons.check,
+                      size: 10,
+                      color: Theme.of(context).colorScheme.surface,
+                    )
+                  : null,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              item.title,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.secondaryTextColor,
+                fontSize: 13,
+                decoration: item.isCompleted
+                    ? TextDecoration.lineThrough
+                    : null,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
