@@ -1,5 +1,5 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/states/timer_state.dart';
@@ -85,8 +85,14 @@ class _ModeButton extends StatelessWidget {
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.8),
-                    Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.6),
+                    Theme.of(context)
+                        .colorScheme
+                        .accentColor
+                        .withValues(alpha: 0.8),
+                    Theme.of(context)
+                        .colorScheme
+                        .accentColor
+                        .withValues(alpha: 0.6),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -111,7 +117,10 @@ class _ModeButton extends StatelessWidget {
           style: TextStyle(
             color: isSelected
                 ? Colors.white
-                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                : Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.7),
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             fontSize: 14,
           ),
@@ -203,159 +212,228 @@ class TimerCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 320,
-      height: 320,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
-            blurRadius: 48,
-            offset: const Offset(0, 16),
-          ),
-        ],
-      ),
+    return SizedBox(
+      height: 380, // 高さを増やしてフェーズインジケーター用のスペースを確保
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Background circle with elegant gradient
-          Container(
-            width: 320,
-            height: 320,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
-                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.4),
-                ],
-                stops: const [0.0, 1.0],
-              ),
-              border: Border.all(
-                color: Theme.of(context)
-                    .colorScheme
-                    .outline
-                    .withValues(alpha: 0.1),
-                width: 1,
-              ),
-            ),
-          ),
-
-          // Inner circle for better depth
+          // メインの円形タイマー
           Container(
             width: 280,
             height: 280,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Theme.of(context)
-                  .colorScheme
-                  .surface
-                  .withValues(alpha: 0.3),
-            ),
-          ),
-
-          // Progress indicator for Pomodoro
-          if (timerSession.mode == TimerMode.pomodoro)
-            SizedBox(
-              width: 300,
-              height: 300,
-              child: CircularProgressIndicator(
-                value: timerSession.progress,
-                strokeWidth: 6,
-                strokeCap: StrokeCap.round,
-                backgroundColor: Theme.of(context)
-                    .colorScheme
-                    .surface
-                    .withValues(alpha: 0.1),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  timerSession.isWorkPhase
-                      ? Theme.of(context).colorScheme.accentColor
-                      : Theme.of(context).colorScheme.infoColor,
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).shadowColor.withValues(alpha: 0.3),
+                  blurRadius: 24,
                 ),
-              ),
+              ],
             ),
-
-          // Timer display with enhanced typography
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                timerSession.displayTime,
-                style: TextStyle(
-                  fontSize: 52,
-                  fontWeight: FontWeight.w300,
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                  letterSpacing: -2,
-                  height: 1.0,
-                ),
-              ),
-              const SizedBox(height: 8),
-              if (timerSession.mode == TimerMode.countUp)
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Background circle with elegant gradient
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 6),
+                  height: 320,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withValues(alpha: 0.8),
+                        Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withValues(alpha: 0.4),
+                      ],
+                      stops: const [0.0, 1.0],
+                    ),
+                  ),
+                ),
+
+                // Inner circle for better depth
+                Container(
+                  width: 280,
+                  height: 280,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
                     color: Theme.of(context)
                         .colorScheme
                         .surface
-                        .withValues(alpha: 0.2),
-                  ),
-                  child: Text(
-                    '経過時間',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.7),
-                      fontWeight: FontWeight.w500,
-                    ),
+                        .withValues(alpha: 0.3),
                   ),
                 ),
-              if (onLongPress != null && timerSession.mode == TimerMode.pomodoro)
-                Container(
-                  margin: const EdgeInsets.only(top: 12),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: Theme.of(context)
-                        .colorScheme
-                        .accentColor
-                        .withValues(alpha: 0.1),
-                  ),
-                  child: Text(
-                    '長押しで設定',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Theme.of(context)
+
+                // Progress indicator for Pomodoro
+                if (timerSession.mode == TimerMode.pomodoro)
+                  SizedBox(
+                    width: 300,
+                    height: 300,
+                    child: CircularProgressIndicator(
+                      value: timerSession.progress,
+                      strokeWidth: 6,
+                      strokeCap: StrokeCap.round,
+                      backgroundColor: Theme.of(context)
                           .colorScheme
-                          .accentColor
-                          .withValues(alpha: 0.8),
-                      fontWeight: FontWeight.w500,
+                          .surface
+                          .withValues(alpha: 0.1),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        timerSession.isWorkPhase
+                            ? Theme.of(context).colorScheme.accentColor
+                            : Theme.of(context).colorScheme.infoColor,
+                      ),
                     ),
                   ),
+
+                // Timer display with enhanced typography
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      timerSession.displayTime,
+                      style: TextStyle(
+                        fontSize: 52,
+                        fontWeight: FontWeight.w300,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                        letterSpacing: -2,
+                        height: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    if (timerSession.mode == TimerMode.countUp)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 6),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withValues(alpha: 0.2),
+                        ),
+                        child: Text(
+                          '経過時間',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.7),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    if (onLongPress != null &&
+                        timerSession.mode == TimerMode.pomodoro)
+                      Container(
+                        margin: const EdgeInsets.only(top: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .accentColor
+                              .withValues(alpha: 0.1),
+                        ),
+                        child: Text(
+                          '長押しで設定',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .accentColor
+                                .withValues(alpha: 0.8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-            ],
+
+                // Long press detection overlay
+                if (onLongPress != null)
+                  Positioned.fill(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(160),
+                        onLongPress: onLongPress,
+                        child: Container(),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
 
-          // Long press detection overlay
-          if (onLongPress != null)
-            Positioned.fill(
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(160),
-                  onLongPress: onLongPress,
-                  child: Container(),
+          // Phase indicator for Pomodoro mode positioned above the circle
+          if (timerSession.mode == TimerMode.pomodoro)
+            Positioned(
+              top: 0,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: LinearGradient(
+                    colors: [
+                      (timerSession.isWorkPhase
+                              ? Theme.of(context).colorScheme.accentColor
+                              : Theme.of(context).colorScheme.infoColor)
+                          .withValues(alpha: 0.15),
+                      (timerSession.isWorkPhase
+                              ? Theme.of(context).colorScheme.accentColor
+                              : Theme.of(context).colorScheme.infoColor)
+                          .withValues(alpha: 0.05),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  border: Border.all(
+                    color: (timerSession.isWorkPhase
+                            ? Theme.of(context).colorScheme.accentColor
+                            : Theme.of(context).colorScheme.infoColor)
+                        .withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (timerSession.isWorkPhase
+                              ? Theme.of(context).colorScheme.accentColor
+                              : Theme.of(context).colorScheme.infoColor)
+                          .withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      timerSession.isWorkPhase
+                          ? Icons.work_rounded
+                          : Icons.coffee_rounded,
+                      color: timerSession.isWorkPhase
+                          ? Theme.of(context).colorScheme.accentColor
+                          : Theme.of(context).colorScheme.infoColor,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      timerSession.currentPhaseDisplayName,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -380,7 +458,6 @@ class TimerControls extends HookWidget {
 
     final canStart = timerSession.state == TimerState.idle ||
         timerSession.state == TimerState.paused;
-    final canPause = timerSession.state == TimerState.running;
     final showSkip = timerSession.mode == TimerMode.pomodoro &&
         (timerSession.state == TimerState.running ||
             timerSession.state == TimerState.paused);
@@ -409,7 +486,7 @@ class TimerControls extends HookWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Reset button
-          _ControlButton(
+          _TimerControlButton(
             icon: Icons.refresh_rounded,
             onTap: timerController.resetTimer,
             backgroundColor:
@@ -421,7 +498,7 @@ class TimerControls extends HookWidget {
           const SizedBox(width: 32),
 
           // Play/Pause button - larger and more prominent
-          _ControlButton(
+          _TimerControlButton(
             icon: canStart ? Icons.play_arrow_rounded : Icons.pause_rounded,
             onTap: canStart
                 ? timerController.startTimer
@@ -436,7 +513,7 @@ class TimerControls extends HookWidget {
 
           // Skip button (only for Pomodoro)
           if (showSkip)
-            _ControlButton(
+            _TimerControlButton(
               icon: Icons.skip_next_rounded,
               onTap: timerController.skipPhase,
               backgroundColor:
@@ -452,7 +529,7 @@ class TimerControls extends HookWidget {
   }
 }
 
-class _ControlButton extends StatelessWidget {
+class _TimerControlButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
   final Color backgroundColor;
@@ -460,7 +537,7 @@ class _ControlButton extends StatelessWidget {
   final double iconSize;
   final bool isPrimary;
 
-  const _ControlButton({
+  const _TimerControlButton({
     required this.icon,
     required this.onTap,
     required this.backgroundColor,
@@ -662,6 +739,8 @@ class TimerSettingsWidget extends HookWidget {
         cyclesUntilLongBreak: cyclesUntilLongBreak.value,
       );
       timerController.updateSettings(newSettings);
+      // 設定変更後にタイマーをリセット
+      timerController.resetTimer();
       onClose();
     }
 
@@ -805,7 +884,7 @@ class TimerSettingsWidget extends HookWidget {
   }
 }
 
-class _SettingItem extends StatelessWidget {
+class _SettingItem extends HookWidget {
   final String title;
   final String subtitle;
   final int value;
@@ -828,6 +907,42 @@ class _SettingItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textController = useTextEditingController(text: value.toString());
+    final isTimeUnit = unit == '分';
+
+    // テキスト入力での値変更を処理
+    void handleTextInput(String text) {
+      final newValue = int.tryParse(text);
+      if (newValue != null && newValue >= min && newValue <= max) {
+        onChanged(newValue);
+      }
+    }
+
+    // 5分刻みでの変更
+    void incrementByStep() {
+      final step = isTimeUnit ? 5 : 1;
+      final newValue = value + step;
+      if (newValue <= max) {
+        onChanged(newValue);
+        textController.text = newValue.toString();
+      }
+    }
+
+    void decrementByStep() {
+      final step = isTimeUnit ? 5 : 1;
+      final newValue = value - step;
+      if (newValue >= min) {
+        onChanged(newValue);
+        textController.text = newValue.toString();
+      }
+    }
+
+    // 値が変更されたときにテキストコントローラーを更新
+    useEffect(() {
+      textController.text = value.toString();
+      return null;
+    }, [value]);
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -903,31 +1018,144 @@ class _SettingItem extends StatelessWidget {
             children: [
               _ControlButton(
                 icon: Icons.remove_rounded,
-                onPressed: value > min ? () => onChanged(value - 1) : null,
+                onPressed: (isTimeUnit ? value > min + 4 : value > min)
+                    ? decrementByStep
+                    : null,
                 color: color,
+                isTimeUnit: isTimeUnit,
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 12),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: color.withValues(alpha: 0.15),
-                ),
-                child: Text(
-                  '$value $unit',
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+              // タップで入力可能なテキストフィールド
+              GestureDetector(
+                onTap: () => _showInputDialog(context, textController,
+                    handleTextInput, min, max, unit, color),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: color.withValues(alpha: 0.15),
+                    border: Border.all(
+                      color: color.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '$value $unit',
+                        style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.edit_rounded,
+                        color: color.withValues(alpha: 0.7),
+                        size: 16,
+                      ),
+                    ],
                   ),
                 ),
               ),
               _ControlButton(
                 icon: Icons.add_rounded,
-                onPressed: value < max ? () => onChanged(value + 1) : null,
+                onPressed: (isTimeUnit ? value < max - 4 : value < max)
+                    ? incrementByStep
+                    : null,
                 color: color,
+                isTimeUnit: isTimeUnit,
               ),
             ],
+          ),
+          if (isTimeUnit)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                '±ボタンで5分刻み、タップで直接入力',
+                style: TextStyle(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.6),
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _showInputDialog(
+    BuildContext context,
+    TextEditingController controller,
+    Function(String) onSubmit,
+    int min,
+    int max,
+    String unit,
+    Color color,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('$title を設定'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
+              decoration: InputDecoration(
+                labelText: '$min〜$max $unit',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: color, width: 2),
+                ),
+              ),
+              autofocus: true,
+              onSubmitted: (value) {
+                onSubmit(value);
+                Navigator.of(context).pop();
+              },
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '範囲: $min〜$max $unit',
+              style: TextStyle(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.7),
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('キャンセル'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              onSubmit(controller.text);
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: color,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('設定'),
           ),
         ],
       ),
@@ -954,34 +1182,71 @@ class _ControlButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onPressed;
   final Color color;
+  final bool isTimeUnit;
 
   const _ControlButton({
     required this.icon,
     required this.onPressed,
     required this.color,
+    this.isTimeUnit = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: onPressed != null
-            ? color.withValues(alpha: 0.1)
-            : Theme.of(context).colorScheme.surface.withValues(alpha: 0.1),
-        border: Border.all(
+    final tooltip = isTimeUnit
+        ? (icon == Icons.add_rounded ? '+5分' : '-5分')
+        : (icon == Icons.add_rounded ? '+1' : '-1');
+
+    return Tooltip(
+      message: tooltip,
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
           color: onPressed != null
-              ? color.withValues(alpha: 0.3)
-              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              ? color.withValues(alpha: 0.1)
+              : Theme.of(context).colorScheme.surface.withValues(alpha: 0.1),
+          border: Border.all(
+            color: onPressed != null
+                ? color.withValues(alpha: 0.3)
+                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          ),
         ),
-      ),
-      child: IconButton(
-        onPressed: onPressed,
-        icon: Icon(
-          icon,
-          color: onPressed != null
-              ? color
-              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+        child: IconButton(
+          onPressed: onPressed,
+          icon: Stack(
+            alignment: Alignment.center,
+            children: [
+              Icon(
+                icon,
+                color: onPressed != null
+                    ? color
+                    : Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.3),
+              ),
+              if (isTimeUnit && onPressed != null)
+                Positioned(
+                  right: -2,
+                  bottom: -2,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '5',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

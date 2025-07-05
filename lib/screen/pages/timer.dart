@@ -33,8 +33,8 @@ class TimerPage extends HookWidget {
         ),
       ),
       child: SafeArea(
-        child: showSettings.value && 
-               timerController.value.session.mode == TimerMode.pomodoro
+        child: showSettings.value &&
+                timerController.value.session.mode == TimerMode.pomodoro
             ? TimerSettingsWidget(
                 timerController: timerController.value,
                 onClose: () => showSettings.value = false,
@@ -76,7 +76,7 @@ class TimerMainWidget extends HookWidget {
             ),
           ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 12),
 
           // Timer Display Section
           Expanded(
@@ -89,32 +89,26 @@ class TimerMainWidget extends HookWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Phase indicator for Pomodoro with enhanced styling
-                        if (timerSession.mode == TimerMode.pomodoro) ...[
-                          PomodoroPhaseIndicator(timerSession: timerSession),
-                          const SizedBox(height: 32),
-                        ],
-
                         // Main timer circle with long press for settings
                         GestureDetector(
-                          onLongPress: timerSession.mode == TimerMode.pomodoro 
-                              ? onOpenSettings 
+                          onLongPress: timerSession.mode == TimerMode.pomodoro
+                              ? onOpenSettings
                               : null,
                           child: TimerCircle(
                             timerSession: timerSession,
-                            onLongPress: timerSession.mode == TimerMode.pomodoro 
-                                ? onOpenSettings 
+                            onLongPress: timerSession.mode == TimerMode.pomodoro
+                                ? onOpenSettings
                                 : null,
                           ),
                         ),
 
-                        const SizedBox(height: 48),
+                        const SizedBox(height: 12),
 
                         // Timer controls
                         TimerControls(timerController: timerController),
 
                         if (timerSession.mode == TimerMode.pomodoro) ...[
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 12),
                           PomodoroProgressInfo(timerSession: timerSession),
                         ],
                       ],

@@ -6,21 +6,29 @@ class TimerStateController extends ChangeNotifier {
   Timer? _timer;
   TimerSession _session = const TimerSession(
     settings: TimerSettings(),
+    mode: TimerMode.pomodoro,
+    remainingSeconds: 25 * 60, // 初期値を25分に設定
   );
 
   TimerSession get session => _session;
+
+  // コンストラクタで初期化
+  TimerStateController() {
+    _initializePomodoroSession();
+  }
 
   void switchMode(TimerMode mode) {
     _stopTimer();
     _session = _session.copyWith(
       mode: mode,
       state: TimerState.idle,
-      remainingSeconds: 0,
+      remainingSeconds:
+          mode == TimerMode.pomodoro ? _session.settings.workMinutes * 60 : 0,
       elapsedSeconds: 0,
       currentCycle: 0,
       currentPhase: PomodoroPhase.work,
     );
-    
+
     if (mode == TimerMode.pomodoro) {
       _initializePomodoroSession();
     }
@@ -29,7 +37,8 @@ class TimerStateController extends ChangeNotifier {
 
   void updateSettings(TimerSettings settings) {
     _session = _session.copyWith(settings: settings);
-    if (_session.mode == TimerMode.pomodoro && _session.state == TimerState.idle) {
+    if (_session.mode == TimerMode.pomodoro &&
+        _session.state == TimerState.idle) {
       _initializePomodoroSession();
     }
     notifyListeners();
@@ -37,11 +46,11 @@ class TimerStateController extends ChangeNotifier {
 
   void startTimer() {
     if (_session.state == TimerState.running) return;
-    
+
     if (_session.state == TimerState.idle) {
       _initializeSession();
     }
-    
+
     _session = _session.copyWith(state: TimerState.running);
     _startTicking();
     notifyListeners();
@@ -49,7 +58,7 @@ class TimerStateController extends ChangeNotifier {
 
   void pauseTimer() {
     if (_session.state != TimerState.running) return;
-    
+
     _stopTimer();
     _session = _session.copyWith(state: TimerState.paused);
     notifyListeners();
@@ -57,7 +66,7 @@ class TimerStateController extends ChangeNotifier {
 
   void resetTimer() {
     _stopTimer();
-    
+
     if (_session.mode == TimerMode.pomodoro) {
       _initializePomodoroSession();
     } else {
@@ -71,7 +80,7 @@ class TimerStateController extends ChangeNotifier {
 
   void skipPhase() {
     if (_session.mode != TimerMode.pomodoro) return;
-    
+
     _completeCurrentPhase();
   }
 
@@ -118,13 +127,13 @@ class TimerStateController extends ChangeNotifier {
       _completeCurrentPhase();
       return;
     }
-    
+
     _session = _session.copyWith(
       remainingSeconds: _session.remainingSeconds - 1,
     );
-    
+
     notifyListeners();
-    
+
     if (_session.remainingSeconds == 0) {
       _completeCurrentPhase();
     }
@@ -132,11 +141,11 @@ class TimerStateController extends ChangeNotifier {
 
   void _completeCurrentPhase() {
     _stopTimer();
-    
+
     // Determine next phase
     final nextPhase = _getNextPhase();
     final nextRemainingSeconds = _getSecondsForPhase(nextPhase);
-    
+
     if (nextPhase == null) {
       // All cycles completed
       _session = _session.copyWith(
@@ -146,11 +155,11 @@ class TimerStateController extends ChangeNotifier {
       notifyListeners();
       return;
     }
-    
+
     // Update cycle count if completing a work session
     int newCompletedCycles = _session.completedCycles;
     int newCurrentCycle = _session.currentCycle;
-    
+
     if (_session.currentPhase == PomodoroPhase.work) {
       newCurrentCycle = _session.currentCycle + 1;
       if (newCurrentCycle >= _session.settings.cyclesUntilLongBreak) {
@@ -158,7 +167,7 @@ class TimerStateController extends ChangeNotifier {
         newCurrentCycle = 0;
       }
     }
-    
+
     _session = _session.copyWith(
       currentPhase: nextPhase,
       remainingSeconds: nextRemainingSeconds,
@@ -187,7 +196,7 @@ class TimerStateController extends ChangeNotifier {
 
   int _getSecondsForPhase(PomodoroPhase? phase) {
     if (phase == null) return 0;
-    
+
     switch (phase) {
       case PomodoroPhase.work:
         return _session.settings.workMinutes * 60;
