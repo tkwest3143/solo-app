@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:solo/screen/colors.dart';
@@ -21,9 +20,9 @@ class TimerModeSwitch extends HookWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.1),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       padding: const EdgeInsets.all(4),
@@ -68,7 +67,7 @@ class _ModeButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           color: isSelected
-              ? Theme.of(context).colorScheme.surface.withOpacity(0.3)
+              ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.3)
               : Colors.transparent,
         ),
         child: Text(
@@ -99,12 +98,12 @@ class PomodoroPhaseIndicator extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
         color: timerSession.isWorkPhase
-            ? Theme.of(context).colorScheme.accentColor.withOpacity(0.2)
-            : Theme.of(context).colorScheme.infoColor.withOpacity(0.2),
+            ? Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.2)
+            : Theme.of(context).colorScheme.infoColor.withValues(alpha: 0.2),
         border: Border.all(
           color: timerSession.isWorkPhase
-              ? Theme.of(context).colorScheme.accentColor.withOpacity(0.5)
-              : Theme.of(context).colorScheme.infoColor.withOpacity(0.5),
+              ? Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.5)
+              : Theme.of(context).colorScheme.infoColor.withValues(alpha: 0.5),
         ),
       ),
       child: Row(
@@ -154,9 +153,13 @@ class TimerCircle extends StatelessWidget {
             height: 280,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+              color:
+                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.1),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                color: Theme.of(context)
+                    .colorScheme
+                    .outline
+                    .withValues(alpha: 0.2),
                 width: 2,
               ),
             ),
@@ -170,7 +173,10 @@ class TimerCircle extends StatelessWidget {
               child: CircularProgressIndicator(
                 value: timerSession.progress,
                 strokeWidth: 8,
-                backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+                backgroundColor: Theme.of(context)
+                    .colorScheme
+                    .surface
+                    .withValues(alpha: 0.1),
                 valueColor: AlwaysStoppedAnimation<Color>(
                   timerSession.isWorkPhase
                       ? Theme.of(context).colorScheme.accentColor
@@ -197,7 +203,10 @@ class TimerCircle extends StatelessWidget {
                   '経過時間',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.7),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -221,11 +230,13 @@ class TimerControls extends HookWidget {
   Widget build(BuildContext context) {
     useListenable(timerController);
     final timerSession = timerController.session;
-    
-    final canStart = timerSession.state == TimerState.idle || timerSession.state == TimerState.paused;
+
+    final canStart = timerSession.state == TimerState.idle ||
+        timerSession.state == TimerState.paused;
     final canPause = timerSession.state == TimerState.running;
-    final showSkip = timerSession.mode == TimerMode.pomodoro && 
-                    (timerSession.state == TimerState.running || timerSession.state == TimerState.paused);
+    final showSkip = timerSession.mode == TimerMode.pomodoro &&
+        (timerSession.state == TimerState.running ||
+            timerSession.state == TimerState.paused);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -234,7 +245,8 @@ class TimerControls extends HookWidget {
         _ControlButton(
           icon: Icons.refresh_rounded,
           onTap: timerController.resetTimer,
-          backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.2),
+          backgroundColor:
+              Theme.of(context).colorScheme.surface.withValues(alpha: 0.2),
         ),
 
         const SizedBox(width: 24),
@@ -242,7 +254,9 @@ class TimerControls extends HookWidget {
         // Play/Pause button
         _ControlButton(
           icon: canStart ? Icons.play_arrow_rounded : Icons.pause_rounded,
-          onTap: canStart ? timerController.startTimer : timerController.pauseTimer,
+          onTap: canStart
+              ? timerController.startTimer
+              : timerController.pauseTimer,
           backgroundColor: Theme.of(context).colorScheme.accentColor,
           size: 72,
           iconSize: 36,
@@ -255,7 +269,8 @@ class TimerControls extends HookWidget {
           _ControlButton(
             icon: Icons.skip_next_rounded,
             onTap: timerController.skipPhase,
-            backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.2),
+            backgroundColor:
+                Theme.of(context).colorScheme.surface.withValues(alpha: 0.2),
           )
         else
           const SizedBox(width: 56), // Maintain spacing
@@ -291,7 +306,7 @@ class _ControlButton extends StatelessWidget {
           color: backgroundColor,
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).shadowColor.withOpacity(0.2),
+              color: Theme.of(context).shadowColor.withValues(alpha: 0.2),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -321,9 +336,9 @@ class PomodoroProgressInfo extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.1),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -331,7 +346,10 @@ class PomodoroProgressInfo extends StatelessWidget {
           Text(
             'セッション進捗',
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.7),
               fontWeight: FontWeight.w500,
               fontSize: 14,
             ),
@@ -381,7 +399,8 @@ class _ProgressItem extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            color:
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
             fontSize: 12,
           ),
         ),
@@ -440,7 +459,7 @@ class TimerSettingsWidget extends HookWidget {
               ),
               IconButton(
                 icon: Icon(
-                  Icons.close_rounded, 
+                  Icons.close_rounded,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 onPressed: onClose,
@@ -553,9 +572,9 @@ class _SettingItem extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.1),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -573,7 +592,10 @@ class _SettingItem extends StatelessWidget {
           Text(
             subtitle,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.7),
               fontSize: 14,
             ),
           ),
@@ -584,11 +606,14 @@ class _SettingItem extends StatelessWidget {
               IconButton(
                 onPressed: value > min ? () => onChanged(value - 1) : null,
                 icon: Icon(
-                  Icons.remove_rounded, 
+                  Icons.remove_rounded,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 style: IconButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.2),
+                  backgroundColor: Theme.of(context)
+                      .colorScheme
+                      .surface
+                      .withValues(alpha: 0.2),
                 ),
               ),
               Text(
@@ -602,11 +627,14 @@ class _SettingItem extends StatelessWidget {
               IconButton(
                 onPressed: value < max ? () => onChanged(value + 1) : null,
                 icon: Icon(
-                  Icons.add_rounded, 
+                  Icons.add_rounded,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 style: IconButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.2),
+                  backgroundColor: Theme.of(context)
+                      .colorScheme
+                      .surface
+                      .withValues(alpha: 0.2),
                 ),
               ),
             ],

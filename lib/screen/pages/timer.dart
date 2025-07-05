@@ -69,7 +69,10 @@ class TimerMainWidget extends HookWidget {
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surface
+                      .withValues(alpha: 0.1),
                 ),
                 child: IconButton(
                   icon: Icon(
@@ -88,7 +91,8 @@ class TimerMainWidget extends HookWidget {
               builder: (context, constraints) {
                 return SingleChildScrollView(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    constraints:
+                        BoxConstraints(minHeight: constraints.maxHeight),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
