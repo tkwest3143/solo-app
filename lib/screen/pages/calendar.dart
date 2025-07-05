@@ -16,7 +16,7 @@ class CalendarPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedDay = useState<DateTime>(DateTime.now());
     final focusedDay = useState<DateTime>(DateTime.now());
-    final selectedCategory = useState<String?>(null);
+    final selectedCategory = useState<int?>(null);
     final selectedStatus = useState<String?>(null); // ステータスフィルタ用
     final todoService = useMemoized(() => TodoService());
     final refreshKey = useState<int>(0);
@@ -50,11 +50,11 @@ class CalendarPage extends HookConsumerWidget {
                         onTap: () async {
                           final selected = await showTodoFilterDialog(
                             context: context,
-                            initialColor: selectedCategory.value,
+                            initialCategoryId: selectedCategory.value,
                             initialStatus: selectedStatus.value,
                           );
                           if (selected != null) {
-                            selectedCategory.value = selected['color'];
+                            selectedCategory.value = selected['categoryId'];
                             selectedStatus.value = selected['status'];
                           }
                         },
@@ -308,7 +308,7 @@ class CalendarPage extends HookConsumerWidget {
   }
 
   Widget _buildSelectedDayTodos(BuildContext context, DateTime selectedDay,
-      String? categoryFilter, String? statusFilter, VoidCallback onRefresh) {
+      int? categoryFilter, String? statusFilter, VoidCallback onRefresh) {
     return FutureBuilder<List<TodoModel>>(
       future: TodoService().getTodosForDate(selectedDay),
       builder: (context, snapshot) {

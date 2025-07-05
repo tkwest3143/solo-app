@@ -18,6 +18,7 @@ class TodoService {
                 isCompleted: todo.isCompleted,
                 description: todo.description,
                 color: todo.color,
+                categoryId: todo.categoryId,
                 icon: todo.icon,
                 createdAt: todo.createdAt,
                 updatedAt: todo.updatedAt,
@@ -48,6 +49,7 @@ class TodoService {
         dueDate: DateTime(now.year, now.month, now.day, 10, 0),
         isCompleted: false,
         color: 'blue',
+        categoryId: 1, // 仕事カテゴリ
       ),
       TodoModel(
         id: _nextId++,
@@ -55,7 +57,8 @@ class TodoService {
         description: '食材と日用品を購入',
         dueDate: DateTime(now.year, now.month, now.day + 1, 15, 30),
         isCompleted: false,
-        color: 'orange',
+        color: 'green',
+        categoryId: 2, // 個人カテゴリ
       ),
       TodoModel(
         id: _nextId++,
@@ -63,7 +66,8 @@ class TodoService {
         description: '既に完了したタスクのサンプル',
         dueDate: DateTime(now.year, now.month, now.day - 1, 9, 0),
         isCompleted: true,
-        color: 'green',
+        color: 'blue',
+        categoryId: 1, // 仕事カテゴリ
       ),
       TodoModel(
         id: _nextId++,
@@ -72,6 +76,7 @@ class TodoService {
         dueDate: DateTime(now.year, now.month, now.day + 2, 14, 0),
         isCompleted: false,
         color: 'blue',
+        categoryId: 1, // 仕事カテゴリ
       ),
       TodoModel(
         id: _nextId++,
@@ -79,7 +84,8 @@ class TodoService {
         description: '',
         dueDate: DateTime(now.year, now.month, now.day + 3, 11, 30),
         isCompleted: false,
-        color: 'green',
+        color: 'orange',
+        categoryId: 4, // 健康カテゴリ
       ),
     ]);
   }
@@ -89,6 +95,7 @@ class TodoService {
     String? description,
     required DateTime dueDate,
     String? color,
+    int? categoryId,
     // Recurring parameters
     bool? isRecurring,
     String? recurringType,
@@ -103,6 +110,7 @@ class TodoService {
       dueDate: dueDate,
       isCompleted: false,
       color: color ?? 'blue',
+      categoryId: categoryId,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       isRecurring: isRecurring ?? false,
@@ -122,6 +130,7 @@ class TodoService {
     String? description,
     DateTime? dueDate,
     String? color,
+    int? categoryId,
     bool? isCompleted,
     // Recurring parameters
     bool? isRecurring,
@@ -141,6 +150,7 @@ class TodoService {
       dueDate: dueDate ?? oldTodo.dueDate,
       isCompleted: isCompleted ?? oldTodo.isCompleted,
       color: color ?? oldTodo.color,
+      categoryId: categoryId ?? oldTodo.categoryId,
       icon: oldTodo.icon,
       createdAt: oldTodo.createdAt,
       updatedAt: DateTime.now(),
@@ -219,7 +229,7 @@ class TodoService {
 
   Future<List<TodoModel>> getFilteredTodos({
     bool? isCompleted,
-    String? category,
+    int? categoryId,
   }) async {
     final allTodos = await getTodo();
 
@@ -227,7 +237,7 @@ class TodoService {
       bool matchesCompletion =
           isCompleted == null || todo.isCompleted == isCompleted;
       bool matchesCategory =
-          category == null || category.isEmpty || todo.color == category;
+          categoryId == null || todo.categoryId == categoryId;
       return matchesCompletion && matchesCategory;
     }).toList();
   }

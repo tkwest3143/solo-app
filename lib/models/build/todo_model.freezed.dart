@@ -25,7 +25,10 @@ mixin _$TodoModel {
   String get title => throw _privateConstructorUsedError;
   bool get isCompleted => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
-  String? get color => throw _privateConstructorUsedError;
+  String? get color =>
+      throw _privateConstructorUsedError; // Keep for backward compatibility
+  int? get categoryId =>
+      throw _privateConstructorUsedError; // New category reference
   String? get icon => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt =>
@@ -59,6 +62,7 @@ abstract class $TodoModelCopyWith<$Res> {
       bool isCompleted,
       String? description,
       String? color,
+      int? categoryId,
       String? icon,
       DateTime? createdAt,
       DateTime? updatedAt,
@@ -90,6 +94,7 @@ class _$TodoModelCopyWithImpl<$Res, $Val extends TodoModel>
     Object? isCompleted = null,
     Object? description = freezed,
     Object? color = freezed,
+    Object? categoryId = freezed,
     Object? icon = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -124,6 +129,10 @@ class _$TodoModelCopyWithImpl<$Res, $Val extends TodoModel>
           ? _value.color
           : color // ignore: cast_nullable_to_non_nullable
               as String?,
+      categoryId: freezed == categoryId
+          ? _value.categoryId
+          : categoryId // ignore: cast_nullable_to_non_nullable
+              as int?,
       icon: freezed == icon
           ? _value.icon
           : icon // ignore: cast_nullable_to_non_nullable
@@ -175,6 +184,7 @@ abstract class _$$TodoModelImplCopyWith<$Res>
       bool isCompleted,
       String? description,
       String? color,
+      int? categoryId,
       String? icon,
       DateTime? createdAt,
       DateTime? updatedAt,
@@ -204,6 +214,7 @@ class __$$TodoModelImplCopyWithImpl<$Res>
     Object? isCompleted = null,
     Object? description = freezed,
     Object? color = freezed,
+    Object? categoryId = freezed,
     Object? icon = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -238,6 +249,10 @@ class __$$TodoModelImplCopyWithImpl<$Res>
           ? _value.color
           : color // ignore: cast_nullable_to_non_nullable
               as String?,
+      categoryId: freezed == categoryId
+          ? _value.categoryId
+          : categoryId // ignore: cast_nullable_to_non_nullable
+              as int?,
       icon: freezed == icon
           ? _value.icon
           : icon // ignore: cast_nullable_to_non_nullable
@@ -284,6 +299,7 @@ class _$TodoModelImpl implements _TodoModel {
       required this.isCompleted,
       this.description,
       this.color,
+      this.categoryId,
       this.icon,
       this.createdAt,
       this.updatedAt,
@@ -308,6 +324,10 @@ class _$TodoModelImpl implements _TodoModel {
   final String? description;
   @override
   final String? color;
+// Keep for backward compatibility
+  @override
+  final int? categoryId;
+// New category reference
   @override
   final String? icon;
   @override
@@ -329,7 +349,7 @@ class _$TodoModelImpl implements _TodoModel {
 
   @override
   String toString() {
-    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, recurringDayOfWeek: $recurringDayOfWeek, recurringDayOfMonth: $recurringDayOfMonth)';
+    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, categoryId: $categoryId, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, recurringDayOfWeek: $recurringDayOfWeek, recurringDayOfMonth: $recurringDayOfMonth)';
   }
 
   @override
@@ -345,6 +365,8 @@ class _$TodoModelImpl implements _TodoModel {
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.color, color) || other.color == color) &&
+            (identical(other.categoryId, categoryId) ||
+                other.categoryId == categoryId) &&
             (identical(other.icon, icon) || other.icon == icon) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
@@ -372,6 +394,7 @@ class _$TodoModelImpl implements _TodoModel {
       isCompleted,
       description,
       color,
+      categoryId,
       icon,
       createdAt,
       updatedAt,
@@ -405,6 +428,7 @@ abstract class _TodoModel implements TodoModel {
       required final bool isCompleted,
       final String? description,
       final String? color,
+      final int? categoryId,
       final String? icon,
       final DateTime? createdAt,
       final DateTime? updatedAt,
@@ -428,7 +452,9 @@ abstract class _TodoModel implements TodoModel {
   @override
   String? get description;
   @override
-  String? get color;
+  String? get color; // Keep for backward compatibility
+  @override
+  int? get categoryId; // New category reference
   @override
   String? get icon;
   @override
