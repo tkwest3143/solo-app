@@ -1,12 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:solo/screen/colors.dart';
+import 'package:solo/models/timer_model.dart';
+import 'package:solo/screen/states/timer_state.dart';
+import 'package:solo/screen/widgets/timer_widgets.dart';
 
-class TimerPage extends HookConsumerWidget {
+class TimerPage extends HookWidget {
   const TimerPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final timerController = useState(TimerStateController());
+    final showSettings = useState(false);
+
+    useEffect(() {
+      return timerController.value.dispose;
+    }, []);
+
+    // Only allow settings for Pomodoro mode
+    void openSettings() {
+      if (timerController.value.session.mode == TimerMode.pomodoro) {
+        showSettings.value = true;
+      }
+    }
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -15,68 +32,93 @@ class TimerPage extends HookConsumerWidget {
           colors: Theme.of(context).colorScheme.backgroundGradient,
         ),
       ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: Theme.of(context).colorScheme.primaryGradient,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.mediumShadowColor,
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
+      child: SafeArea(
+        child: showSettings.value &&
+                timerController.value.session.mode == TimerMode.pomodoro
+            ? TimerSettingsWidget(
+                timerController: timerController.value,
+                onClose: () => showSettings.value = false,
+              )
+            : TimerMainWidget(
+                timerController: timerController.value,
+                onOpenSettings: openSettings,
+              ),
+      ),
+    );
+  }
+}
+
+class TimerMainWidget extends HookWidget {
+  final TimerStateController timerController;
+  final VoidCallback onOpenSettings;
+
+  const TimerMainWidget({
+    super.key,
+    required this.timerController,
+    required this.onOpenSettings,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    useListenable(timerController);
+    final timerSession = timerController.session;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Column(
+        children: [
+          // Elegant header with centered mode switch
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Center(
+              child: TimerModeSwitch(timerController: timerController),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // Timer Display Section
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Main timer circle with long press for settings
+                        GestureDetector(
+                          onLongPress: timerSession.mode == TimerMode.pomodoro
+                              ? onOpenSettings
+                              : null,
+                          child: TimerCircle(
+                            timerSession: timerSession,
+                            onLongPress: timerSession.mode == TimerMode.pomodoro
+                                ? onOpenSettings
+                                : null,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Timer controls
+                        TimerControls(timerController: timerController),
+
+                        if (timerSession.mode == TimerMode.pomodoro) ...[
+                          const SizedBox(height: 12),
+                          PomodoroProgressInfo(timerSession: timerSession),
+                        ],
+                      ],
+                    ),
                   ),
-                ],
-              ),
-              child: const Icon(
-                Icons.timer_rounded,
-                size: 80,
-                color: Colors.white,
-              ),
+                );
+              },
             ),
-            const SizedBox(height: 24),
-            Text(
-              'タイマー',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primaryTextColor,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(25),
-                color: Theme.of(context).colorScheme.surface,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.lightShadowColor,
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Text(
-                'ポモドーロタイマー機能（準備中）',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.secondaryTextColor,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
