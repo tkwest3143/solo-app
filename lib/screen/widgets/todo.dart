@@ -745,14 +745,12 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                       ),
                       if (isRecurring.value) ...[
                           const SizedBox(height: 12),
-                          ValueListenableBuilder<RecurringType?>(
-                            valueListenable: recurringType,
-                            builder: (context, type, _) => Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '繰り返しタイプ',
-                                  style: TextStyle(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '繰り返しタイプ',
+                                style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                     color: Theme.of(context)
@@ -802,7 +800,6 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                 ),
                               ],
                             ),
-                          ),
                           const SizedBox(height: 12),
                           if (recurringType.value == RecurringType.weekly)
                             Column(
