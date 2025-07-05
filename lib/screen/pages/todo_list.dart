@@ -5,6 +5,8 @@ import 'package:solo/screen/router.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/models/todo_model.dart';
 import 'package:solo/screen/widgets/todo.dart';
+import 'package:solo/services/category_service.dart';
+import 'package:solo/models/category_model.dart';
 
 enum TodoFilter { all, completed, incomplete }
 
@@ -13,7 +15,9 @@ class TodoListPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final filterNotifier = ValueNotifier(TodoFilter.all);
+    final selectedCategoryId = ValueNotifier<int?>(null);
+    final filterNotifier =
+        ValueNotifier<TodoFilter>(TodoFilter.incomplete); // 初期値を未完了に
     final refreshKey = ValueNotifier(0);
 
     void refreshTodos() {
@@ -31,7 +35,7 @@ class TodoListPage extends HookConsumerWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // Header with filters and calendar button
+            // Header with category filter, status filter, and calendar button
             Container(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -73,33 +77,7 @@ class TodoListPage extends HookConsumerWidget {
                         ),
                       ),
                       const Spacer(),
-                      // Category filter button
-                      IconButton(
-                        onPressed: () async {
-                          final result = await showTodoFilterDialog(
-                            context: context,
-                            initialCategoryId: null,
-                            initialStatus: null,
-                          );
-                          if (result != null) {
-                            // TODO: Handle filter result
-                            print('Filter result: $result');
-                          }
-                        },
-                        icon: Icon(
-                          Icons.filter_alt,
-                          color: Theme.of(context).colorScheme.primaryTextColor,
-                        ),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Theme.of(context)
-                              .colorScheme
-                              .surface
-                              .withValues(alpha: 0.2),
-                          padding: const EdgeInsets.all(12),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Calendar navigation button
+                      // カレンダー遷移ボタン
                       IconButton(
                         onPressed: () {
                           nextRouting(context, RouterDefinition.calendar);
@@ -119,129 +97,175 @@ class TodoListPage extends HookConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  // Filter controls
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ValueListenableBuilder<TodoFilter>(
-                          valueListenable: filterNotifier,
-                          builder: (context, filter, _) {
-                            return SegmentedButton<TodoFilter>(
-                              showSelectedIcon: false,
-                              segments: const [
-                                ButtonSegment(
-                                  value: TodoFilter.all,
-                                  label: Text('すべて'),
-                                ),
-                                ButtonSegment(
-                                  value: TodoFilter.incomplete,
-                                  label: Text('未完了'),
-                                ),
-                                ButtonSegment(
-                                  value: TodoFilter.completed,
-                                  label: Text('完了'),
-                                ),
-                              ],
-                              selected: {filter},
-                              onSelectionChanged:
-                                  (Set<TodoFilter> newSelection) {
-                                filterNotifier.value = newSelection.first;
-                              },
-                            );
-                          },
+                  // カテゴリフィルター
+                  FutureBuilder<List<CategoryModel>>(
+                    future: CategoryService().getCategories(),
+                    builder: (context, snapshot) {
+                      final categories = snapshot.data ?? [];
+                      return DropdownButton<int?>(
+                        value: selectedCategoryId.value,
+                        isExpanded: true,
+                        hint: const Text('カテゴリで絞り込む'),
+                        items: [
+                          const DropdownMenuItem<int?>(
+                            value: null,
+                            child: Text('すべてのカテゴリ'),
+                          ),
+                          ...categories.map((cat) => DropdownMenuItem<int?>(
+                                value: cat.id,
+                                child: Text(cat.title),
+                              )),
+                        ],
+                        onChanged: (value) {
+                          selectedCategoryId.value = value;
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  // 状態フィルター
+                  ValueListenableBuilder<TodoFilter>(
+                    valueListenable: filterNotifier,
+                    builder: (context, filter, _) {
+                      return SegmentedButton<TodoFilter>(
+                        showSelectedIcon: false,
+                        style: ButtonStyle(
+                          minimumSize:
+                              WidgetStateProperty.all(const Size(100, 40)),
+                          padding: WidgetStateProperty.all(
+                              const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8)),
                         ),
-                      ),
-                    ],
+                        segments: const [
+                          ButtonSegment(
+                            value: TodoFilter.incomplete,
+                            label: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: Text('未完了'),
+                            ),
+                          ),
+                          ButtonSegment(
+                            value: TodoFilter.completed,
+                            label: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: Text('完了'),
+                            ),
+                          ),
+                          ButtonSegment(
+                            value: TodoFilter.all,
+                            label: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: Text('すべて'),
+                            ),
+                          ),
+                        ],
+                        selected: {filter},
+                        onSelectionChanged: (Set<TodoFilter> newSelection) {
+                          filterNotifier.value = newSelection.first;
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
             ),
-
             // Todo sections
             Expanded(
-              child: ValueListenableBuilder<TodoFilter>(
-                valueListenable: filterNotifier,
-                builder: (context, filter, _) {
-                  return ValueListenableBuilder<int>(
-                    valueListenable: refreshKey,
-                    builder: (context, _, __) =>
-                        FutureBuilder<Map<String, List<TodoModel>>>(
-                      future: _getTodoSections(filter),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
+              child: ValueListenableBuilder<int?>(
+                valueListenable: selectedCategoryId,
+                builder: (context, categoryId, _) {
+                  return ValueListenableBuilder<TodoFilter>(
+                    valueListenable: filterNotifier,
+                    builder: (context, filter, __) {
+                      return ValueListenableBuilder<int>(
+                        valueListenable: refreshKey,
+                        builder: (context, _, ___) =>
+                            FutureBuilder<Map<String, List<TodoModel>>>(
+                          future: _getTodoSections(categoryId, filter),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            }
 
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Text(
-                              'エラーが発生しました',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.errorColor,
-                              ),
-                            ),
-                          );
-                        }
-
-                        final sections = snapshot.data ?? {};
-
-                        return ListView(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          children: [
-                            if (sections['today']?.isNotEmpty == true) ...[
-                              _buildSectionHeader(
-                                  context, '今日が期限', sections['today']!.length),
-                              ...sections['today']!.map((todo) =>
-                                  _buildTodoCard(context, todo, refreshTodos)),
-                              const SizedBox(height: 20),
-                            ],
-                            if (sections['upcoming']?.isNotEmpty == true) ...[
-                              _buildSectionHeader(context, '期限が近い',
-                                  sections['upcoming']!.length),
-                              ...sections['upcoming']!.map((todo) =>
-                                  _buildTodoCard(context, todo, refreshTodos)),
-                              const SizedBox(height: 20),
-                            ],
-                            if (sections['all']?.isNotEmpty == true) ...[
-                              _buildSectionHeader(
-                                  context, 'すべてのTodo', sections['all']!.length),
-                              ...sections['all']!.map((todo) =>
-                                  _buildTodoCard(context, todo, refreshTodos)),
-                            ],
-                            if (sections.values
-                                .every((list) => list.isEmpty)) ...[
-                              const SizedBox(height: 60),
-                              Center(
-                                child: Column(
-                                  children: [
-                                    Icon(
-                                      Icons.task_alt,
-                                      size: 64,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .mutedTextColor,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      'Todoがありません',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .mutedTextColor,
-                                      ),
-                                    ),
-                                  ],
+                            if (snapshot.hasError) {
+                              return Center(
+                                child: Text(
+                                  'エラーが発生しました',
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .errorColor,
+                                  ),
                                 ),
-                              ),
-                            ],
-                            const SizedBox(height: 80),
-                          ],
-                        );
-                      },
-                    ),
+                              );
+                            }
+
+                            final sections = snapshot.data ?? {};
+
+                            return ListView(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              children: [
+                                if (sections['today']?.isNotEmpty == true) ...[
+                                  _buildSectionHeader(context, '今日が期限',
+                                      sections['today']!.length),
+                                  ...sections['today']!.map((todo) =>
+                                      _buildTodoCard(
+                                          context, todo, refreshTodos)),
+                                  const SizedBox(height: 20),
+                                ],
+                                if (sections['upcoming']?.isNotEmpty ==
+                                    true) ...[
+                                  _buildSectionHeader(context, '期限が近い',
+                                      sections['upcoming']!.length),
+                                  ...sections['upcoming']!.map((todo) =>
+                                      _buildTodoCard(
+                                          context, todo, refreshTodos)),
+                                  const SizedBox(height: 20),
+                                ],
+                                if (sections['all']?.isNotEmpty == true) ...[
+                                  _buildSectionHeader(context, 'すべてのTodo',
+                                      sections['all']!.length),
+                                  ...sections['all']!.map((todo) =>
+                                      _buildTodoCard(
+                                          context, todo, refreshTodos)),
+                                ],
+                                if (sections.values
+                                    .every((list) => list.isEmpty)) ...[
+                                  const SizedBox(height: 60),
+                                  Center(
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.task_alt,
+                                          size: 64,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .mutedTextColor,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Text(
+                                          'Todoがありません',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .mutedTextColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                                const SizedBox(height: 80),
+                              ],
+                            );
+                          },
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -295,39 +319,35 @@ class TodoListPage extends HookConsumerWidget {
   }
 
   Future<Map<String, List<TodoModel>>> _getTodoSections(
-      TodoFilter filter) async {
-    // Get todos from the service instead of using dummy data
+      int? categoryId, TodoFilter filter) async {
     final todoService = TodoService();
     final allTodos = await todoService.getTodo();
-
-    // Apply filter
-    List<TodoModel> filteredData;
+    // カテゴリでフィルタ
+    var filteredData = categoryId == null
+        ? allTodos
+        : allTodos.where((todo) => todo.categoryId == categoryId).toList();
+    // 状態でフィルタ
     switch (filter) {
       case TodoFilter.completed:
-        filteredData = allTodos.where((todo) => todo.isCompleted).toList();
+        filteredData = filteredData.where((todo) => todo.isCompleted).toList();
         break;
       case TodoFilter.incomplete:
-        filteredData = allTodos.where((todo) => !todo.isCompleted).toList();
+        filteredData = filteredData.where((todo) => !todo.isCompleted).toList();
         break;
       case TodoFilter.all:
-        filteredData = allTodos;
         break;
     }
-
     final today = DateTime.now();
     final todayTodos = <TodoModel>[];
     final upcomingTodos = <TodoModel>[];
     final allFilteredTodos = <TodoModel>[];
-
     for (final todo in filteredData) {
       final isToday = todo.dueDate.year == today.year &&
           todo.dueDate.month == today.month &&
           todo.dueDate.day == today.day;
-
       final isUpcoming = !isToday &&
           todo.dueDate.isAfter(today) &&
           todo.dueDate.isBefore(today.add(const Duration(days: 7)));
-
       if (isToday) {
         todayTodos.add(todo);
       } else if (isUpcoming) {
@@ -336,7 +356,6 @@ class TodoListPage extends HookConsumerWidget {
         allFilteredTodos.add(todo);
       }
     }
-
     return {
       'today': todayTodos,
       'upcoming': upcomingTodos,

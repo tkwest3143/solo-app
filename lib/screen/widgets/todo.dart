@@ -219,19 +219,22 @@ class TodoCard extends StatelessWidget {
               children: [
                 // Category chip
                 FutureBuilder<CategoryModel?>(
-                  future: todo.categoryId != null 
+                  future: todo.categoryId != null
                       ? CategoryService().getCategoryById(todo.categoryId!)
                       : Future.value(null),
                   builder: (context, snapshot) {
                     final category = snapshot.data;
                     if (category != null) {
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: TodoColor.getColorFromString(category.color).withValues(alpha: 0.15),
+                          color: TodoColor.getColorFromString(category.color)
+                              .withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: TodoColor.getColorFromString(category.color).withValues(alpha: 0.3),
+                            color: TodoColor.getColorFromString(category.color)
+                                .withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -241,7 +244,8 @@ class TodoCard extends StatelessWidget {
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: TodoColor.getColorFromString(category.color),
+                                color: TodoColor.getColorFromString(
+                                    category.color),
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -251,7 +255,8 @@ class TodoCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: TodoColor.getColorFromString(category.color),
+                                color: TodoColor.getColorFromString(
+                                    category.color),
                               ),
                             ),
                           ],
@@ -369,16 +374,18 @@ class AddTodoDialog {
     );
     final selectedColor = ValueNotifier<String>(initialTodo?.color ?? 'blue');
     final selectedCategory = ValueNotifier<CategoryModel?>(null);
-    
+
     // Initialize category if todo has categoryId
     if (initialTodo?.categoryId != null) {
-      CategoryService().getCategoryById(initialTodo!.categoryId!).then((category) {
+      CategoryService()
+          .getCategoryById(initialTodo!.categoryId!)
+          .then((category) {
         if (category != null) {
           selectedCategory.value = category;
         }
       });
     }
-    
+
     // Recurring state variables
     final isRecurring = ValueNotifier<bool>(initialTodo?.isRecurring ?? false);
     final recurringType = ValueNotifier<RecurringType?>(
@@ -612,7 +619,8 @@ class AddTodoDialog {
                               height: 32,
                               decoration: BoxDecoration(
                                 color: category != null
-                                    ? TodoColor.getColorFromString(category.color)
+                                    ? TodoColor.getColorFromString(
+                                        category.color)
                                     : Theme.of(context).colorScheme.outline,
                                 borderRadius: BorderRadius.circular(6),
                               ),
@@ -633,16 +641,23 @@ class AddTodoDialog {
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
                                       color: category != null
-                                          ? Theme.of(context).colorScheme.primaryTextColor
-                                          : Theme.of(context).colorScheme.secondaryTextColor,
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .primaryTextColor
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .secondaryTextColor,
                                     ),
                                   ),
-                                  if (category?.description != null && category!.description!.isNotEmpty)
+                                  if (category?.description != null &&
+                                      category!.description!.isNotEmpty)
                                     Text(
-                                      category!.description!,
+                                      category.description!,
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: Theme.of(context).colorScheme.secondaryTextColor,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondaryTextColor,
                                       ),
                                     ),
                                 ],
@@ -651,7 +666,9 @@ class AddTodoDialog {
                             Icon(
                               Icons.arrow_forward_ios,
                               size: 16,
-                              color: Theme.of(context).colorScheme.secondaryTextColor,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryTextColor,
                             ),
                           ],
                         ),
@@ -678,14 +695,17 @@ class AddTodoDialog {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.primaryTextColor,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryTextColor,
                               ),
                             ),
                             const Spacer(),
                             Switch(
                               value: recurring,
                               onChanged: (value) => isRecurring.value = value,
-                              activeColor: Theme.of(context).colorScheme.primary,
+                              activeColor:
+                                  Theme.of(context).colorScheme.primary,
                             ),
                           ],
                         ),
@@ -701,15 +721,21 @@ class AddTodoDialog {
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).colorScheme.secondaryTextColor,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryTextColor,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 4),
                                   decoration: BoxDecoration(
                                     border: Border.all(
-                                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outline
+                                          .withValues(alpha: 0.3),
                                     ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
@@ -718,7 +744,8 @@ class AddTodoDialog {
                                       value: type,
                                       isExpanded: true,
                                       hint: const Text('タイプを選択'),
-                                      items: RecurringType.values.map((recurringType) {
+                                      items: RecurringType.values
+                                          .map((recurringType) {
                                         return DropdownMenuItem<RecurringType>(
                                           value: recurringType,
                                           child: Text(recurringType.label),
@@ -728,9 +755,12 @@ class AddTodoDialog {
                                         recurringType.value = value;
                                         // Reset specific day/month when type changes
                                         if (value == RecurringType.weekly) {
-                                          recurringDayOfWeek.value = selectedDate.value.weekday;
-                                        } else if (value == RecurringType.monthly) {
-                                          recurringDayOfMonth.value = selectedDate.value.day;
+                                          recurringDayOfWeek.value =
+                                              selectedDate.value.weekday;
+                                        } else if (value ==
+                                            RecurringType.monthly) {
+                                          recurringDayOfMonth.value =
+                                              selectedDate.value.day;
                                         }
                                       },
                                     ),
@@ -747,39 +777,63 @@ class AddTodoDialog {
                                 return ValueListenableBuilder<int?>(
                                   valueListenable: recurringDayOfWeek,
                                   builder: (context, dayOfWeek, _) => Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         '曜日',
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
-                                          color: Theme.of(context).colorScheme.secondaryTextColor,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondaryTextColor,
                                         ),
                                       ),
                                       const SizedBox(height: 8),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 4),
                                         decoration: BoxDecoration(
                                           border: Border.all(
-                                            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .outline
+                                                .withValues(alpha: 0.3),
                                           ),
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                         child: DropdownButtonHideUnderline(
                                           child: DropdownButton<int>(
                                             value: dayOfWeek ?? DateTime.monday,
                                             isExpanded: true,
                                             items: [
-                                              DropdownMenuItem(value: DateTime.monday, child: Text('月曜日')),
-                                              DropdownMenuItem(value: DateTime.tuesday, child: Text('火曜日')),
-                                              DropdownMenuItem(value: DateTime.wednesday, child: Text('水曜日')),
-                                              DropdownMenuItem(value: DateTime.thursday, child: Text('木曜日')),
-                                              DropdownMenuItem(value: DateTime.friday, child: Text('金曜日')),
-                                              DropdownMenuItem(value: DateTime.saturday, child: Text('土曜日')),
-                                              DropdownMenuItem(value: DateTime.sunday, child: Text('日曜日')),
+                                              DropdownMenuItem(
+                                                  value: DateTime.monday,
+                                                  child: Text('月曜日')),
+                                              DropdownMenuItem(
+                                                  value: DateTime.tuesday,
+                                                  child: Text('火曜日')),
+                                              DropdownMenuItem(
+                                                  value: DateTime.wednesday,
+                                                  child: Text('水曜日')),
+                                              DropdownMenuItem(
+                                                  value: DateTime.thursday,
+                                                  child: Text('木曜日')),
+                                              DropdownMenuItem(
+                                                  value: DateTime.friday,
+                                                  child: Text('金曜日')),
+                                              DropdownMenuItem(
+                                                  value: DateTime.saturday,
+                                                  child: Text('土曜日')),
+                                              DropdownMenuItem(
+                                                  value: DateTime.sunday,
+                                                  child: Text('日曜日')),
                                             ],
-                                            onChanged: (value) => recurringDayOfWeek.value = value,
+                                            onChanged: (value) =>
+                                                recurringDayOfWeek.value =
+                                                    value,
                                           ),
                                         ),
                                       ),
@@ -790,24 +844,32 @@ class AddTodoDialog {
                                 return ValueListenableBuilder<int?>(
                                   valueListenable: recurringDayOfMonth,
                                   builder: (context, dayOfMonth, _) => Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         '日付',
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
-                                          color: Theme.of(context).colorScheme.secondaryTextColor,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondaryTextColor,
                                         ),
                                       ),
                                       const SizedBox(height: 8),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 4),
                                         decoration: BoxDecoration(
                                           border: Border.all(
-                                            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .outline
+                                                .withValues(alpha: 0.3),
                                           ),
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                         child: DropdownButtonHideUnderline(
                                           child: DropdownButton<int>(
@@ -817,10 +879,12 @@ class AddTodoDialog {
                                               final day = index + 1;
                                               return DropdownMenuItem(
                                                 value: day,
-                                                child: Text('${day}日'),
+                                                child: Text('$day日'),
                                               );
                                             }),
-                                            onChanged: (value) => recurringDayOfMonth.value = value,
+                                            onChanged: (value) =>
+                                                recurringDayOfMonth.value =
+                                                    value,
                                           ),
                                         ),
                                       ),
@@ -843,11 +907,13 @@ class AddTodoDialog {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  endDate != null 
+                                  endDate != null
                                       ? '終了日: ${formatDate(endDate, format: 'yyyy/MM/dd')}'
                                       : '終了日: 未設定',
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.secondaryTextColor,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryTextColor,
                                   ),
                                 ),
                                 const Spacer(),
@@ -855,19 +921,24 @@ class AddTodoDialog {
                                   onPressed: () async {
                                     final pickedDate = await showDatePicker(
                                       context: context,
-                                      initialDate: endDate ?? DateTime.now().add(const Duration(days: 30)),
+                                      initialDate: endDate ??
+                                          DateTime.now()
+                                              .add(const Duration(days: 30)),
                                       firstDate: selectedDate.value,
                                       lastDate: DateTime(2030),
                                     );
                                     recurringEndDate.value = pickedDate;
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(context).colorScheme.primary,
-                                    foregroundColor: Theme.of(context).colorScheme.surface,
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.primary,
+                                    foregroundColor:
+                                        Theme.of(context).colorScheme.surface,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 6),
                                     elevation: 0,
                                   ),
                                   child: Text(endDate != null ? '変更' : '設定'),
@@ -909,15 +980,24 @@ class AddTodoDialog {
                                     ? null
                                     : descriptionController.text.trim(),
                             dueDate: dueDate,
-                            color: selectedCategory.value?.color ?? selectedColor.value,
+                            color: selectedCategory.value?.color ??
+                                selectedColor.value,
                             categoryId: selectedCategory.value?.id,
                             isRecurring: isRecurring.value,
-                            recurringType: isRecurring.value ? recurringType.value?.value : null,
-                            recurringEndDate: isRecurring.value ? recurringEndDate.value : null,
-                            recurringDayOfWeek: isRecurring.value && recurringType.value == RecurringType.weekly 
-                                ? recurringDayOfWeek.value : null,
-                            recurringDayOfMonth: isRecurring.value && recurringType.value == RecurringType.monthly 
-                                ? recurringDayOfMonth.value : null,
+                            recurringType: isRecurring.value
+                                ? recurringType.value?.value
+                                : null,
+                            recurringEndDate: isRecurring.value
+                                ? recurringEndDate.value
+                                : null,
+                            recurringDayOfWeek: isRecurring.value &&
+                                    recurringType.value == RecurringType.weekly
+                                ? recurringDayOfWeek.value
+                                : null,
+                            recurringDayOfMonth: isRecurring.value &&
+                                    recurringType.value == RecurringType.monthly
+                                ? recurringDayOfMonth.value
+                                : null,
                           );
                         } else {
                           // Create new todo
@@ -928,15 +1008,24 @@ class AddTodoDialog {
                                     ? null
                                     : descriptionController.text.trim(),
                             dueDate: dueDate,
-                            color: selectedCategory.value?.color ?? selectedColor.value,
+                            color: selectedCategory.value?.color ??
+                                selectedColor.value,
                             categoryId: selectedCategory.value?.id,
                             isRecurring: isRecurring.value,
-                            recurringType: isRecurring.value ? recurringType.value?.value : null,
-                            recurringEndDate: isRecurring.value ? recurringEndDate.value : null,
-                            recurringDayOfWeek: isRecurring.value && recurringType.value == RecurringType.weekly 
-                                ? recurringDayOfWeek.value : null,
-                            recurringDayOfMonth: isRecurring.value && recurringType.value == RecurringType.monthly 
-                                ? recurringDayOfMonth.value : null,
+                            recurringType: isRecurring.value
+                                ? recurringType.value?.value
+                                : null,
+                            recurringEndDate: isRecurring.value
+                                ? recurringEndDate.value
+                                : null,
+                            recurringDayOfWeek: isRecurring.value &&
+                                    recurringType.value == RecurringType.weekly
+                                ? recurringDayOfWeek.value
+                                : null,
+                            recurringDayOfMonth: isRecurring.value &&
+                                    recurringType.value == RecurringType.monthly
+                                ? recurringDayOfMonth.value
+                                : null,
                           );
                         }
 
@@ -1049,139 +1138,364 @@ class TodoDetailDialog {
     TodoModel todo, {
     VoidCallback? onRefresh,
   }) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: Row(
-          children: [
-            Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: TodoColor.getColorFromString(todo.color),
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                todo.title,
-                style: const TextStyle(fontSize: 18),
-              ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _TodoDetailContent(
+        todo: todo,
+        onRefresh: onRefresh,
+      ),
+    );
+  }
+}
+
+class _TodoDetailContent extends StatelessWidget {
+  final TodoModel todo;
+  final VoidCallback? onRefresh;
+  const _TodoDetailContent({required this.todo, this.onRefresh});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = TodoColor.getColorFromString(todo.color);
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        top: 32,
+        left: 0,
+        right: 0,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.mediumShadowColor,
+              blurRadius: 24,
+              offset: const Offset(0, -8),
             ),
           ],
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (todo.description != null && todo.description!.isNotEmpty) ...[
-              Text(
-                '詳細',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primaryTextColor,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                todo.description!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondaryTextColor,
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-            Text(
-              '期限',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primaryTextColor,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              formatDate(todo.dueDate, format: 'yyyy/MM/dd (EEE) HH:mm'),
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.secondaryTextColor,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: FutureBuilder<CategoryModel?>(
+          future: todo.categoryId != null
+              ? CategoryService().getCategoryById(todo.categoryId!)
+              : Future.value(null),
+          builder: (context, snapshot) {
+            final category = snapshot.data;
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(
-                  todo.isCompleted
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
-                  color: todo.isCompleted
-                      ? Theme.of(context).colorScheme.successColor
-                      : Theme.of(context).colorScheme.mutedTextColor,
+                // カラー・カテゴリ
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outline,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    if (category != null) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.category,
+                                size: 16,
+                                color: color.computeLuminance() > 0.5
+                                    ? Colors.black
+                                    : Colors.white),
+                            const SizedBox(width: 4),
+                            Text(
+                              category.title,
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryTextColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  todo.isCompleted ? '完了済み' : '未完了',
-                  style: TextStyle(
-                    color: todo.isCompleted
-                        ? Theme.of(context).colorScheme.successColor
-                        : Theme.of(context).colorScheme.mutedTextColor,
-                    fontWeight: FontWeight.w500,
+                const SizedBox(height: 16),
+                // タイトル
+                Center(
+                  child: Text(
+                    todo.title,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primaryTextColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // 詳細カード
+                Card(
+                  elevation: 0,
+                  color:
+                      Theme.of(context).colorScheme.surface.withOpacity(0.95),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              todo.isCompleted
+                                  ? Icons.check_circle
+                                  : Icons.radio_button_unchecked,
+                              color: todo.isCompleted
+                                  ? Theme.of(context).colorScheme.successColor
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .primaryTextColor,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              todo.isCompleted ? '完了済み' : '未完了',
+                              style: TextStyle(
+                                color: todo.isCompleted
+                                    ? Theme.of(context).colorScheme.successColor
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .primaryTextColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const Spacer(),
+                            Icon(Icons.schedule_rounded,
+                                size: 18,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryTextColor),
+                            const SizedBox(width: 4),
+                            Text(
+                              formatDate(todo.dueDate,
+                                  format: 'yyyy/MM/dd (EEE) HH:mm'),
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryTextColor,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (todo.isRecurring == true) ...[
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Icon(Icons.repeat,
+                                  size: 16,
+                                  color: Theme.of(context).colorScheme.primary),
+                              const SizedBox(width: 4),
+                              Text(
+                                _getRecurringLabel(todo.recurringType),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                        if (todo.description != null &&
+                            todo.description!.isNotEmpty) ...[
+                          const SizedBox(height: 14),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.notes,
+                                  size: 16,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .secondaryTextColor),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  todo.description!,
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryTextColor,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // アクションボタン
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    if (!todo.isCompleted)
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: Icon(Icons.check,
+                              color: Theme.of(context).colorScheme.surface,
+                              size: 24),
+                          label: const Text('完了',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.successColor,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.surface,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                          ),
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                            await TodoService().toggleTodoComplete(todo.id);
+                            onRefresh?.call();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text('${todo.title}を完了にしました')),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    if (!todo.isCompleted) const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: Icon(Icons.edit,
+                            color: Theme.of(context).colorScheme.surface,
+                            size: 24),
+                        label: const Text('編集',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.surface,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                        ),
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          await AddTodoDialog.show(
+                            context,
+                            initialTodo: todo,
+                            onSaved: onRefresh,
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        icon: Icon(Icons.delete,
+                            color: Theme.of(context).colorScheme.surface,
+                            size: 24),
+                        label: const Text('削除',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.errorColor,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.surface,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                        ),
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          await TodoService().deleteTodo(todo.id);
+                          onRefresh?.call();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('${todo.title}を削除しました')),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(Icons.close_rounded,
+                        color: Theme.of(context).colorScheme.mutedTextColor,
+                        size: 22),
+                    label: Text(
+                      '閉じる',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.mutedTextColor,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                          color: Theme.of(context).colorScheme.mutedTextColor,
+                          width: 1.4),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
                   ),
                 ),
               ],
-            ),
-          ],
+            );
+          },
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('閉じる'),
-          ),
-          if (!todo.isCompleted)
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                await TodoService().toggleTodoComplete(todo.id);
-                onRefresh?.call();
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('${todo.title}を完了にしました')),
-                  );
-                }
-              },
-              child: const Text('完了'),
-            ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await AddTodoDialog.show(
-                context,
-                initialTodo: todo,
-                onSaved: onRefresh,
-              );
-            },
-            child: const Text('編集'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await TodoService().deleteTodo(todo.id);
-              onRefresh?.call();
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${todo.title}を削除しました')),
-                );
-              }
-            },
-            style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.errorColor),
-            child: Text('削除'),
-          ),
-        ],
       ),
     );
+  }
+
+  String _getRecurringLabel(String? recurringType) {
+    if (recurringType == null) return '';
+    final type = RecurringType.fromString(recurringType);
+    return type?.label ?? '';
   }
 }
 
@@ -1192,7 +1506,7 @@ Future<Map<String, dynamic>?> showTodoFilterDialog({
 }) {
   int? tempSelectedCategoryId = initialCategoryId;
   String? tempSelectedStatus = initialStatus;
-  
+
   return showDialog<Map<String, dynamic>>(
     context: context,
     builder: (context) {
@@ -1264,10 +1578,11 @@ Future<Map<String, dynamic>?> showTodoFilterDialog({
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       }
-                      
+
                       final categories = snapshot.data ?? [];
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 4),
                         decoration: BoxDecoration(
                           color: Theme.of(context)
                               .colorScheme
@@ -1287,8 +1602,9 @@ Future<Map<String, dynamic>?> showTodoFilterDialog({
                             icon: const Icon(Icons.arrow_drop_down),
                             style: TextStyle(
                                 fontSize: 16,
-                                color:
-                                    Theme.of(context).colorScheme.primaryTextColor),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryTextColor),
                             items: [
                               DropdownMenuItem(
                                 value: null,
@@ -1313,8 +1629,10 @@ Future<Map<String, dynamic>?> showTodoFilterDialog({
                                           width: 16,
                                           height: 16,
                                           decoration: BoxDecoration(
-                                            color: TodoColor.getColorFromString(category.color),
-                                            borderRadius: BorderRadius.circular(4),
+                                            color: TodoColor.getColorFromString(
+                                                category.color),
+                                            borderRadius:
+                                                BorderRadius.circular(4),
                                           ),
                                           child: const Icon(
                                             Icons.category,
@@ -1544,7 +1862,8 @@ class _CategorySelectionDialogContentState
                         description: category.description ?? '',
                         color: category.color,
                         isSelected: selectedCategory?.id == category.id,
-                        onTap: () => setState(() => selectedCategory = category),
+                        onTap: () =>
+                            setState(() => selectedCategory = category),
                       )),
                 ],
               ),
@@ -1654,7 +1973,9 @@ class _CategoryOption extends StatelessWidget {
                           description,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Theme.of(context).colorScheme.secondaryTextColor,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondaryTextColor,
                           ),
                         ),
                       ],

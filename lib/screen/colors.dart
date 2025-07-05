@@ -74,7 +74,7 @@ extension AppColorScheme on ColorScheme {
       ? const Color(0xFF525C6B) // さらに濃いグレー
       : const Color(0xFFCBD5E0);
 
-  Color get successColor => const Color.fromARGB(255, 62, 240, 199);
+  Color get successColor => const Color.fromARGB(255, 0, 241, 177);
   Color get successBackgroundColor => brightness == Brightness.light
       ? const Color.fromARGB(255, 218, 247, 238)
       : const Color(0xFF4A5D56);
@@ -84,7 +84,7 @@ extension AppColorScheme on ColorScheme {
       ? const Color(0xFFFFF9E6)
       : const Color(0xFF5D5349);
 
-  Color get errorColor => const Color(0xFFFFB3B3);
+  Color get errorColor => const Color.fromARGB(255, 237, 88, 88);
   Color get errorBackgroundColor => brightness == Brightness.light
       ? const Color(0xFFFFF5F5)
       : const Color(0xFF5D4A4A);
