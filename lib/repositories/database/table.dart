@@ -13,4 +13,10 @@ class Todos extends DefaultTableColumns {
   BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
   TextColumn get color => text().nullable()();
   TextColumn get icon => text().nullable()();
+  // Recurring fields
+  BoolColumn get isRecurring => boolean().withDefault(const Constant(false))();
+  TextColumn get recurringType => text().nullable()();
+  DateTimeColumn get recurringEndDate => dateTime().nullable()();
+  IntColumn get recurringDayOfWeek => integer().nullable()();
+  IntColumn get recurringDayOfMonth => integer().nullable()();
 }

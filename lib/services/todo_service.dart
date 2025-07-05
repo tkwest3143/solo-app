@@ -21,6 +21,11 @@ class TodoService {
                 icon: todo.icon,
                 createdAt: todo.createdAt,
                 updatedAt: todo.updatedAt,
+                isRecurring: todo.isRecurring,
+                recurringType: todo.recurringType,
+                recurringEndDate: todo.recurringEndDate,
+                recurringDayOfWeek: todo.recurringDayOfWeek,
+                recurringDayOfMonth: todo.recurringDayOfMonth,
               ))
           .toList();
     }
@@ -84,6 +89,12 @@ class TodoService {
     String? description,
     required DateTime dueDate,
     String? color,
+    // Recurring parameters
+    bool? isRecurring,
+    String? recurringType,
+    DateTime? recurringEndDate,
+    int? recurringDayOfWeek,
+    int? recurringDayOfMonth,
   }) async {
     final newTodo = TodoModel(
       id: _nextId++,
@@ -94,6 +105,11 @@ class TodoService {
       color: color ?? 'blue',
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
+      isRecurring: isRecurring ?? false,
+      recurringType: recurringType,
+      recurringEndDate: recurringEndDate,
+      recurringDayOfWeek: recurringDayOfWeek,
+      recurringDayOfMonth: recurringDayOfMonth,
     );
 
     _inMemoryTodos.add(newTodo);
@@ -107,6 +123,12 @@ class TodoService {
     DateTime? dueDate,
     String? color,
     bool? isCompleted,
+    // Recurring parameters
+    bool? isRecurring,
+    String? recurringType,
+    DateTime? recurringEndDate,
+    int? recurringDayOfWeek,
+    int? recurringDayOfMonth,
   }) async {
     final index = _inMemoryTodos.indexWhere((todo) => todo.id == id);
     if (index == -1) return null;
@@ -122,6 +144,11 @@ class TodoService {
       icon: oldTodo.icon,
       createdAt: oldTodo.createdAt,
       updatedAt: DateTime.now(),
+      isRecurring: isRecurring ?? oldTodo.isRecurring,
+      recurringType: recurringType ?? oldTodo.recurringType,
+      recurringEndDate: recurringEndDate ?? oldTodo.recurringEndDate,
+      recurringDayOfWeek: recurringDayOfWeek ?? oldTodo.recurringDayOfWeek,
+      recurringDayOfMonth: recurringDayOfMonth ?? oldTodo.recurringDayOfMonth,
     );
 
     _inMemoryTodos[index] = updatedTodo;
@@ -151,6 +178,11 @@ class TodoService {
       icon: oldTodo.icon,
       createdAt: oldTodo.createdAt,
       updatedAt: DateTime.now(),
+      isRecurring: oldTodo.isRecurring,
+      recurringType: oldTodo.recurringType,
+      recurringEndDate: oldTodo.recurringEndDate,
+      recurringDayOfWeek: oldTodo.recurringDayOfWeek,
+      recurringDayOfMonth: oldTodo.recurringDayOfMonth,
     );
 
     _inMemoryTodos[index] = updatedTodo;
@@ -245,5 +277,167 @@ class TodoService {
     }
 
     return todosByDate;
+  }
+
+  /// Calculate the next due date for a recurring todo
+  DateTime? calculateNextRecurringDate(TodoModel todo) {
+    if (todo.isRecurring != true || todo.recurringType == null) {
+      return null;
+    }
+
+    final currentDate = todo.dueDate;
+    final recurringType = todo.recurringType!;
+
+    switch (recurringType) {
+      case 'daily':
+        return DateTime(
+          currentDate.year,
+          currentDate.month,
+          currentDate.day + 1,
+          currentDate.hour,
+          currentDate.minute,
+        );
+      
+      case 'weekly':
+        return DateTime(
+          currentDate.year,
+          currentDate.month,
+          currentDate.day + 7,
+          currentDate.hour,
+          currentDate.minute,
+        );
+      
+      case 'monthly':
+        if (todo.recurringDayOfMonth != null) {
+          final nextMonth = currentDate.month == 12 
+              ? DateTime(currentDate.year + 1, 1, 1)
+              : DateTime(currentDate.year, currentDate.month + 1, 1);
+          final targetDay = todo.recurringDayOfMonth!;
+          final lastDayOfMonth = DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
+          final actualDay = targetDay > lastDayOfMonth ? lastDayOfMonth : targetDay;
+          
+          return DateTime(
+            nextMonth.year,
+            nextMonth.month,
+            actualDay,
+            currentDate.hour,
+            currentDate.minute,
+          );
+        }
+        break;
+      
+      case 'monthly_last':
+        final nextMonth = currentDate.month == 12 
+            ? DateTime(currentDate.year + 1, 1, 1)
+            : DateTime(currentDate.year, currentDate.month + 1, 1);
+        final lastDayOfNextMonth = DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
+        
+        return DateTime(
+          nextMonth.year,
+          nextMonth.month,
+          lastDayOfNextMonth,
+          currentDate.hour,
+          currentDate.minute,
+        );
+    }
+
+    return null;
+  }
+
+  /// Generate the next instance of a recurring todo
+  Future<TodoModel?> generateNextRecurringInstance(TodoModel originalTodo) async {
+    if (originalTodo.isRecurring != true) return null;
+
+    final nextDate = calculateNextRecurringDate(originalTodo);
+    if (nextDate == null) return null;
+
+    // Check if we've passed the end date
+    if (originalTodo.recurringEndDate != null && 
+        nextDate.isAfter(originalTodo.recurringEndDate!)) {
+      return null;
+    }
+
+    // Create the next instance
+    final nextInstance = TodoModel(
+      id: _nextId++,
+      title: originalTodo.title,
+      description: originalTodo.description,
+      dueDate: nextDate,
+      isCompleted: false,
+      color: originalTodo.color,
+      icon: originalTodo.icon,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      isRecurring: originalTodo.isRecurring,
+      recurringType: originalTodo.recurringType,
+      recurringEndDate: originalTodo.recurringEndDate,
+      recurringDayOfWeek: originalTodo.recurringDayOfWeek,
+      recurringDayOfMonth: originalTodo.recurringDayOfMonth,
+    );
+
+    _inMemoryTodos.add(nextInstance);
+    return nextInstance;
+  }
+
+  /// Auto-generate recurring todos when needed
+  Future<List<TodoModel>> generateUpcomingRecurringTodos() async {
+    final allTodos = await getTodo();
+    final now = DateTime.now();
+    final oneWeekFromNow = now.add(const Duration(days: 7));
+    final generatedTodos = <TodoModel>[];
+
+    for (final todo in allTodos) {
+      if (todo.isRecurring == true && !todo.isCompleted) {
+        // Check if we need to generate upcoming instances
+        var currentTodo = todo;
+        
+        // Generate up to 3 future instances within the next week
+        for (int i = 0; i < 3; i++) {
+          final nextDate = calculateNextRecurringDate(currentTodo);
+          if (nextDate == null || nextDate.isAfter(oneWeekFromNow)) break;
+          
+          // Check if we've passed the end date
+          if (todo.recurringEndDate != null && 
+              nextDate.isAfter(todo.recurringEndDate!)) break;
+
+          // Check if this instance already exists
+          final existingInstance = allTodos.any((t) => 
+            t.title == todo.title &&
+            t.dueDate.year == nextDate.year &&
+            t.dueDate.month == nextDate.month &&
+            t.dueDate.day == nextDate.day &&
+            t.dueDate.hour == nextDate.hour &&
+            t.dueDate.minute == nextDate.minute
+          );
+
+          if (!existingInstance) {
+            final nextInstance = TodoModel(
+              id: _nextId++,
+              title: todo.title,
+              description: todo.description,
+              dueDate: nextDate,
+              isCompleted: false,
+              color: todo.color,
+              icon: todo.icon,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+              isRecurring: todo.isRecurring,
+              recurringType: todo.recurringType,
+              recurringEndDate: todo.recurringEndDate,
+              recurringDayOfWeek: todo.recurringDayOfWeek,
+              recurringDayOfMonth: todo.recurringDayOfMonth,
+            );
+
+            _inMemoryTodos.add(nextInstance);
+            generatedTodos.add(nextInstance);
+            currentTodo = nextInstance;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+
+    return generatedTodos;
   }
 }

@@ -16,6 +16,11 @@ class TodoTableRepository {
               icon: e.icon,
               createdAt: e.createdAt,
               updatedAt: e.updatedAt,
+              isRecurring: e.isRecurring,
+              recurringType: e.recurringType,
+              recurringEndDate: e.recurringEndDate,
+              recurringDayOfWeek: e.recurringDayOfWeek,
+              recurringDayOfMonth: e.recurringDayOfMonth,
             ))
         .toList();
   }
