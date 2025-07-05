@@ -89,89 +89,93 @@ class TodoChecklistWidget extends HookConsumerWidget {
     }
 
     Widget buildChecklistItem(int index, TodoCheckListItemModel item) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          border: index > 0
-              ? Border(
-                  top: BorderSide(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .outline
-                        .withValues(alpha: 0.3),
-                  ),
-                )
-              : null,
-          // Add subtle background color change when completed
-          color: item.isCompleted 
-              ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
-              : null,
-        ),
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: () => toggleItem(index),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: item.isCompleted
-                      ? Theme.of(context).colorScheme.primary
-                      : Colors.transparent,
-                  border: Border.all(
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () => toggleItem(index),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              border: index > 0
+                  ? Border(
+                      top: BorderSide(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outline
+                            .withValues(alpha: 0.3),
+                      ),
+                    )
+                  : null,
+              // Add subtle background color change when completed
+              color: item.isCompleted 
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.05)
+                  : null,
+            ),
+            child: Row(
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
                     color: item.isCompleted
                         ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.outline,
-                    width: 2,
-                  ),
-                  // Add shadow when completed for better visual feedback
-                  boxShadow: item.isCompleted ? [
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: item.isCompleted
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.outline,
+                      width: 2,
                     ),
-                  ] : null,
-                ),
-                child: item.isCompleted
-                    ? Icon(
-                        Icons.check,
-                        size: 14,
-                        color: Theme.of(context).colorScheme.surface,
-                      )
-                    : null,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: GestureDetector(
-                onTap: () => showEditDialog(context, index, item, editItem),
-                child: AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 200),
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: item.isCompleted
-                        ? Theme.of(context).colorScheme.outline
-                        : Theme.of(context).colorScheme.onSurface,
-                    decoration: item.isCompleted ? TextDecoration.lineThrough : null,
-                    decorationColor: Theme.of(context).colorScheme.outline,
+                    // Add shadow when completed for better visual feedback
+                    boxShadow: item.isCompleted ? [
+                      BoxShadow(
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ] : null,
                   ),
-                  child: Text(item.title),
+                  child: item.isCompleted
+                      ? Icon(
+                          Icons.check,
+                          size: 14,
+                          color: Theme.of(context).colorScheme.surface,
+                        )
+                      : null,
                 ),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => showEditDialog(context, index, item, editItem),
+                    child: AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 200),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: item.isCompleted
+                            ? Theme.of(context).colorScheme.outline
+                            : Theme.of(context).colorScheme.onSurface,
+                        decoration: item.isCompleted ? TextDecoration.lineThrough : null,
+                        decorationColor: Theme.of(context).colorScheme.outline,
+                      ),
+                      child: Text(item.title),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => removeItem(index),
+                  icon: Icon(
+                    Icons.delete_outline,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  tooltip: '削除',
+                ),
+              ],
             ),
-            IconButton(
-              onPressed: () => removeItem(index),
-              icon: Icon(
-                Icons.delete_outline,
-                size: 18,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              tooltip: '削除',
-            ),
-          ],
+          ),
         ),
       );
     }
