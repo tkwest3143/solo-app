@@ -33,65 +33,115 @@ class MenuNavigationCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: isHighlighted 
+            ? const EdgeInsets.all(20)
+            : const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(isHighlighted ? 20 : 15),
+          borderRadius: BorderRadius.circular(isHighlighted ? 20 : 16),
           color: backgroundColor ?? Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
               color: isHighlighted 
                 ? Theme.of(context).colorScheme.mediumShadowColor
                 : Theme.of(context).colorScheme.lightShadowColor,
-              blurRadius: isHighlighted ? 15 : 10,
-              offset: Offset(0, isHighlighted ? 6 : 3),
+              blurRadius: isHighlighted ? 15 : 8,
+              offset: Offset(0, isHighlighted ? 6 : 2),
             ),
           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(isHighlighted ? 20 : 16),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: gradientColors != null
-                    ? LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: gradientColors!,
-                      )
-                    : null,
-                color: gradientColors == null 
-                    ? (backgroundColor ?? Theme.of(context).colorScheme.primary.withOpacity(0.1))
-                    : null,
+        child: isHighlighted
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: gradientColors != null
+                          ? LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: gradientColors!,
+                            )
+                          : null,
+                      color: gradientColors == null 
+                          ? (backgroundColor ?? Theme.of(context).colorScheme.primary.withOpacity(0.1))
+                          : null,
+                    ),
+                    child: Icon(
+                      icon,
+                      color: cardIconColor,
+                      size: cardIconSize,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primaryTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.secondaryTextColor,
+                      height: 1.3,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              )
+            : Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: cardIconColor,
+                      size: cardIconSize,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primaryTextColor,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.secondaryTextColor,
+                            height: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
+                  ),
+                ],
               ),
-              child: Icon(
-                icon,
-                color: cardIconColor,
-                size: cardIconSize,
-              ),
-            ),
-            SizedBox(height: isHighlighted ? 16 : 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: isHighlighted ? 18 : 16,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primaryTextColor,
-              ),
-            ),
-            SizedBox(height: isHighlighted ? 8 : 4),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: isHighlighted ? 14 : 12,
-                color: Theme.of(context).colorScheme.secondaryTextColor,
-                height: 1.3,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
       ),
     );
   }

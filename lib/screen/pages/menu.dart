@@ -29,7 +29,7 @@ class MenuPage extends HookConsumerWidget {
                 child: Column(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
@@ -40,25 +40,25 @@ class MenuPage extends HookConsumerWidget {
                         boxShadow: [
                           BoxShadow(
                             color: Theme.of(context).colorScheme.mediumShadowColor,
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
                           ),
                         ],
                       ),
                       child: const Icon(
                         Icons.dashboard_rounded,
-                        size: 60,
+                        size: 48,
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
                     Text(
                       'メニュー',
                       style: TextStyle(
-                        fontSize: 32,
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primaryTextColor,
-                        letterSpacing: 1.2,
+                        letterSpacing: 1.0,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -74,7 +74,7 @@ class MenuPage extends HookConsumerWidget {
                 ),
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 35),
 
               // Main Navigation Cards
               Expanded(
@@ -116,49 +116,81 @@ class MenuPage extends HookConsumerWidget {
                         ],
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 30),
 
-                      // Secondary Features
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MenuNavigationCard(
-                              title: '設定',
-                              subtitle: 'アプリ設定\nカスタマイズ',
-                              icon: Icons.settings_rounded,
-                              iconColor: Theme.of(context).colorScheme.primary,
-                              backgroundColor: Theme.of(context).colorScheme.surface,
-                              onTap: () => nextRouting(context, RouterDefinition.settings),
+                      // Secondary Features - Vertical Layout
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Column(
+                          children: [
+                            // Subtle section divider
+                            Container(
+                              height: 1,
+                              margin: const EdgeInsets.symmetric(horizontal: 40),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.transparent,
+                                    Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                                    Colors.transparent,
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: MenuNavigationCard(
-                              title: 'このアプリについて',
-                              subtitle: 'アプリ情報\nバージョン・機能',
-                              icon: Icons.info_rounded,
-                              iconColor: Theme.of(context).colorScheme.primary,
-                              backgroundColor: Theme.of(context).colorScheme.surface,
-                              onTap: () => nextRouting(context, RouterDefinition.about),
+                            const SizedBox(height: 24),
+                            
+                            // Settings Card
+                            SizedBox(
+                              width: double.infinity,
+                              child: MenuNavigationCard(
+                                title: '設定',
+                                subtitle: 'アプリ設定・カスタマイズ',
+                                icon: Icons.settings_rounded,
+                                iconColor: Theme.of(context).colorScheme.primary,
+                                backgroundColor: Theme.of(context).colorScheme.surface,
+                                onTap: () => nextRouting(context, RouterDefinition.settings),
+                                iconSize: 28,
+                              ),
                             ),
-                          ),
-                        ],
+                            
+                            const SizedBox(height: 14),
+                            
+                            // About Card
+                            SizedBox(
+                              width: double.infinity,
+                              child: MenuNavigationCard(
+                                title: 'このアプリについて',
+                                subtitle: 'アプリ情報・バージョン・機能',
+                                icon: Icons.info_rounded,
+                                iconColor: Theme.of(context).colorScheme.primary,
+                                backgroundColor: Theme.of(context).colorScheme.surface,
+                                onTap: () => nextRouting(context, RouterDefinition.about),
+                                iconSize: 28,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
 
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 28),
 
                       // App Version Display
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        margin: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
-                          color: Colors.white.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.white.withOpacity(0.85),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            width: 1,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Theme.of(context).colorScheme.lightShadowColor,
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
                             ),
                           ],
                         ),
@@ -166,15 +198,15 @@ class MenuPage extends HookConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.info_outline_rounded,
-                              size: 20,
+                              Icons.apps_rounded,
+                              size: 18,
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             const SizedBox(width: 8),
                             Text(
                               'Solo v1.0.0',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 15,
                                 color: Theme.of(context).colorScheme.secondaryTextColor,
                                 fontWeight: FontWeight.w600,
                               ),
