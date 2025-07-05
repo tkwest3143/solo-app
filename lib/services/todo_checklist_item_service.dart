@@ -1,15 +1,21 @@
+import 'package:drift/drift.dart';
 import 'package:solo/models/todo_checklist_item_model.dart';
+import 'package:solo/repositories/database.dart';
 
 class TodoCheckListItemService {
-  // In-memory storage for prototype - in real app this would be persisted
-  static final List<TodoCheckListItemModel> _inMemoryItems = [];
-  static int _nextId = 1;
+  final TodoCheckListItemTableRepository _repository = TodoCheckListItemTableRepository();
 
   Future<List<TodoCheckListItemModel>> getCheckListItemsForTodo(int todoId) async {
-    return _inMemoryItems
-        .where((item) => item.todoId == todoId)
-        .toList()
-      ..sort((a, b) => a.order.compareTo(b.order));
+    final items = await _repository.findByTodoId(todoId);
+    return items.map((item) => TodoCheckListItemModel(
+      id: item.id,
+      todoId: item.todoId,
+      title: item.title,
+      isCompleted: item.isCompleted,
+      order: item.order,
+      createdAt: item.createdAt ?? DateTime.now(),
+      updatedAt: item.updatedAt ?? DateTime.now(),
+    )).toList();
   }
 
   Future<TodoCheckListItemModel> createCheckListItem({
@@ -18,8 +24,18 @@ class TodoCheckListItemService {
     required int order,
   }) async {
     final now = DateTime.now();
-    final newItem = TodoCheckListItemModel(
-      id: _nextId++,
+    final companion = TodoCheckListItemsCompanion(
+      todoId: Value(todoId),
+      title: Value(title),
+      isCompleted: const Value(false),
+      order: Value(order),
+      createdAt: Value(now),
+      updatedAt: Value(now),
+    );
+    
+    final id = await _repository.insert(companion);
+    return TodoCheckListItemModel(
+      id: id,
       todoId: todoId,
       title: title,
       isCompleted: false,
@@ -27,9 +43,6 @@ class TodoCheckListItemService {
       createdAt: now,
       updatedAt: now,
     );
-    
-    _inMemoryItems.add(newItem);
-    return newItem;
   }
 
   Future<bool> updateCheckListItem(
@@ -38,55 +51,34 @@ class TodoCheckListItemService {
     bool? isCompleted,
     int? order,
   }) async {
-    final index = _inMemoryItems.indexWhere((item) => item.id == id);
-    if (index == -1) return false;
-
-    final oldItem = _inMemoryItems[index];
-    final updatedItem = TodoCheckListItemModel(
-      id: oldItem.id,
-      todoId: oldItem.todoId,
-      title: title ?? oldItem.title,
-      isCompleted: isCompleted ?? oldItem.isCompleted,
-      order: order ?? oldItem.order,
-      createdAt: oldItem.createdAt,
-      updatedAt: DateTime.now(),
+    final companion = TodoCheckListItemsCompanion(
+      title: title != null ? Value(title) : const Value.absent(),
+      isCompleted: isCompleted != null ? Value(isCompleted) : const Value.absent(),
+      order: order != null ? Value(order) : const Value.absent(),
+      updatedAt: Value(DateTime.now()),
     );
     
-    _inMemoryItems[index] = updatedItem;
-    return true;
+    return await _repository.update(id, companion);
   }
 
   Future<bool> deleteCheckListItem(int id) async {
-    final index = _inMemoryItems.indexWhere((item) => item.id == id);
-    if (index == -1) return false;
-    
-    _inMemoryItems.removeAt(index);
-    return true;
+    return await _repository.delete(id);
   }
 
   Future<bool> deleteAllCheckListItemsForTodo(int todoId) async {
-    final initialCount = _inMemoryItems.length;
-    _inMemoryItems.removeWhere((item) => item.todoId == todoId);
-    return _inMemoryItems.length < initialCount;
+    return await _repository.deleteByTodoId(todoId);
   }
 
   Future<bool> toggleCheckListItemComplete(int id) async {
-    final index = _inMemoryItems.indexWhere((item) => item.id == id);
-    if (index == -1) return false;
+    final item = await _repository.findById(id);
+    if (item == null) return false;
 
-    final oldItem = _inMemoryItems[index];
-    final updatedItem = TodoCheckListItemModel(
-      id: oldItem.id,
-      todoId: oldItem.todoId,
-      title: oldItem.title,
-      isCompleted: !oldItem.isCompleted,
-      order: oldItem.order,
-      createdAt: oldItem.createdAt,
-      updatedAt: DateTime.now(),
+    final companion = TodoCheckListItemsCompanion(
+      isCompleted: Value(!item.isCompleted),
+      updatedAt: Value(DateTime.now()),
     );
     
-    _inMemoryItems[index] = updatedItem;
-    return true;
+    return await _repository.update(id, companion);
   }
 
   Future<bool> areAllCheckListItemsCompleted(int todoId) async {

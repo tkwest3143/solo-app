@@ -1593,66 +1593,103 @@ class _TodoDetailContent extends StatelessWidget {
   Widget _buildChecklistItemRow(BuildContext context, TodoCheckListItemModel item, TodoModel todo) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          const SizedBox(width: 22), // Align with icon above
-          GestureDetector(
-            onTap: () async {
-              // Toggle checklist item completion
-              final checklistService = TodoCheckListItemService();
-              await checklistService.toggleCheckListItemComplete(item.id);
-              
-              // Check if todo should be auto-completed
-              final todoService = TodoService();
-              final wasCompleted = await todoService.checkAndUpdateTodoCompletionByChecklist(todo.id);
-              
-              if (wasCompleted && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${todo.title}を完了にしました')),
-                );
-              }
-              
-              // Refresh the UI
-              onRefresh?.call();
-            },
-            child: Container(
-              width: 16,
-              height: 16,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: item.isCompleted
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.transparent,
-                border: Border.all(
-                  color: item.isCompleted
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.outline,
-                  width: 1.5,
-                ),
-              ),
-              child: item.isCompleted
-                  ? Icon(
-                      Icons.check,
-                      size: 10,
-                      color: Theme.of(context).colorScheme.surface,
-                    )
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () async {
+            // Toggle checklist item completion
+            final checklistService = TodoCheckListItemService();
+            await checklistService.toggleCheckListItemComplete(item.id);
+            
+            // Check if todo should be auto-completed
+            final todoService = TodoService();
+            final wasCompleted = await todoService.checkAndUpdateTodoCompletionByChecklist(todo.id);
+            
+            if (wasCompleted && context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('${todo.title}を完了にしました')),
+              );
+            }
+            
+            // Refresh the UI
+            onRefresh?.call();
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: item.isCompleted 
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.05)
                   : null,
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              item.title,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.secondaryTextColor,
-                fontSize: 13,
-                decoration: item.isCompleted
-                    ? TextDecoration.lineThrough
-                    : null,
-              ),
+            child: Row(
+              children: [
+                const SizedBox(width: 22), // Align with icon above
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 18,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: item.isCompleted
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: item.isCompleted
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.outline,
+                      width: 1.5,
+                    ),
+                    boxShadow: item.isCompleted ? [
+                      BoxShadow(
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                        blurRadius: 3,
+                        offset: const Offset(0, 1),
+                      ),
+                    ] : null,
+                  ),
+                  child: item.isCompleted
+                      ? Icon(
+                          Icons.check,
+                          size: 12,
+                          color: Theme.of(context).colorScheme.surface,
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 200),
+                    style: TextStyle(
+                      color: item.isCompleted
+                          ? Theme.of(context).colorScheme.outline
+                          : Theme.of(context).colorScheme.secondaryTextColor,
+                      fontSize: 13,
+                      decoration: item.isCompleted
+                          ? TextDecoration.lineThrough
+                          : null,
+                      decorationColor: Theme.of(context).colorScheme.outline,
+                    ),
+                    child: Text(item.title),
+                  ),
+                ),
+                if (!item.isCompleted)
+                  Icon(
+                    Icons.radio_button_unchecked,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.6),
+                  )
+                else
+                  Icon(
+                    Icons.check_circle,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                  ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

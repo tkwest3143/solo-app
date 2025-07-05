@@ -64,3 +64,73 @@ class CategoryTableRepository {
     return result > 0;
   }
 }
+
+class TodoCheckListItemTableRepository {
+  Future<List<TodoCheckListItem>> findByTodoId(int todoId) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final data = await (database.todoCheckListItems.select()
+          ..where((tbl) => tbl.todoId.equals(todoId))
+          ..orderBy([(tbl) => OrderingTerm(expression: tbl.order)]))
+        .get();
+    return data
+        .map((e) => TodoCheckListItem(
+              id: e.id,
+              todoId: e.todoId,
+              title: e.title,
+              isCompleted: e.isCompleted,
+              order: e.order,
+              createdAt: e.createdAt,
+              updatedAt: e.updatedAt,
+            ))
+        .toList();
+  }
+
+  Future<int> insert(TodoCheckListItemsCompanion item) async {
+    final database = await AppDatabase.getSingletonInstance();
+    return await database.into(database.todoCheckListItems).insert(item);
+  }
+
+  Future<bool> update(int id, TodoCheckListItemsCompanion item) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final result = await (database.update(database.todoCheckListItems)
+          ..where((tbl) => tbl.id.equals(id)))
+        .write(item);
+    return result > 0;
+  }
+
+  Future<bool> delete(int id) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final result = await (database.delete(database.todoCheckListItems)
+          ..where((tbl) => tbl.id.equals(id)))
+        .go();
+    return result > 0;
+  }
+
+  Future<bool> deleteByTodoId(int todoId) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final result = await (database.delete(database.todoCheckListItems)
+          ..where((tbl) => tbl.todoId.equals(todoId)))
+        .go();
+    return result > 0;
+  }
+
+  Future<TodoCheckListItem?> findById(int id) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final data = await (database.todoCheckListItems.select()
+          ..where((tbl) => tbl.id.equals(id)))
+        .getSingleOrNull();
+    
+    if (data != null) {
+      return TodoCheckListItem(
+        id: data.id,
+        todoId: data.todoId,
+        title: data.title,
+        isCompleted: data.isCompleted,
+        order: data.order,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+      );
+    }
+    return null;
+  }
+}
