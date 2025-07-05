@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/router.dart';
+import 'package:solo/screen/states/settings_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,11 +21,14 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouter);
+    final settings = ref.watch(settingsStateProvider);
+    
     return PopScope(
         canPop: false,
         child: MaterialApp.router(
           theme: lightTheme,
           darkTheme: darkTheme,
+          themeMode: settings.themeMode,
           routeInformationParser: router.routeInformationParser,
           routerDelegate: router.routerDelegate,
           routeInformationProvider: router.routeInformationProvider,

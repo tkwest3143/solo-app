@@ -54,7 +54,7 @@ class HomePage extends HookConsumerWidget {
                         title: 'ポモドーロ',
                         subtitle: '集中タイマー',
                         icon: Icons.timer_rounded,
-                        iconColor: Colors.white,
+                        iconColor: Theme.of(context).colorScheme.surface,
                         backgroundColor:
                             Theme.of(context).colorScheme.accentColor,
                         onTap: () {
@@ -68,7 +68,7 @@ class HomePage extends HookConsumerWidget {
                         title: 'Todo管理',
                         subtitle: 'タスク一覧',
                         icon: Icons.checklist_rounded,
-                        iconColor: Colors.white,
+                        iconColor: Theme.of(context).colorScheme.surface,
                         backgroundColor:
                             Theme.of(context).colorScheme.infoColor,
                         onTap: () {

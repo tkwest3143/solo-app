@@ -104,7 +104,9 @@ class GlobalLayout extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppHeader(onSettingsPressed: () {}),
+      appBar: AppHeader(onSettingsPressed: () {
+        nextRouting(context, RouterDefinition.settings);
+      }),
       bottomNavigationBar: FooterMenu(),
       body: child,
     );

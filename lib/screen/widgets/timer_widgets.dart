@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/states/timer_state.dart';
 import 'package:solo/models/timer_model.dart';
@@ -110,7 +111,7 @@ class _ModeButton extends StatelessWidget {
           title,
           style: TextStyle(
             color: isSelected
-                ? Colors.white
+                ? Theme.of(context).colorScheme.surface
                 : Theme.of(context)
                     .colorScheme
                     .onSurface
@@ -119,76 +120,6 @@ class _ModeButton extends StatelessWidget {
             fontSize: 14,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class PomodoroPhaseIndicator extends StatelessWidget {
-  final TimerSession timerSession;
-
-  const PomodoroPhaseIndicator({
-    super.key,
-    required this.timerSession,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final phaseColor = timerSession.isWorkPhase
-        ? Theme.of(context).colorScheme.accentColor
-        : Theme.of(context).colorScheme.infoColor;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32),
-        gradient: LinearGradient(
-          colors: [
-            phaseColor.withValues(alpha: 0.15),
-            phaseColor.withValues(alpha: 0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        border: Border.all(
-          color: phaseColor.withValues(alpha: 0.3),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: phaseColor.withValues(alpha: 0.2),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: phaseColor.withValues(alpha: 0.2),
-            ),
-            child: Icon(
-              timerSession.isWorkPhase
-                  ? Icons.work_rounded
-                  : Icons.coffee_rounded,
-              color: phaseColor,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            timerSession.currentPhaseDisplayName,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontWeight: FontWeight.w600,
-              fontSize: 18,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -286,6 +217,82 @@ class TimerCircle extends StatelessWidget {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (timerSession.mode == TimerMode.pomodoro)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 18),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          gradient: LinearGradient(
+                            colors: [
+                              (timerSession.isWorkPhase
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .successBackgroundColor
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .infoBackgroundColor)
+                                  .withValues(alpha: 0.5),
+                              (timerSession.isWorkPhase
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .successBackgroundColor
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .infoBackgroundColor)
+                                  .withValues(alpha: 0.05),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          border: Border.all(
+                            color: (timerSession.isWorkPhase
+                                    ? Theme.of(context).colorScheme.successColor
+                                    : Theme.of(context).colorScheme.infoColor)
+                                .withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: (timerSession.isWorkPhase
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .successBackgroundColor
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .infoBackgroundColor),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              timerSession.isWorkPhase
+                                  ? Icons.work_rounded
+                                  : Icons.coffee_rounded,
+                              color: timerSession.isWorkPhase
+                                  ? Theme.of(context).colorScheme.successColor
+                                  : Theme.of(context).colorScheme.infoColor,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              timerSession.state == TimerStatus.running
+                                  ? timerSession.currentPhaseDisplayName
+                                  : 'タイマー停止中',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     Text(
                       timerSession.displayTime,
                       style: TextStyle(
@@ -297,7 +304,6 @@ class TimerCircle extends StatelessWidget {
                         height: 1.0,
                       ),
                     ),
-                    const SizedBox(height: 8),
                     if (timerSession.mode == TimerMode.countUp)
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -324,24 +330,14 @@ class TimerCircle extends StatelessWidget {
                     if (onLongPress != null &&
                         timerSession.mode == TimerMode.pomodoro)
                       Container(
-                        margin: const EdgeInsets.only(top: 12),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: Theme.of(context)
-                              .colorScheme
-                              .accentColor
-                              .withValues(alpha: 0.1),
-                        ),
+                            horizontal: 16, vertical: 2),
                         child: Text(
-                          '長押しで設定',
+                          '長押しで設定を変更',
                           style: TextStyle(
-                            fontSize: 11,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .accentColor
-                                .withValues(alpha: 0.8),
+                            fontSize: 14,
+                            color:
+                                Theme.of(context).colorScheme.primaryTextColor,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -364,73 +360,6 @@ class TimerCircle extends StatelessWidget {
               ],
             ),
           ),
-
-          // Phase indicator for Pomodoro mode positioned above the circle
-          if (timerSession.mode == TimerMode.pomodoro)
-            Positioned(
-              top: 0,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    colors: [
-                      (timerSession.isWorkPhase
-                              ? Theme.of(context).colorScheme.accentColor
-                              : Theme.of(context).colorScheme.infoColor)
-                          .withValues(alpha: 0.15),
-                      (timerSession.isWorkPhase
-                              ? Theme.of(context).colorScheme.accentColor
-                              : Theme.of(context).colorScheme.infoColor)
-                          .withValues(alpha: 0.05),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  border: Border.all(
-                    color: (timerSession.isWorkPhase
-                            ? Theme.of(context).colorScheme.accentColor
-                            : Theme.of(context).colorScheme.infoColor)
-                        .withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (timerSession.isWorkPhase
-                              ? Theme.of(context).colorScheme.accentColor
-                              : Theme.of(context).colorScheme.infoColor)
-                          .withValues(alpha: 0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      timerSession.isWorkPhase
-                          ? Icons.work_rounded
-                          : Icons.coffee_rounded,
-                      color: timerSession.isWorkPhase
-                          ? Theme.of(context).colorScheme.accentColor
-                          : Theme.of(context).colorScheme.infoColor,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      timerSession.currentPhaseDisplayName,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
         ],
       ),
     );
@@ -567,7 +496,7 @@ class _TimerControlButton extends StatelessWidget {
         child: Icon(
           icon,
           color: isPrimary
-              ? Colors.white
+              ? Theme.of(context).colorScheme.surface
               : Theme.of(context).colorScheme.onSurface,
           size: iconSize,
         ),
@@ -859,7 +788,7 @@ class _TimerSettingsWidgetState extends ConsumerState<TimerSettingsWidget> {
                 onPressed: saveSettings,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.accentColor,
-                  foregroundColor: Colors.white,
+                  foregroundColor: Theme.of(context).colorScheme.surface,
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -886,7 +815,7 @@ class _TimerSettingsWidgetState extends ConsumerState<TimerSettingsWidget> {
   }
 }
 
-class _SettingItem extends StatefulWidget {
+class _SettingItem extends HookWidget {
   final String title;
   final String subtitle;
   final int value;
@@ -908,61 +837,42 @@ class _SettingItem extends StatefulWidget {
   });
 
   @override
-  State<_SettingItem> createState() => _SettingItemState();
-}
-
-class _SettingItemState extends State<_SettingItem> {
-  late TextEditingController textController;
-
-  @override
-  void initState() {
-    super.initState();
-    textController = TextEditingController(text: widget.value.toString());
-  }
-
-  @override
-  void didUpdateWidget(covariant _SettingItem oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.value != widget.value) {
-      textController.text = widget.value.toString();
-    }
-  }
-
-  @override
-  void dispose() {
-    textController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final isTimeUnit = widget.unit == '分';
+    final isTimeUnit = unit == '分';
+    final valueState = useState<int>(value);
+    final textController = useTextEditingController(text: value.toString());
 
-    // テキスト入力での値変更を処理
+    useEffect(() {
+      textController.text = value.toString();
+      valueState.value = value;
+      return null;
+    }, [value]);
+
     void handleTextInput(String text) {
       final newValue = int.tryParse(text);
-      if (newValue != null &&
-          newValue >= widget.min &&
-          newValue <= widget.max) {
-        widget.onChanged(newValue);
+      if (newValue != null && newValue >= min && newValue <= max) {
+        onChanged(newValue);
+        valueState.value = newValue;
+        textController.text = newValue.toString();
       }
     }
 
-    // 5分刻みでの変更
     void incrementByStep() {
       final step = isTimeUnit ? 5 : 1;
-      final newValue = widget.value + step;
-      if (newValue <= widget.max) {
-        widget.onChanged(newValue);
+      final newValue = valueState.value + step;
+      if (newValue <= max) {
+        onChanged(newValue);
+        valueState.value = newValue;
         textController.text = newValue.toString();
       }
     }
 
     void decrementByStep() {
       final step = isTimeUnit ? 5 : 1;
-      final newValue = widget.value - step;
-      if (newValue >= widget.min) {
-        widget.onChanged(newValue);
+      final newValue = valueState.value - step;
+      if (newValue >= min) {
+        onChanged(newValue);
+        valueState.value = newValue;
         textController.text = newValue.toString();
       }
     }
@@ -971,24 +881,10 @@ class _SettingItemState extends State<_SettingItem> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          colors: [
-            widget.color.withValues(alpha: 0.1),
-            widget.color.withValues(alpha: 0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: color.withValues(alpha: 0.06),
         border: Border.all(
-          color: widget.color.withValues(alpha: 0.2),
+          color: color.withValues(alpha: 0.15),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: widget.color.withValues(alpha: 0.1),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -999,11 +895,11 @@ class _SettingItemState extends State<_SettingItem> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: widget.color.withValues(alpha: 0.2),
+                  color: color.withValues(alpha: 0.15),
                 ),
                 child: Icon(
-                  _getIconForTitle(widget.title),
-                  color: widget.color,
+                  _getIconForTitle(title),
+                  color: color,
                   size: 20,
                 ),
               ),
@@ -1013,7 +909,7 @@ class _SettingItemState extends State<_SettingItem> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.title,
+                      title,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
@@ -1022,7 +918,7 @@ class _SettingItemState extends State<_SettingItem> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      widget.subtitle,
+                      subtitle,
                       style: TextStyle(
                         color: Theme.of(context)
                             .colorScheme
@@ -1043,31 +939,25 @@ class _SettingItemState extends State<_SettingItem> {
               _ControlButton(
                 icon: Icons.remove_rounded,
                 onPressed: (isTimeUnit
-                        ? widget.value > widget.min + 4
-                        : widget.value > widget.min)
+                        ? valueState.value > min + 4
+                        : valueState.value > min)
                     ? decrementByStep
                     : null,
-                color: widget.color,
+                color: color,
                 isTimeUnit: isTimeUnit,
               ),
               // タップで入力可能なテキストフィールド
               GestureDetector(
-                onTap: () => _showInputDialog(
-                    context,
-                    textController,
-                    handleTextInput,
-                    widget.min,
-                    widget.max,
-                    widget.unit,
-                    widget.color),
+                onTap: () => _showInputDialog(context, textController,
+                    handleTextInput, min, max, unit, color),
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    color: widget.color.withValues(alpha: 0.15),
+                    color: color.withValues(alpha: 0.15),
                     border: Border.all(
-                      color: widget.color.withValues(alpha: 0.3),
+                      color: color.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -1075,9 +965,11 @@ class _SettingItemState extends State<_SettingItem> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        '${widget.value} ${widget.unit}',
+                        '${valueState.value} $unit',
                         style: TextStyle(
-                          color: widget.color,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface, // コントラスト高い色
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),
@@ -1085,7 +977,9 @@ class _SettingItemState extends State<_SettingItem> {
                       const SizedBox(width: 8),
                       Icon(
                         Icons.edit_rounded,
-                        color: widget.color.withValues(alpha: 0.7),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primaryTextColor, // 明確な色
                         size: 16,
                       ),
                     ],
@@ -1095,11 +989,11 @@ class _SettingItemState extends State<_SettingItem> {
               _ControlButton(
                 icon: Icons.add_rounded,
                 onPressed: (isTimeUnit
-                        ? widget.value < widget.max - 4
-                        : widget.value < widget.max)
+                        ? valueState.value < max - 4
+                        : valueState.value < max)
                     ? incrementByStep
                     : null,
-                color: widget.color,
+                color: color,
                 isTimeUnit: isTimeUnit,
               ),
             ],
@@ -1136,7 +1030,7 @@ class _SettingItemState extends State<_SettingItem> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${widget.title} を設定'),
+        title: Text('$title を設定'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1187,7 +1081,7 @@ class _SettingItemState extends State<_SettingItem> {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: color,
-              foregroundColor: Colors.white,
+              foregroundColor: Theme.of(context).colorScheme.surface,
             ),
             child: const Text('設定'),
           ),
@@ -1272,7 +1166,7 @@ class _ControlButton extends StatelessWidget {
                     child: Text(
                       '5',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         fontSize: 8,
                         fontWeight: FontWeight.bold,
                       ),

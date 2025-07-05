@@ -86,11 +86,11 @@ extension TimerSessionExtension on TimerSession {
   String get currentPhaseDisplayName {
     switch (currentPhase) {
       case PomodoroPhase.work:
-        return '作業時間';
+        return '作業中';
       case PomodoroPhase.shortBreak:
-        return '短い休憩';
+        return '短い休憩中';
       case PomodoroPhase.longBreak:
-        return '長い休憩';
+        return '長い休憩中';
     }
   }
 

@@ -32,7 +32,7 @@ class TodoCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         border: Border.all(
           color: isOverdue
               ? Theme.of(context).colorScheme.errorColor.withValues(alpha: 0.3)
@@ -86,10 +86,10 @@ class TodoCard extends StatelessWidget {
                       ),
                     ),
                     child: todo.isCompleted
-                        ? const Icon(
+                        ? Icon(
                             Icons.check,
                             size: 16,
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.surface,
                           )
                         : null,
                   ),
@@ -173,13 +173,19 @@ class TodoCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete, size: 16, color: Colors.red),
+                          Icon(Icons.delete,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.errorColor),
                           SizedBox(width: 8),
-                          Text('削除', style: TextStyle(color: Colors.red)),
+                          Text('削除',
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .errorColor)),
                         ],
                       ),
                     ),
@@ -264,9 +270,9 @@ class TodoCard extends StatelessWidget {
                 );
               }
             },
-            child: const Text(
+            child: Text(
               '削除',
-              style: TextStyle(color: Colors.red),
+              style: TextStyle(color: Theme.of(context).colorScheme.errorColor),
             ),
           ),
         ],
@@ -304,13 +310,13 @@ class AddTodoDialog {
           ),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(28),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
+                  color: Theme.of(context).colorScheme.mediumShadowColor,
                   blurRadius: 24,
                   offset: const Offset(0, -8),
                 ),
@@ -412,12 +418,10 @@ class AddTodoDialog {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withValues(alpha: 0.08),
-                            foregroundColor:
+                            backgroundColor:
                                 Theme.of(context).colorScheme.primary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.surface,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -461,12 +465,10 @@ class AddTodoDialog {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withValues(alpha: 0.08),
-                            foregroundColor:
+                            backgroundColor:
                                 Theme.of(context).colorScheme.primary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.surface,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -564,7 +566,7 @@ class AddTodoDialog {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: Theme.of(context).colorScheme.surface,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -594,45 +596,59 @@ class AddTodoDialog {
     ValueNotifier<String> selectedColorNotifier,
   ) {
     final isSelected = value == selectedColor;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => selectedColorNotifier.value = value,
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isSelected ? color : Colors.grey[300]!,
-              width: isSelected ? 2 : 1,
+    return Builder(
+      builder: (context) {
+        return Expanded(
+          child: GestureDetector(
+            onTap: () => selectedColorNotifier.value = value,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: isSelected
+                      ? color
+                      : Theme.of(context)
+                          .colorScheme
+                          .outline
+                          .withValues(alpha: 0.3),
+                  width: isSelected ? 2 : 1,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
+                    child: isSelected
+                        ? Icon(Icons.check,
+                            color: Theme.of(context).colorScheme.surface,
+                            size: 16)
+                        : null,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    TodoColor.getLabelFromString(value),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isSelected
+                          ? color
+                          : Theme.of(context).colorScheme.mutedTextColor,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          child: Column(
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                ),
-                child: isSelected
-                    ? const Icon(Icons.check, color: Colors.white, size: 16)
-                    : null,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                TodoColor.getLabelFromString(value),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isSelected ? color : Colors.grey[600],
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -769,8 +785,9 @@ class TodoDetailDialog {
                 );
               }
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('削除'),
+            style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.errorColor),
+            child: Text('削除'),
           ),
         ],
       ),
@@ -795,7 +812,7 @@ Future<Map<String, String?>?> showTodoFilterDialog({
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
             ),
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             title: Row(
               children: [
                 Icon(Icons.filter_alt,
@@ -855,9 +872,16 @@ Future<Map<String, String?>?> showTodoFilterDialog({
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surface
+                          .withValues(alpha: 0.04),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[300]!),
+                      border: Border.all(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withValues(alpha: 0.15)),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String?>(
@@ -873,8 +897,12 @@ Future<Map<String, String?>?> showTodoFilterDialog({
                             value: null,
                             child: Row(
                               children: [
-                                const Icon(Icons.circle_outlined,
-                                    color: Colors.grey, size: 18),
+                                Icon(Icons.circle_outlined,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .outline
+                                        .withValues(alpha: 0.5),
+                                    size: 18),
                                 const SizedBox(width: 8),
                                 const Text('すべて'),
                               ],
@@ -910,7 +938,7 @@ Future<Map<String, String?>?> showTodoFilterDialog({
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: Theme.of(context).colorScheme.surface,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
                 ),
@@ -945,6 +973,9 @@ class _StatusChip extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    final borderColor = selected
+        ? Theme.of(context).colorScheme.primary
+        : Theme.of(context).colorScheme.outline;
     return SizedBox(
       width: double.infinity,
       child: GestureDetector(
@@ -956,13 +987,10 @@ class _StatusChip extends StatelessWidget {
           decoration: BoxDecoration(
             color: selected
                 ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+                : Theme.of(context).colorScheme.surface,
             border: Border.all(
-              color: selected
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.grey[300]!,
-              width: selected ? 2 : 1,
+              color: borderColor,
+              width: selected ? 2 : 1.5,
             ),
             boxShadow: selected
                 ? [
@@ -983,7 +1011,7 @@ class _StatusChip extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: selected
                   ? Theme.of(context).colorScheme.primary
-                  : Colors.grey[700],
+                  : Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),

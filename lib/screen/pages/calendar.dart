@@ -63,7 +63,7 @@ class CalendarPage extends HookConsumerWidget {
                               horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(25),
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.surface, // ←修正
                             boxShadow: [
                               BoxShadow(
                                 color: Theme.of(context)
@@ -102,7 +102,10 @@ class CalendarPage extends HookConsumerWidget {
                           color: Theme.of(context).colorScheme.primaryTextColor,
                         ),
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.white.withValues(alpha: 0.2),
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withOpacity(0.2), // ←修正
                           padding: const EdgeInsets.all(12),
                         ),
                       ),
@@ -118,7 +121,7 @@ class CalendarPage extends HookConsumerWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface, // ←修正
                   boxShadow: [
                     BoxShadow(
                       color: Theme.of(context).colorScheme.lightShadowColor,
@@ -185,8 +188,10 @@ class CalendarPage extends HookConsumerWidget {
                                     width: 1,
                                   ),
                                 ),
-                                selectedTextStyle: const TextStyle(
-                                  color: Colors.black,
+                                selectedTextStyle: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryTextColor,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 markerDecoration: BoxDecoration(
@@ -372,7 +377,8 @@ class CalendarPage extends HookConsumerWidget {
                     label: const Text('追加',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.surface, // ←修正
                       foregroundColor:
                           Theme.of(context).colorScheme.primaryTextColor,
                       elevation: 0,

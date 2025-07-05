@@ -58,7 +58,10 @@ class TodoListPage extends HookConsumerWidget {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withValues(alpha: 0.7),
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withValues(alpha: 0.7),
                           foregroundColor:
                               Theme.of(context).colorScheme.primaryTextColor,
                           elevation: 0,
@@ -80,7 +83,10 @@ class TodoListPage extends HookConsumerWidget {
                           color: Theme.of(context).colorScheme.primaryTextColor,
                         ),
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.white.withValues(alpha: 0.2),
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withValues(alpha: 0.2),
                           padding: const EdgeInsets.all(12),
                         ),
                       ),
@@ -95,6 +101,7 @@ class TodoListPage extends HookConsumerWidget {
                           valueListenable: filterNotifier,
                           builder: (context, filter, _) {
                             return SegmentedButton<TodoFilter>(
+                              showSelectedIcon: false,
                               segments: const [
                                 ButtonSegment(
                                   value: TodoFilter.all,

@@ -69,10 +69,10 @@ class AboutPage extends HookConsumerWidget {
                                       .primaryGradient,
                                 ),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.apps_rounded,
                                 size: 48,
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.surface,
                               ),
                             ),
                             const SizedBox(height: 20),
