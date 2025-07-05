@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:solo/models/todo_checklist_item_model.dart';
+import 'package:solo/screen/colors.dart';
 import 'package:solo/services/todo_checklist_item_service.dart';
 
 class TodoChecklistWidget extends StatefulWidget {
@@ -119,7 +120,10 @@ class _TodoChecklistWidgetState extends State<TodoChecklistWidget> {
           Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                color: Theme.of(context)
+                    .colorScheme
+                    .outline
+                    .withValues(alpha: 0.3),
               ),
               borderRadius: BorderRadius.circular(8),
             ),
@@ -177,7 +181,10 @@ class _TodoChecklistWidgetState extends State<TodoChecklistWidget> {
         border: index > 0
             ? Border(
                 top: BorderSide(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .outline
+                      .withValues(alpha: 0.3),
                 ),
               )
             : null,
@@ -221,9 +228,8 @@ class _TodoChecklistWidgetState extends State<TodoChecklistWidget> {
                   color: item.isCompleted
                       ? Theme.of(context).colorScheme.outline
                       : Theme.of(context).colorScheme.onSurface,
-                  decoration: item.isCompleted
-                      ? TextDecoration.lineThrough
-                      : null,
+                  decoration:
+                      item.isCompleted ? TextDecoration.lineThrough : null,
                 ),
               ),
             ),
@@ -243,7 +249,7 @@ class _TodoChecklistWidgetState extends State<TodoChecklistWidget> {
 
   void _showEditDialog(int index, TodoCheckListItemModel item) {
     final controller = TextEditingController(text: item.title);
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
