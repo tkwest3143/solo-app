@@ -8,6 +8,7 @@ import 'package:solo/screen/states/settings_state.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting("ja-JP", null);
+  
   runApp(
     ProviderScope(
       child: MyApp(),
@@ -15,11 +16,25 @@ void main() async {
   );
 }
 
-class MyApp extends ConsumerWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize settings on app startup
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(settingsStateProvider.notifier).initialize();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(appRouter);
     final settings = ref.watch(settingsStateProvider);
     
