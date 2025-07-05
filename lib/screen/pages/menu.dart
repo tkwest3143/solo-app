@@ -39,7 +39,8 @@ class MenuPage extends HookConsumerWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Theme.of(context).colorScheme.mediumShadowColor,
+                            color:
+                                Theme.of(context).colorScheme.mediumShadowColor,
                             blurRadius: 16,
                             offset: const Offset(0, 8),
                           ),
@@ -94,7 +95,8 @@ class MenuPage extends HookConsumerWidget {
                                 const Color(0xFF667eea),
                                 const Color(0xFF764ba2),
                               ],
-                              onTap: () => nextRouting(context, RouterDefinition.todoList),
+                              onTap: () => nextRouting(
+                                  context, RouterDefinition.todoList),
                               isHighlighted: true,
                             ),
                           ),
@@ -109,7 +111,8 @@ class MenuPage extends HookConsumerWidget {
                                 const Color(0xFFff9a9e),
                                 const Color(0xFFfecfef),
                               ],
-                              onTap: () => nextRouting(context, RouterDefinition.timer),
+                              onTap: () =>
+                                  nextRouting(context, RouterDefinition.timer),
                               isHighlighted: true,
                             ),
                           ),
@@ -126,19 +129,23 @@ class MenuPage extends HookConsumerWidget {
                             // Subtle section divider
                             Container(
                               height: 1,
-                              margin: const EdgeInsets.symmetric(horizontal: 40),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 40),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
                                     Colors.transparent,
-                                    Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                                    Theme.of(context)
+                                        .colorScheme
+                                        .outline
+                                        .withValues(alpha: 0.3),
                                     Colors.transparent,
                                   ],
                                 ),
                               ),
                             ),
                             const SizedBox(height: 24),
-                            
+
                             // Settings Card
                             SizedBox(
                               width: double.infinity,
@@ -146,15 +153,18 @@ class MenuPage extends HookConsumerWidget {
                                 title: '設定',
                                 subtitle: 'アプリ設定・カスタマイズ',
                                 icon: Icons.settings_rounded,
-                                iconColor: Theme.of(context).colorScheme.primary,
-                                backgroundColor: Theme.of(context).colorScheme.surface,
-                                onTap: () => nextRouting(context, RouterDefinition.settings),
+                                iconColor:
+                                    Theme.of(context).colorScheme.primary,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.surface,
+                                onTap: () => nextRouting(
+                                    context, RouterDefinition.settings),
                                 iconSize: 28,
                               ),
                             ),
-                            
+
                             const SizedBox(height: 14),
-                            
+
                             // About Card
                             SizedBox(
                               width: double.infinity,
@@ -162,9 +172,12 @@ class MenuPage extends HookConsumerWidget {
                                 title: 'このアプリについて',
                                 subtitle: 'アプリ情報・バージョン・機能',
                                 icon: Icons.info_rounded,
-                                iconColor: Theme.of(context).colorScheme.primary,
-                                backgroundColor: Theme.of(context).colorScheme.surface,
-                                onTap: () => nextRouting(context, RouterDefinition.about),
+                                iconColor:
+                                    Theme.of(context).colorScheme.primary,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.surface,
+                                onTap: () => nextRouting(
+                                    context, RouterDefinition.about),
                                 iconSize: 28,
                               ),
                             ),
@@ -177,18 +190,24 @@ class MenuPage extends HookConsumerWidget {
                       // App Version Display
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 14),
                         margin: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          color: Colors.white.withOpacity(0.85),
+                          color: Colors.white.withValues(alpha: 0.85),
                           border: Border.all(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.1),
                             width: 1,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Theme.of(context).colorScheme.lightShadowColor,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .lightShadowColor,
                               blurRadius: 8,
                               offset: const Offset(0, 3),
                             ),
@@ -207,7 +226,9 @@ class MenuPage extends HookConsumerWidget {
                               'Solo v1.0.0',
                               style: TextStyle(
                                 fontSize: 15,
-                                color: Theme.of(context).colorScheme.secondaryTextColor,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .secondaryTextColor,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

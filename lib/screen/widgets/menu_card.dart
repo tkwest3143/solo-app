@@ -29,11 +29,11 @@ class MenuNavigationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cardIconSize = iconSize ?? (isHighlighted ? 40.0 : 32.0);
     final cardIconColor = iconColor ?? Colors.white;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: isHighlighted 
+        padding: isHighlighted
             ? const EdgeInsets.all(20)
             : const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
@@ -41,9 +41,9 @@ class MenuNavigationCard extends StatelessWidget {
           color: backgroundColor ?? Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: isHighlighted 
-                ? Theme.of(context).colorScheme.mediumShadowColor
-                : Theme.of(context).colorScheme.lightShadowColor,
+              color: isHighlighted
+                  ? Theme.of(context).colorScheme.mediumShadowColor
+                  : Theme.of(context).colorScheme.lightShadowColor,
               blurRadius: isHighlighted ? 15 : 8,
               offset: Offset(0, isHighlighted ? 6 : 2),
             ),
@@ -64,8 +64,12 @@ class MenuNavigationCard extends StatelessWidget {
                               colors: gradientColors!,
                             )
                           : null,
-                      color: gradientColors == null 
-                          ? (backgroundColor ?? Theme.of(context).colorScheme.primary.withOpacity(0.1))
+                      color: gradientColors == null
+                          ? (backgroundColor ??
+                              Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withValues(alpha: 0.1))
                           : null,
                     ),
                     child: Icon(
@@ -101,7 +105,10 @@ class MenuNavigationCard extends StatelessWidget {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.1),
                     ),
                     child: Icon(
                       icon,
@@ -120,7 +127,8 @@ class MenuNavigationCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primaryTextColor,
+                            color:
+                                Theme.of(context).colorScheme.primaryTextColor,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -128,7 +136,9 @@ class MenuNavigationCard extends StatelessWidget {
                           subtitle,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Theme.of(context).colorScheme.secondaryTextColor,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondaryTextColor,
                             height: 1.2,
                           ),
                         ),
@@ -138,7 +148,10 @@ class MenuNavigationCard extends StatelessWidget {
                   Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 16,
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.6),
                   ),
                 ],
               ),

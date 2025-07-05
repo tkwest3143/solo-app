@@ -32,7 +32,7 @@ class AboutPage extends HookConsumerWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // About content
               Expanded(
                 child: SingleChildScrollView(
@@ -47,7 +47,9 @@ class AboutPage extends HookConsumerWidget {
                           color: Theme.of(context).colorScheme.surface,
                           boxShadow: [
                             BoxShadow(
-                              color: Theme.of(context).colorScheme.lightShadowColor,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .lightShadowColor,
                               blurRadius: 15,
                               offset: const Offset(0, 5),
                             ),
@@ -62,7 +64,9 @@ class AboutPage extends HookConsumerWidget {
                                 gradient: LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
-                                  colors: Theme.of(context).colorScheme.primaryGradient,
+                                  colors: Theme.of(context)
+                                      .colorScheme
+                                      .primaryGradient,
                                 ),
                               ),
                               child: const Icon(
@@ -77,7 +81,9 @@ class AboutPage extends HookConsumerWidget {
                               style: TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primaryTextColor,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryTextColor,
                                 letterSpacing: 1.2,
                               ),
                             ),
@@ -86,7 +92,9 @@ class AboutPage extends HookConsumerWidget {
                               'バージョン 1.0.0',
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Theme.of(context).colorScheme.secondaryTextColor,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .secondaryTextColor,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -95,7 +103,9 @@ class AboutPage extends HookConsumerWidget {
                               'タスク管理とタイマー機能を備えた\n生産性向上アプリです',
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Theme.of(context).colorScheme.secondaryTextColor,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .secondaryTextColor,
                                 height: 1.5,
                               ),
                               textAlign: TextAlign.center,
@@ -103,9 +113,9 @@ class AboutPage extends HookConsumerWidget {
                           ],
                         ),
                       ),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       // Features card
                       Container(
                         width: double.infinity,
@@ -115,7 +125,9 @@ class AboutPage extends HookConsumerWidget {
                           color: Theme.of(context).colorScheme.surface,
                           boxShadow: [
                             BoxShadow(
-                              color: Theme.of(context).colorScheme.lightShadowColor,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .lightShadowColor,
                               blurRadius: 15,
                               offset: const Offset(0, 5),
                             ),
@@ -129,7 +141,9 @@ class AboutPage extends HookConsumerWidget {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primaryTextColor,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryTextColor,
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -171,7 +185,8 @@ class AboutPage extends HookConsumerWidget {
     );
   }
 
-  Widget _buildFeatureItem(BuildContext context, IconData icon, String title, String description) {
+  Widget _buildFeatureItem(
+      BuildContext context, IconData icon, String title, String description) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -180,7 +195,8 @@ class AboutPage extends HookConsumerWidget {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             ),
             child: Icon(
               icon,
