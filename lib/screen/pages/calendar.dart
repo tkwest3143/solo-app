@@ -35,13 +35,15 @@ class CalendarPage extends HookConsumerWidget {
                 children: [
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(25),
                         color: Colors.white,
                         boxShadow: [
                           BoxShadow(
-                            color: Theme.of(context).colorScheme.lightShadowColor,
+                            color:
+                                Theme.of(context).colorScheme.lightShadowColor,
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -53,7 +55,9 @@ class CalendarPage extends HookConsumerWidget {
                           hint: Text(
                             'カテゴリで絞り込み',
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondaryTextColor,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryTextColor,
                               fontSize: 14,
                             ),
                           ),
@@ -67,7 +71,8 @@ class CalendarPage extends HookConsumerWidget {
                               value: 'blue',
                               child: Row(
                                 children: [
-                                  CircleAvatar(radius: 8, backgroundColor: Colors.blue),
+                                  CircleAvatar(
+                                      radius: 8, backgroundColor: Colors.blue),
                                   SizedBox(width: 8),
                                   Text('ブルー'),
                                 ],
@@ -77,7 +82,9 @@ class CalendarPage extends HookConsumerWidget {
                               value: 'orange',
                               child: Row(
                                 children: [
-                                  CircleAvatar(radius: 8, backgroundColor: Colors.orange),
+                                  CircleAvatar(
+                                      radius: 8,
+                                      backgroundColor: Colors.orange),
                                   SizedBox(width: 8),
                                   Text('オレンジ'),
                                 ],
@@ -87,7 +94,8 @@ class CalendarPage extends HookConsumerWidget {
                               value: 'green',
                               child: Row(
                                 children: [
-                                  CircleAvatar(radius: 8, backgroundColor: Colors.green),
+                                  CircleAvatar(
+                                      radius: 8, backgroundColor: Colors.green),
                                   SizedBox(width: 8),
                                   Text('グリーン'),
                                 ],
@@ -113,14 +121,16 @@ class CalendarPage extends HookConsumerWidget {
                       borderRadius: BorderRadius.circular(50),
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.mediumShadowColor,
+                          color:
+                              Theme.of(context).colorScheme.mediumShadowColor,
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     child: IconButton(
-                      onPressed: () => _showAddTodoDialog(context, selectedDay.value),
+                      onPressed: () =>
+                          _showAddTodoDialog(context, selectedDay.value),
                       icon: const Icon(
                         Icons.add,
                         color: Colors.white,
@@ -154,17 +164,22 @@ class CalendarPage extends HookConsumerWidget {
                       future: todoService.getTodosForMonth(focusedDay.value),
                       builder: (context, snapshot) {
                         final todosByDate = snapshot.data ?? {};
-                        
+
                         return TableCalendar<TodoModel>(
                           firstDay: DateTime.utc(2020, 1, 1),
                           lastDay: DateTime.utc(2030, 12, 31),
                           focusedDay: focusedDay.value,
-                          selectedDayPredicate: (day) => isSameDay(selectedDay.value, day),
+                          selectedDayPredicate: (day) =>
+                              isSameDay(selectedDay.value, day),
                           eventLoader: (day) {
-                            final dateKey = DateTime(day.year, day.month, day.day);
+                            final dateKey =
+                                DateTime(day.year, day.month, day.day);
                             final todos = todosByDate[dateKey] ?? [];
                             if (selectedCategory.value != null) {
-                              return todos.where((todo) => todo.color == selectedCategory.value).toList();
+                              return todos
+                                  .where((todo) =>
+                                      todo.color == selectedCategory.value)
+                                  .toList();
                             }
                             return todos;
                           },
@@ -174,17 +189,26 @@ class CalendarPage extends HookConsumerWidget {
                               color: Theme.of(context).colorScheme.errorColor,
                             ),
                             todayDecoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryGradient.first.withOpacity(0.3),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primaryGradient
+                                  .first
+                                  .withValues(alpha: 0.3),
                               shape: BoxShape.circle,
                             ),
                             selectedDecoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: Theme.of(context).colorScheme.primaryGradient,
+                                colors: Theme.of(context)
+                                    .colorScheme
+                                    .primaryGradient,
                               ),
                               shape: BoxShape.circle,
                             ),
                             markerDecoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryGradient.last,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primaryGradient
+                                  .last,
                               shape: BoxShape.circle,
                             ),
                             markersMaxCount: 1,
@@ -194,40 +218,50 @@ class CalendarPage extends HookConsumerWidget {
                             titleCentered: true,
                             leftChevronIcon: Icon(
                               Icons.chevron_left,
-                              color: Theme.of(context).colorScheme.primaryGradient.first,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primaryGradient
+                                  .first,
                             ),
                             rightChevronIcon: Icon(
                               Icons.chevron_right,
-                              color: Theme.of(context).colorScheme.primaryGradient.first,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primaryGradient
+                                  .first,
                             ),
                             titleTextStyle: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primaryTextColor,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primaryTextColor,
                             ),
                           ),
                           calendarBuilders: CalendarBuilders(
                             markerBuilder: (context, day, events) {
                               if (events.isNotEmpty) {
-                                return _buildTodoMarkers(context, events.cast<TodoModel>());
+                                return _buildTodoMarkers(
+                                    context, events.cast<TodoModel>());
                               }
                               return null;
                             },
                           ),
-                          onDaySelected: (selectedDay, focusedDay) {
-                            this.selectedDay.value = selectedDay;
-                            this.focusedDay.value = focusedDay;
+                          onDaySelected: (selected, focused) {
+                            selectedDay.value = selected;
+                            focusedDay.value = focused;
                           },
-                          onPageChanged: (focusedDay) {
-                            this.focusedDay.value = focusedDay;
+                          onPageChanged: (focused) {
+                            focusedDay.value = focused;
                           },
                         );
                       },
                     ),
-                    
+
                     // Selected day's todos
                     Expanded(
-                      child: _buildSelectedDayTodos(context, selectedDay.value, selectedCategory.value),
+                      child: _buildSelectedDayTodos(
+                          context, selectedDay.value, selectedCategory.value),
                     ),
                   ],
                 ),
@@ -242,7 +276,7 @@ class CalendarPage extends HookConsumerWidget {
 
   Widget _buildTodoMarkers(BuildContext context, List<TodoModel> todos) {
     if (todos.isEmpty) return const SizedBox.shrink();
-    
+
     return Positioned(
       bottom: 2,
       child: Row(
@@ -280,7 +314,8 @@ class CalendarPage extends HookConsumerWidget {
     );
   }
 
-  Widget _buildSelectedDayTodos(BuildContext context, DateTime selectedDay, String? categoryFilter) {
+  Widget _buildSelectedDayTodos(
+      BuildContext context, DateTime selectedDay, String? categoryFilter) {
     return FutureBuilder<List<TodoModel>>(
       future: TodoService().getTodosForDate(selectedDay),
       builder: (context, snapshot) {
@@ -347,8 +382,9 @@ class CalendarPage extends HookConsumerWidget {
   }
 
   Widget _buildTodoCard(BuildContext context, TodoModel todo) {
-    final isOverdue = todo.dueDate.isBefore(DateTime.now()) && !todo.isCompleted;
-    
+    final isOverdue =
+        todo.dueDate.isBefore(DateTime.now()) && !todo.isCompleted;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -356,7 +392,7 @@ class CalendarPage extends HookConsumerWidget {
         borderRadius: BorderRadius.circular(12),
         color: Theme.of(context).cardColor,
         border: Border.all(
-          color: _getColorFromString(todo.color).withOpacity(0.3),
+          color: _getColorFromString(todo.color).withValues(alpha: 0.3),
           width: 2,
         ),
         boxShadow: [
@@ -416,7 +452,8 @@ class CalendarPage extends HookConsumerWidget {
                 ),
                 if (isOverdue)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       color: Theme.of(context).colorScheme.errorBackgroundColor,
@@ -550,7 +587,10 @@ class CalendarPage extends HookConsumerWidget {
                       // 時間選択ダイアログ
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                      backgroundColor: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.08),
                       foregroundColor: Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -655,7 +695,9 @@ class CalendarPage extends HookConsumerWidget {
             Row(
               children: [
                 Icon(
-                  todo.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
+                  todo.isCompleted
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked,
                   color: todo.isCompleted
                       ? Theme.of(context).colorScheme.successColor
                       : Theme.of(context).colorScheme.mutedTextColor,
