@@ -1,0 +1,92 @@
+name: 機能リクエスト / Feature Request
+description: 新機能や改善の提案（GitHub Copilot最適化）
+title: "[FEATURE] "
+labels: ["enhancement", "copilot-friendly"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 機能リクエスト / Feature Request
+        このテンプレートは GitHub Copilot agent が機能追加コードを生成しやすいように設計されています。
+
+  - type: input
+    id: feature-title
+    attributes:
+      label: 機能の概要 / Feature Summary
+      description: 提案する機能の要点を簡潔に記述
+      placeholder: "例: 勤怠記録の一括編集機能が欲しい"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-to-solve
+    attributes:
+      label: 解決したい課題 / Problem to Solve
+      description: 現状の課題や不便な点
+      placeholder: |
+        例:
+        - 複数日分の勤怠をまとめて修正したいが、現状は1日ずつしか編集できない
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: 提案する解決策 / Proposed Solution
+      description: どのような機能・改善を希望するか
+      placeholder: |
+        例:
+        - 勤怠記録画面で複数日を選択し、一括で編集・保存できるようにする
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: 利用例 / Use Cases
+      description: この機能がどのように使われるか具体例
+      placeholder: |
+        例:
+        - ユーザーとして、複数日分の勤怠をまとめて編集したい。なぜなら、まとめて修正する方が効率的だから。
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: related-features
+    attributes:
+      label: 関連機能 / Related Features
+      description: 関連する機能領域を選択
+      options:
+        - label: ユーザー管理 / User Management
+        - label: 勤務時間設定 / Work Settings
+        - label: 勤務時間記録 / Time Tracking
+        - label: データ表示・レポート / Data Display & Reports
+        - label: UI/UX改善 / UI/UX Improvements
+        - label: パフォーマンス / Performance
+        - label: その他 / Other
+
+  - type: textarea
+    id: alternative-solutions
+    attributes:
+      label: 代替案 / Alternative Solutions
+      description: 他に検討した案があれば記載
+      placeholder: "例: 別画面で一括編集する案も検討した"
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度 / Priority
+      description: この要望の重要度
+      options:
+        - 高（業務に必須）
+        - 中（あると便利）
+        - 低（将来的な改善）
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: 補足情報 / Additional Info
+      description: 提案の背景や参考資料など
+      placeholder: "例: 他サービスの類似機能や参考URL"

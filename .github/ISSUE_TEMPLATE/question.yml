@@ -1,0 +1,83 @@
+name: 質問・サポート / Question/Support
+description: アプリの使い方や一般的な質問（GitHub Copilot最適化）
+title: "[QUESTION] "
+labels: ["question", "copilot-friendly"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 質問・サポート / Question/Support
+        このテンプレートは GitHub Copilot agent が質問内容を理解しやすいように設計されています。
+
+  - type: input
+    id: question-title
+    attributes:
+      label: 質問の概要 / Question Summary
+      description: 質問の要点を簡潔に記述
+      placeholder: "例: 勤怠記録の編集方法が分かりません"
+    validations:
+      required: true
+
+  - type: textarea
+    id: question-detail
+    attributes:
+      label: 質問の詳細 / Question Detail
+      description: 詳細な質問内容や背景
+      placeholder: |
+        例:
+        - 勤怠記録画面で編集ボタンが見当たりません
+        - ヘルプを確認したが該当項目が見つからなかった
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: question-type
+    attributes:
+      label: 質問の種類 / Question Type
+      description: 該当するもの全てにチェック
+      options:
+        - label: 使い方 / How to use
+        - label: 機能について / About features
+        - label: 設定方法 / Configuration help
+        - label: トラブルシューティング / Troubleshooting
+        - label: ベストプラクティス / Best practices
+        - label: その他 / Other
+
+  - type: checkboxes
+    id: related-features
+    attributes:
+      label: 関連機能 / Related Features
+      description: 関連する機能領域を選択
+      options:
+        - label: ユーザー管理 / User Management
+        - label: 勤務時間設定 / Work Settings
+        - label: 勤務時間記録 / Time Tracking
+        - label: データ表示 / Data Display
+        - label: レポート機能 / Reporting
+        - label: アプリ設定 / App Settings
+        - label: その他 / Other
+
+  - type: textarea
+    id: what-youve-tried
+    attributes:
+      label: 試したこと / What You've Tried
+      description: 既に試したことがあれば記載
+      placeholder: "例: ヘルプを確認したが該当項目が見つからなかった"
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 環境情報 / Environment
+      description: デバイス・OS・アプリバージョン等
+      placeholder: |
+        例:
+        - デバイス: iPhone 12, Pixel 5
+        - OS: iOS 17, Android 14
+        - アプリバージョン: v1.2.3
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: 補足情報 / Additional Info
+      description: 関連する追加情報があれば記載
+      placeholder: "例: スクリーンショットや参考URL"

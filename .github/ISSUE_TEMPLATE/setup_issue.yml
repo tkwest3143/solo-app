@@ -1,0 +1,114 @@
+name: 設定・セットアップ問題 / Configuration/Setup Issue
+description: アプリの設定やセットアップに関する問題報告（GitHub Copilot最適化）
+title: "[SETUP] "
+labels: ["configuration", "setup", "copilot-friendly"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 設定・セットアップ問題 / Configuration/Setup Issue
+        このテンプレートは GitHub Copilot agent がセットアップ・設定問題の解決コードを生成しやすいように設計されています。
+
+  - type: input
+    id: setup-title
+    attributes:
+      label: 問題の概要 / Issue Summary
+      description: 問題の要点を簡潔に記述
+      placeholder: "例: 初回起動時にエラーが表示される"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: problem-area
+    attributes:
+      label: 問題が発生している領域 / Problem Area
+      description: 該当するもの全てにチェック
+      options:
+        - label: 初期設定 / Initial Setup
+        - label: ユーザー設定 / User Configuration
+        - label: 勤務設定 / Work Configuration
+        - label: データ管理 / Data Management
+        - label: その他 / Other
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 期待する動作 / Expected Behavior
+      description: 正しい動作の説明
+      placeholder: "例: アプリ初回起動時にエラーなく利用開始できる"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: 実際の動作 / Actual Behavior
+      description: 現在発生している問題の詳細
+      placeholder: "例: 初回起動時に「データベースエラー」と表示される"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: 再現手順 / Steps to Reproduce
+      description: 問題を再現するための具体的な手順
+      placeholder: |
+        1. アプリをインストール
+        2. 初回起動
+        3. エラーが表示される
+    validations:
+      required: true
+
+  - type: textarea
+    id: configuration-values
+    attributes:
+      label: 設定値 / Configuration Values
+      description: 問題に関連する設定値があれば記載
+      placeholder: "例: 勤務開始時刻 09:00、終了時刻 18:00"
+
+  - type: textarea
+    id: error-messages
+    attributes:
+      label: エラーメッセージ / Error Messages
+      description: 表示されたエラーメッセージがあれば記載
+      placeholder: "例: データベースエラー"
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 環境情報 / Environment
+      description: デバイス・OS・アプリバージョン等
+      placeholder: |
+        例:
+        - デバイス: iPhone 12, Pixel 5
+        - OS: iOS 17, Android 14
+        - アプリバージョン: v1.2.3
+    validations:
+      required: true
+
+  - type: textarea
+    id: attempted-solutions
+    attributes:
+      label: 試した解決策 / Attempted Solutions
+      description: 問題解決のために試したこと
+      placeholder: "例: アプリ再起動、再インストールなど"
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: 緊急度 / Urgency
+      description: この問題の緊急度
+      options:
+        - 高（作業が完全に停止）
+        - 中（重要な機能が使えない）
+        - 低（軽微な不便）
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: 補足情報 / Additional Info
+      description: 追加情報やスクリーンショットがあれば記載
+      placeholder: "例: スクリーンショットや参考URL"

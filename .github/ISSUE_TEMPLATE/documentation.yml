@@ -1,0 +1,104 @@
+name: ドキュメント改善 / Documentation Improvement
+description: ドキュメントやヘルプの改善提案（GitHub Copilot最適化）
+title: "[DOCS] "
+labels: ["documentation", "copilot-friendly"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ドキュメント改善 / Documentation Improvement
+        このテンプレートは GitHub Copilot agent がドキュメント改善案を理解しやすいように設計されています。
+
+  - type: input
+    id: improvement-title
+    attributes:
+      label: 改善提案の概要 / Improvement Summary
+      description: 改善したい内容の要点を簡潔に記述
+      placeholder: "例: READMEのセットアップ手順を最新化したい"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: target-docs
+    attributes:
+      label: 対象ドキュメント / Target Documentation
+      description: 該当するもの全てにチェック
+      options:
+        - label: README.md
+        - label: セットアップガイド / Setup guide
+        - label: ユーザーマニュアル / User manual
+        - label: 機能説明 / Feature documentation
+        - label: API/開発者向けドキュメント / API/Developer documentation
+        - label: FAQ
+        - label: トラブルシューティングガイド / Troubleshooting guide
+        - label: その他 / Other
+
+  - type: textarea
+    id: current-problem
+    attributes:
+      label: 現在の問題 / Current Problem
+      description: 現状の問題点や課題
+      placeholder: "例: セットアップ手順が古く、現行バージョンと異なる"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-improvements
+    attributes:
+      label: 提案する改善内容 / Proposed Improvements
+      description: どのように改善したいか具体的に記載
+      placeholder: "例: Flutter 3.19.6対応の手順に修正"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: target-audience
+    attributes:
+      label: 対象ユーザー / Target Audience
+      description: この改善が役立つユーザー層
+      options:
+        - label: 新規ユーザー / New users
+        - label: 既存ユーザー / Existing users
+        - label: 管理者 / Administrators
+        - label: 開発者 / Developers
+        - label: すべてのユーザー / All users
+
+  - type: checkboxes
+    id: feature-area
+    attributes:
+      label: 関連機能 / Feature Area
+      description: 関連する機能領域を選択
+      options:
+        - label: アプリのインストール・セットアップ / App installation & setup
+        - label: ユーザー管理 / User management
+        - label: 勤務時間設定 / Work time settings
+        - label: 勤務時間記録 / Time tracking
+        - label: データ表示・レポート / Data display & reports
+        - label: トラブルシューティング / Troubleshooting
+        - label: その他 / Other
+
+  - type: textarea
+    id: references
+    attributes:
+      label: 参考資料・例 / References/Examples
+      description: 改善の参考になる資料や他サービスの例
+      placeholder: "例: 他サービスの類似ドキュメントや参考URL"
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度 / Priority
+      description: この改善提案の重要度
+      options:
+        - 高（重要な機能の説明が不足）
+        - 中（ユーザビリティ向上）
+        - 低（将来的な改善）
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: 補足情報 / Additional Info
+      description: 追加情報があれば記載
+      placeholder: "例: スクリーンショットや参考URL"

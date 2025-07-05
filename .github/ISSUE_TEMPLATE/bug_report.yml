@@ -1,0 +1,140 @@
+name: バグ報告 / Bug Report
+description: バグの報告と修正要求（GitHub Copilot最適化）
+title: "[BUG] "
+labels: ["bug", "copilot-friendly"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## バグ報告 / Bug Report
+        このテンプレートは GitHub Copilot agent がバグ修正コードを生成しやすいように設計されています。
+
+  - type: input
+    id: bug-title
+    attributes:
+      label: バグの概要 / Bug Summary
+      description: バグの内容を簡潔に記述
+      placeholder: "例: 勤務時間登録時に休憩時間が正しく計算されない"
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: バグの詳細 / Bug Description
+      description: バグの詳細な説明
+      placeholder: |
+        例:
+        - 勤務時間登録画面で休憩時間を入力した際、計算結果が正しくない
+        - 休憩時間が1時間の場合、実働時間が1時間多く表示される
+        - src/models/workTime.ts の計算ロジックに問題がある可能性
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: 再現手順 / Steps to Reproduce
+      description: バグを再現するための具体的な手順
+      placeholder: |
+        1. ユーザーでログイン
+        2. 勤務時間登録画面を開く
+        3. 開始時間: 09:00、終了時間: 18:00、休憩開始: 12:00、休憩終了: 13:00 を入力
+        4. 保存ボタンをクリック
+        5. 実働時間が9時間と表示される（正しくは8時間）
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 期待する動作 / Expected Behavior
+      description: 正しい動作の説明
+      placeholder: |
+        例:
+        - 実働時間が正しく8時間と表示される
+        - 休憩時間が正しく差し引かれる
+        - workDurationByMinute の計算が正確になる
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: 実際の動作 / Actual Behavior
+      description: 現在発生している問題の詳細
+      placeholder: |
+        例:
+        - 実働時間が9時間と表示される
+        - 休憩時間が正しく差し引かれていない
+        - データベースに保存される値も不正確
+    validations:
+      required: true
+
+  - type: dropdown
+    id: affected-files
+    attributes:
+      label: 影響を受けるファイル / Affected Files
+      description: バグが発生していると思われるファイル
+      multiple: true
+      options:
+        - src/models/workTime.ts
+        - src/models/workSetting.ts
+        - src/pages/[id]/workTimeList.vue
+        - src/pages/[id]/settings/workSetting/add.vue
+        - src/repositories/tauri-commands/workTime.ts
+        - src/repositories/tauri-commands/workTimeSetting.ts
+        - src-tauri/src/tauri_command.rs
+        - tests/unit/models/workTime.spec.ts
+        - tests/unit/models/workSetting.spec.ts
+        - その他 / Other
+
+  - type: textarea
+    id: error-logs
+    attributes:
+      label: エラーログ / Error Logs
+      description: 関連するエラーメッセージやログ
+      render: shell
+      placeholder: |
+        コンソールエラー、スタックトレース、またはその他のログ情報を貼り付けてください
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 環境情報 / Environment
+      description: OS、ブラウザ、バージョン等の環境情報
+      placeholder: |
+        例:
+        - OS: Windows 11 / macOS 14 / Ubuntu 22.04
+        - Browser: Chrome 120.0.0.0
+        - Node.js: v18.17.0
+        - Tauri: v2.0.0
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 追加情報 / Additional Context
+      description: スクリーンショット、関連する情報など
+      placeholder: |
+        例:
+        - スクリーンショット
+        - 関連するPRやIssue
+        - 一時的な回避策
+        - 他の機能への影響
+
+  - type: checkboxes
+    id: copilot-debug-info
+    attributes:
+      label: Copilot デバッグ情報 / Copilot Debug Info
+      description: GitHub Copilot が効果的にバグ修正できるよう、以下の項目を確認してください
+      options:
+        - label: 具体的なファイル名とコード箇所を特定した
+          required: false
+        - label: 再現手順を詳細に記載した
+          required: false
+        - label: 期待する動作と実際の動作の差分を明確にした
+          required: false
+        - label: 関連するテストケースを確認した
+          required: false
+        - label: エラーログやデバッグ情報を含めた
+          required: false
