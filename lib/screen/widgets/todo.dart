@@ -366,62 +366,83 @@ class AddTodoDialog {
     TodoModel? initialTodo,
     VoidCallback? onSaved,
   }) async {
-    final titleController =
-        TextEditingController(text: initialTodo?.title ?? '');
-    final descriptionController =
-        TextEditingController(text: initialTodo?.description ?? '');
-    final selectedDate = ValueNotifier<DateTime>(
-      initialDate ?? initialTodo?.dueDate ?? DateTime.now(),
-    );
-    final selectedTime = ValueNotifier<TimeOfDay>(
-      TimeOfDay.fromDateTime(initialTodo?.dueDate ?? DateTime.now()),
-    );
-    final selectedColor = ValueNotifier<String>(initialTodo?.color ?? 'blue');
-    final selectedCategory = ValueNotifier<CategoryModel?>(null);
-
-    // Initialize category if todo has categoryId
-    if (initialTodo?.categoryId != null) {
-      CategoryService()
-          .getCategoryById(initialTodo!.categoryId!)
-          .then((category) {
-        if (category != null) {
-          selectedCategory.value = category;
-        }
-      });
-    }
-
-    // Recurring state variables
-    final isRecurring = ValueNotifier<bool>(initialTodo?.isRecurring ?? false);
-    final recurringType = ValueNotifier<RecurringType?>(
-      RecurringType.fromString(initialTodo?.recurringType),
-    );
-    final recurringEndDate = ValueNotifier<DateTime?>(
-      initialTodo?.recurringEndDate,
-    );
-    final recurringDayOfWeek = ValueNotifier<int?>(
-      initialTodo?.recurringDayOfWeek,
-    );
-    final recurringDayOfMonth = ValueNotifier<int?>(
-      initialTodo?.recurringDayOfMonth,
-    );
-
-    // Checklist state
-    final checklistItems = ValueNotifier<List<TodoCheckListItemModel>>([]);
-
-    // Load existing checklist items if editing a todo
-    if (initialTodo != null) {
-      TodoCheckListItemService()
-          .getCheckListItemsForTodo(initialTodo.id)
-          .then((items) {
-        checklistItems.value = items;
-      });
-    }
-
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
+      builder: (context) => _AddTodoDialogContent(
+        initialDate: initialDate,
+        initialTodo: initialTodo,
+        onSaved: onSaved,
+      ),
+    );
+  }
+}
+
+class _AddTodoDialogContent extends HookConsumerWidget {
+  final DateTime? initialDate;
+  final TodoModel? initialTodo;
+  final VoidCallback? onSaved;
+
+  const _AddTodoDialogContent({
+    this.initialDate,
+    this.initialTodo,
+    this.onSaved,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final titleController = useTextEditingController(text: initialTodo?.title ?? '');
+    final descriptionController = useTextEditingController(text: initialTodo?.description ?? '');
+    
+    final selectedDate = useState<DateTime>(
+      initialDate ?? initialTodo?.dueDate ?? DateTime.now(),
+    );
+    final selectedTime = useState<TimeOfDay>(
+      TimeOfDay.fromDateTime(initialTodo?.dueDate ?? DateTime.now()),
+    );
+    final selectedColor = useState<String>(initialTodo?.color ?? 'blue');
+    final selectedCategory = useState<CategoryModel?>(null);
+
+    // Recurring state variables
+    final isRecurring = useState<bool>(initialTodo?.isRecurring ?? false);
+    final recurringType = useState<RecurringType?>(
+      RecurringType.fromString(initialTodo?.recurringType),
+    );
+    final recurringEndDate = useState<DateTime?>(initialTodo?.recurringEndDate);
+    final recurringDayOfWeek = useState<int?>(initialTodo?.recurringDayOfWeek);
+    final recurringDayOfMonth = useState<int?>(initialTodo?.recurringDayOfMonth);
+
+    // Checklist state
+    final checklistItems = useState<List<TodoCheckListItemModel>>([]);
+
+    // Initialize category if todo has categoryId
+    useEffect(() {
+      if (initialTodo?.categoryId != null) {
+        CategoryService()
+            .getCategoryById(initialTodo!.categoryId!)
+            .then((category) {
+          if (category != null) {
+            selectedCategory.value = category;
+          }
+        });
+      }
+      return null;
+    }, [initialTodo?.categoryId]);
+
+    // Load existing checklist items if editing a todo
+    useEffect(() {
+      if (initialTodo != null) {
+        TodoCheckListItemService()
+            .getCheckListItemsForTodo(initialTodo.id)
+            .then((items) {
+          checklistItems.value = items;
+        });
+      }
+      return null;
+    }, [initialTodo?.id]);
+
+    return Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
@@ -503,111 +524,102 @@ class AddTodoDialog {
                     maxLines: 3,
                   ),
                   const SizedBox(height: 16),
-                  ValueListenableBuilder<List<TodoCheckListItemModel>>(
-                    valueListenable: checklistItems,
-                    builder: (context, items, _) => TodoChecklistWidget(
-                      todoId: initialTodo?.id,
-                      initialItems: items,
-                      onChecklistChanged: (updatedItems) {
-                        checklistItems.value = updatedItems;
-                      },
-                    ),
+                  TodoChecklistWidget(
+                    todoId: initialTodo?.id,
+                    initialItems: checklistItems.value,
+                    onChecklistChanged: (updatedItems) {
+                      checklistItems.value = updatedItems;
+                    },
                   ),
                   const SizedBox(height: 16),
-                  ValueListenableBuilder<DateTime>(
-                    valueListenable: selectedDate,
-                    builder: (context, date, _) => Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_today,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 16,
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '期限: ${formatDate(selectedDate.value, format: 'yyyy/MM/dd (EEE)')}',
+                        style: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondaryTextColor,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '期限: ${formatDate(date, format: 'yyyy/MM/dd (EEE)')}',
-                          style: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondaryTextColor,
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate.value,
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2030),
+                          );
+                          if (pickedDate != null) {
+                            selectedDate.value = pickedDate;
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.surface,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          elevation: 0,
                         ),
-                        const Spacer(),
-                        ElevatedButton(
-                          onPressed: () async {
-                            final pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: date,
-                              firstDate: DateTime(2020),
-                              lastDate: DateTime(2030),
-                            );
-                            if (pickedDate != null) {
-                              selectedDate.value = pickedDate;
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.primary,
-                            foregroundColor:
-                                Theme.of(context).colorScheme.surface,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            elevation: 0,
-                          ),
-                          child: const Text('日付を選択'),
-                        ),
-                      ],
-                    ),
+                        child: const Text('日付を選択'),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
-                  ValueListenableBuilder<TimeOfDay>(
-                    valueListenable: selectedTime,
-                    builder: (context, time, _) => Row(
-                      children: [
-                        Icon(
-                          Icons.schedule_rounded,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 16,
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.schedule_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '時間: ${selectedTime.value.format(context)}',
+                        style: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondaryTextColor,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '時間: ${time.format(context)}',
-                          style: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondaryTextColor,
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final pickedTime = await showTimePicker(
+                            context: context,
+                            initialTime: selectedTime.value,
+                          );
+                          if (pickedTime != null) {
+                            selectedTime.value = pickedTime;
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.surface,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          elevation: 0,
                         ),
-                        const Spacer(),
-                        ElevatedButton(
-                          onPressed: () async {
-                            final pickedTime = await showTimePicker(
-                              context: context,
-                              initialTime: time,
-                            );
-                            if (pickedTime != null) {
-                              selectedTime.value = pickedTime;
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.primary,
-                            foregroundColor:
-                                Theme.of(context).colorScheme.surface,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            elevation: 0,
-                          ),
-                          child: const Text('時間を選択'),
-                        ),
-                      ],
-                    ),
+                        child: const Text('時間を選択'),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -619,124 +631,119 @@ class AddTodoDialog {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  ValueListenableBuilder<CategoryModel?>(
-                    valueListenable: selectedCategory,
-                    builder: (context, category, _) => GestureDetector(
-                      onTap: () async {
-                        final result = await CategorySelectionDialog.show(
-                          context,
-                          initialCategory: category,
-                        );
-                        if (result != null) {
-                          selectedCategory.value = result;
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
+                  GestureDetector(
+                    onTap: () async {
+                      final result = await CategorySelectionDialog.show(
+                        context,
+                        initialCategory: selectedCategory.value,
+                      );
+                      if (result != null) {
+                        selectedCategory.value = result;
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outline,
                         ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: category != null
-                                    ? TodoColor.getColorFromString(
-                                        category.color)
-                                    : Theme.of(context).colorScheme.outline,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Icon(
-                                Icons.category,
-                                color: Colors.white,
-                                size: 16,
-                              ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: selectedCategory.value != null
+                                  ? TodoColor.getColorFromString(
+                                      selectedCategory.value!.color)
+                                  : Theme.of(context).colorScheme.outline,
+                              borderRadius: BorderRadius.circular(6),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    category?.title ?? 'カテゴリを選択してください',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: category != null
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .primaryTextColor
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .secondaryTextColor,
-                                    ),
-                                  ),
-                                  if (category?.description != null &&
-                                      category!.description!.isNotEmpty)
-                                    Text(
-                                      category.description!,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Theme.of(context)
+                            child: Icon(
+                              Icons.category,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  selectedCategory.value?.title ?? 'カテゴリを選択してください',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: selectedCategory.value != null
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .primaryTextColor
+                                        : Theme.of(context)
                                             .colorScheme
                                             .secondaryTextColor,
-                                      ),
+                                  ),
+                                ),
+                                if (selectedCategory.value?.description != null &&
+                                    selectedCategory.value!.description!.isNotEmpty)
+                                  Text(
+                                    selectedCategory.value!.description!,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondaryTextColor,
                                     ),
-                                ],
-                              ),
+                                  ),
+                              ],
                             ),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              size: 16,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .secondaryTextColor,
-                            ),
-                          ],
-                        ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondaryTextColor,
+                          ),
+                        ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
                   // Recurring section
-                  ValueListenableBuilder<bool>(
-                    valueListenable: isRecurring,
-                    builder: (context, recurring, _) => Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.repeat,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 16,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.repeat,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '繰り返し',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primaryTextColor,
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '繰り返し',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryTextColor,
-                              ),
-                            ),
-                            const Spacer(),
-                            Switch(
-                              value: recurring,
-                              onChanged: (value) => isRecurring.value = value,
-                              activeColor:
-                                  Theme.of(context).colorScheme.primary,
-                            ),
-                          ],
-                        ),
-                        if (recurring) ...[
+                          ),
+                          const Spacer(),
+                          Switch(
+                            value: isRecurring.value,
+                            onChanged: (value) => isRecurring.value = value,
+                            activeColor:
+                                Theme.of(context).colorScheme.primary,
+                          ),
+                        ],
+                      ),
+                      if (isRecurring.value) ...[
                           const SizedBox(height: 12),
                           ValueListenableBuilder<RecurringType?>(
                             valueListenable: recurringType,
