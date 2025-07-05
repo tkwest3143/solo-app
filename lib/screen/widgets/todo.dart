@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/models/todo_model.dart';
+import 'package:solo/models/category_model.dart';
 import 'package:solo/services/todo_service.dart';
+import 'package:solo/services/category_service.dart';
 import 'package:solo/utilities/date.dart';
 import 'package:solo/enums/todo_color.dart';
 import 'package:solo/enums/recurring_type.dart';
@@ -215,13 +217,56 @@ class TodoCard extends StatelessWidget {
             const SizedBox(height: 12),
             Row(
               children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: TodoColor.getColorFromString(todo.color),
-                    shape: BoxShape.circle,
-                  ),
+                // Category chip
+                FutureBuilder<CategoryModel?>(
+                  future: todo.categoryId != null 
+                      ? CategoryService().getCategoryById(todo.categoryId!)
+                      : Future.value(null),
+                  builder: (context, snapshot) {
+                    final category = snapshot.data;
+                    if (category != null) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: TodoColor.getColorFromString(category.color).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: TodoColor.getColorFromString(category.color).withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: TodoColor.getColorFromString(category.color),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              category.title,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: TodoColor.getColorFromString(category.color),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: TodoColor.getColorFromString(todo.color),
+                        shape: BoxShape.circle,
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(width: 8),
                 Icon(
@@ -323,6 +368,16 @@ class AddTodoDialog {
       TimeOfDay.fromDateTime(initialTodo?.dueDate ?? DateTime.now()),
     );
     final selectedColor = ValueNotifier<String>(initialTodo?.color ?? 'blue');
+    final selectedCategory = ValueNotifier<CategoryModel?>(null);
+    
+    // Initialize category if todo has categoryId
+    if (initialTodo?.categoryId != null) {
+      CategoryService().getCategoryById(initialTodo!.categoryId!).then((category) {
+        if (category != null) {
+          selectedCategory.value = category;
+        }
+      });
+    }
     
     // Recurring state variables
     final isRecurring = ValueNotifier<bool>(initialTodo?.isRecurring ?? false);
@@ -522,7 +577,7 @@ class AddTodoDialog {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'カラーを選択',
+                    'カテゴリを選択',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -530,18 +585,77 @@ class AddTodoDialog {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  ValueListenableBuilder<String>(
-                    valueListenable: selectedColor,
-                    builder: (context, color, _) => Row(
-                      children: [
-                        for (final todoColor in TodoColor.values)
-                          _buildColorOption(
-                            todoColor.name,
-                            todoColor.color,
-                            color,
-                            selectedColor,
+                  ValueListenableBuilder<CategoryModel?>(
+                    valueListenable: selectedCategory,
+                    builder: (context, category, _) => GestureDetector(
+                      onTap: () async {
+                        final result = await CategorySelectionDialog.show(
+                          context,
+                          initialCategory: category,
+                        );
+                        if (result != null) {
+                          selectedCategory.value = result;
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outline,
                           ),
-                      ],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: category != null
+                                    ? TodoColor.getColorFromString(category.color)
+                                    : Theme.of(context).colorScheme.outline,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(
+                                Icons.category,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    category?.title ?? 'カテゴリを選択してください',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: category != null
+                                          ? Theme.of(context).colorScheme.primaryTextColor
+                                          : Theme.of(context).colorScheme.secondaryTextColor,
+                                    ),
+                                  ),
+                                  if (category?.description != null && category!.description!.isNotEmpty)
+                                    Text(
+                                      category!.description!,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Theme.of(context).colorScheme.secondaryTextColor,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.secondaryTextColor,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -795,7 +909,8 @@ class AddTodoDialog {
                                     ? null
                                     : descriptionController.text.trim(),
                             dueDate: dueDate,
-                            color: selectedColor.value,
+                            color: selectedCategory.value?.color ?? selectedColor.value,
+                            categoryId: selectedCategory.value?.id,
                             isRecurring: isRecurring.value,
                             recurringType: isRecurring.value ? recurringType.value?.value : null,
                             recurringEndDate: isRecurring.value ? recurringEndDate.value : null,
@@ -813,7 +928,8 @@ class AddTodoDialog {
                                     ? null
                                     : descriptionController.text.trim(),
                             dueDate: dueDate,
-                            color: selectedColor.value,
+                            color: selectedCategory.value?.color ?? selectedColor.value,
+                            categoryId: selectedCategory.value?.id,
                             isRecurring: isRecurring.value,
                             recurringType: isRecurring.value ? recurringType.value?.value : null,
                             recurringEndDate: isRecurring.value ? recurringEndDate.value : null,
@@ -1070,14 +1186,15 @@ class TodoDetailDialog {
 }
 
 // --- ここから追加: フィルタダイアログとStatusChip ---
-Future<Map<String, String?>?> showTodoFilterDialog({
+Future<Map<String, dynamic>?> showTodoFilterDialog({
   required BuildContext context,
-  String? initialColor,
+  int? initialCategoryId,
   String? initialStatus,
 }) {
-  String? tempSelectedColor = initialColor;
+  int? tempSelectedCategoryId = initialCategoryId;
   String? tempSelectedStatus = initialStatus;
-  return showDialog<Map<String, String?>>(
+  
+  return showDialog<Map<String, dynamic>>(
     context: context,
     builder: (context) {
       return StatefulBuilder(
@@ -1136,70 +1253,88 @@ Future<Map<String, String?>?> showTodoFilterDialog({
                     ],
                   ),
                   const SizedBox(height: 24),
-                  Text('カラー',
+                  Text('カテゴリ',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color:
                               Theme.of(context).colorScheme.primaryTextColor)),
                   const SizedBox(height: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surface
-                          .withValues(alpha: 0.04),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
+                  FutureBuilder<List<CategoryModel>>(
+                    future: CategoryService().getCategories(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      
+                      final categories = snapshot.data ?? [];
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        decoration: BoxDecoration(
                           color: Theme.of(context)
                               .colorScheme
-                              .outline
-                              .withValues(alpha: 0.15)),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String?>(
-                        value: tempSelectedColor,
-                        isExpanded: true,
-                        icon: const Icon(Icons.arrow_drop_down),
-                        style: TextStyle(
-                            fontSize: 16,
-                            color:
-                                Theme.of(context).colorScheme.primaryTextColor),
-                        items: [
-                          DropdownMenuItem(
-                            value: null,
-                            child: Row(
-                              children: [
-                                Icon(Icons.circle_outlined,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .outline
-                                        .withValues(alpha: 0.5),
-                                    size: 18),
-                                const SizedBox(width: 8),
-                                const Text('すべて'),
-                              ],
-                            ),
-                          ),
-                          ...TodoColor.values
-                              .map((todoColor) => DropdownMenuItem(
-                                    value: todoColor.name,
+                              .surface
+                              .withValues(alpha: 0.04),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .outline
+                                  .withValues(alpha: 0.15)),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<int?>(
+                            value: tempSelectedCategoryId,
+                            isExpanded: true,
+                            icon: const Icon(Icons.arrow_drop_down),
+                            style: TextStyle(
+                                fontSize: 16,
+                                color:
+                                    Theme.of(context).colorScheme.primaryTextColor),
+                            items: [
+                              DropdownMenuItem(
+                                value: null,
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.circle_outlined,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outline
+                                            .withValues(alpha: 0.5),
+                                        size: 18),
+                                    const SizedBox(width: 8),
+                                    const Text('すべて'),
+                                  ],
+                                ),
+                              ),
+                              ...categories.map((category) => DropdownMenuItem(
+                                    value: category.id,
                                     child: Row(
                                       children: [
-                                        CircleAvatar(
-                                            radius: 8,
-                                            backgroundColor: todoColor.color),
+                                        Container(
+                                          width: 16,
+                                          height: 16,
+                                          decoration: BoxDecoration(
+                                            color: TodoColor.getColorFromString(category.color),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: const Icon(
+                                            Icons.category,
+                                            color: Colors.white,
+                                            size: 10,
+                                          ),
+                                        ),
                                         const SizedBox(width: 8),
-                                        Text(todoColor.label),
+                                        Text(category.title),
                                       ],
                                     ),
                                   )),
-                        ],
-                        onChanged: (value) =>
-                            setState(() => tempSelectedColor = value),
-                      ),
-                    ),
+                            ],
+                            onChanged: (value) =>
+                                setState(() => tempSelectedCategoryId = value),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -1217,7 +1352,7 @@ Future<Map<String, String?>?> showTodoFilterDialog({
                       borderRadius: BorderRadius.circular(16)),
                 ),
                 onPressed: () => Navigator.of(context).pop({
-                  'color': tempSelectedColor,
+                  'categoryId': tempSelectedCategoryId,
                   'status': tempSelectedStatus,
                 }),
                 child: const Padding(
@@ -1290,6 +1425,444 @@ class _StatusChip extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+// === Category Management Components ===
+
+class CategorySelectionDialog {
+  static Future<CategoryModel?> show(
+    BuildContext context, {
+    CategoryModel? initialCategory,
+  }) async {
+    return await showDialog<CategoryModel?>(
+      context: context,
+      builder: (context) => _CategorySelectionDialogContent(
+        initialCategory: initialCategory,
+      ),
+    );
+  }
+}
+
+class _CategorySelectionDialogContent extends StatefulWidget {
+  final CategoryModel? initialCategory;
+
+  const _CategorySelectionDialogContent({
+    this.initialCategory,
+  });
+
+  @override
+  State<_CategorySelectionDialogContent> createState() =>
+      _CategorySelectionDialogContentState();
+}
+
+class _CategorySelectionDialogContentState
+    extends State<_CategorySelectionDialogContent> {
+  CategoryModel? selectedCategory;
+  List<CategoryModel> categories = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedCategory = widget.initialCategory;
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final categoryService = CategoryService();
+      final loadedCategories = await categoryService.getCategories();
+      setState(() {
+        categories = loadedCategories;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      title: Row(
+        children: [
+          Icon(
+            Icons.category,
+            color: Theme.of(context).colorScheme.primary,
+            size: 28,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'カテゴリを選択',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primaryTextColor,
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Add new category option
+                  _CategoryOption(
+                    title: '新しいカテゴリを作成',
+                    description: 'カスタムカテゴリを追加',
+                    color: 'blue',
+                    isSelected: false,
+                    onTap: () async {
+                      Navigator.of(context).pop();
+                      final newCategory = await AddCategoryDialog.show(context);
+                      if (newCategory != null && mounted) {
+                        Navigator.of(context).pop(newCategory);
+                      }
+                    },
+                    icon: Icons.add,
+                  ),
+                  const SizedBox(height: 8),
+                  const Divider(),
+                  const SizedBox(height: 8),
+                  // Existing categories
+                  ...categories.map((category) => _CategoryOption(
+                        title: category.title,
+                        description: category.description ?? '',
+                        color: category.color,
+                        isSelected: selectedCategory?.id == category.id,
+                        onTap: () => setState(() => selectedCategory = category),
+                      )),
+                ],
+              ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('キャンセル'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          onPressed: selectedCategory != null
+              ? () => Navigator.of(context).pop(selectedCategory)
+              : null,
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              '選択',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CategoryOption extends StatelessWidget {
+  final String title;
+  final String description;
+  final String color;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final IconData? icon;
+
+  const _CategoryOption({
+    required this.title,
+    required this.description,
+    required this.color,
+    required this.isSelected,
+    required this.onTap,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outline,
+                width: isSelected ? 2 : 1,
+              ),
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                  : Theme.of(context).colorScheme.surface,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: TodoColor.getColorFromString(color),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    icon ?? Icons.category,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.primaryTextColor,
+                        ),
+                      ),
+                      if (description.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          description,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.secondaryTextColor,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (isSelected)
+                  Icon(
+                    Icons.check_circle,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 24,
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AddCategoryDialog {
+  static Future<CategoryModel?> show(BuildContext context) async {
+    return await showDialog<CategoryModel?>(
+      context: context,
+      builder: (context) => const _AddCategoryDialogContent(),
+    );
+  }
+}
+
+class _AddCategoryDialogContent extends StatefulWidget {
+  const _AddCategoryDialogContent();
+
+  @override
+  State<_AddCategoryDialogContent> createState() =>
+      _AddCategoryDialogContentState();
+}
+
+class _AddCategoryDialogContentState extends State<_AddCategoryDialogContent> {
+  final titleController = TextEditingController();
+  final descriptionController = TextEditingController();
+  String selectedColor = 'blue';
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      title: Row(
+        children: [
+          Icon(
+            Icons.add_circle,
+            color: Theme.of(context).colorScheme.primary,
+            size: 28,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'カテゴリを追加',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primaryTextColor,
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: 'カテゴリ名',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Theme.of(context)
+                    .colorScheme
+                    .surface
+                    .withValues(alpha: 0.05),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: descriptionController,
+              decoration: InputDecoration(
+                labelText: '詳細 (オプション)',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Theme.of(context)
+                    .colorScheme
+                    .surface
+                    .withValues(alpha: 0.05),
+              ),
+              maxLines: 2,
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'カラー',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primaryTextColor,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: TodoColor.values.map((todoColor) {
+                final isSelected = todoColor.name == selectedColor;
+                return GestureDetector(
+                  onTap: () => setState(() => selectedColor = todoColor.name),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: todoColor.color,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primaryTextColor
+                            : Colors.transparent,
+                        width: 3,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: todoColor.color.withValues(alpha: 0.4),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              )
+                            ]
+                          : null,
+                    ),
+                    child: isSelected
+                        ? const Icon(
+                            Icons.check,
+                            color: Colors.white,
+                            size: 24,
+                          )
+                        : null,
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('キャンセル'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          onPressed: titleController.text.trim().isNotEmpty
+              ? () async {
+                  final categoryService = CategoryService();
+                  final newCategory = await categoryService.createCategory(
+                    title: titleController.text.trim(),
+                    description: descriptionController.text.trim().isEmpty
+                        ? null
+                        : descriptionController.text.trim(),
+                    color: selectedColor,
+                  );
+                  if (context.mounted) {
+                    Navigator.of(context).pop(newCategory);
+                  }
+                }
+              : null,
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              '追加',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

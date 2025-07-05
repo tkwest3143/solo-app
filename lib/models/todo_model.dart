@@ -11,7 +11,8 @@ class TodoModel with _$TodoModel {
     required String title,
     required bool isCompleted,
     String? description,
-    String? color,
+    String? color, // Keep for backward compatibility
+    int? categoryId, // New category reference
     String? icon,
     DateTime? createdAt,
     DateTime? updatedAt,

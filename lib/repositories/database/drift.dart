@@ -8,14 +8,14 @@ import 'package:path/path.dart' as path;
 
 part 'build/drift.g.dart';
 
-@DriftDatabase(tables: [Todos])
+@DriftDatabase(tables: [Todos, Categories])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   static AppDatabase? _instance;
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2; // Increment version for schema change
 
   static Future<AppDatabase> getSingletonInstance() async {
     _instance ??= AppDatabase(LazyDatabase(() async {
