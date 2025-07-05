@@ -46,10 +46,10 @@ class MenuPage extends HookConsumerWidget {
                           ),
                         ],
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.dashboard_rounded,
                         size: 48,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -90,11 +90,9 @@ class MenuPage extends HookConsumerWidget {
                               title: 'Todo',
                               subtitle: 'タスク管理\n今日の予定を確認',
                               icon: Icons.checklist_rounded,
-                              iconColor: Colors.white,
-                              gradientColors: [
-                                const Color(0xFF667eea),
-                                const Color(0xFF764ba2),
-                              ],
+                              iconColor: Theme.of(context).colorScheme.surface,
+                              gradientColors:
+                                  Theme.of(context).colorScheme.primaryGradient,
                               onTap: () => nextRouting(
                                   context, RouterDefinition.todoList),
                               isHighlighted: true,
@@ -106,10 +104,12 @@ class MenuPage extends HookConsumerWidget {
                               title: 'タイマー',
                               subtitle: '集中時間管理\nポモドーロ技法',
                               icon: Icons.timer_rounded,
-                              iconColor: Colors.white,
+                              iconColor: Theme.of(context).colorScheme.surface,
                               gradientColors: [
-                                const Color(0xFFff9a9e),
-                                const Color(0xFFfecfef),
+                                Theme.of(context).colorScheme.accentColor,
+                                Theme.of(context)
+                                    .colorScheme
+                                    .accentBackgroundColor
                               ],
                               onTap: () =>
                                   nextRouting(context, RouterDefinition.timer),
@@ -195,7 +195,10 @@ class MenuPage extends HookConsumerWidget {
                         margin: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          color: Colors.white.withValues(alpha: 0.85),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withOpacity(0.85),
                           border: Border.all(
                             color: Theme.of(context)
                                 .colorScheme

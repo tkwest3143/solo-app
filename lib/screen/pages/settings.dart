@@ -37,7 +37,7 @@ class SettingsPage extends HookConsumerWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Settings content
               Expanded(
                 child: SingleChildScrollView(
@@ -54,9 +54,9 @@ class SettingsPage extends HookConsumerWidget {
                           ),
                         ],
                       ),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       // Pomodoro Settings Section
                       _SettingsSection(
                         title: 'ポモドーロ初期設定',
@@ -69,7 +69,8 @@ class SettingsPage extends HookConsumerWidget {
                             unit: '分',
                             min: 1,
                             max: 60,
-                            onChanged: settingsController.updateDefaultWorkMinutes,
+                            onChanged:
+                                settingsController.updateDefaultWorkMinutes,
                             color: Theme.of(context).colorScheme.accentColor,
                           ),
                           _SettingItem(
@@ -79,7 +80,8 @@ class SettingsPage extends HookConsumerWidget {
                             unit: '分',
                             min: 1,
                             max: 30,
-                            onChanged: settingsController.updateDefaultShortBreakMinutes,
+                            onChanged: settingsController
+                                .updateDefaultShortBreakMinutes,
                             color: Theme.of(context).colorScheme.infoColor,
                           ),
                           _SettingItem(
@@ -89,7 +91,8 @@ class SettingsPage extends HookConsumerWidget {
                             unit: '分',
                             min: 5,
                             max: 60,
-                            onChanged: settingsController.updateDefaultLongBreakMinutes,
+                            onChanged: settingsController
+                                .updateDefaultLongBreakMinutes,
                             color: Theme.of(context).colorScheme.purpleColor,
                           ),
                           _SettingItem(
@@ -99,14 +102,15 @@ class SettingsPage extends HookConsumerWidget {
                             unit: '回',
                             min: 2,
                             max: 10,
-                            onChanged: settingsController.updateDefaultCyclesUntilLongBreak,
+                            onChanged: settingsController
+                                .updateDefaultCyclesUntilLongBreak,
                             color: Theme.of(context).colorScheme.successColor,
                           ),
                         ],
                       ),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       // Notification Permission Settings Section
                       _SettingsSection(
                         title: '通知許可設定',
@@ -116,19 +120,23 @@ class SettingsPage extends HookConsumerWidget {
                             title: 'Todo期限日通知',
                             subtitle: 'タスクの期限が近づいた時の通知',
                             value: settings.todoDueDateNotificationsEnabled,
-                            onChanged: settingsController.toggleTodoDueDateNotifications,
+                            onChanged: settingsController
+                                .toggleTodoDueDateNotifications,
                           ),
                           _SwitchSettingItem(
                             title: 'ポモドーロ完了通知',
                             subtitle: 'タイマーが0になった時の通知',
-                            value: settings.pomodoroCompletionNotificationsEnabled,
-                            onChanged: settingsController.togglePomodoroCompletionNotifications,
+                            value:
+                                settings.pomodoroCompletionNotificationsEnabled,
+                            onChanged: settingsController
+                                .togglePomodoroCompletionNotifications,
                           ),
                           _SwitchSettingItem(
                             title: 'カウントアップタイマー通知',
                             subtitle: '指定時間でのお知らせ通知',
                             value: settings.countUpTimerNotificationsEnabled,
-                            onChanged: settingsController.toggleCountUpTimerNotifications,
+                            onChanged: settingsController
+                                .toggleCountUpTimerNotifications,
                           ),
                           if (settings.countUpTimerNotificationsEnabled)
                             _SettingItem(
@@ -138,14 +146,15 @@ class SettingsPage extends HookConsumerWidget {
                               unit: '分',
                               min: 5,
                               max: 300,
-                              onChanged: settingsController.updateCountUpNotificationMinutes,
+                              onChanged: settingsController
+                                  .updateCountUpNotificationMinutes,
                               color: Theme.of(context).colorScheme.accentColor,
                             ),
                         ],
                       ),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       // Notification Preference Settings Section
                       _SettingsSection(
                         title: 'お知らせ受け取り設定',
@@ -155,27 +164,32 @@ class SettingsPage extends HookConsumerWidget {
                             title: 'Todo期限日のお知らせ',
                             subtitle: 'タスクの期限日をお知らせ',
                             value: settings.todoDeadlineRemindersEnabled,
-                            onChanged: settingsController.toggleTodoDeadlineReminders,
+                            onChanged:
+                                settingsController.toggleTodoDeadlineReminders,
                           ),
                           _SwitchSettingItem(
                             title: 'アプリからのお知らせ',
                             subtitle: 'アップデート内容などのお知らせ',
                             value: settings.appUpdateNotificationsEnabled,
-                            onChanged: settingsController.toggleAppUpdateNotifications,
+                            onChanged:
+                                settingsController.toggleAppUpdateNotifications,
                           ),
                         ],
                       ),
-                      
+
                       const SizedBox(height: 32),
-                      
+
                       // Reset button
-                      Container(
+                      SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () => _showResetDialog(context, settingsController),
+                          onPressed: () =>
+                              _showResetDialog(context, settingsController),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
-                            foregroundColor: Theme.of(context).colorScheme.secondary,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.secondary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.primaryTextColor,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -190,7 +204,7 @@ class SettingsPage extends HookConsumerWidget {
                           ),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 40),
                     ],
                   ),
@@ -224,7 +238,7 @@ class SettingsPage extends HookConsumerWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.secondary,
-              foregroundColor: Colors.white,
+              foregroundColor: Theme.of(context).colorScheme.surface,
             ),
             child: const Text('リセット'),
           ),
@@ -279,7 +293,7 @@ class _SettingsSection extends StatelessWidget {
                   ),
                   child: Icon(
                     icon,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     size: 20,
                   ),
                 ),
@@ -296,9 +310,9 @@ class _SettingsSection extends StatelessWidget {
             ),
           ),
           ...children.map((child) => Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-            child: child,
-          )),
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                child: child,
+              )),
           const SizedBox(height: 4),
         ],
       ),
@@ -372,7 +386,7 @@ class _ThemeOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = currentTheme == themeMode;
-    
+
     return InkWell(
       onTap: () => onChanged(themeMode),
       borderRadius: BorderRadius.circular(12),
@@ -381,22 +395,22 @@ class _ThemeOption extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected 
-              ? Theme.of(context).colorScheme.accentColor 
-              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+            color: isSelected
+                ? Theme.of(context).colorScheme.accentColor
+                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
             width: isSelected ? 2 : 1,
           ),
-          color: isSelected 
-            ? Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.1)
-            : Colors.transparent,
+          color: isSelected
+              ? Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.1)
+              : Colors.transparent,
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: isSelected 
-                ? Theme.of(context).colorScheme.primary 
-                : Theme.of(context).colorScheme.secondaryTextColor,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.secondaryTextColor,
               size: 20,
             ),
             const SizedBox(width: 12),
@@ -409,9 +423,9 @@ class _ThemeOption extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isSelected 
-                        ? Theme.of(context).colorScheme.accentColor 
-                        : Theme.of(context).colorScheme.primaryTextColor,
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.accentColor
+                          : Theme.of(context).colorScheme.primaryTextColor,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -471,9 +485,9 @@ class _SettingItemState extends State<_SettingItem> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: widget.color.withValues(alpha: 0.1),
+        color: widget.color.withValues(alpha: 0.1), // 透明度を下げて視認性UP
         border: Border.all(
-          color: widget.color.withValues(alpha: 0.2),
+          color: widget.color.withValues(alpha: 0.15), // ボーダーも薄く
         ),
       ),
       child: Column(
@@ -508,17 +522,18 @@ class _SettingItemState extends State<_SettingItem> {
               GestureDetector(
                 onTap: () => _showValueDialog(),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     color: widget.color,
                   ),
                   child: Text(
                     '${widget.value} ${widget.unit}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                     ),
                   ),
                 ),
@@ -566,9 +581,7 @@ class _SettingItemState extends State<_SettingItem> {
             Text(
               '範囲: ${widget.min}〜${widget.max} ${widget.unit}',
               style: TextStyle(
-                color: Theme.of(context)
-                    .colorScheme
-                    .secondaryTextColor,
+                color: Theme.of(context).colorScheme.secondaryTextColor,
                 fontSize: 14,
               ),
             ),
@@ -586,7 +599,7 @@ class _SettingItemState extends State<_SettingItem> {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: widget.color,
-              foregroundColor: Colors.white,
+              foregroundColor: Theme.of(context).colorScheme.surface,
             ),
             child: const Text('設定'),
           ),
@@ -623,13 +636,13 @@ class _SwitchSettingItem extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: value 
-          ? Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.1)
-          : Theme.of(context).colorScheme.surface,
+        color: value
+            ? Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.1)
+            : Theme.of(context).colorScheme.surface,
         border: Border.all(
-          color: value 
-            ? Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.2)
-            : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          color: value
+              ? Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.2)
+              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -661,6 +674,11 @@ class _SwitchSettingItem extends StatelessWidget {
             value: value,
             onChanged: onChanged,
             activeColor: Theme.of(context).colorScheme.accentColor,
+            inactiveThumbColor: Theme.of(context).colorScheme.onSurfaceVariant,
+            inactiveTrackColor: Theme.of(context)
+                .colorScheme
+                .mutedTextColor
+                .withValues(alpha: 0.4),
           ),
         ],
       ),

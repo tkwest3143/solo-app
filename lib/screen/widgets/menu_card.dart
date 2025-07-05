@@ -28,7 +28,7 @@ class MenuNavigationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cardIconSize = iconSize ?? (isHighlighted ? 40.0 : 32.0);
-    final cardIconColor = iconColor ?? Colors.white;
+    final cardIconColor = iconColor ?? Theme.of(context).colorScheme.surface;
 
     return GestureDetector(
       onTap: onTap,

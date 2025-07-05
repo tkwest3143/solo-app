@@ -50,20 +50,20 @@ class CurrentDateTime extends HookConsumerWidget {
         children: [
           Text(
             formattedDate,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w500,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
             formattedTime,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
             ),
             textAlign: TextAlign.center,
           ),
@@ -95,7 +95,7 @@ class TodayTodosWidget extends HookConsumerWidget {
             margin: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               boxShadow: [
                 BoxShadow(
                   color: Theme.of(context).colorScheme.lightShadowColor,
