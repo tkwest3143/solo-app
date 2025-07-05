@@ -775,7 +775,7 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                   ),
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton<RecurringType?>(
-                                      value: type,
+                                      value: recurringType.value,
                                       isExpanded: true,
                                       hint: const Text('タイプを選択'),
                                       items: RecurringType.values
@@ -804,20 +804,14 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          ValueListenableBuilder<RecurringType?>(
-                            valueListenable: recurringType,
-                            builder: (context, type, _) {
-                              if (type == RecurringType.weekly) {
-                                return ValueListenableBuilder<int?>(
-                                  valueListenable: recurringDayOfWeek,
-                                  builder: (context, dayOfWeek, _) => Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '曜日',
-                                        style: TextStyle(
-                                          fontSize: 14,
+                          if (recurringType.value == RecurringType.weekly)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '曜日',
+                                  style: TextStyle(
+                                    fontSize: 14,
                                           fontWeight: FontWeight.w500,
                                           color: Theme.of(context)
                                               .colorScheme
@@ -840,7 +834,7 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                         ),
                                         child: DropdownButtonHideUnderline(
                                           child: DropdownButton<int>(
-                                            value: dayOfWeek ?? DateTime.monday,
+                                            value: recurringDayOfWeek.value ?? DateTime.monday,
                                             isExpanded: true,
                                             items: [
                                               DropdownMenuItem(
@@ -872,25 +866,21 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                         ),
                                       ),
                                     ],
+                                  )
+                          else if (recurringType.value == RecurringType.monthly)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '日付',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryTextColor,
                                   ),
-                                );
-                              } else if (type == RecurringType.monthly) {
-                                return ValueListenableBuilder<int?>(
-                                  valueListenable: recurringDayOfMonth,
-                                  builder: (context, dayOfMonth, _) => Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '日付',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondaryTextColor,
-                                        ),
-                                      ),
+                                ),
                                       const SizedBox(height: 8),
                                       Container(
                                         padding: const EdgeInsets.symmetric(
@@ -907,7 +897,7 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                         ),
                                         child: DropdownButtonHideUnderline(
                                           child: DropdownButton<int>(
-                                            value: dayOfMonth ?? 1,
+                                            value: recurringDayOfMonth.value ?? 1,
                                             isExpanded: true,
                                             items: List.generate(31, (index) {
                                               final day = index + 1;
@@ -924,45 +914,38 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                       ),
                                     ],
                                   ),
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
-                          ),
                           const SizedBox(height: 12),
-                          ValueListenableBuilder<DateTime?>(
-                            valueListenable: recurringEndDate,
-                            builder: (context, endDate, _) => Row(
-                              children: [
-                                Icon(
-                                  Icons.event_busy,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  size: 16,
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.event_busy,
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                recurringEndDate.value != null
+                                    ? '終了日: ${formatDate(recurringEndDate.value!, format: 'yyyy/MM/dd')}'
+                                    : '終了日: 未設定',
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .secondaryTextColor,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  endDate != null
-                                      ? '終了日: ${formatDate(endDate, format: 'yyyy/MM/dd')}'
-                                      : '終了日: 未設定',
-                                  style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .secondaryTextColor,
-                                  ),
-                                ),
-                                const Spacer(),
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    final pickedDate = await showDatePicker(
-                                      context: context,
-                                      initialDate: endDate ??
-                                          DateTime.now()
-                                              .add(const Duration(days: 30)),
-                                      firstDate: selectedDate.value,
-                                      lastDate: DateTime(2030),
-                                    );
-                                    recurringEndDate.value = pickedDate;
-                                  },
+                              ),
+                              const Spacer(),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: recurringEndDate.value ??
+                                        DateTime.now()
+                                            .add(const Duration(days: 30)),
+                                    firstDate: selectedDate.value,
+                                    lastDate: DateTime(2030),
+                                  );
+                                  recurringEndDate.value = pickedDate;
+                                },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:
                                         Theme.of(context).colorScheme.primary,
@@ -975,14 +958,13 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                         horizontal: 12, vertical: 6),
                                     elevation: 0,
                                   ),
-                                  child: Text(endDate != null ? '変更' : '設定'),
+                                  child: Text(recurringEndDate.value != null ? '変更' : '設定'),
                                 ),
                               ],
                             ),
-                          ),
                         ],
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
