@@ -14,6 +14,7 @@ _$TodoModelImpl _$$TodoModelImplFromJson(Map<String, dynamic> json) =>
       isCompleted: json['isCompleted'] as bool,
       description: json['description'] as String?,
       color: json['color'] as String?,
+      categoryId: (json['categoryId'] as num?)?.toInt(),
       icon: json['icon'] as String?,
       createdAt: json['createdAt'] == null
           ? null
@@ -38,6 +39,7 @@ Map<String, dynamic> _$$TodoModelImplToJson(_$TodoModelImpl instance) =>
       'isCompleted': instance.isCompleted,
       'description': instance.description,
       'color': instance.color,
+      'categoryId': instance.categoryId,
       'icon': instance.icon,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),

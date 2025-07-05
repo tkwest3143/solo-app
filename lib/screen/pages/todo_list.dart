@@ -78,7 +78,7 @@ class TodoListPage extends HookConsumerWidget {
                         onPressed: () async {
                           final result = await showTodoFilterDialog(
                             context: context,
-                            initialCategoryId: null, // TODO: Track selected filter
+                            initialCategoryId: null,
                             initialStatus: null,
                           );
                           if (result != null) {

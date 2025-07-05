@@ -1185,7 +1185,6 @@ class TodoDetailDialog {
   }
 }
 
-// --- ここから追加: フィルタダイアログとStatusChip ---
 Future<Map<String, dynamic>?> showTodoFilterDialog({
   required BuildContext context,
   int? initialCategoryId,

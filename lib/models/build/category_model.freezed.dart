@@ -1,4 +1,7 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of '../category_model.dart';
 
@@ -20,12 +23,17 @@ mixin _$CategoryModel {
   int get id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
-  String get color => throw _privateConstructorUsedError;
+  String get color =>
+      throw _privateConstructorUsedError; // Color name from TodoColor enum
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
+  /// Serializes this CategoryModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of CategoryModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $CategoryModelCopyWith<CategoryModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -55,6 +63,8 @@ class _$CategoryModelCopyWithImpl<$Res, $Val extends CategoryModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of CategoryModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -119,6 +129,8 @@ class __$$CategoryModelImplCopyWithImpl<$Res>
       _$CategoryModelImpl _value, $Res Function(_$CategoryModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of CategoryModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -180,6 +192,7 @@ class _$CategoryModelImpl implements _CategoryModel {
   final String? description;
   @override
   final String color;
+// Color name from TodoColor enum
   @override
   final DateTime? createdAt;
   @override
@@ -206,12 +219,14 @@ class _$CategoryModelImpl implements _CategoryModel {
                 other.updatedAt == updatedAt));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, id, title, description, color, createdAt, updatedAt);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of CategoryModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$CategoryModelImplCopyWith<_$CategoryModelImpl> get copyWith =>
@@ -244,13 +259,16 @@ abstract class _CategoryModel implements CategoryModel {
   @override
   String? get description;
   @override
-  String get color;
+  String get color; // Color name from TodoColor enum
   @override
   DateTime? get createdAt;
   @override
   DateTime? get updatedAt;
+
+  /// Create a copy of CategoryModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$CategoryModelImplCopyWith<_$CategoryModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
