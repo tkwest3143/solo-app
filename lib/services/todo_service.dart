@@ -8,7 +8,7 @@ class TodoService {
   Future<List<TodoModel>> getTodo() async {
     final todoTableRepository = TodoTableRepository();
     final todos = await todoTableRepository.findAll();
-    
+
     if (todos.isNotEmpty) {
       return todos
           .map((todo) => TodoModel(
@@ -24,12 +24,12 @@ class TodoService {
               ))
           .toList();
     }
-    
+
     // If no todos in database, use in-memory todos with dummy data
     if (_inMemoryTodos.isEmpty) {
       _initializeDummyData();
     }
-    
+
     return List.from(_inMemoryTodos);
   }
 
@@ -95,7 +95,7 @@ class TodoService {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
-    
+
     _inMemoryTodos.add(newTodo);
     return newTodo;
   }
@@ -110,7 +110,7 @@ class TodoService {
   }) async {
     final index = _inMemoryTodos.indexWhere((todo) => todo.id == id);
     if (index == -1) return null;
-    
+
     final oldTodo = _inMemoryTodos[index];
     final updatedTodo = TodoModel(
       id: oldTodo.id,
@@ -123,7 +123,7 @@ class TodoService {
       createdAt: oldTodo.createdAt,
       updatedAt: DateTime.now(),
     );
-    
+
     _inMemoryTodos[index] = updatedTodo;
     return updatedTodo;
   }
@@ -131,7 +131,7 @@ class TodoService {
   Future<bool> deleteTodo(int id) async {
     final index = _inMemoryTodos.indexWhere((todo) => todo.id == id);
     if (index == -1) return false;
-    
+
     _inMemoryTodos.removeAt(index);
     return true;
   }
@@ -139,7 +139,7 @@ class TodoService {
   Future<TodoModel?> toggleTodoComplete(int id) async {
     final index = _inMemoryTodos.indexWhere((todo) => todo.id == id);
     if (index == -1) return null;
-    
+
     final oldTodo = _inMemoryTodos[index];
     final updatedTodo = TodoModel(
       id: oldTodo.id,
@@ -152,7 +152,7 @@ class TodoService {
       createdAt: oldTodo.createdAt,
       updatedAt: DateTime.now(),
     );
-    
+
     _inMemoryTodos[index] = updatedTodo;
     return updatedTodo;
   }
@@ -160,7 +160,7 @@ class TodoService {
   Future<List<TodoModel>> getTodayTodos() async {
     final allTodos = await getTodo();
     final today = DateTime.now();
-    
+
     return allTodos.where((todo) {
       final todoDate = todo.dueDate;
       return todoDate.year == today.year &&
@@ -173,13 +173,15 @@ class TodoService {
     final allTodos = await getTodo();
     final today = DateTime.now();
     final weekFromNow = today.add(const Duration(days: 7));
-    
+
     return allTodos.where((todo) {
       final todoDate = todo.dueDate;
       final isToday = todoDate.year == today.year &&
           todoDate.month == today.month &&
           todoDate.day == today.day;
-      return !isToday && todoDate.isAfter(today) && todoDate.isBefore(weekFromNow);
+      return !isToday &&
+          todoDate.isAfter(today) &&
+          todoDate.isBefore(weekFromNow);
     }).toList();
   }
 
@@ -188,29 +190,51 @@ class TodoService {
     String? category,
   }) async {
     final allTodos = await getTodo();
-    
+
     return allTodos.where((todo) {
-      bool matchesCompletion = isCompleted == null || todo.isCompleted == isCompleted;
-      bool matchesCategory = category == null || category.isEmpty || todo.color == category;
+      bool matchesCompletion =
+          isCompleted == null || todo.isCompleted == isCompleted;
+      bool matchesCategory =
+          category == null || category.isEmpty || todo.color == category;
       return matchesCompletion && matchesCategory;
     }).toList();
   }
 
   Future<List<TodoModel>> getTodosForDate(DateTime date) async {
-    final allTodos = await getTodo();
-    
-    return allTodos.where((todo) {
-      final todoDate = todo.dueDate;
-      return todoDate.year == date.year &&
-          todoDate.month == date.month &&
-          todoDate.day == date.day;
-    }).toList();
+    // ダミーデータを返す
+    return [
+      TodoModel(
+        id: 1,
+        title: 'ダミーTodo 1',
+        description: 'ダミー詳細 1',
+        dueDate: date,
+        isCompleted: false,
+        color: 'blue',
+      ),
+      TodoModel(
+        id: 2,
+        title: 'ダミーTodo 2',
+        description: 'ダミー詳細 2',
+        dueDate: date,
+        isCompleted: true,
+        color: 'orange',
+      ),
+      TodoModel(
+        id: 3,
+        title: 'ダミーTodo 3',
+        description: 'ダミー詳細 3',
+        dueDate: date,
+        isCompleted: false,
+        color: 'green',
+      ),
+    ];
   }
 
-  Future<Map<DateTime, List<TodoModel>>> getTodosForMonth(DateTime month) async {
+  Future<Map<DateTime, List<TodoModel>>> getTodosForMonth(
+      DateTime month) async {
     final allTodos = await getTodo();
     final Map<DateTime, List<TodoModel>> todosByDate = {};
-    
+
     for (final todo in allTodos) {
       final todoDate = todo.dueDate;
       if (todoDate.year == month.year && todoDate.month == month.month) {
@@ -219,7 +243,7 @@ class TodoService {
         todosByDate[dateKey]!.add(todo);
       }
     }
-    
+
     return todosByDate;
   }
 }

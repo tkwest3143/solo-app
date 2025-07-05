@@ -4,7 +4,6 @@ import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/router.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/models/todo_model.dart';
-import 'package:solo/utilities/date.dart';
 import 'package:solo/screen/widgets/todo.dart';
 
 enum TodoFilter { all, completed, incomplete }
@@ -132,11 +131,14 @@ class TodoListPage extends HookConsumerWidget {
                 builder: (context, filter, _) {
                   return ValueListenableBuilder<int>(
                     valueListenable: refreshKey,
-                    builder: (context, _, __) => FutureBuilder<Map<String, List<TodoModel>>>(
+                    builder: (context, _, __) =>
+                        FutureBuilder<Map<String, List<TodoModel>>>(
                       future: _getTodoSections(filter),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
 
                         if (snapshot.hasError) {
@@ -158,22 +160,22 @@ class TodoListPage extends HookConsumerWidget {
                             if (sections['today']?.isNotEmpty == true) ...[
                               _buildSectionHeader(
                                   context, '今日が期限', sections['today']!.length),
-                              ...sections['today']!
-                                  .map((todo) => _buildTodoCard(context, todo, refreshTodos)),
+                              ...sections['today']!.map((todo) =>
+                                  _buildTodoCard(context, todo, refreshTodos)),
                               const SizedBox(height: 20),
                             ],
                             if (sections['upcoming']?.isNotEmpty == true) ...[
-                              _buildSectionHeader(
-                                  context, '期限が近い', sections['upcoming']!.length),
-                              ...sections['upcoming']!
-                                  .map((todo) => _buildTodoCard(context, todo, refreshTodos)),
+                              _buildSectionHeader(context, '期限が近い',
+                                  sections['upcoming']!.length),
+                              ...sections['upcoming']!.map((todo) =>
+                                  _buildTodoCard(context, todo, refreshTodos)),
                               const SizedBox(height: 20),
                             ],
                             if (sections['all']?.isNotEmpty == true) ...[
                               _buildSectionHeader(
                                   context, 'すべてのTodo', sections['all']!.length),
-                              ...sections['all']!
-                                  .map((todo) => _buildTodoCard(context, todo, refreshTodos)),
+                              ...sections['all']!.map((todo) =>
+                                  _buildTodoCard(context, todo, refreshTodos)),
                             ],
                             if (sections.values
                                 .every((list) => list.isEmpty)) ...[
@@ -202,7 +204,7 @@ class TodoListPage extends HookConsumerWidget {
                                 ),
                               ),
                             ],
-                            const SizedBox(height: 80), // Space for FAB
+                            const SizedBox(height: 80),
                           ],
                         );
                       },
@@ -251,7 +253,8 @@ class TodoListPage extends HookConsumerWidget {
     );
   }
 
-  Widget _buildTodoCard(BuildContext context, TodoModel todo, VoidCallback onRefresh) {
+  Widget _buildTodoCard(
+      BuildContext context, TodoModel todo, VoidCallback onRefresh) {
     return TodoCard(
       todo: todo,
       onRefresh: onRefresh,
@@ -260,21 +263,47 @@ class TodoListPage extends HookConsumerWidget {
 
   Future<Map<String, List<TodoModel>>> _getTodoSections(
       TodoFilter filter) async {
-    final todoService = TodoService();
-    final allTodos = await todoService.getTodo();
+    // ダミーデータを返す
+    final now = DateTime.now();
+    final dummyTodos = [
+      TodoModel(
+        id: 1,
+        title: 'ダミーTodo 1',
+        description: 'ダミー詳細 1',
+        dueDate: now,
+        isCompleted: false,
+        color: 'blue',
+      ),
+      TodoModel(
+        id: 2,
+        title: 'ダミーTodo 2',
+        description: 'ダミー詳細 2',
+        dueDate: now.add(const Duration(days: 1)),
+        isCompleted: true,
+        color: 'orange',
+      ),
+      TodoModel(
+        id: 3,
+        title: 'ダミーTodo 3',
+        description: 'ダミー詳細 3',
+        dueDate: now.add(const Duration(days: 3)),
+        isCompleted: false,
+        color: 'green',
+      ),
+    ];
 
-    // Apply filter
+    // フィルタ適用
     List<TodoModel> filteredData;
     switch (filter) {
       case TodoFilter.completed:
-        filteredData = allTodos.where((todo) => todo.isCompleted).toList();
+        filteredData = dummyTodos.where((todo) => todo.isCompleted).toList();
         break;
       case TodoFilter.incomplete:
-        filteredData = allTodos.where((todo) => !todo.isCompleted).toList();
+        filteredData = dummyTodos.where((todo) => !todo.isCompleted).toList();
         break;
       case TodoFilter.all:
       default:
-        filteredData = allTodos;
+        filteredData = dummyTodos;
         break;
     }
 
