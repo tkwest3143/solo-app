@@ -28,7 +28,14 @@ mixin _$TodoModel {
   String? get color => throw _privateConstructorUsedError;
   String? get icon => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
-  DateTime? get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt =>
+      throw _privateConstructorUsedError; // Recurring fields
+  bool? get isRecurring => throw _privateConstructorUsedError;
+  String? get recurringType => throw _privateConstructorUsedError;
+  DateTime? get recurringEndDate => throw _privateConstructorUsedError;
+  int? get recurringDayOfWeek =>
+      throw _privateConstructorUsedError; // 1-7 for weekly (Monday = 1)
+  int? get recurringDayOfMonth => throw _privateConstructorUsedError;
 
   /// Serializes this TodoModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -54,7 +61,12 @@ abstract class $TodoModelCopyWith<$Res> {
       String? color,
       String? icon,
       DateTime? createdAt,
-      DateTime? updatedAt});
+      DateTime? updatedAt,
+      bool? isRecurring,
+      String? recurringType,
+      DateTime? recurringEndDate,
+      int? recurringDayOfWeek,
+      int? recurringDayOfMonth});
 }
 
 /// @nodoc
@@ -81,6 +93,11 @@ class _$TodoModelCopyWithImpl<$Res, $Val extends TodoModel>
     Object? icon = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? isRecurring = freezed,
+    Object? recurringType = freezed,
+    Object? recurringEndDate = freezed,
+    Object? recurringDayOfWeek = freezed,
+    Object? recurringDayOfMonth = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -119,6 +136,26 @@ class _$TodoModelCopyWithImpl<$Res, $Val extends TodoModel>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      isRecurring: freezed == isRecurring
+          ? _value.isRecurring
+          : isRecurring // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      recurringType: freezed == recurringType
+          ? _value.recurringType
+          : recurringType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      recurringEndDate: freezed == recurringEndDate
+          ? _value.recurringEndDate
+          : recurringEndDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      recurringDayOfWeek: freezed == recurringDayOfWeek
+          ? _value.recurringDayOfWeek
+          : recurringDayOfWeek // ignore: cast_nullable_to_non_nullable
+              as int?,
+      recurringDayOfMonth: freezed == recurringDayOfMonth
+          ? _value.recurringDayOfMonth
+          : recurringDayOfMonth // ignore: cast_nullable_to_non_nullable
+              as int?,
     ) as $Val);
   }
 }
@@ -140,7 +177,12 @@ abstract class _$$TodoModelImplCopyWith<$Res>
       String? color,
       String? icon,
       DateTime? createdAt,
-      DateTime? updatedAt});
+      DateTime? updatedAt,
+      bool? isRecurring,
+      String? recurringType,
+      DateTime? recurringEndDate,
+      int? recurringDayOfWeek,
+      int? recurringDayOfMonth});
 }
 
 /// @nodoc
@@ -165,6 +207,11 @@ class __$$TodoModelImplCopyWithImpl<$Res>
     Object? icon = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
+    Object? isRecurring = freezed,
+    Object? recurringType = freezed,
+    Object? recurringEndDate = freezed,
+    Object? recurringDayOfWeek = freezed,
+    Object? recurringDayOfMonth = freezed,
   }) {
     return _then(_$TodoModelImpl(
       id: null == id
@@ -203,6 +250,26 @@ class __$$TodoModelImplCopyWithImpl<$Res>
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      isRecurring: freezed == isRecurring
+          ? _value.isRecurring
+          : isRecurring // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      recurringType: freezed == recurringType
+          ? _value.recurringType
+          : recurringType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      recurringEndDate: freezed == recurringEndDate
+          ? _value.recurringEndDate
+          : recurringEndDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      recurringDayOfWeek: freezed == recurringDayOfWeek
+          ? _value.recurringDayOfWeek
+          : recurringDayOfWeek // ignore: cast_nullable_to_non_nullable
+              as int?,
+      recurringDayOfMonth: freezed == recurringDayOfMonth
+          ? _value.recurringDayOfMonth
+          : recurringDayOfMonth // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -219,7 +286,12 @@ class _$TodoModelImpl implements _TodoModel {
       this.color,
       this.icon,
       this.createdAt,
-      this.updatedAt});
+      this.updatedAt,
+      this.isRecurring,
+      this.recurringType,
+      this.recurringEndDate,
+      this.recurringDayOfWeek,
+      this.recurringDayOfMonth});
 
   factory _$TodoModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$TodoModelImplFromJson(json);
@@ -242,10 +314,22 @@ class _$TodoModelImpl implements _TodoModel {
   final DateTime? createdAt;
   @override
   final DateTime? updatedAt;
+// Recurring fields
+  @override
+  final bool? isRecurring;
+  @override
+  final String? recurringType;
+  @override
+  final DateTime? recurringEndDate;
+  @override
+  final int? recurringDayOfWeek;
+// 1-7 for weekly (Monday = 1)
+  @override
+  final int? recurringDayOfMonth;
 
   @override
   String toString() {
-    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, recurringDayOfWeek: $recurringDayOfWeek, recurringDayOfMonth: $recurringDayOfMonth)';
   }
 
   @override
@@ -265,13 +349,37 @@ class _$TodoModelImpl implements _TodoModel {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.isRecurring, isRecurring) ||
+                other.isRecurring == isRecurring) &&
+            (identical(other.recurringType, recurringType) ||
+                other.recurringType == recurringType) &&
+            (identical(other.recurringEndDate, recurringEndDate) ||
+                other.recurringEndDate == recurringEndDate) &&
+            (identical(other.recurringDayOfWeek, recurringDayOfWeek) ||
+                other.recurringDayOfWeek == recurringDayOfWeek) &&
+            (identical(other.recurringDayOfMonth, recurringDayOfMonth) ||
+                other.recurringDayOfMonth == recurringDayOfMonth));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, dueDate, title, isCompleted,
-      description, color, icon, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      dueDate,
+      title,
+      isCompleted,
+      description,
+      color,
+      icon,
+      createdAt,
+      updatedAt,
+      isRecurring,
+      recurringType,
+      recurringEndDate,
+      recurringDayOfWeek,
+      recurringDayOfMonth);
 
   /// Create a copy of TodoModel
   /// with the given fields replaced by the non-null parameter values.
@@ -299,7 +407,12 @@ abstract class _TodoModel implements TodoModel {
       final String? color,
       final String? icon,
       final DateTime? createdAt,
-      final DateTime? updatedAt}) = _$TodoModelImpl;
+      final DateTime? updatedAt,
+      final bool? isRecurring,
+      final String? recurringType,
+      final DateTime? recurringEndDate,
+      final int? recurringDayOfWeek,
+      final int? recurringDayOfMonth}) = _$TodoModelImpl;
 
   factory _TodoModel.fromJson(Map<String, dynamic> json) =
       _$TodoModelImpl.fromJson;
@@ -321,7 +434,17 @@ abstract class _TodoModel implements TodoModel {
   @override
   DateTime? get createdAt;
   @override
-  DateTime? get updatedAt;
+  DateTime? get updatedAt; // Recurring fields
+  @override
+  bool? get isRecurring;
+  @override
+  String? get recurringType;
+  @override
+  DateTime? get recurringEndDate;
+  @override
+  int? get recurringDayOfWeek; // 1-7 for weekly (Monday = 1)
+  @override
+  int? get recurringDayOfMonth;
 
   /// Create a copy of TodoModel
   /// with the given fields replaced by the non-null parameter values.

@@ -66,6 +66,40 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
   late final GeneratedColumn<String> icon = GeneratedColumn<String>(
       'icon', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isRecurringMeta =
+      const VerificationMeta('isRecurring');
+  @override
+  late final GeneratedColumn<bool> isRecurring = GeneratedColumn<bool>(
+      'is_recurring', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_recurring" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _recurringTypeMeta =
+      const VerificationMeta('recurringType');
+  @override
+  late final GeneratedColumn<String> recurringType = GeneratedColumn<String>(
+      'recurring_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _recurringEndDateMeta =
+      const VerificationMeta('recurringEndDate');
+  @override
+  late final GeneratedColumn<DateTime> recurringEndDate =
+      GeneratedColumn<DateTime>('recurring_end_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _recurringDayOfWeekMeta =
+      const VerificationMeta('recurringDayOfWeek');
+  @override
+  late final GeneratedColumn<int> recurringDayOfWeek = GeneratedColumn<int>(
+      'recurring_day_of_week', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _recurringDayOfMonthMeta =
+      const VerificationMeta('recurringDayOfMonth');
+  @override
+  late final GeneratedColumn<int> recurringDayOfMonth = GeneratedColumn<int>(
+      'recurring_day_of_month', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -76,7 +110,12 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
         description,
         isCompleted,
         color,
-        icon
+        icon,
+        isRecurring,
+        recurringType,
+        recurringEndDate,
+        recurringDayOfWeek,
+        recurringDayOfMonth
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -131,6 +170,36 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
       context.handle(
           _iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
     }
+    if (data.containsKey('is_recurring')) {
+      context.handle(
+          _isRecurringMeta,
+          isRecurring.isAcceptableOrUnknown(
+              data['is_recurring']!, _isRecurringMeta));
+    }
+    if (data.containsKey('recurring_type')) {
+      context.handle(
+          _recurringTypeMeta,
+          recurringType.isAcceptableOrUnknown(
+              data['recurring_type']!, _recurringTypeMeta));
+    }
+    if (data.containsKey('recurring_end_date')) {
+      context.handle(
+          _recurringEndDateMeta,
+          recurringEndDate.isAcceptableOrUnknown(
+              data['recurring_end_date']!, _recurringEndDateMeta));
+    }
+    if (data.containsKey('recurring_day_of_week')) {
+      context.handle(
+          _recurringDayOfWeekMeta,
+          recurringDayOfWeek.isAcceptableOrUnknown(
+              data['recurring_day_of_week']!, _recurringDayOfWeekMeta));
+    }
+    if (data.containsKey('recurring_day_of_month')) {
+      context.handle(
+          _recurringDayOfMonthMeta,
+          recurringDayOfMonth.isAcceptableOrUnknown(
+              data['recurring_day_of_month']!, _recurringDayOfMonthMeta));
+    }
     return context;
   }
 
@@ -158,6 +227,16 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
           .read(DriftSqlType.string, data['${effectivePrefix}color']),
       icon: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}icon']),
+      isRecurring: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_recurring'])!,
+      recurringType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}recurring_type']),
+      recurringEndDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}recurring_end_date']),
+      recurringDayOfWeek: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}recurring_day_of_week']),
+      recurringDayOfMonth: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}recurring_day_of_month']),
     );
   }
 
@@ -177,6 +256,11 @@ class Todo extends DataClass implements Insertable<Todo> {
   final bool isCompleted;
   final String? color;
   final String? icon;
+  final bool isRecurring;
+  final String? recurringType;
+  final DateTime? recurringEndDate;
+  final int? recurringDayOfWeek;
+  final int? recurringDayOfMonth;
   const Todo(
       {required this.id,
       this.createdAt,
@@ -186,7 +270,12 @@ class Todo extends DataClass implements Insertable<Todo> {
       this.description,
       required this.isCompleted,
       this.color,
-      this.icon});
+      this.icon,
+      required this.isRecurring,
+      this.recurringType,
+      this.recurringEndDate,
+      this.recurringDayOfWeek,
+      this.recurringDayOfMonth});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -209,6 +298,19 @@ class Todo extends DataClass implements Insertable<Todo> {
     if (!nullToAbsent || icon != null) {
       map['icon'] = Variable<String>(icon);
     }
+    map['is_recurring'] = Variable<bool>(isRecurring);
+    if (!nullToAbsent || recurringType != null) {
+      map['recurring_type'] = Variable<String>(recurringType);
+    }
+    if (!nullToAbsent || recurringEndDate != null) {
+      map['recurring_end_date'] = Variable<DateTime>(recurringEndDate);
+    }
+    if (!nullToAbsent || recurringDayOfWeek != null) {
+      map['recurring_day_of_week'] = Variable<int>(recurringDayOfWeek);
+    }
+    if (!nullToAbsent || recurringDayOfMonth != null) {
+      map['recurring_day_of_month'] = Variable<int>(recurringDayOfMonth);
+    }
     return map;
   }
 
@@ -230,6 +332,19 @@ class Todo extends DataClass implements Insertable<Todo> {
       color:
           color == null && nullToAbsent ? const Value.absent() : Value(color),
       icon: icon == null && nullToAbsent ? const Value.absent() : Value(icon),
+      isRecurring: Value(isRecurring),
+      recurringType: recurringType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recurringType),
+      recurringEndDate: recurringEndDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recurringEndDate),
+      recurringDayOfWeek: recurringDayOfWeek == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recurringDayOfWeek),
+      recurringDayOfMonth: recurringDayOfMonth == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recurringDayOfMonth),
     );
   }
 
@@ -246,6 +361,13 @@ class Todo extends DataClass implements Insertable<Todo> {
       isCompleted: serializer.fromJson<bool>(json['isCompleted']),
       color: serializer.fromJson<String?>(json['color']),
       icon: serializer.fromJson<String?>(json['icon']),
+      isRecurring: serializer.fromJson<bool>(json['isRecurring']),
+      recurringType: serializer.fromJson<String?>(json['recurringType']),
+      recurringEndDate:
+          serializer.fromJson<DateTime?>(json['recurringEndDate']),
+      recurringDayOfWeek: serializer.fromJson<int?>(json['recurringDayOfWeek']),
+      recurringDayOfMonth:
+          serializer.fromJson<int?>(json['recurringDayOfMonth']),
     );
   }
   @override
@@ -261,6 +383,11 @@ class Todo extends DataClass implements Insertable<Todo> {
       'isCompleted': serializer.toJson<bool>(isCompleted),
       'color': serializer.toJson<String?>(color),
       'icon': serializer.toJson<String?>(icon),
+      'isRecurring': serializer.toJson<bool>(isRecurring),
+      'recurringType': serializer.toJson<String?>(recurringType),
+      'recurringEndDate': serializer.toJson<DateTime?>(recurringEndDate),
+      'recurringDayOfWeek': serializer.toJson<int?>(recurringDayOfWeek),
+      'recurringDayOfMonth': serializer.toJson<int?>(recurringDayOfMonth),
     };
   }
 
@@ -273,7 +400,12 @@ class Todo extends DataClass implements Insertable<Todo> {
           Value<String?> description = const Value.absent(),
           bool? isCompleted,
           Value<String?> color = const Value.absent(),
-          Value<String?> icon = const Value.absent()}) =>
+          Value<String?> icon = const Value.absent(),
+          bool? isRecurring,
+          Value<String?> recurringType = const Value.absent(),
+          Value<DateTime?> recurringEndDate = const Value.absent(),
+          Value<int?> recurringDayOfWeek = const Value.absent(),
+          Value<int?> recurringDayOfMonth = const Value.absent()}) =>
       Todo(
         id: id ?? this.id,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
@@ -284,6 +416,18 @@ class Todo extends DataClass implements Insertable<Todo> {
         isCompleted: isCompleted ?? this.isCompleted,
         color: color.present ? color.value : this.color,
         icon: icon.present ? icon.value : this.icon,
+        isRecurring: isRecurring ?? this.isRecurring,
+        recurringType:
+            recurringType.present ? recurringType.value : this.recurringType,
+        recurringEndDate: recurringEndDate.present
+            ? recurringEndDate.value
+            : this.recurringEndDate,
+        recurringDayOfWeek: recurringDayOfWeek.present
+            ? recurringDayOfWeek.value
+            : this.recurringDayOfWeek,
+        recurringDayOfMonth: recurringDayOfMonth.present
+            ? recurringDayOfMonth.value
+            : this.recurringDayOfMonth,
       );
   Todo copyWithCompanion(TodosCompanion data) {
     return Todo(
@@ -298,6 +442,20 @@ class Todo extends DataClass implements Insertable<Todo> {
           data.isCompleted.present ? data.isCompleted.value : this.isCompleted,
       color: data.color.present ? data.color.value : this.color,
       icon: data.icon.present ? data.icon.value : this.icon,
+      isRecurring:
+          data.isRecurring.present ? data.isRecurring.value : this.isRecurring,
+      recurringType: data.recurringType.present
+          ? data.recurringType.value
+          : this.recurringType,
+      recurringEndDate: data.recurringEndDate.present
+          ? data.recurringEndDate.value
+          : this.recurringEndDate,
+      recurringDayOfWeek: data.recurringDayOfWeek.present
+          ? data.recurringDayOfWeek.value
+          : this.recurringDayOfWeek,
+      recurringDayOfMonth: data.recurringDayOfMonth.present
+          ? data.recurringDayOfMonth.value
+          : this.recurringDayOfMonth,
     );
   }
 
@@ -312,14 +470,32 @@ class Todo extends DataClass implements Insertable<Todo> {
           ..write('description: $description, ')
           ..write('isCompleted: $isCompleted, ')
           ..write('color: $color, ')
-          ..write('icon: $icon')
+          ..write('icon: $icon, ')
+          ..write('isRecurring: $isRecurring, ')
+          ..write('recurringType: $recurringType, ')
+          ..write('recurringEndDate: $recurringEndDate, ')
+          ..write('recurringDayOfWeek: $recurringDayOfWeek, ')
+          ..write('recurringDayOfMonth: $recurringDayOfMonth')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, createdAt, updatedAt, title, dueDate,
-      description, isCompleted, color, icon);
+  int get hashCode => Object.hash(
+      id,
+      createdAt,
+      updatedAt,
+      title,
+      dueDate,
+      description,
+      isCompleted,
+      color,
+      icon,
+      isRecurring,
+      recurringType,
+      recurringEndDate,
+      recurringDayOfWeek,
+      recurringDayOfMonth);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -332,7 +508,12 @@ class Todo extends DataClass implements Insertable<Todo> {
           other.description == this.description &&
           other.isCompleted == this.isCompleted &&
           other.color == this.color &&
-          other.icon == this.icon);
+          other.icon == this.icon &&
+          other.isRecurring == this.isRecurring &&
+          other.recurringType == this.recurringType &&
+          other.recurringEndDate == this.recurringEndDate &&
+          other.recurringDayOfWeek == this.recurringDayOfWeek &&
+          other.recurringDayOfMonth == this.recurringDayOfMonth);
 }
 
 class TodosCompanion extends UpdateCompanion<Todo> {
@@ -345,6 +526,11 @@ class TodosCompanion extends UpdateCompanion<Todo> {
   final Value<bool> isCompleted;
   final Value<String?> color;
   final Value<String?> icon;
+  final Value<bool> isRecurring;
+  final Value<String?> recurringType;
+  final Value<DateTime?> recurringEndDate;
+  final Value<int?> recurringDayOfWeek;
+  final Value<int?> recurringDayOfMonth;
   const TodosCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -355,6 +541,11 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     this.isCompleted = const Value.absent(),
     this.color = const Value.absent(),
     this.icon = const Value.absent(),
+    this.isRecurring = const Value.absent(),
+    this.recurringType = const Value.absent(),
+    this.recurringEndDate = const Value.absent(),
+    this.recurringDayOfWeek = const Value.absent(),
+    this.recurringDayOfMonth = const Value.absent(),
   });
   TodosCompanion.insert({
     this.id = const Value.absent(),
@@ -366,6 +557,11 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     this.isCompleted = const Value.absent(),
     this.color = const Value.absent(),
     this.icon = const Value.absent(),
+    this.isRecurring = const Value.absent(),
+    this.recurringType = const Value.absent(),
+    this.recurringEndDate = const Value.absent(),
+    this.recurringDayOfWeek = const Value.absent(),
+    this.recurringDayOfMonth = const Value.absent(),
   })  : title = Value(title),
         dueDate = Value(dueDate);
   static Insertable<Todo> custom({
@@ -378,6 +574,11 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     Expression<bool>? isCompleted,
     Expression<String>? color,
     Expression<String>? icon,
+    Expression<bool>? isRecurring,
+    Expression<String>? recurringType,
+    Expression<DateTime>? recurringEndDate,
+    Expression<int>? recurringDayOfWeek,
+    Expression<int>? recurringDayOfMonth,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -389,6 +590,13 @@ class TodosCompanion extends UpdateCompanion<Todo> {
       if (isCompleted != null) 'is_completed': isCompleted,
       if (color != null) 'color': color,
       if (icon != null) 'icon': icon,
+      if (isRecurring != null) 'is_recurring': isRecurring,
+      if (recurringType != null) 'recurring_type': recurringType,
+      if (recurringEndDate != null) 'recurring_end_date': recurringEndDate,
+      if (recurringDayOfWeek != null)
+        'recurring_day_of_week': recurringDayOfWeek,
+      if (recurringDayOfMonth != null)
+        'recurring_day_of_month': recurringDayOfMonth,
     });
   }
 
@@ -401,7 +609,12 @@ class TodosCompanion extends UpdateCompanion<Todo> {
       Value<String?>? description,
       Value<bool>? isCompleted,
       Value<String?>? color,
-      Value<String?>? icon}) {
+      Value<String?>? icon,
+      Value<bool>? isRecurring,
+      Value<String?>? recurringType,
+      Value<DateTime?>? recurringEndDate,
+      Value<int?>? recurringDayOfWeek,
+      Value<int?>? recurringDayOfMonth}) {
     return TodosCompanion(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
@@ -412,6 +625,11 @@ class TodosCompanion extends UpdateCompanion<Todo> {
       isCompleted: isCompleted ?? this.isCompleted,
       color: color ?? this.color,
       icon: icon ?? this.icon,
+      isRecurring: isRecurring ?? this.isRecurring,
+      recurringType: recurringType ?? this.recurringType,
+      recurringEndDate: recurringEndDate ?? this.recurringEndDate,
+      recurringDayOfWeek: recurringDayOfWeek ?? this.recurringDayOfWeek,
+      recurringDayOfMonth: recurringDayOfMonth ?? this.recurringDayOfMonth,
     );
   }
 
@@ -445,6 +663,21 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     if (icon.present) {
       map['icon'] = Variable<String>(icon.value);
     }
+    if (isRecurring.present) {
+      map['is_recurring'] = Variable<bool>(isRecurring.value);
+    }
+    if (recurringType.present) {
+      map['recurring_type'] = Variable<String>(recurringType.value);
+    }
+    if (recurringEndDate.present) {
+      map['recurring_end_date'] = Variable<DateTime>(recurringEndDate.value);
+    }
+    if (recurringDayOfWeek.present) {
+      map['recurring_day_of_week'] = Variable<int>(recurringDayOfWeek.value);
+    }
+    if (recurringDayOfMonth.present) {
+      map['recurring_day_of_month'] = Variable<int>(recurringDayOfMonth.value);
+    }
     return map;
   }
 
@@ -459,7 +692,12 @@ class TodosCompanion extends UpdateCompanion<Todo> {
           ..write('description: $description, ')
           ..write('isCompleted: $isCompleted, ')
           ..write('color: $color, ')
-          ..write('icon: $icon')
+          ..write('icon: $icon, ')
+          ..write('isRecurring: $isRecurring, ')
+          ..write('recurringType: $recurringType, ')
+          ..write('recurringEndDate: $recurringEndDate, ')
+          ..write('recurringDayOfWeek: $recurringDayOfWeek, ')
+          ..write('recurringDayOfMonth: $recurringDayOfMonth')
           ..write(')'))
         .toString();
   }
@@ -486,6 +724,11 @@ typedef $$TodosTableCreateCompanionBuilder = TodosCompanion Function({
   Value<bool> isCompleted,
   Value<String?> color,
   Value<String?> icon,
+  Value<bool> isRecurring,
+  Value<String?> recurringType,
+  Value<DateTime?> recurringEndDate,
+  Value<int?> recurringDayOfWeek,
+  Value<int?> recurringDayOfMonth,
 });
 typedef $$TodosTableUpdateCompanionBuilder = TodosCompanion Function({
   Value<int> id,
@@ -497,6 +740,11 @@ typedef $$TodosTableUpdateCompanionBuilder = TodosCompanion Function({
   Value<bool> isCompleted,
   Value<String?> color,
   Value<String?> icon,
+  Value<bool> isRecurring,
+  Value<String?> recurringType,
+  Value<DateTime?> recurringEndDate,
+  Value<int?> recurringDayOfWeek,
+  Value<int?> recurringDayOfMonth,
 });
 
 class $$TodosTableFilterComposer extends Composer<_$AppDatabase, $TodosTable> {
@@ -533,6 +781,24 @@ class $$TodosTableFilterComposer extends Composer<_$AppDatabase, $TodosTable> {
 
   ColumnFilters<String> get icon => $composableBuilder(
       column: $table.icon, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isRecurring => $composableBuilder(
+      column: $table.isRecurring, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get recurringType => $composableBuilder(
+      column: $table.recurringType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get recurringEndDate => $composableBuilder(
+      column: $table.recurringEndDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get recurringDayOfWeek => $composableBuilder(
+      column: $table.recurringDayOfWeek,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get recurringDayOfMonth => $composableBuilder(
+      column: $table.recurringDayOfMonth,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$TodosTableOrderingComposer
@@ -570,6 +836,25 @@ class $$TodosTableOrderingComposer
 
   ColumnOrderings<String> get icon => $composableBuilder(
       column: $table.icon, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isRecurring => $composableBuilder(
+      column: $table.isRecurring, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get recurringType => $composableBuilder(
+      column: $table.recurringType,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get recurringEndDate => $composableBuilder(
+      column: $table.recurringEndDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get recurringDayOfWeek => $composableBuilder(
+      column: $table.recurringDayOfWeek,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get recurringDayOfMonth => $composableBuilder(
+      column: $table.recurringDayOfMonth,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$TodosTableAnnotationComposer
@@ -607,6 +892,21 @@ class $$TodosTableAnnotationComposer
 
   GeneratedColumn<String> get icon =>
       $composableBuilder(column: $table.icon, builder: (column) => column);
+
+  GeneratedColumn<bool> get isRecurring => $composableBuilder(
+      column: $table.isRecurring, builder: (column) => column);
+
+  GeneratedColumn<String> get recurringType => $composableBuilder(
+      column: $table.recurringType, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get recurringEndDate => $composableBuilder(
+      column: $table.recurringEndDate, builder: (column) => column);
+
+  GeneratedColumn<int> get recurringDayOfWeek => $composableBuilder(
+      column: $table.recurringDayOfWeek, builder: (column) => column);
+
+  GeneratedColumn<int> get recurringDayOfMonth => $composableBuilder(
+      column: $table.recurringDayOfMonth, builder: (column) => column);
 }
 
 class $$TodosTableTableManager extends RootTableManager<
@@ -641,6 +941,11 @@ class $$TodosTableTableManager extends RootTableManager<
             Value<bool> isCompleted = const Value.absent(),
             Value<String?> color = const Value.absent(),
             Value<String?> icon = const Value.absent(),
+            Value<bool> isRecurring = const Value.absent(),
+            Value<String?> recurringType = const Value.absent(),
+            Value<DateTime?> recurringEndDate = const Value.absent(),
+            Value<int?> recurringDayOfWeek = const Value.absent(),
+            Value<int?> recurringDayOfMonth = const Value.absent(),
           }) =>
               TodosCompanion(
             id: id,
@@ -652,6 +957,11 @@ class $$TodosTableTableManager extends RootTableManager<
             isCompleted: isCompleted,
             color: color,
             icon: icon,
+            isRecurring: isRecurring,
+            recurringType: recurringType,
+            recurringEndDate: recurringEndDate,
+            recurringDayOfWeek: recurringDayOfWeek,
+            recurringDayOfMonth: recurringDayOfMonth,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -663,6 +973,11 @@ class $$TodosTableTableManager extends RootTableManager<
             Value<bool> isCompleted = const Value.absent(),
             Value<String?> color = const Value.absent(),
             Value<String?> icon = const Value.absent(),
+            Value<bool> isRecurring = const Value.absent(),
+            Value<String?> recurringType = const Value.absent(),
+            Value<DateTime?> recurringEndDate = const Value.absent(),
+            Value<int?> recurringDayOfWeek = const Value.absent(),
+            Value<int?> recurringDayOfMonth = const Value.absent(),
           }) =>
               TodosCompanion.insert(
             id: id,
@@ -674,6 +989,11 @@ class $$TodosTableTableManager extends RootTableManager<
             isCompleted: isCompleted,
             color: color,
             icon: icon,
+            isRecurring: isRecurring,
+            recurringType: recurringType,
+            recurringEndDate: recurringEndDate,
+            recurringDayOfWeek: recurringDayOfWeek,
+            recurringDayOfMonth: recurringDayOfMonth,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
