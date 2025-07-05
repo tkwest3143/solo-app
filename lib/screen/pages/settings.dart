@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/states/settings_state.dart';
-import 'package:solo/models/settings_model.dart';
 
 class SettingsPage extends HookConsumerWidget {
   const SettingsPage({super.key});
