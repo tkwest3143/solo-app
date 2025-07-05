@@ -25,12 +25,17 @@ mixin _$TodoCheckListItemModel {
   int get todoId => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   bool get isCompleted => throw _privateConstructorUsedError;
-  int get order => throw _privateConstructorUsedError;
+  int get order =>
+      throw _privateConstructorUsedError; // For ordering checklist items
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
+  /// Serializes this TodoCheckListItemModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of TodoCheckListItemModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $TodoCheckListItemModelCopyWith<TodoCheckListItemModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -62,6 +67,8 @@ class _$TodoCheckListItemModelCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of TodoCheckListItemModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -135,6 +142,8 @@ class __$$TodoCheckListItemModelImplCopyWithImpl<$Res>
       $Res Function(_$TodoCheckListItemModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of TodoCheckListItemModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -204,6 +213,7 @@ class _$TodoCheckListItemModelImpl implements _TodoCheckListItemModel {
   final bool isCompleted;
   @override
   final int order;
+// For ordering checklist items
   @override
   final DateTime? createdAt;
   @override
@@ -231,12 +241,14 @@ class _$TodoCheckListItemModelImpl implements _TodoCheckListItemModel {
                 other.updatedAt == updatedAt));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, id, todoId, title, isCompleted, order, createdAt, updatedAt);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of TodoCheckListItemModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$TodoCheckListItemModelImplCopyWith<_$TodoCheckListItemModelImpl>
@@ -273,13 +285,16 @@ abstract class _TodoCheckListItemModel implements TodoCheckListItemModel {
   @override
   bool get isCompleted;
   @override
-  int get order;
+  int get order; // For ordering checklist items
   @override
   DateTime? get createdAt;
   @override
   DateTime? get updatedAt;
+
+  /// Create a copy of TodoCheckListItemModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TodoCheckListItemModelImplCopyWith<_$TodoCheckListItemModelImpl>
       get copyWith => throw _privateConstructorUsedError;
 }

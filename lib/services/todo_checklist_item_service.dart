@@ -1,21 +1,26 @@
 import 'package:drift/drift.dart';
 import 'package:solo/models/todo_checklist_item_model.dart';
 import 'package:solo/repositories/database.dart';
+import 'package:solo/repositories/database/drift.dart';
 
 class TodoCheckListItemService {
-  final TodoCheckListItemTableRepository _repository = TodoCheckListItemTableRepository();
+  final TodoCheckListItemTableRepository _repository =
+      TodoCheckListItemTableRepository();
 
-  Future<List<TodoCheckListItemModel>> getCheckListItemsForTodo(int todoId) async {
+  Future<List<TodoCheckListItemModel>> getCheckListItemsForTodo(
+      int todoId) async {
     final items = await _repository.findByTodoId(todoId);
-    return items.map((item) => TodoCheckListItemModel(
-      id: item.id,
-      todoId: item.todoId,
-      title: item.title,
-      isCompleted: item.isCompleted,
-      order: item.order,
-      createdAt: item.createdAt ?? DateTime.now(),
-      updatedAt: item.updatedAt ?? DateTime.now(),
-    )).toList();
+    return items
+        .map((item) => TodoCheckListItemModel(
+              id: item.id,
+              todoId: item.todoId,
+              title: item.title,
+              isCompleted: item.isCompleted,
+              order: item.order,
+              createdAt: item.createdAt ?? DateTime.now(),
+              updatedAt: item.updatedAt ?? DateTime.now(),
+            ))
+        .toList();
   }
 
   Future<TodoCheckListItemModel> createCheckListItem({
@@ -32,7 +37,7 @@ class TodoCheckListItemService {
       createdAt: Value(now),
       updatedAt: Value(now),
     );
-    
+
     final id = await _repository.insert(companion);
     return TodoCheckListItemModel(
       id: id,
@@ -53,11 +58,12 @@ class TodoCheckListItemService {
   }) async {
     final companion = TodoCheckListItemsCompanion(
       title: title != null ? Value(title) : const Value.absent(),
-      isCompleted: isCompleted != null ? Value(isCompleted) : const Value.absent(),
+      isCompleted:
+          isCompleted != null ? Value(isCompleted) : const Value.absent(),
       order: order != null ? Value(order) : const Value.absent(),
       updatedAt: Value(DateTime.now()),
     );
-    
+
     return await _repository.update(id, companion);
   }
 
@@ -77,13 +83,14 @@ class TodoCheckListItemService {
       isCompleted: Value(!item.isCompleted),
       updatedAt: Value(DateTime.now()),
     );
-    
+
     return await _repository.update(id, companion);
   }
 
   Future<bool> areAllCheckListItemsCompleted(int todoId) async {
     final items = await getCheckListItemsForTodo(todoId);
-    if (items.isEmpty) return false; // No checklist items means not all completed
+    if (items.isEmpty)
+      return false; // No checklist items means not all completed
     return items.every((item) => item.isCompleted);
   }
 

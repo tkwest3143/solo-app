@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/models/todo_model.dart';
 import 'package:solo/models/category_model.dart';
@@ -406,7 +407,7 @@ class AddTodoDialog {
 
     // Checklist state
     final checklistItems = ValueNotifier<List<TodoCheckListItemModel>>([]);
-    
+
     // Load existing checklist items if editing a todo
     if (initialTodo != null) {
       TodoCheckListItemService()
@@ -1028,8 +1029,11 @@ class AddTodoDialog {
 
                           // Update checklist items for existing todo
                           final checklistService = TodoCheckListItemService();
-                          await checklistService.deleteAllCheckListItemsForTodo(initialTodo.id);
-                          for (int i = 0; i < checklistItems.value.length; i++) {
+                          await checklistService
+                              .deleteAllCheckListItemsForTodo(initialTodo.id);
+                          for (int i = 0;
+                              i < checklistItems.value.length;
+                              i++) {
                             final item = checklistItems.value[i];
                             await checklistService.createCheckListItem(
                               todoId: initialTodo.id,
@@ -1068,7 +1072,9 @@ class AddTodoDialog {
 
                           // Create checklist items for new todo
                           final checklistService = TodoCheckListItemService();
-                          for (int i = 0; i < checklistItems.value.length; i++) {
+                          for (int i = 0;
+                              i < checklistItems.value.length;
+                              i++) {
                             final item = checklistItems.value[i];
                             await checklistService.createCheckListItem(
                               todoId: newTodo.id,
@@ -1405,9 +1411,11 @@ class _TodoDetailContent extends StatelessWidget {
                         ],
                         // Checklist items
                         FutureBuilder<List<TodoCheckListItemModel>>(
-                          future: TodoCheckListItemService().getCheckListItemsForTodo(todo.id),
+                          future: TodoCheckListItemService()
+                              .getCheckListItemsForTodo(todo.id),
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
                               return const SizedBox.shrink();
                             }
 
@@ -1441,7 +1449,9 @@ class _TodoDetailContent extends StatelessWidget {
                                   ],
                                 ),
                                 const SizedBox(height: 8),
-                                ...checklistItems.map((item) => _buildChecklistItemRow(context, item, todo)),
+                                ...checklistItems.map((item) =>
+                                    _buildChecklistItemRow(
+                                        context, item, todo)),
                               ],
                             );
                           },
@@ -1590,7 +1600,8 @@ class _TodoDetailContent extends StatelessWidget {
     return type?.label ?? '';
   }
 
-  Widget _buildChecklistItemRow(BuildContext context, TodoCheckListItemModel item, TodoModel todo) {
+  Widget _buildChecklistItemRow(
+      BuildContext context, TodoCheckListItemModel item, TodoModel todo) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Material(
@@ -1601,17 +1612,18 @@ class _TodoDetailContent extends StatelessWidget {
             // Toggle checklist item completion
             final checklistService = TodoCheckListItemService();
             await checklistService.toggleCheckListItemComplete(item.id);
-            
+
             // Check if todo should be auto-completed
             final todoService = TodoService();
-            final wasCompleted = await todoService.checkAndUpdateTodoCompletionByChecklist(todo.id);
-            
+            final wasCompleted = await todoService
+                .checkAndUpdateTodoCompletionByChecklist(todo.id);
+
             if (wasCompleted && context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('${todo.title}を完了にしました')),
               );
             }
-            
+
             // Refresh the UI
             onRefresh?.call();
           },
@@ -1619,8 +1631,11 @@ class _TodoDetailContent extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: item.isCompleted 
-                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.05)
+              color: item.isCompleted
+                  ? Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.05)
                   : null,
             ),
             child: Row(
@@ -1641,13 +1656,18 @@ class _TodoDetailContent extends StatelessWidget {
                           : Theme.of(context).colorScheme.outline,
                       width: 1.5,
                     ),
-                    boxShadow: item.isCompleted ? [
-                      BoxShadow(
-                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                        blurRadius: 3,
-                        offset: const Offset(0, 1),
-                      ),
-                    ] : null,
+                    boxShadow: item.isCompleted
+                        ? [
+                            BoxShadow(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withValues(alpha: 0.2),
+                              blurRadius: 3,
+                              offset: const Offset(0, 1),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: item.isCompleted
                       ? Icon(
@@ -1666,9 +1686,8 @@ class _TodoDetailContent extends StatelessWidget {
                           ? Theme.of(context).colorScheme.outline
                           : Theme.of(context).colorScheme.secondaryTextColor,
                       fontSize: 13,
-                      decoration: item.isCompleted
-                          ? TextDecoration.lineThrough
-                          : null,
+                      decoration:
+                          item.isCompleted ? TextDecoration.lineThrough : null,
                       decorationColor: Theme.of(context).colorScheme.outline,
                     ),
                     child: Text(item.title),
@@ -1678,13 +1697,19 @@ class _TodoDetailContent extends StatelessWidget {
                   Icon(
                     Icons.radio_button_unchecked,
                     size: 16,
-                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.6),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outline
+                        .withValues(alpha: 0.6),
                   )
                 else
                   Icon(
                     Icons.check_circle,
                     size: 16,
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.8),
                   ),
               ],
             ),
@@ -2197,33 +2222,23 @@ class AddCategoryDialog {
   static Future<CategoryModel?> show(BuildContext context) async {
     return await showDialog<CategoryModel?>(
       context: context,
-      builder: (context) => const _AddCategoryDialogContent(),
+      builder: (context) => _AddCategoryDialogContent(),
     );
   }
 }
 
-class _AddCategoryDialogContent extends StatefulWidget {
-  const _AddCategoryDialogContent();
-
-  @override
-  State<_AddCategoryDialogContent> createState() =>
-      _AddCategoryDialogContentState();
-}
-
-class _AddCategoryDialogContentState extends State<_AddCategoryDialogContent> {
-  final titleController = TextEditingController();
-  final descriptionController = TextEditingController();
-  String selectedColor = 'blue';
-
-  @override
-  void dispose() {
-    titleController.dispose();
-    descriptionController.dispose();
-    super.dispose();
-  }
-
+class _AddCategoryDialogContent extends HookWidget {
   @override
   Widget build(BuildContext context) {
+    final titleController = useTextEditingController();
+    final descriptionController = useTextEditingController();
+    final selectedColor = useState<String>('blue');
+
+    final isTitleNotEmpty = useListenableSelector(
+      titleController,
+      () => titleController.text.trim().isNotEmpty,
+    );
+
     return AlertDialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
@@ -2302,9 +2317,9 @@ class _AddCategoryDialogContentState extends State<_AddCategoryDialogContent> {
               spacing: 8,
               runSpacing: 8,
               children: TodoColor.values.map((todoColor) {
-                final isSelected = todoColor.name == selectedColor;
+                final isSelected = todoColor.name == selectedColor.value;
                 return GestureDetector(
-                  onTap: () => setState(() => selectedColor = todoColor.name),
+                  onTap: () => selectedColor.value = todoColor.name,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     width: 50,
@@ -2355,7 +2370,7 @@ class _AddCategoryDialogContentState extends State<_AddCategoryDialogContent> {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          onPressed: titleController.text.trim().isNotEmpty
+          onPressed: isTitleNotEmpty
               ? () async {
                   final categoryService = CategoryService();
                   final newCategory = await categoryService.createCategory(
@@ -2363,7 +2378,7 @@ class _AddCategoryDialogContentState extends State<_AddCategoryDialogContent> {
                     description: descriptionController.text.trim().isEmpty
                         ? null
                         : descriptionController.text.trim(),
-                    color: selectedColor,
+                    color: selectedColor.value,
                   );
                   if (context.mounted) {
                     Navigator.of(context).pop(newCategory);

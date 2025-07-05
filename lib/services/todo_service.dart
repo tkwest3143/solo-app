@@ -32,63 +32,7 @@ class TodoService {
           .toList();
     }
 
-    // If no todos in database, use in-memory todos with dummy data
-    if (_inMemoryTodos.isEmpty) {
-      _initializeDummyData();
-    }
-
     return List.from(_inMemoryTodos);
-  }
-
-  void _initializeDummyData() {
-    final now = DateTime.now();
-    _inMemoryTodos.addAll([
-      TodoModel(
-        id: _nextId++,
-        title: 'ミーティング準備',
-        description: '資料を用意して会議室を予約する',
-        dueDate: DateTime(now.year, now.month, now.day, 10, 0),
-        isCompleted: false,
-        color: 'blue',
-        categoryId: 1, // 仕事カテゴリ
-      ),
-      TodoModel(
-        id: _nextId++,
-        title: '買い物',
-        description: '食材と日用品を購入',
-        dueDate: DateTime(now.year, now.month, now.day + 1, 15, 30),
-        isCompleted: false,
-        color: 'green',
-        categoryId: 2, // 個人カテゴリ
-      ),
-      TodoModel(
-        id: _nextId++,
-        title: '完了済みタスク',
-        description: '既に完了したタスクのサンプル',
-        dueDate: DateTime(now.year, now.month, now.day - 1, 9, 0),
-        isCompleted: true,
-        color: 'blue',
-        categoryId: 1, // 仕事カテゴリ
-      ),
-      TodoModel(
-        id: _nextId++,
-        title: 'プロジェクト計画',
-        description: '次四半期の計画を立てる',
-        dueDate: DateTime(now.year, now.month, now.day + 2, 14, 0),
-        isCompleted: false,
-        color: 'blue',
-        categoryId: 1, // 仕事カテゴリ
-      ),
-      TodoModel(
-        id: _nextId++,
-        title: '健康診断',
-        description: '',
-        dueDate: DateTime(now.year, now.month, now.day + 3, 11, 30),
-        isCompleted: false,
-        color: 'orange',
-        categoryId: 4, // 健康カテゴリ
-      ),
-    ]);
   }
 
   Future<TodoModel> createTodo({
@@ -204,8 +148,9 @@ class TodoService {
   /// Check if todo should be auto-completed based on checklist items
   Future<bool> checkAndUpdateTodoCompletionByChecklist(int todoId) async {
     final checklistService = TodoCheckListItemService();
-    final allItemsCompleted = await checklistService.areAllCheckListItemsCompleted(todoId);
-    
+    final allItemsCompleted =
+        await checklistService.areAllCheckListItemsCompleted(todoId);
+
     if (allItemsCompleted) {
       // Find and update the todo to completed
       final index = _inMemoryTodos.indexWhere((todo) => todo.id == todoId);
@@ -345,7 +290,7 @@ class TodoService {
           currentDate.hour,
           currentDate.minute,
         );
-      
+
       case 'weekly':
         return DateTime(
           currentDate.year,
@@ -354,16 +299,18 @@ class TodoService {
           currentDate.hour,
           currentDate.minute,
         );
-      
+
       case 'monthly':
         if (todo.recurringDayOfMonth != null) {
-          final nextMonth = currentDate.month == 12 
+          final nextMonth = currentDate.month == 12
               ? DateTime(currentDate.year + 1, 1, 1)
               : DateTime(currentDate.year, currentDate.month + 1, 1);
           final targetDay = todo.recurringDayOfMonth!;
-          final lastDayOfMonth = DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
-          final actualDay = targetDay > lastDayOfMonth ? lastDayOfMonth : targetDay;
-          
+          final lastDayOfMonth =
+              DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
+          final actualDay =
+              targetDay > lastDayOfMonth ? lastDayOfMonth : targetDay;
+
           return DateTime(
             nextMonth.year,
             nextMonth.month,
@@ -373,13 +320,14 @@ class TodoService {
           );
         }
         break;
-      
+
       case 'monthly_last':
-        final nextMonth = currentDate.month == 12 
+        final nextMonth = currentDate.month == 12
             ? DateTime(currentDate.year + 1, 1, 1)
             : DateTime(currentDate.year, currentDate.month + 1, 1);
-        final lastDayOfNextMonth = DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
-        
+        final lastDayOfNextMonth =
+            DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
+
         return DateTime(
           nextMonth.year,
           nextMonth.month,
@@ -393,14 +341,15 @@ class TodoService {
   }
 
   /// Generate the next instance of a recurring todo
-  Future<TodoModel?> generateNextRecurringInstance(TodoModel originalTodo) async {
+  Future<TodoModel?> generateNextRecurringInstance(
+      TodoModel originalTodo) async {
     if (originalTodo.isRecurring != true) return null;
 
     final nextDate = calculateNextRecurringDate(originalTodo);
     if (nextDate == null) return null;
 
     // Check if we've passed the end date
-    if (originalTodo.recurringEndDate != null && 
+    if (originalTodo.recurringEndDate != null &&
         nextDate.isAfter(originalTodo.recurringEndDate!)) {
       return null;
     }
@@ -438,25 +387,24 @@ class TodoService {
       if (todo.isRecurring == true && !todo.isCompleted) {
         // Check if we need to generate upcoming instances
         var currentTodo = todo;
-        
+
         // Generate up to 3 future instances within the next week
         for (int i = 0; i < 3; i++) {
           final nextDate = calculateNextRecurringDate(currentTodo);
           if (nextDate == null || nextDate.isAfter(oneWeekFromNow)) break;
-          
+
           // Check if we've passed the end date
-          if (todo.recurringEndDate != null && 
+          if (todo.recurringEndDate != null &&
               nextDate.isAfter(todo.recurringEndDate!)) break;
 
           // Check if this instance already exists
-          final existingInstance = allTodos.any((t) => 
-            t.title == todo.title &&
-            t.dueDate.year == nextDate.year &&
-            t.dueDate.month == nextDate.month &&
-            t.dueDate.day == nextDate.day &&
-            t.dueDate.hour == nextDate.hour &&
-            t.dueDate.minute == nextDate.minute
-          );
+          final existingInstance = allTodos.any((t) =>
+              t.title == todo.title &&
+              t.dueDate.year == nextDate.year &&
+              t.dueDate.month == nextDate.month &&
+              t.dueDate.day == nextDate.day &&
+              t.dueDate.hour == nextDate.hour &&
+              t.dueDate.minute == nextDate.minute);
 
           if (!existingInstance) {
             final nextInstance = TodoModel(
