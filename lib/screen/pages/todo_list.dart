@@ -98,26 +98,44 @@ class TodoListPage extends HookConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   // カテゴリフィルター
-                  FutureBuilder<List<CategoryModel>>(
-                    future: CategoryService().getCategories(),
-                    builder: (context, snapshot) {
-                      final categories = snapshot.data ?? [];
-                      return DropdownButton<int?>(
-                        value: selectedCategoryId.value,
-                        isExpanded: true,
-                        hint: const Text('カテゴリで絞り込む'),
-                        items: [
-                          const DropdownMenuItem<int?>(
-                            value: null,
-                            child: Text('すべてのカテゴリ'),
-                          ),
-                          ...categories.map((cat) => DropdownMenuItem<int?>(
-                                value: cat.id,
-                                child: Text(cat.title),
-                              )),
-                        ],
-                        onChanged: (value) {
-                          selectedCategoryId.value = value;
+                  ValueListenableBuilder<int?>(
+                    valueListenable: selectedCategoryId,
+                    builder: (context, selectedId, _) {
+                      return FutureBuilder<List<CategoryModel>>(
+                        future: CategoryService().getCategories(),
+                        builder: (context, snapshot) {
+                          final categories = snapshot.data ?? [];
+                          final valueList = [
+                            null,
+                            ...categories.map((cat) => cat.id)
+                          ];
+                          final labelList = [
+                            'すべてのカテゴリ',
+                            ...categories.map((cat) => cat.title),
+                          ];
+                          return DropdownButton<int?>(
+                            value: selectedId,
+                            isExpanded: true,
+                            hint: const Text('カテゴリで絞り込む'),
+                            selectedItemBuilder: (context) {
+                              return labelList
+                                  .map((label) => Text(label))
+                                  .toList();
+                            },
+                            items: valueList.map((value) {
+                              return DropdownMenuItem<int?>(
+                                value: value,
+                                child: Text(
+                                  value == null
+                                      ? 'すべてのカテゴリ'
+                                      : labelList[valueList.indexOf(value)],
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              selectedCategoryId.value = value;
+                            },
+                          );
                         },
                       );
                     },
