@@ -70,7 +70,7 @@ class SettingsPage extends HookConsumerWidget {
                             min: 1,
                             max: 60,
                             onChanged: settingsController.updateDefaultWorkMinutes,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.accentColor,
                           ),
                           _SettingItem(
                             title: '短い休憩',
@@ -80,7 +80,7 @@ class SettingsPage extends HookConsumerWidget {
                             min: 1,
                             max: 30,
                             onChanged: settingsController.updateDefaultShortBreakMinutes,
-                            color: Theme.of(context).colorScheme.secondary,
+                            color: Theme.of(context).colorScheme.infoColor,
                           ),
                           _SettingItem(
                             title: '長い休憩',
@@ -90,7 +90,7 @@ class SettingsPage extends HookConsumerWidget {
                             min: 5,
                             max: 60,
                             onChanged: settingsController.updateDefaultLongBreakMinutes,
-                            color: Theme.of(context).colorScheme.tertiary,
+                            color: Theme.of(context).colorScheme.purpleColor,
                           ),
                           _SettingItem(
                             title: '長い休憩までのサイクル',
@@ -100,7 +100,7 @@ class SettingsPage extends HookConsumerWidget {
                             min: 2,
                             max: 10,
                             onChanged: settingsController.updateDefaultCyclesUntilLongBreak,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.successColor,
                           ),
                         ],
                       ),
@@ -139,7 +139,7 @@ class SettingsPage extends HookConsumerWidget {
                               min: 5,
                               max: 300,
                               onChanged: settingsController.updateCountUpNotificationMinutes,
-                              color: Theme.of(context).colorScheme.primary,
+                              color: Theme.of(context).colorScheme.accentColor,
                             ),
                         ],
                       ),
@@ -382,12 +382,12 @@ class _ThemeOption extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected 
-              ? Theme.of(context).colorScheme.primary 
+              ? Theme.of(context).colorScheme.accentColor 
               : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
             width: isSelected ? 2 : 1,
           ),
           color: isSelected 
-            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+            ? Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.1)
             : Colors.transparent,
         ),
         child: Row(
@@ -410,7 +410,7 @@ class _ThemeOption extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: isSelected 
-                        ? Theme.of(context).colorScheme.primary 
+                        ? Theme.of(context).colorScheme.accentColor 
                         : Theme.of(context).colorScheme.primaryTextColor,
                     ),
                   ),
@@ -428,7 +428,7 @@ class _ThemeOption extends StatelessWidget {
             if (isSelected)
               Icon(
                 Icons.check_circle_rounded,
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.accentColor,
                 size: 20,
               ),
           ],
@@ -624,11 +624,11 @@ class _SwitchSettingItem extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: value 
-          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+          ? Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.1)
           : Theme.of(context).colorScheme.surface,
         border: Border.all(
           color: value 
-            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
+            ? Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.2)
             : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
@@ -660,7 +660,7 @@ class _SwitchSettingItem extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: Theme.of(context).colorScheme.primary,
+            activeColor: Theme.of(context).colorScheme.accentColor,
           ),
         ],
       ),
