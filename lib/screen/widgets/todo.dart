@@ -4,6 +4,7 @@ import 'package:solo/models/todo_model.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/utilities/date.dart';
 import 'package:solo/enums/todo_color.dart';
+import 'package:solo/enums/recurring_type.dart';
 
 class TodoCard extends StatelessWidget {
   final TodoModel todo;
@@ -240,12 +241,35 @@ class TodoCard extends StatelessWidget {
                         : Theme.of(context).colorScheme.mutedTextColor,
                   ),
                 ),
+                if (todo.isRecurring == true) ...[
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.repeat,
+                    size: 14,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    _getRecurringLabel(todo.recurringType),
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  String _getRecurringLabel(String? recurringType) {
+    if (recurringType == null) return '';
+    final type = RecurringType.fromString(recurringType);
+    return type?.label ?? '';
   }
 
   void _showDeleteConfirmation(BuildContext context, TodoModel todo) {
@@ -299,6 +323,21 @@ class AddTodoDialog {
       TimeOfDay.fromDateTime(initialTodo?.dueDate ?? DateTime.now()),
     );
     final selectedColor = ValueNotifier<String>(initialTodo?.color ?? 'blue');
+    
+    // Recurring state variables
+    final isRecurring = ValueNotifier<bool>(initialTodo?.isRecurring ?? false);
+    final recurringType = ValueNotifier<RecurringType?>(
+      RecurringType.fromString(initialTodo?.recurringType),
+    );
+    final recurringEndDate = ValueNotifier<DateTime?>(
+      initialTodo?.recurringEndDate,
+    );
+    final recurringDayOfWeek = ValueNotifier<int?>(
+      initialTodo?.recurringDayOfWeek,
+    );
+    final recurringDayOfMonth = ValueNotifier<int?>(
+      initialTodo?.recurringDayOfMonth,
+    );
 
     return showModalBottomSheet(
       context: context,
@@ -505,6 +544,227 @@ class AddTodoDialog {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 20),
+                  // Recurring section
+                  ValueListenableBuilder<bool>(
+                    valueListenable: isRecurring,
+                    builder: (context, recurring, _) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.repeat,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '繰り返し',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.primaryTextColor,
+                              ),
+                            ),
+                            const Spacer(),
+                            Switch(
+                              value: recurring,
+                              onChanged: (value) => isRecurring.value = value,
+                              activeColor: Theme.of(context).colorScheme.primary,
+                            ),
+                          ],
+                        ),
+                        if (recurring) ...[
+                          const SizedBox(height: 12),
+                          ValueListenableBuilder<RecurringType?>(
+                            valueListenable: recurringType,
+                            builder: (context, type, _) => Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '繰り返しタイプ',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).colorScheme.secondaryTextColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<RecurringType?>(
+                                      value: type,
+                                      isExpanded: true,
+                                      hint: const Text('タイプを選択'),
+                                      items: RecurringType.values.map((recurringType) {
+                                        return DropdownMenuItem<RecurringType>(
+                                          value: recurringType,
+                                          child: Text(recurringType.label),
+                                        );
+                                      }).toList(),
+                                      onChanged: (value) {
+                                        recurringType.value = value;
+                                        // Reset specific day/month when type changes
+                                        if (value == RecurringType.weekly) {
+                                          recurringDayOfWeek.value = selectedDate.value.weekday;
+                                        } else if (value == RecurringType.monthly) {
+                                          recurringDayOfMonth.value = selectedDate.value.day;
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ValueListenableBuilder<RecurringType?>(
+                            valueListenable: recurringType,
+                            builder: (context, type, _) {
+                              if (type == RecurringType.weekly) {
+                                return ValueListenableBuilder<int?>(
+                                  valueListenable: recurringDayOfWeek,
+                                  builder: (context, dayOfWeek, _) => Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '曜日',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context).colorScheme.secondaryTextColor,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                                          ),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton<int>(
+                                            value: dayOfWeek ?? DateTime.monday,
+                                            isExpanded: true,
+                                            items: [
+                                              DropdownMenuItem(value: DateTime.monday, child: Text('月曜日')),
+                                              DropdownMenuItem(value: DateTime.tuesday, child: Text('火曜日')),
+                                              DropdownMenuItem(value: DateTime.wednesday, child: Text('水曜日')),
+                                              DropdownMenuItem(value: DateTime.thursday, child: Text('木曜日')),
+                                              DropdownMenuItem(value: DateTime.friday, child: Text('金曜日')),
+                                              DropdownMenuItem(value: DateTime.saturday, child: Text('土曜日')),
+                                              DropdownMenuItem(value: DateTime.sunday, child: Text('日曜日')),
+                                            ],
+                                            onChanged: (value) => recurringDayOfWeek.value = value,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              } else if (type == RecurringType.monthly) {
+                                return ValueListenableBuilder<int?>(
+                                  valueListenable: recurringDayOfMonth,
+                                  builder: (context, dayOfMonth, _) => Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '日付',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context).colorScheme.secondaryTextColor,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                                          ),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton<int>(
+                                            value: dayOfMonth ?? 1,
+                                            isExpanded: true,
+                                            items: List.generate(31, (index) {
+                                              final day = index + 1;
+                                              return DropdownMenuItem(
+                                                value: day,
+                                                child: Text('${day}日'),
+                                              );
+                                            }),
+                                            onChanged: (value) => recurringDayOfMonth.value = value,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          ValueListenableBuilder<DateTime?>(
+                            valueListenable: recurringEndDate,
+                            builder: (context, endDate, _) => Row(
+                              children: [
+                                Icon(
+                                  Icons.event_busy,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  endDate != null 
+                                      ? '終了日: ${formatDate(endDate, format: 'yyyy/MM/dd')}'
+                                      : '終了日: 未設定',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.secondaryTextColor,
+                                  ),
+                                ),
+                                const Spacer(),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    final pickedDate = await showDatePicker(
+                                      context: context,
+                                      initialDate: endDate ?? DateTime.now().add(const Duration(days: 30)),
+                                      firstDate: selectedDate.value,
+                                      lastDate: DateTime(2030),
+                                    );
+                                    recurringEndDate.value = pickedDate;
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Theme.of(context).colorScheme.primary,
+                                    foregroundColor: Theme.of(context).colorScheme.surface,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    elevation: 0,
+                                  ),
+                                  child: Text(endDate != null ? '変更' : '設定'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
@@ -536,6 +796,13 @@ class AddTodoDialog {
                                     : descriptionController.text.trim(),
                             dueDate: dueDate,
                             color: selectedColor.value,
+                            isRecurring: isRecurring.value,
+                            recurringType: isRecurring.value ? recurringType.value?.value : null,
+                            recurringEndDate: isRecurring.value ? recurringEndDate.value : null,
+                            recurringDayOfWeek: isRecurring.value && recurringType.value == RecurringType.weekly 
+                                ? recurringDayOfWeek.value : null,
+                            recurringDayOfMonth: isRecurring.value && recurringType.value == RecurringType.monthly 
+                                ? recurringDayOfMonth.value : null,
                           );
                         } else {
                           // Create new todo
@@ -547,6 +814,13 @@ class AddTodoDialog {
                                     : descriptionController.text.trim(),
                             dueDate: dueDate,
                             color: selectedColor.value,
+                            isRecurring: isRecurring.value,
+                            recurringType: isRecurring.value ? recurringType.value?.value : null,
+                            recurringEndDate: isRecurring.value ? recurringEndDate.value : null,
+                            recurringDayOfWeek: isRecurring.value && recurringType.value == RecurringType.weekly 
+                                ? recurringDayOfWeek.value : null,
+                            recurringDayOfMonth: isRecurring.value && recurringType.value == RecurringType.monthly 
+                                ? recurringDayOfMonth.value : null,
                           );
                         }
 
