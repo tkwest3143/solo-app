@@ -76,10 +76,11 @@ extension TimerSessionExtension on TimerSession {
   }
 
   String get displayTime {
-    final seconds = mode == TimerMode.countUp ? elapsedSeconds : remainingSeconds;
+    final seconds =
+        mode == TimerMode.countUp ? elapsedSeconds : remainingSeconds;
     final minutes = seconds ~/ 60;
-    final remainingSeconds = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+    final secs = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
   String get currentPhaseDisplayName {
@@ -94,7 +95,7 @@ extension TimerSessionExtension on TimerSession {
   }
 
   bool get isWorkPhase => currentPhase == PomodoroPhase.work;
-  bool get isBreakPhase => 
-      currentPhase == PomodoroPhase.shortBreak || 
+  bool get isBreakPhase =>
+      currentPhase == PomodoroPhase.shortBreak ||
       currentPhase == PomodoroPhase.longBreak;
 }

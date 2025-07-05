@@ -6,7 +6,7 @@ part of '../timer_service.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$timerSettingsHash() => r'ef134df12cd8fb3e4c5c1af8ca3b2e2bc19a9e30';
+String _$timerSettingsHash() => r'ca768b930b516101f9a7cd8eeed8f8ef3d89491f';
 
 /// See also [timerSettings].
 @ProviderFor(timerSettings)
@@ -20,8 +20,10 @@ final timerSettingsProvider = AutoDisposeProvider<TimerSettings>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef TimerSettingsRef = AutoDisposeProviderRef<TimerSettings>;
-String _$isTimerRunningHash() => r'b4a4c5f8c8d3e2b1a9f8e7d6c5b4a3g2f1e0d9c8';
+String _$isTimerRunningHash() => r'b1171d28cc1ebd064b466e613093f79c919ab681';
 
 /// See also [isTimerRunning].
 @ProviderFor(isTimerRunning)
@@ -35,8 +37,10 @@ final isTimerRunningProvider = AutoDisposeProvider<bool>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef IsTimerRunningRef = AutoDisposeProviderRef<bool>;
-String _$isTimerPausedHash() => r'c8b7a6d5e4f3g2h1i0j9k8l7m6n5o4p3q2r1s0t9';
+String _$isTimerPausedHash() => r'a8873e2fa149c4d41bd26d117bba36775379d35c';
 
 /// See also [isTimerPaused].
 @ProviderFor(isTimerPaused)
@@ -50,8 +54,10 @@ final isTimerPausedProvider = AutoDisposeProvider<bool>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef IsTimerPausedRef = AutoDisposeProviderRef<bool>;
-String _$canStartTimerHash() => r'd9c8b7a6e5f4g3h2i1j0k9l8m7n6o5p4q3r2s1t0';
+String _$canStartTimerHash() => r'688a769507e98ca12bf8067fc1def0c65226fa71';
 
 /// See also [canStartTimer].
 @ProviderFor(canStartTimer)
@@ -65,8 +71,10 @@ final canStartTimerProvider = AutoDisposeProvider<bool>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef CanStartTimerRef = AutoDisposeProviderRef<bool>;
-String _$canPauseTimerHash() => r'e0d9c8b7a6f5g4h3i2j1k0l9m8n7o6p5q4r3s2t1';
+String _$canPauseTimerHash() => r'46d5470f2c5ece821bc260fe932ef79258141672';
 
 /// See also [canPauseTimer].
 @ProviderFor(canPauseTimer)
@@ -80,8 +88,10 @@ final canPauseTimerProvider = AutoDisposeProvider<bool>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef CanPauseTimerRef = AutoDisposeProviderRef<bool>;
-String _$showSkipButtonHash() => r'f1e0d9c8b7a6g5h4i3j2k1l0m9n8o7p6q5r4s3t2';
+String _$showSkipButtonHash() => r'36d703c63836582857ec5be1d67388f53c1801f2';
 
 /// See also [showSkipButton].
 @ProviderFor(showSkipButton)
@@ -95,8 +105,10 @@ final showSkipButtonProvider = AutoDisposeProvider<bool>.internal(
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef ShowSkipButtonRef = AutoDisposeProviderRef<bool>;
-String _$timerServiceHash() => r'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0';
+String _$timerServiceHash() => r'7f07344374ea60be96fb31ed7c2c0b935791ea67';
 
 /// See also [TimerService].
 @ProviderFor(TimerService)
@@ -104,11 +116,12 @@ final timerServiceProvider =
     AutoDisposeNotifierProvider<TimerService, TimerSession>.internal(
   TimerService.new,
   name: r'timerServiceProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$timerServiceHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$timerServiceHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 typedef _$TimerService = AutoDisposeNotifier<TimerSession>;
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -64,7 +62,7 @@ class _ModeButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: isSelected 
+          color: isSelected
               ? Colors.white.withValues(alpha: 0.3)
               : Colors.transparent,
         ),
@@ -105,7 +103,7 @@ class PomodoroPhaseIndicator extends HookConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            timerSession.isWorkPhase 
+            timerSession.isWorkPhase
                 ? Icons.work_rounded
                 : Icons.coffee_rounded,
             color: Colors.white,
@@ -133,7 +131,7 @@ class TimerCircle extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final timerSession = ref.watch(timerServiceProvider);
 
-    return Container(
+    return SizedBox(
       width: 280,
       height: 280,
       child: Stack(
@@ -152,7 +150,7 @@ class TimerCircle extends HookConsumerWidget {
               ),
             ),
           ),
-          
+
           // Progress indicator for Pomodoro
           if (timerSession.mode == TimerMode.pomodoro)
             SizedBox(
@@ -163,7 +161,7 @@ class TimerCircle extends HookConsumerWidget {
                 strokeWidth: 8,
                 backgroundColor: Colors.white.withValues(alpha: 0.1),
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  timerSession.isWorkPhase 
+                  timerSession.isWorkPhase
                       ? Theme.of(context).colorScheme.accentColor
                       : Theme.of(context).colorScheme.infoColor,
                 ),
@@ -219,9 +217,9 @@ class TimerControls extends HookConsumerWidget {
           onTap: timerService.resetTimer,
           backgroundColor: Colors.white.withValues(alpha: 0.2),
         ),
-        
+
         const SizedBox(width: 24),
-        
+
         // Play/Pause button
         _ControlButton(
           icon: canStart ? Icons.play_arrow_rounded : Icons.pause_rounded,
@@ -230,9 +228,9 @@ class TimerControls extends HookConsumerWidget {
           size: 72,
           iconSize: 36,
         ),
-        
+
         const SizedBox(width: 24),
-        
+
         // Skip button (only for Pomodoro)
         if (showSkip)
           _ControlButton(
@@ -322,7 +320,8 @@ class PomodoroProgressInfo extends HookConsumerWidget {
             children: [
               _ProgressItem(
                 label: '現在サイクル',
-                value: '${timerSession.currentCycle + 1}/${timerSession.settings.cyclesUntilLongBreak}',
+                value:
+                    '${timerSession.currentCycle + 1}/${timerSession.settings.cyclesUntilLongBreak}',
               ),
               _ProgressItem(
                 label: '完了サイクル',
@@ -438,9 +437,7 @@ class TimerSettingsWidget extends HookConsumerWidget {
                     min: 1,
                     max: 60,
                   ),
-                  
                   const SizedBox(height: 24),
-                  
                   _SettingItem(
                     title: '短い休憩',
                     subtitle: '作業の間の短い休憩時間',
@@ -450,9 +447,7 @@ class TimerSettingsWidget extends HookConsumerWidget {
                     min: 1,
                     max: 30,
                   ),
-                  
                   const SizedBox(height: 24),
-                  
                   _SettingItem(
                     title: '長い休憩',
                     subtitle: '複数サイクル後の長い休憩時間',
@@ -462,9 +457,7 @@ class TimerSettingsWidget extends HookConsumerWidget {
                     min: 1,
                     max: 60,
                   ),
-                  
                   const SizedBox(height: 24),
-                  
                   _SettingItem(
                     title: '長い休憩までのサイクル数',
                     subtitle: '何回の作業サイクル後に長い休憩をとるか',

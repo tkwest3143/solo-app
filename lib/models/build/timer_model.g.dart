@@ -6,41 +6,13 @@ part of '../timer_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-T? $enumDecodeNullable<T>(
-  Map<T, Object> enumValues,
-  Object? source, {
-  T? unknownValue,
-}) {
-  if (source == null) {
-    return null;
-  }
-  return $enumDecode<T>(enumValues, source, unknownValue: unknownValue);
-}
-
-T $enumDecode<T>(
-  Map<T, Object> enumValues,
-  Object source, {
-  T? unknownValue,
-}) {
-  for (final entry in enumValues.entries) {
-    if (entry.value == source) {
-      return entry.key;
-    }
-  }
-  if (unknownValue != null) {
-    return unknownValue;
-  }
-  throw ArgumentError(
-      'Unknown enum value to decode: $source. Allowed values: '
-      '${enumValues.values.join(', ')}');
-}
-
 _$TimerSettingsImpl _$$TimerSettingsImplFromJson(Map<String, dynamic> json) =>
     _$TimerSettingsImpl(
       workMinutes: (json['workMinutes'] as num?)?.toInt() ?? 25,
       shortBreakMinutes: (json['shortBreakMinutes'] as num?)?.toInt() ?? 5,
       longBreakMinutes: (json['longBreakMinutes'] as num?)?.toInt() ?? 15,
-      cyclesUntilLongBreak: (json['cyclesUntilLongBreak'] as num?)?.toInt() ?? 4,
+      cyclesUntilLongBreak:
+          (json['cyclesUntilLongBreak'] as num?)?.toInt() ?? 4,
     );
 
 Map<String, dynamic> _$$TimerSettingsImplToJson(_$TimerSettingsImpl instance) =>
@@ -64,7 +36,8 @@ _$TimerSessionImpl _$$TimerSessionImplFromJson(Map<String, dynamic> json) =>
       elapsedSeconds: (json['elapsedSeconds'] as num?)?.toInt() ?? 0,
       currentCycle: (json['currentCycle'] as num?)?.toInt() ?? 0,
       completedCycles: (json['completedCycles'] as num?)?.toInt() ?? 0,
-      settings: TimerSettings.fromJson(json['settings'] as Map<String, dynamic>),
+      settings:
+          TimerSettings.fromJson(json['settings'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$TimerSessionImplToJson(_$TimerSessionImpl instance) =>

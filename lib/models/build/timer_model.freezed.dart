@@ -25,8 +25,12 @@ mixin _$TimerSettings {
   int get longBreakMinutes => throw _privateConstructorUsedError;
   int get cyclesUntilLongBreak => throw _privateConstructorUsedError;
 
+  /// Serializes this TimerSettings to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of TimerSettings
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $TimerSettingsCopyWith<TimerSettings> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -49,9 +53,13 @@ class _$TimerSettingsCopyWithImpl<$Res, $Val extends TimerSettings>
     implements $TimerSettingsCopyWith<$Res> {
   _$TimerSettingsCopyWithImpl(this._value, this._then);
 
+  // ignore: unused_field
   final $Val _value;
+  // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of TimerSettings
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -63,16 +71,20 @@ class _$TimerSettingsCopyWithImpl<$Res, $Val extends TimerSettings>
     return _then(_value.copyWith(
       workMinutes: null == workMinutes
           ? _value.workMinutes
-          : workMinutes,
+          : workMinutes // ignore: cast_nullable_to_non_nullable
+              as int,
       shortBreakMinutes: null == shortBreakMinutes
           ? _value.shortBreakMinutes
-          : shortBreakMinutes,
+          : shortBreakMinutes // ignore: cast_nullable_to_non_nullable
+              as int,
       longBreakMinutes: null == longBreakMinutes
           ? _value.longBreakMinutes
-          : longBreakMinutes,
+          : longBreakMinutes // ignore: cast_nullable_to_non_nullable
+              as int,
       cyclesUntilLongBreak: null == cyclesUntilLongBreak
           ? _value.cyclesUntilLongBreak
-          : cyclesUntilLongBreak,
+          : cyclesUntilLongBreak // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 }
@@ -100,6 +112,8 @@ class __$$TimerSettingsImplCopyWithImpl<$Res>
       _$TimerSettingsImpl _value, $Res Function(_$TimerSettingsImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of TimerSettings
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -111,16 +125,20 @@ class __$$TimerSettingsImplCopyWithImpl<$Res>
     return _then(_$TimerSettingsImpl(
       workMinutes: null == workMinutes
           ? _value.workMinutes
-          : workMinutes as int,
+          : workMinutes // ignore: cast_nullable_to_non_nullable
+              as int,
       shortBreakMinutes: null == shortBreakMinutes
           ? _value.shortBreakMinutes
-          : shortBreakMinutes as int,
+          : shortBreakMinutes // ignore: cast_nullable_to_non_nullable
+              as int,
       longBreakMinutes: null == longBreakMinutes
           ? _value.longBreakMinutes
-          : longBreakMinutes as int,
+          : longBreakMinutes // ignore: cast_nullable_to_non_nullable
+              as int,
       cyclesUntilLongBreak: null == cyclesUntilLongBreak
           ? _value.cyclesUntilLongBreak
-          : cyclesUntilLongBreak as int,
+          : cyclesUntilLongBreak // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -170,12 +188,14 @@ class _$TimerSettingsImpl implements _TimerSettings {
                 other.cyclesUntilLongBreak == cyclesUntilLongBreak));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, workMinutes, shortBreakMinutes,
       longBreakMinutes, cyclesUntilLongBreak);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of TimerSettings
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$TimerSettingsImplCopyWith<_$TimerSettingsImpl> get copyWith =>
@@ -207,8 +227,11 @@ abstract class _TimerSettings implements TimerSettings {
   int get longBreakMinutes;
   @override
   int get cyclesUntilLongBreak;
+
+  /// Create a copy of TimerSettings
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TimerSettingsImplCopyWith<_$TimerSettingsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -228,8 +251,12 @@ mixin _$TimerSession {
   int get completedCycles => throw _privateConstructorUsedError;
   TimerSettings get settings => throw _privateConstructorUsedError;
 
+  /// Serializes this TimerSession to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of TimerSession
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $TimerSessionCopyWith<TimerSession> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -258,9 +285,13 @@ class _$TimerSessionCopyWithImpl<$Res, $Val extends TimerSession>
     implements $TimerSessionCopyWith<$Res> {
   _$TimerSessionCopyWithImpl(this._value, this._then);
 
+  // ignore: unused_field
   final $Val _value;
+  // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of TimerSession
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -274,27 +305,43 @@ class _$TimerSessionCopyWithImpl<$Res, $Val extends TimerSession>
     Object? settings = null,
   }) {
     return _then(_value.copyWith(
-      mode: null == mode ? _value.mode : mode as TimerMode,
-      state: null == state ? _value.state : state as TimerState,
+      mode: null == mode
+          ? _value.mode
+          : mode // ignore: cast_nullable_to_non_nullable
+              as TimerMode,
+      state: null == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as TimerState,
       currentPhase: null == currentPhase
           ? _value.currentPhase
-          : currentPhase as PomodoroPhase,
+          : currentPhase // ignore: cast_nullable_to_non_nullable
+              as PomodoroPhase,
       remainingSeconds: null == remainingSeconds
           ? _value.remainingSeconds
-          : remainingSeconds as int,
+          : remainingSeconds // ignore: cast_nullable_to_non_nullable
+              as int,
       elapsedSeconds: null == elapsedSeconds
           ? _value.elapsedSeconds
-          : elapsedSeconds as int,
+          : elapsedSeconds // ignore: cast_nullable_to_non_nullable
+              as int,
       currentCycle: null == currentCycle
           ? _value.currentCycle
-          : currentCycle as int,
+          : currentCycle // ignore: cast_nullable_to_non_nullable
+              as int,
       completedCycles: null == completedCycles
           ? _value.completedCycles
-          : completedCycles as int,
-      settings: null == settings ? _value.settings : settings as TimerSettings,
+          : completedCycles // ignore: cast_nullable_to_non_nullable
+              as int,
+      settings: null == settings
+          ? _value.settings
+          : settings // ignore: cast_nullable_to_non_nullable
+              as TimerSettings,
     ) as $Val);
   }
 
+  /// Create a copy of TimerSession
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $TimerSettingsCopyWith<$Res> get settings {
@@ -334,6 +381,8 @@ class __$$TimerSessionImplCopyWithImpl<$Res>
       _$TimerSessionImpl _value, $Res Function(_$TimerSessionImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of TimerSession
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -347,24 +396,38 @@ class __$$TimerSessionImplCopyWithImpl<$Res>
     Object? settings = null,
   }) {
     return _then(_$TimerSessionImpl(
-      mode: null == mode ? _value.mode : mode as TimerMode,
-      state: null == state ? _value.state : state as TimerState,
+      mode: null == mode
+          ? _value.mode
+          : mode // ignore: cast_nullable_to_non_nullable
+              as TimerMode,
+      state: null == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as TimerState,
       currentPhase: null == currentPhase
           ? _value.currentPhase
-          : currentPhase as PomodoroPhase,
+          : currentPhase // ignore: cast_nullable_to_non_nullable
+              as PomodoroPhase,
       remainingSeconds: null == remainingSeconds
           ? _value.remainingSeconds
-          : remainingSeconds as int,
+          : remainingSeconds // ignore: cast_nullable_to_non_nullable
+              as int,
       elapsedSeconds: null == elapsedSeconds
           ? _value.elapsedSeconds
-          : elapsedSeconds as int,
+          : elapsedSeconds // ignore: cast_nullable_to_non_nullable
+              as int,
       currentCycle: null == currentCycle
           ? _value.currentCycle
-          : currentCycle as int,
+          : currentCycle // ignore: cast_nullable_to_non_nullable
+              as int,
       completedCycles: null == completedCycles
           ? _value.completedCycles
-          : completedCycles as int,
-      settings: null == settings ? _value.settings : settings as TimerSettings,
+          : completedCycles // ignore: cast_nullable_to_non_nullable
+              as int,
+      settings: null == settings
+          ? _value.settings
+          : settings // ignore: cast_nullable_to_non_nullable
+              as TimerSettings,
     ));
   }
 }
@@ -435,12 +498,22 @@ class _$TimerSessionImpl implements _TimerSession {
                 other.settings == settings));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, mode, state, currentPhase,
-      remainingSeconds, elapsedSeconds, currentCycle, completedCycles, settings);
+  int get hashCode => Object.hash(
+      runtimeType,
+      mode,
+      state,
+      currentPhase,
+      remainingSeconds,
+      elapsedSeconds,
+      currentCycle,
+      completedCycles,
+      settings);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of TimerSession
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$TimerSessionImplCopyWith<_$TimerSessionImpl> get copyWith =>
@@ -484,8 +557,11 @@ abstract class _TimerSession implements TimerSession {
   int get completedCycles;
   @override
   TimerSettings get settings;
+
+  /// Create a copy of TimerSession
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TimerSessionImplCopyWith<_$TimerSessionImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
