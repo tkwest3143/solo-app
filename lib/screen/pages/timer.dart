@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:solo/screen/colors.dart';
-import 'package:solo/services/timer_service.dart';
 import 'package:solo/models/timer_model.dart';
+import 'package:solo/screen/states/timer_state.dart';
 import 'package:solo/screen/widgets/timer_widgets.dart';
 
-class TimerPage extends HookConsumerWidget {
+class TimerPage extends HookWidget {
   const TimerPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final timerSession = ref.watch(timerServiceProvider);
+  Widget build(BuildContext context) {
+    final timerController = useState(TimerStateController());
     final showSettings = useState(false);
+
+    useEffect(() {
+      return timerController.value.dispose;
+    }, []);
 
     return Container(
       decoration: BoxDecoration(
@@ -25,9 +28,11 @@ class TimerPage extends HookConsumerWidget {
       child: SafeArea(
         child: showSettings.value
             ? TimerSettingsWidget(
+                timerController: timerController.value,
                 onClose: () => showSettings.value = false,
               )
             : TimerMainWidget(
+                timerController: timerController.value,
                 onOpenSettings: () => showSettings.value = true,
               ),
       ),
@@ -35,18 +40,20 @@ class TimerPage extends HookConsumerWidget {
   }
 }
 
-class TimerMainWidget extends HookConsumerWidget {
+class TimerMainWidget extends HookWidget {
+  final TimerStateController timerController;
   final VoidCallback onOpenSettings;
 
   const TimerMainWidget({
     super.key,
+    required this.timerController,
     required this.onOpenSettings,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final timerSession = ref.watch(timerServiceProvider);
-    final timerService = ref.read(timerServiceProvider.notifier);
+  Widget build(BuildContext context) {
+    useListenable(timerController);
+    final timerSession = timerController.session;
 
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -57,17 +64,17 @@ class TimerMainWidget extends HookConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Mode Switch
-              TimerModeSwitch(),
+              TimerModeSwitch(timerController: timerController),
               // Settings Button
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
                 ),
                 child: IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.settings_rounded,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   onPressed: onOpenSettings,
                 ),
@@ -77,30 +84,37 @@ class TimerMainWidget extends HookConsumerWidget {
 
           // Timer Display Section
           Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Phase indicator for Pomodoro
-                  if (timerSession.mode == TimerMode.pomodoro) ...[
-                    PomodoroPhaseIndicator(),
-                    const SizedBox(height: 20),
-                  ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Phase indicator for Pomodoro
+                        if (timerSession.mode == TimerMode.pomodoro) ...[
+                          PomodoroPhaseIndicator(timerSession: timerSession),
+                          const SizedBox(height: 20),
+                        ],
 
-                  // Main timer circle
-                  TimerCircle(),
+                        // Main timer circle
+                        TimerCircle(timerSession: timerSession),
 
-                  const SizedBox(height: 40),
+                        const SizedBox(height: 40),
 
-                  // Timer controls
-                  TimerControls(),
+                        // Timer controls
+                        TimerControls(timerController: timerController),
 
-                  if (timerSession.mode == TimerMode.pomodoro) ...[
-                    const SizedBox(height: 24),
-                    PomodoroProgressInfo(),
-                  ],
-                ],
-              ),
+                        if (timerSession.mode == TimerMode.pomodoro) ...[
+                          const SizedBox(height: 24),
+                          PomodoroProgressInfo(timerSession: timerSession),
+                        ],
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
