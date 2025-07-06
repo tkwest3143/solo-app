@@ -1117,8 +1117,18 @@ class _TodoDetailContent extends HookConsumerWidget {
       void loadChecklistItems() async {
         try {
           isLoading.value = true;
+          
+          // For virtual recurring todos (negative IDs), load checklist from original todo
+          int todoIdForChecklist = todo.id;
+          if (todo.id < 0) {
+            // This is a virtual recurring instance, get checklist from original recurring todo
+            final positiveId = -todo.id;
+            final originalTodoId = (positiveId - 1000000) ~/ 1000;
+            todoIdForChecklist = originalTodoId;
+          }
+          
           final items = await TodoCheckListItemService()
-              .getCheckListItemsForTodo(todo.id);
+              .getCheckListItemsForTodo(todoIdForChecklist);
           checklistItems.value = items;
         } finally {
           isLoading.value = false;
@@ -1133,8 +1143,18 @@ class _TodoDetailContent extends HookConsumerWidget {
     void refreshChecklistItems() async {
       try {
         isLoading.value = true;
+        
+        // For virtual recurring todos (negative IDs), load checklist from original todo
+        int todoIdForChecklist = todo.id;
+        if (todo.id < 0) {
+          // This is a virtual recurring instance, get checklist from original recurring todo
+          final positiveId = -todo.id;
+          final originalTodoId = (positiveId - 1000000) ~/ 1000;
+          todoIdForChecklist = originalTodoId;
+        }
+        
         final items =
-            await TodoCheckListItemService().getCheckListItemsForTodo(todo.id);
+            await TodoCheckListItemService().getCheckListItemsForTodo(todoIdForChecklist);
         checklistItems.value = items;
       } finally {
         isLoading.value = false;

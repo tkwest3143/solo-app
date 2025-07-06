@@ -177,6 +177,34 @@ class TodoService {
   }
 
   Future<TodoModel?> toggleTodoComplete(int id) async {
+    // Handle virtual recurring todo instances (negative IDs)
+    if (id < 0) {
+      // This is a virtual recurring instance, we need to create a real entry
+      // Find the original recurring todo by checking all current virtual instances
+      final allTodos = await getTodo();
+      final originalTodo = _findOriginalTodoForVirtualInstance(allTodos, id);
+      if (originalTodo == null) return null;
+      
+      // Create a real database entry for this specific instance
+      final virtualInstance = _findVirtualInstanceById(allTodos, id);
+      if (virtualInstance == null) return null;
+      
+      // Create the real todo instance
+      final realTodo = await createTodo(
+        title: virtualInstance.title,
+        description: virtualInstance.description,
+        dueDate: virtualInstance.dueDate,
+        color: virtualInstance.color,
+        categoryId: virtualInstance.categoryId,
+        // Important: Don't mark this as recurring since it's a specific instance
+        isRecurring: false,
+      );
+      
+      // Now toggle its completion
+      return await toggleTodoComplete(realTodo.id);
+    }
+    
+    // Handle regular todos (positive IDs)
     final todos = await _todoTableRepository.findAll();
     Todo? todo;
     try {
@@ -214,6 +242,31 @@ class TodoService {
       recurringDayOfWeek: updatedTodo.recurringDayOfWeek,
       recurringDayOfMonth: updatedTodo.recurringDayOfMonth,
     );
+  }
+
+  /// Helper method to find the original recurring todo for a virtual instance
+  TodoModel? _findOriginalTodoForVirtualInstance(List<TodoModel> allTodos, int virtualId) {
+    // Extract original todo ID from virtual ID
+    // Virtual ID format: -(1000000 + originalId * 1000 + counter)
+    final positiveId = -virtualId;
+    final baseId = (positiveId - 1000000) ~/ 1000;
+    
+    try {
+      return allTodos.firstWhere(
+        (todo) => todo.id == baseId && todo.isRecurring == true,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Helper method to find a virtual instance by ID
+  TodoModel? _findVirtualInstanceById(List<TodoModel> allTodos, int virtualId) {
+    try {
+      return allTodos.firstWhere((todo) => todo.id == virtualId);
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<bool> checkAndUpdateTodoCompletionByChecklist(int todoId) async {
@@ -645,6 +698,7 @@ class TodoService {
     DateTime endDate,
   ) {
     final generatedInstances = <TodoModel>[];
+    var globalInstanceCounter = 0;
 
     for (final todo in recurringTodos) {
       if (todo.isRecurring != true || todo.isCompleted) continue;
@@ -653,8 +707,6 @@ class TodoService {
       var currentTodoForCalculation = todo;
       var nextDate = calculateNextRecurringDate(currentTodoForCalculation);
       if (nextDate == null) continue;
-
-      var instanceId = todo.id * 1000000; // Create unique virtual IDs
 
       // Generate instances within the date range
       while (nextDate != null && nextDate.isBefore(endDate.add(const Duration(days: 1)))) {
@@ -667,9 +719,10 @@ class TodoService {
             break;
           }
 
-          // Create virtual instance (don't store in DB)
+          // Create virtual instance with unique negative ID to avoid conflicts with real todos
+          final virtualId = -(1000000 + todo.id * 1000 + globalInstanceCounter);
           generatedInstances.add(TodoModel(
-            id: instanceId++, // Virtual ID
+            id: virtualId,
             title: todo.title,
             description: todo.description,
             dueDate: nextDate,
@@ -685,6 +738,7 @@ class TodoService {
             recurringDayOfWeek: todo.recurringDayOfWeek,
             recurringDayOfMonth: todo.recurringDayOfMonth,
           ));
+          globalInstanceCounter++;
         }
 
         // Calculate next occurrence
