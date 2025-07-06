@@ -10,11 +10,12 @@ class TimerState extends _$TimerState {
 
   @override
   TimerSession build() {
-    // 初期値を25分に設定
-    return const TimerSession(
-      settings: TimerSettings(),
+    // 初期値を設定値に従って設定
+    const settings = TimerSettings();
+    return TimerSession(
+      settings: settings,
       mode: TimerMode.pomodoro,
-      remainingSeconds: 25 * 60,
+      remainingSeconds: settings.workMinutes * 60,
     );
   }
 
