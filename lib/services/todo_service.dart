@@ -38,22 +38,11 @@ class TodoService {
       recurringTodos,
       now,
       thirtyDaysFromNow,
+      todoList, // Pass existing todos to avoid duplicates
     );
 
-    // Add recurring instances, avoiding duplicates
-    for (final instance in recurringInstances) {
-      final alreadyExists = todoList.any((existingTodo) =>
-        existingTodo.title == instance.title &&
-        existingTodo.dueDate.year == instance.dueDate.year &&
-        existingTodo.dueDate.month == instance.dueDate.month &&
-        existingTodo.dueDate.day == instance.dueDate.day &&
-        existingTodo.dueDate.hour == instance.dueDate.hour &&
-        existingTodo.dueDate.minute == instance.dueDate.minute);
-      
-      if (!alreadyExists) {
-        todoList.add(instance);
-      }
-    }
+    // Add recurring instances
+    todoList.addAll(recurringInstances);
 
     return todoList;
   }
@@ -411,22 +400,11 @@ class TodoService {
       recurringTodos,
       startOfDay,
       endOfDay,
+      todoList, // Pass existing todos to avoid duplicates
     );
 
-    // Add recurring instances, avoiding duplicates
-    for (final instance in recurringInstances) {
-      final alreadyExists = todoList.any((existingTodo) =>
-        existingTodo.title == instance.title &&
-        existingTodo.dueDate.year == instance.dueDate.year &&
-        existingTodo.dueDate.month == instance.dueDate.month &&
-        existingTodo.dueDate.day == instance.dueDate.day &&
-        existingTodo.dueDate.hour == instance.dueDate.hour &&
-        existingTodo.dueDate.minute == instance.dueDate.minute);
-      
-      if (!alreadyExists) {
-        todoList.add(instance);
-      }
-    }
+    // Add recurring instances
+    todoList.addAll(recurringInstances);
 
     return todoList;
   }
@@ -437,11 +415,9 @@ class TodoService {
     final Map<DateTime, List<TodoModel>> todosByDate = {};
     
     // Add regular todos from database
+    final todoList = <TodoModel>[];
     for (final todo in todos) {
-      final todoDate = todo.dueDate;
-      final dateKey = DateTime(todoDate.year, todoDate.month, todoDate.day);
-      todosByDate[dateKey] = todosByDate[dateKey] ?? [];
-      todosByDate[dateKey]!.add(TodoModel(
+      final todoModel = TodoModel(
         id: todo.id,
         dueDate: todo.dueDate,
         title: todo.title,
@@ -457,7 +433,13 @@ class TodoService {
         recurringEndDate: todo.recurringEndDate,
         recurringDayOfWeek: todo.recurringDayOfWeek,
         recurringDayOfMonth: todo.recurringDayOfMonth,
-      ));
+      );
+      todoList.add(todoModel);
+      
+      final todoDate = todo.dueDate;
+      final dateKey = DateTime(todoDate.year, todoDate.month, todoDate.day);
+      todosByDate[dateKey] = todosByDate[dateKey] ?? [];
+      todosByDate[dateKey]!.add(todoModel);
     }
 
     // Get all todos to find recurring ones
@@ -471,25 +453,14 @@ class TodoService {
       recurringTodos,
       startOfMonth,
       endOfMonth,
+      todoList, // Pass existing todos to avoid duplicates
     );
 
-    // Add recurring instances to the map, avoiding duplicates
+    // Add recurring instances to the map
     for (final instance in recurringInstances) {
       final dateKey = DateTime(instance.dueDate.year, instance.dueDate.month, instance.dueDate.day);
       todosByDate[dateKey] = todosByDate[dateKey] ?? [];
-      
-      // Check if this instance already exists (by title and exact datetime)
-      final alreadyExists = todosByDate[dateKey]!.any((existingTodo) =>
-        existingTodo.title == instance.title &&
-        existingTodo.dueDate.year == instance.dueDate.year &&
-        existingTodo.dueDate.month == instance.dueDate.month &&
-        existingTodo.dueDate.day == instance.dueDate.day &&
-        existingTodo.dueDate.hour == instance.dueDate.hour &&
-        existingTodo.dueDate.minute == instance.dueDate.minute);
-      
-      if (!alreadyExists) {
-        todosByDate[dateKey]!.add(instance);
-      }
+      todosByDate[dateKey]!.add(instance);
     }
 
     return todosByDate;
@@ -696,6 +667,7 @@ class TodoService {
     List<TodoModel> recurringTodos,
     DateTime startDate,
     DateTime endDate,
+    List<TodoModel> existingTodos,
   ) {
     final generatedInstances = <TodoModel>[];
     var globalInstanceCounter = 0;
@@ -703,50 +675,59 @@ class TodoService {
     for (final todo in recurringTodos) {
       if (todo.isRecurring != true || todo.isCompleted) continue;
 
-      // Start from the next occurrence after the original due date
-      var currentTodoForCalculation = todo;
-      var nextDate = calculateNextRecurringDate(currentTodoForCalculation);
-      if (nextDate == null) continue;
-
-      // Generate instances within the date range
-      while (nextDate != null && nextDate.isBefore(endDate.add(const Duration(days: 1)))) {
+      // Start with the original due date
+      var currentDate = todo.dueDate;
+      
+      // Generate all occurrences within the range (including the original if it falls in range)
+      while (currentDate.isBefore(endDate.add(const Duration(days: 1)))) {
         // Check if current date is within our target range
-        if (nextDate.isAfter(startDate.subtract(const Duration(days: 1)))) {
+        if (currentDate.isAfter(startDate.subtract(const Duration(days: 1)))) {
           
           // Check if we've passed the end date for this recurring todo
           if (todo.recurringEndDate != null &&
-              nextDate.isAfter(todo.recurringEndDate!)) {
+              currentDate.isAfter(todo.recurringEndDate!)) {
             break;
           }
 
-          // Create virtual instance with unique negative ID to avoid conflicts with real todos
-          final virtualId = -(1000000 + todo.id * 1000 + globalInstanceCounter);
-          generatedInstances.add(TodoModel(
-            id: virtualId,
-            title: todo.title,
-            description: todo.description,
-            dueDate: nextDate,
-            isCompleted: false,
-            color: todo.color,
-            icon: todo.icon,
-            categoryId: todo.categoryId,
-            createdAt: todo.createdAt,
-            updatedAt: todo.updatedAt,
-            isRecurring: todo.isRecurring,
-            recurringType: todo.recurringType,
-            recurringEndDate: todo.recurringEndDate,
-            recurringDayOfWeek: todo.recurringDayOfWeek,
-            recurringDayOfMonth: todo.recurringDayOfMonth,
-          ));
-          globalInstanceCounter++;
+          // Check if this instance already exists in the database
+          final alreadyExists = existingTodos.any((existingTodo) =>
+            existingTodo.title == todo.title &&
+            existingTodo.dueDate.year == currentDate.year &&
+            existingTodo.dueDate.month == currentDate.month &&
+            existingTodo.dueDate.day == currentDate.day &&
+            existingTodo.dueDate.hour == currentDate.hour &&
+            existingTodo.dueDate.minute == currentDate.minute);
+          
+          if (!alreadyExists) {
+            // Create virtual instance with unique negative ID to avoid conflicts with real todos
+            final virtualId = -(1000000 + todo.id * 1000 + globalInstanceCounter);
+            generatedInstances.add(TodoModel(
+              id: virtualId,
+              title: todo.title,
+              description: todo.description,
+              dueDate: currentDate,
+              isCompleted: false,
+              color: todo.color,
+              icon: todo.icon,
+              categoryId: todo.categoryId,
+              createdAt: todo.createdAt,
+              updatedAt: todo.updatedAt,
+              isRecurring: todo.isRecurring,
+              recurringType: todo.recurringType,
+              recurringEndDate: todo.recurringEndDate,
+              recurringDayOfWeek: todo.recurringDayOfWeek,
+              recurringDayOfMonth: todo.recurringDayOfMonth,
+            ));
+            globalInstanceCounter++;
+          }
         }
 
         // Calculate next occurrence
-        currentTodoForCalculation = TodoModel(
+        final nextDate = calculateNextRecurringDate(TodoModel(
           id: todo.id,
           title: todo.title,
           description: todo.description,
-          dueDate: nextDate,
+          dueDate: currentDate,
           isCompleted: todo.isCompleted,
           color: todo.color,
           icon: todo.icon,
@@ -758,12 +739,13 @@ class TodoService {
           recurringEndDate: todo.recurringEndDate,
           recurringDayOfWeek: todo.recurringDayOfWeek,
           recurringDayOfMonth: todo.recurringDayOfMonth,
-        );
+        ));
 
-        nextDate = calculateNextRecurringDate(currentTodoForCalculation);
+        if (nextDate == null) break;
+        currentDate = nextDate;
 
         // Safety check to prevent infinite loops
-        if (nextDate != null && nextDate.isAfter(endDate.add(const Duration(days: 365)))) {
+        if (currentDate.isAfter(endDate.add(const Duration(days: 365)))) {
           break;
         }
       }
