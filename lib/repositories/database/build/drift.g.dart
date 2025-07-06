@@ -1090,16 +1090,412 @@ class TodosCompanion extends UpdateCompanion<Todo> {
   }
 }
 
+class $TodoCheckListItemsTable extends TodoCheckListItems
+    with TableInfo<$TodoCheckListItemsTable, TodoCheckListItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TodoCheckListItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _todoIdMeta = const VerificationMeta('todoId');
+  @override
+  late final GeneratedColumn<int> todoId = GeneratedColumn<int>(
+      'todo_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES todos (id) ON DELETE CASCADE'));
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isCompletedMeta =
+      const VerificationMeta('isCompleted');
+  @override
+  late final GeneratedColumn<bool> isCompleted = GeneratedColumn<bool>(
+      'is_completed', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_completed" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _orderMeta = const VerificationMeta('order');
+  @override
+  late final GeneratedColumn<int> order = GeneratedColumn<int>(
+      'order', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, createdAt, updatedAt, todoId, title, isCompleted, order];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'todo_check_list_items';
+  @override
+  VerificationContext validateIntegrity(Insertable<TodoCheckListItem> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    if (data.containsKey('todo_id')) {
+      context.handle(_todoIdMeta,
+          todoId.isAcceptableOrUnknown(data['todo_id']!, _todoIdMeta));
+    } else if (isInserting) {
+      context.missing(_todoIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('is_completed')) {
+      context.handle(
+          _isCompletedMeta,
+          isCompleted.isAcceptableOrUnknown(
+              data['is_completed']!, _isCompletedMeta));
+    }
+    if (data.containsKey('order')) {
+      context.handle(
+          _orderMeta, order.isAcceptableOrUnknown(data['order']!, _orderMeta));
+    } else if (isInserting) {
+      context.missing(_orderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TodoCheckListItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TodoCheckListItem(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+      todoId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}todo_id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      isCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_completed'])!,
+      order: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}order'])!,
+    );
+  }
+
+  @override
+  $TodoCheckListItemsTable createAlias(String alias) {
+    return $TodoCheckListItemsTable(attachedDatabase, alias);
+  }
+}
+
+class TodoCheckListItem extends DataClass
+    implements Insertable<TodoCheckListItem> {
+  final int id;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final int todoId;
+  final String title;
+  final bool isCompleted;
+  final int order;
+  const TodoCheckListItem(
+      {required this.id,
+      this.createdAt,
+      this.updatedAt,
+      required this.todoId,
+      required this.title,
+      required this.isCompleted,
+      required this.order});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['todo_id'] = Variable<int>(todoId);
+    map['title'] = Variable<String>(title);
+    map['is_completed'] = Variable<bool>(isCompleted);
+    map['order'] = Variable<int>(order);
+    return map;
+  }
+
+  TodoCheckListItemsCompanion toCompanion(bool nullToAbsent) {
+    return TodoCheckListItemsCompanion(
+      id: Value(id),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      todoId: Value(todoId),
+      title: Value(title),
+      isCompleted: Value(isCompleted),
+      order: Value(order),
+    );
+  }
+
+  factory TodoCheckListItem.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TodoCheckListItem(
+      id: serializer.fromJson<int>(json['id']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      todoId: serializer.fromJson<int>(json['todoId']),
+      title: serializer.fromJson<String>(json['title']),
+      isCompleted: serializer.fromJson<bool>(json['isCompleted']),
+      order: serializer.fromJson<int>(json['order']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'todoId': serializer.toJson<int>(todoId),
+      'title': serializer.toJson<String>(title),
+      'isCompleted': serializer.toJson<bool>(isCompleted),
+      'order': serializer.toJson<int>(order),
+    };
+  }
+
+  TodoCheckListItem copyWith(
+          {int? id,
+          Value<DateTime?> createdAt = const Value.absent(),
+          Value<DateTime?> updatedAt = const Value.absent(),
+          int? todoId,
+          String? title,
+          bool? isCompleted,
+          int? order}) =>
+      TodoCheckListItem(
+        id: id ?? this.id,
+        createdAt: createdAt.present ? createdAt.value : this.createdAt,
+        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+        todoId: todoId ?? this.todoId,
+        title: title ?? this.title,
+        isCompleted: isCompleted ?? this.isCompleted,
+        order: order ?? this.order,
+      );
+  TodoCheckListItem copyWithCompanion(TodoCheckListItemsCompanion data) {
+    return TodoCheckListItem(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      todoId: data.todoId.present ? data.todoId.value : this.todoId,
+      title: data.title.present ? data.title.value : this.title,
+      isCompleted:
+          data.isCompleted.present ? data.isCompleted.value : this.isCompleted,
+      order: data.order.present ? data.order.value : this.order,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TodoCheckListItem(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('todoId: $todoId, ')
+          ..write('title: $title, ')
+          ..write('isCompleted: $isCompleted, ')
+          ..write('order: $order')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, createdAt, updatedAt, todoId, title, isCompleted, order);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TodoCheckListItem &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.todoId == this.todoId &&
+          other.title == this.title &&
+          other.isCompleted == this.isCompleted &&
+          other.order == this.order);
+}
+
+class TodoCheckListItemsCompanion extends UpdateCompanion<TodoCheckListItem> {
+  final Value<int> id;
+  final Value<DateTime?> createdAt;
+  final Value<DateTime?> updatedAt;
+  final Value<int> todoId;
+  final Value<String> title;
+  final Value<bool> isCompleted;
+  final Value<int> order;
+  const TodoCheckListItemsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.todoId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.isCompleted = const Value.absent(),
+    this.order = const Value.absent(),
+  });
+  TodoCheckListItemsCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    required int todoId,
+    required String title,
+    this.isCompleted = const Value.absent(),
+    required int order,
+  })  : todoId = Value(todoId),
+        title = Value(title),
+        order = Value(order);
+  static Insertable<TodoCheckListItem> custom({
+    Expression<int>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? todoId,
+    Expression<String>? title,
+    Expression<bool>? isCompleted,
+    Expression<int>? order,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (todoId != null) 'todo_id': todoId,
+      if (title != null) 'title': title,
+      if (isCompleted != null) 'is_completed': isCompleted,
+      if (order != null) 'order': order,
+    });
+  }
+
+  TodoCheckListItemsCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime?>? createdAt,
+      Value<DateTime?>? updatedAt,
+      Value<int>? todoId,
+      Value<String>? title,
+      Value<bool>? isCompleted,
+      Value<int>? order}) {
+    return TodoCheckListItemsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      todoId: todoId ?? this.todoId,
+      title: title ?? this.title,
+      isCompleted: isCompleted ?? this.isCompleted,
+      order: order ?? this.order,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (todoId.present) {
+      map['todo_id'] = Variable<int>(todoId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (isCompleted.present) {
+      map['is_completed'] = Variable<bool>(isCompleted.value);
+    }
+    if (order.present) {
+      map['order'] = Variable<int>(order.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TodoCheckListItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('todoId: $todoId, ')
+          ..write('title: $title, ')
+          ..write('isCompleted: $isCompleted, ')
+          ..write('order: $order')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $CategoriesTable categories = $CategoriesTable(this);
   late final $TodosTable todos = $TodosTable(this);
+  late final $TodoCheckListItemsTable todoCheckListItems =
+      $TodoCheckListItemsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [categories, todos];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [categories, todos, todoCheckListItems];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
+        [
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('todos',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('todo_check_list_items', kind: UpdateKind.delete),
+            ],
+          ),
+        ],
+      );
 }
 
 typedef $$CategoriesTableCreateCompanionBuilder = CategoriesCompanion Function({
@@ -1415,6 +1811,23 @@ final class $$TodosTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
+
+  static MultiTypedResultKey<$TodoCheckListItemsTable, List<TodoCheckListItem>>
+      _todoCheckListItemsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.todoCheckListItems,
+              aliasName: $_aliasNameGenerator(
+                  db.todos.id, db.todoCheckListItems.todoId));
+
+  $$TodoCheckListItemsTableProcessedTableManager get todoCheckListItemsRefs {
+    final manager =
+        $$TodoCheckListItemsTableTableManager($_db, $_db.todoCheckListItems)
+            .filter((f) => f.todoId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_todoCheckListItemsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$TodosTableFilterComposer extends Composer<_$AppDatabase, $TodosTable> {
@@ -1488,6 +1901,27 @@ class $$TodosTableFilterComposer extends Composer<_$AppDatabase, $TodosTable> {
                   $removeJoinBuilderFromRootComposer,
             ));
     return composer;
+  }
+
+  Expression<bool> todoCheckListItemsRefs(
+      Expression<bool> Function($$TodoCheckListItemsTableFilterComposer f) f) {
+    final $$TodoCheckListItemsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.todoCheckListItems,
+        getReferencedColumn: (t) => t.todoId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TodoCheckListItemsTableFilterComposer(
+              $db: $db,
+              $table: $db.todoCheckListItems,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
   }
 }
 
@@ -1637,6 +2071,28 @@ class $$TodosTableAnnotationComposer
             ));
     return composer;
   }
+
+  Expression<T> todoCheckListItemsRefs<T extends Object>(
+      Expression<T> Function($$TodoCheckListItemsTableAnnotationComposer a) f) {
+    final $$TodoCheckListItemsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.todoCheckListItems,
+            getReferencedColumn: (t) => t.todoId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$TodoCheckListItemsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.todoCheckListItems,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$TodosTableTableManager extends RootTableManager<
@@ -1650,7 +2106,7 @@ class $$TodosTableTableManager extends RootTableManager<
     $$TodosTableUpdateCompanionBuilder,
     (Todo, $$TodosTableReferences),
     Todo,
-    PrefetchHooks Function({bool categoryId})> {
+    PrefetchHooks Function({bool categoryId, bool todoCheckListItemsRefs})> {
   $$TodosTableTableManager(_$AppDatabase db, $TodosTable table)
       : super(TableManagerState(
           db: db,
@@ -1733,10 +2189,13 @@ class $$TodosTableTableManager extends RootTableManager<
               .map((e) =>
                   (e.readTable(table), $$TodosTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({categoryId = false}) {
+          prefetchHooksCallback: (
+              {categoryId = false, todoCheckListItemsRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [],
+              explicitlyWatchedTables: [
+                if (todoCheckListItemsRefs) db.todoCheckListItems
+              ],
               addJoins: <
                   T extends TableManagerState<
                       dynamic,
@@ -1764,7 +2223,20 @@ class $$TodosTableTableManager extends RootTableManager<
                 return state;
               },
               getPrefetchedDataCallback: (items) async {
-                return [];
+                return [
+                  if (todoCheckListItemsRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$TodosTableReferences
+                            ._todoCheckListItemsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$TodosTableReferences(db, table, p0)
+                                .todoCheckListItemsRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.todoId == item.id),
+                        typedResults: items)
+                ];
               },
             );
           },
@@ -1782,7 +2254,308 @@ typedef $$TodosTableProcessedTableManager = ProcessedTableManager<
     $$TodosTableUpdateCompanionBuilder,
     (Todo, $$TodosTableReferences),
     Todo,
-    PrefetchHooks Function({bool categoryId})>;
+    PrefetchHooks Function({bool categoryId, bool todoCheckListItemsRefs})>;
+typedef $$TodoCheckListItemsTableCreateCompanionBuilder
+    = TodoCheckListItemsCompanion Function({
+  Value<int> id,
+  Value<DateTime?> createdAt,
+  Value<DateTime?> updatedAt,
+  required int todoId,
+  required String title,
+  Value<bool> isCompleted,
+  required int order,
+});
+typedef $$TodoCheckListItemsTableUpdateCompanionBuilder
+    = TodoCheckListItemsCompanion Function({
+  Value<int> id,
+  Value<DateTime?> createdAt,
+  Value<DateTime?> updatedAt,
+  Value<int> todoId,
+  Value<String> title,
+  Value<bool> isCompleted,
+  Value<int> order,
+});
+
+final class $$TodoCheckListItemsTableReferences extends BaseReferences<
+    _$AppDatabase, $TodoCheckListItemsTable, TodoCheckListItem> {
+  $$TodoCheckListItemsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $TodosTable _todoIdTable(_$AppDatabase db) => db.todos.createAlias(
+      $_aliasNameGenerator(db.todoCheckListItems.todoId, db.todos.id));
+
+  $$TodosTableProcessedTableManager get todoId {
+    final $_column = $_itemColumn<int>('todo_id')!;
+
+    final manager = $$TodosTableTableManager($_db, $_db.todos)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_todoIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$TodoCheckListItemsTableFilterComposer
+    extends Composer<_$AppDatabase, $TodoCheckListItemsTable> {
+  $$TodoCheckListItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isCompleted => $composableBuilder(
+      column: $table.isCompleted, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get order => $composableBuilder(
+      column: $table.order, builder: (column) => ColumnFilters(column));
+
+  $$TodosTableFilterComposer get todoId {
+    final $$TodosTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.todoId,
+        referencedTable: $db.todos,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TodosTableFilterComposer(
+              $db: $db,
+              $table: $db.todos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$TodoCheckListItemsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TodoCheckListItemsTable> {
+  $$TodoCheckListItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isCompleted => $composableBuilder(
+      column: $table.isCompleted, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get order => $composableBuilder(
+      column: $table.order, builder: (column) => ColumnOrderings(column));
+
+  $$TodosTableOrderingComposer get todoId {
+    final $$TodosTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.todoId,
+        referencedTable: $db.todos,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TodosTableOrderingComposer(
+              $db: $db,
+              $table: $db.todos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$TodoCheckListItemsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TodoCheckListItemsTable> {
+  $$TodoCheckListItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<bool> get isCompleted => $composableBuilder(
+      column: $table.isCompleted, builder: (column) => column);
+
+  GeneratedColumn<int> get order =>
+      $composableBuilder(column: $table.order, builder: (column) => column);
+
+  $$TodosTableAnnotationComposer get todoId {
+    final $$TodosTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.todoId,
+        referencedTable: $db.todos,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TodosTableAnnotationComposer(
+              $db: $db,
+              $table: $db.todos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$TodoCheckListItemsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TodoCheckListItemsTable,
+    TodoCheckListItem,
+    $$TodoCheckListItemsTableFilterComposer,
+    $$TodoCheckListItemsTableOrderingComposer,
+    $$TodoCheckListItemsTableAnnotationComposer,
+    $$TodoCheckListItemsTableCreateCompanionBuilder,
+    $$TodoCheckListItemsTableUpdateCompanionBuilder,
+    (TodoCheckListItem, $$TodoCheckListItemsTableReferences),
+    TodoCheckListItem,
+    PrefetchHooks Function({bool todoId})> {
+  $$TodoCheckListItemsTableTableManager(
+      _$AppDatabase db, $TodoCheckListItemsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TodoCheckListItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TodoCheckListItemsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TodoCheckListItemsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime?> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<int> todoId = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<bool> isCompleted = const Value.absent(),
+            Value<int> order = const Value.absent(),
+          }) =>
+              TodoCheckListItemsCompanion(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            todoId: todoId,
+            title: title,
+            isCompleted: isCompleted,
+            order: order,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime?> createdAt = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            required int todoId,
+            required String title,
+            Value<bool> isCompleted = const Value.absent(),
+            required int order,
+          }) =>
+              TodoCheckListItemsCompanion.insert(
+            id: id,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            todoId: todoId,
+            title: title,
+            isCompleted: isCompleted,
+            order: order,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$TodoCheckListItemsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({todoId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (todoId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.todoId,
+                    referencedTable:
+                        $$TodoCheckListItemsTableReferences._todoIdTable(db),
+                    referencedColumn:
+                        $$TodoCheckListItemsTableReferences._todoIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$TodoCheckListItemsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $TodoCheckListItemsTable,
+    TodoCheckListItem,
+    $$TodoCheckListItemsTableFilterComposer,
+    $$TodoCheckListItemsTableOrderingComposer,
+    $$TodoCheckListItemsTableAnnotationComposer,
+    $$TodoCheckListItemsTableCreateCompanionBuilder,
+    $$TodoCheckListItemsTableUpdateCompanionBuilder,
+    (TodoCheckListItem, $$TodoCheckListItemsTableReferences),
+    TodoCheckListItem,
+    PrefetchHooks Function({bool todoId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1791,4 +2564,6 @@ class $AppDatabaseManager {
       $$CategoriesTableTableManager(_db, _db.categories);
   $$TodosTableTableManager get todos =>
       $$TodosTableTableManager(_db, _db.todos);
+  $$TodoCheckListItemsTableTableManager get todoCheckListItems =>
+      $$TodoCheckListItemsTableTableManager(_db, _db.todoCheckListItems);
 }

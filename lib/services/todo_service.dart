@@ -1,93 +1,33 @@
+import 'package:drift/drift.dart';
 import 'package:solo/models/todo_model.dart';
+import 'package:solo/repositories/database/drift.dart';
 import 'package:solo/repositories/database.dart';
+import 'package:solo/services/todo_checklist_item_service.dart';
 
 class TodoService {
-  // In-memory storage for prototype - in real app this would be persisted
-  static final List<TodoModel> _inMemoryTodos = [];
-  static int _nextId = 1;
+  final TodoTableRepository _todoTableRepository = TodoTableRepository();
+
   Future<List<TodoModel>> getTodo() async {
-    final todoTableRepository = TodoTableRepository();
-    final todos = await todoTableRepository.findAll();
-
-    if (todos.isNotEmpty) {
-      return todos
-          .map((todo) => TodoModel(
-                id: todo.id,
-                dueDate: todo.dueDate,
-                title: todo.title,
-                isCompleted: todo.isCompleted,
-                description: todo.description,
-                color: todo.color,
-                categoryId: todo.categoryId,
-                icon: todo.icon,
-                createdAt: todo.createdAt,
-                updatedAt: todo.updatedAt,
-                isRecurring: todo.isRecurring,
-                recurringType: todo.recurringType,
-                recurringEndDate: todo.recurringEndDate,
-                recurringDayOfWeek: todo.recurringDayOfWeek,
-                recurringDayOfMonth: todo.recurringDayOfMonth,
-              ))
-          .toList();
-    }
-
-    // If no todos in database, use in-memory todos with dummy data
-    if (_inMemoryTodos.isEmpty) {
-      _initializeDummyData();
-    }
-
-    return List.from(_inMemoryTodos);
-  }
-
-  void _initializeDummyData() {
-    final now = DateTime.now();
-    _inMemoryTodos.addAll([
-      TodoModel(
-        id: _nextId++,
-        title: 'ミーティング準備',
-        description: '資料を用意して会議室を予約する',
-        dueDate: DateTime(now.year, now.month, now.day, 10, 0),
-        isCompleted: false,
-        color: 'blue',
-        categoryId: 1, // 仕事カテゴリ
-      ),
-      TodoModel(
-        id: _nextId++,
-        title: '買い物',
-        description: '食材と日用品を購入',
-        dueDate: DateTime(now.year, now.month, now.day + 1, 15, 30),
-        isCompleted: false,
-        color: 'green',
-        categoryId: 2, // 個人カテゴリ
-      ),
-      TodoModel(
-        id: _nextId++,
-        title: '完了済みタスク',
-        description: '既に完了したタスクのサンプル',
-        dueDate: DateTime(now.year, now.month, now.day - 1, 9, 0),
-        isCompleted: true,
-        color: 'blue',
-        categoryId: 1, // 仕事カテゴリ
-      ),
-      TodoModel(
-        id: _nextId++,
-        title: 'プロジェクト計画',
-        description: '次四半期の計画を立てる',
-        dueDate: DateTime(now.year, now.month, now.day + 2, 14, 0),
-        isCompleted: false,
-        color: 'blue',
-        categoryId: 1, // 仕事カテゴリ
-      ),
-      TodoModel(
-        id: _nextId++,
-        title: '健康診断',
-        description: '',
-        dueDate: DateTime(now.year, now.month, now.day + 3, 11, 30),
-        isCompleted: false,
-        color: 'orange',
-        categoryId: 4, // 健康カテゴリ
-      ),
-    ]);
+    final todos = await _todoTableRepository.findAll();
+    return todos
+        .map((todo) => TodoModel(
+              id: todo.id,
+              dueDate: todo.dueDate,
+              title: todo.title,
+              isCompleted: todo.isCompleted,
+              description: todo.description,
+              color: todo.color,
+              categoryId: todo.categoryId,
+              icon: todo.icon,
+              createdAt: todo.createdAt,
+              updatedAt: todo.updatedAt,
+              isRecurring: todo.isRecurring,
+              recurringType: todo.recurringType,
+              recurringEndDate: todo.recurringEndDate,
+              recurringDayOfWeek: todo.recurringDayOfWeek,
+              recurringDayOfMonth: todo.recurringDayOfMonth,
+            ))
+        .toList();
   }
 
   Future<TodoModel> createTodo({
@@ -96,32 +36,45 @@ class TodoService {
     required DateTime dueDate,
     String? color,
     int? categoryId,
-    // Recurring parameters
     bool? isRecurring,
     String? recurringType,
     DateTime? recurringEndDate,
     int? recurringDayOfWeek,
     int? recurringDayOfMonth,
   }) async {
-    final newTodo = TodoModel(
-      id: _nextId++,
+    final now = DateTime.now();
+    final companion = TodosCompanion(
+      title: Value(title),
+      description: Value(description),
+      dueDate: Value(dueDate),
+      isCompleted: const Value(false),
+      color: Value(color ?? 'blue'),
+      categoryId: Value(categoryId),
+      createdAt: Value(now),
+      updatedAt: Value(now),
+      isRecurring: Value(isRecurring ?? false),
+      recurringType: Value(recurringType),
+      recurringEndDate: Value(recurringEndDate),
+      recurringDayOfWeek: Value(recurringDayOfWeek),
+      recurringDayOfMonth: Value(recurringDayOfMonth),
+    );
+    final id = await _todoTableRepository.insert(companion);
+    return TodoModel(
+      id: id,
       title: title,
       description: description,
       dueDate: dueDate,
       isCompleted: false,
       color: color ?? 'blue',
       categoryId: categoryId,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      createdAt: now,
+      updatedAt: now,
       isRecurring: isRecurring ?? false,
       recurringType: recurringType,
       recurringEndDate: recurringEndDate,
       recurringDayOfWeek: recurringDayOfWeek,
       recurringDayOfMonth: recurringDayOfMonth,
     );
-
-    _inMemoryTodos.add(newTodo);
-    return newTodo;
   }
 
   Future<TodoModel?> updateTodo(
@@ -132,160 +85,267 @@ class TodoService {
     String? color,
     int? categoryId,
     bool? isCompleted,
-    // Recurring parameters
     bool? isRecurring,
     String? recurringType,
     DateTime? recurringEndDate,
     int? recurringDayOfWeek,
     int? recurringDayOfMonth,
   }) async {
-    final index = _inMemoryTodos.indexWhere((todo) => todo.id == id);
-    if (index == -1) return null;
-
-    final oldTodo = _inMemoryTodos[index];
-    final updatedTodo = TodoModel(
-      id: oldTodo.id,
-      title: title ?? oldTodo.title,
-      description: description ?? oldTodo.description,
-      dueDate: dueDate ?? oldTodo.dueDate,
-      isCompleted: isCompleted ?? oldTodo.isCompleted,
-      color: color ?? oldTodo.color,
-      categoryId: categoryId ?? oldTodo.categoryId,
-      icon: oldTodo.icon,
-      createdAt: oldTodo.createdAt,
-      updatedAt: DateTime.now(),
-      isRecurring: isRecurring ?? oldTodo.isRecurring,
-      recurringType: recurringType ?? oldTodo.recurringType,
-      recurringEndDate: recurringEndDate ?? oldTodo.recurringEndDate,
-      recurringDayOfWeek: recurringDayOfWeek ?? oldTodo.recurringDayOfWeek,
-      recurringDayOfMonth: recurringDayOfMonth ?? oldTodo.recurringDayOfMonth,
+    final now = DateTime.now();
+    final companion = TodosCompanion(
+      title: title != null ? Value(title) : const Value.absent(),
+      description:
+          description != null ? Value(description) : const Value.absent(),
+      dueDate: dueDate != null ? Value(dueDate) : const Value.absent(),
+      color: color != null ? Value(color) : const Value.absent(),
+      categoryId: categoryId != null ? Value(categoryId) : const Value.absent(),
+      isCompleted:
+          isCompleted != null ? Value(isCompleted) : const Value.absent(),
+      updatedAt: Value(now),
+      isRecurring:
+          isRecurring != null ? Value(isRecurring) : const Value.absent(),
+      recurringType:
+          recurringType != null ? Value(recurringType) : const Value.absent(),
+      recurringEndDate: recurringEndDate != null
+          ? Value(recurringEndDate)
+          : const Value.absent(),
+      recurringDayOfWeek: recurringDayOfWeek != null
+          ? Value(recurringDayOfWeek)
+          : const Value.absent(),
+      recurringDayOfMonth: recurringDayOfMonth != null
+          ? Value(recurringDayOfMonth)
+          : const Value.absent(),
     );
-
-    _inMemoryTodos[index] = updatedTodo;
-    return updatedTodo;
+    final success = await _todoTableRepository.update(id, companion);
+    if (!success) return null;
+    final todos = await _todoTableRepository.findAll();
+    Todo? todo;
+    try {
+      todo = todos.firstWhere((t) => t.id == id);
+    } catch (e) {
+      return null;
+    }
+    return TodoModel(
+      id: todo.id,
+      dueDate: todo.dueDate,
+      title: todo.title,
+      isCompleted: todo.isCompleted,
+      description: todo.description,
+      color: todo.color,
+      categoryId: todo.categoryId,
+      icon: todo.icon,
+      createdAt: todo.createdAt,
+      updatedAt: todo.updatedAt,
+      isRecurring: todo.isRecurring,
+      recurringType: todo.recurringType,
+      recurringEndDate: todo.recurringEndDate,
+      recurringDayOfWeek: todo.recurringDayOfWeek,
+      recurringDayOfMonth: todo.recurringDayOfMonth,
+    );
   }
 
   Future<bool> deleteTodo(int id) async {
-    final index = _inMemoryTodos.indexWhere((todo) => todo.id == id);
-    if (index == -1) return false;
-
-    _inMemoryTodos.removeAt(index);
-    return true;
+    return await _todoTableRepository.delete(id);
   }
 
   Future<TodoModel?> toggleTodoComplete(int id) async {
-    final index = _inMemoryTodos.indexWhere((todo) => todo.id == id);
-    if (index == -1) return null;
-
-    final oldTodo = _inMemoryTodos[index];
-    final updatedTodo = TodoModel(
-      id: oldTodo.id,
-      title: oldTodo.title,
-      description: oldTodo.description,
-      dueDate: oldTodo.dueDate,
-      isCompleted: !oldTodo.isCompleted,
-      color: oldTodo.color,
-      icon: oldTodo.icon,
-      createdAt: oldTodo.createdAt,
-      updatedAt: DateTime.now(),
-      isRecurring: oldTodo.isRecurring,
-      recurringType: oldTodo.recurringType,
-      recurringEndDate: oldTodo.recurringEndDate,
-      recurringDayOfWeek: oldTodo.recurringDayOfWeek,
-      recurringDayOfMonth: oldTodo.recurringDayOfMonth,
+    final todos = await _todoTableRepository.findAll();
+    Todo? todo;
+    try {
+      todo = todos.firstWhere((t) => t.id == id);
+    } catch (e) {
+      return null;
+    }
+    final companion = TodosCompanion(
+      isCompleted: Value(!todo.isCompleted),
+      updatedAt: Value(DateTime.now()),
     );
+    final success = await _todoTableRepository.update(id, companion);
+    if (!success) return null;
+    final updatedTodos = await _todoTableRepository.findAll();
+    Todo? updatedTodo;
+    try {
+      updatedTodo = updatedTodos.firstWhere((t) => t.id == id);
+    } catch (e) {
+      return null;
+    }
+    return TodoModel(
+      id: updatedTodo.id,
+      dueDate: updatedTodo.dueDate,
+      title: updatedTodo.title,
+      isCompleted: updatedTodo.isCompleted,
+      description: updatedTodo.description,
+      color: updatedTodo.color,
+      categoryId: updatedTodo.categoryId,
+      icon: updatedTodo.icon,
+      createdAt: updatedTodo.createdAt,
+      updatedAt: updatedTodo.updatedAt,
+      isRecurring: updatedTodo.isRecurring,
+      recurringType: updatedTodo.recurringType,
+      recurringEndDate: updatedTodo.recurringEndDate,
+      recurringDayOfWeek: updatedTodo.recurringDayOfWeek,
+      recurringDayOfMonth: updatedTodo.recurringDayOfMonth,
+    );
+  }
 
-    _inMemoryTodos[index] = updatedTodo;
-    return updatedTodo;
+  Future<bool> checkAndUpdateTodoCompletionByChecklist(int todoId) async {
+    final checklistService = TodoCheckListItemService();
+    final allItemsCompleted =
+        await checklistService.areAllCheckListItemsCompleted(todoId);
+    if (allItemsCompleted) {
+      final todos = await _todoTableRepository.findAll();
+      Todo? todo;
+      try {
+        todo = todos.firstWhere((t) => t.id == todoId);
+      } catch (e) {
+        return false;
+      }
+      if (!todo.isCompleted) {
+        final companion = TodosCompanion(
+          isCompleted: const Value(true),
+          updatedAt: Value(DateTime.now()),
+        );
+        final success = await _todoTableRepository.update(todoId, companion);
+        return success;
+      }
+    }
+    return false;
   }
 
   Future<List<TodoModel>> getTodayTodos() async {
-    final allTodos = await getTodo();
     final today = DateTime.now();
-
-    return allTodos.where((todo) {
-      final todoDate = todo.dueDate;
-      return todoDate.year == today.year &&
-          todoDate.month == today.month &&
-          todoDate.day == today.day;
-    }).toList();
+    final todos = await _todoTableRepository.findByDate(today);
+    return todos
+        .map((todo) => TodoModel(
+              id: todo.id,
+              dueDate: todo.dueDate,
+              title: todo.title,
+              isCompleted: todo.isCompleted,
+              description: todo.description,
+              color: todo.color,
+              categoryId: todo.categoryId,
+              icon: todo.icon,
+              createdAt: todo.createdAt,
+              updatedAt: todo.updatedAt,
+              isRecurring: todo.isRecurring,
+              recurringType: todo.recurringType,
+              recurringEndDate: todo.recurringEndDate,
+              recurringDayOfWeek: todo.recurringDayOfWeek,
+              recurringDayOfMonth: todo.recurringDayOfMonth,
+            ))
+        .toList();
   }
 
   Future<List<TodoModel>> getUpcomingTodos() async {
-    final allTodos = await getTodo();
     final today = DateTime.now();
     final weekFromNow = today.add(const Duration(days: 7));
-
-    return allTodos.where((todo) {
-      final todoDate = todo.dueDate;
-      final isToday = todoDate.year == today.year &&
-          todoDate.month == today.month &&
-          todoDate.day == today.day;
-      return !isToday &&
-          todoDate.isAfter(today) &&
-          todoDate.isBefore(weekFromNow);
-    }).toList();
+    final todos = await _todoTableRepository.findUpcoming(today, weekFromNow);
+    return todos
+        .where((todo) {
+          final todoDate = todo.dueDate;
+          final isToday = todoDate.year == today.year &&
+              todoDate.month == today.month &&
+              todoDate.day == today.day;
+          return !isToday;
+        })
+        .map((todo) => TodoModel(
+              id: todo.id,
+              dueDate: todo.dueDate,
+              title: todo.title,
+              isCompleted: todo.isCompleted,
+              description: todo.description,
+              color: todo.color,
+              categoryId: todo.categoryId,
+              icon: todo.icon,
+              createdAt: todo.createdAt,
+              updatedAt: todo.updatedAt,
+              isRecurring: todo.isRecurring,
+              recurringType: todo.recurringType,
+              recurringEndDate: todo.recurringEndDate,
+              recurringDayOfWeek: todo.recurringDayOfWeek,
+              recurringDayOfMonth: todo.recurringDayOfMonth,
+            ))
+        .toList();
   }
 
   Future<List<TodoModel>> getFilteredTodos({
     bool? isCompleted,
     int? categoryId,
   }) async {
-    final allTodos = await getTodo();
-
-    return allTodos.where((todo) {
-      bool matchesCompletion =
-          isCompleted == null || todo.isCompleted == isCompleted;
-      bool matchesCategory =
-          categoryId == null || todo.categoryId == categoryId;
-      return matchesCompletion && matchesCategory;
-    }).toList();
+    final todos = await _todoTableRepository.findFiltered(
+      isCompleted: isCompleted,
+      categoryId: categoryId,
+    );
+    return todos
+        .map((todo) => TodoModel(
+              id: todo.id,
+              dueDate: todo.dueDate,
+              title: todo.title,
+              isCompleted: todo.isCompleted,
+              description: todo.description,
+              color: todo.color,
+              categoryId: todo.categoryId,
+              icon: todo.icon,
+              createdAt: todo.createdAt,
+              updatedAt: todo.updatedAt,
+              isRecurring: todo.isRecurring,
+              recurringType: todo.recurringType,
+              recurringEndDate: todo.recurringEndDate,
+              recurringDayOfWeek: todo.recurringDayOfWeek,
+              recurringDayOfMonth: todo.recurringDayOfMonth,
+            ))
+        .toList();
   }
 
   Future<List<TodoModel>> getTodosForDate(DateTime date) async {
-    // ダミーデータを返す
-    return [
-      TodoModel(
-        id: 1,
-        title: 'ダミーTodo 1',
-        description: 'ダミー詳細 1',
-        dueDate: date,
-        isCompleted: false,
-        color: 'blue',
-      ),
-      TodoModel(
-        id: 2,
-        title: 'ダミーTodo 2',
-        description: 'ダミー詳細 2',
-        dueDate: date,
-        isCompleted: true,
-        color: 'orange',
-      ),
-      TodoModel(
-        id: 3,
-        title: 'ダミーTodo 3',
-        description: 'ダミー詳細 3',
-        dueDate: date,
-        isCompleted: false,
-        color: 'green',
-      ),
-    ];
+    final todos = await _todoTableRepository.findByDate(date);
+    return todos
+        .map((todo) => TodoModel(
+              id: todo.id,
+              dueDate: todo.dueDate,
+              title: todo.title,
+              isCompleted: todo.isCompleted,
+              description: todo.description,
+              color: todo.color,
+              categoryId: todo.categoryId,
+              icon: todo.icon,
+              createdAt: todo.createdAt,
+              updatedAt: todo.updatedAt,
+              isRecurring: todo.isRecurring,
+              recurringType: todo.recurringType,
+              recurringEndDate: todo.recurringEndDate,
+              recurringDayOfWeek: todo.recurringDayOfWeek,
+              recurringDayOfMonth: todo.recurringDayOfMonth,
+            ))
+        .toList();
   }
 
   Future<Map<DateTime, List<TodoModel>>> getTodosForMonth(
       DateTime month) async {
-    final allTodos = await getTodo();
+    final todos = await _todoTableRepository.findByMonth(month);
     final Map<DateTime, List<TodoModel>> todosByDate = {};
-
-    for (final todo in allTodos) {
+    for (final todo in todos) {
       final todoDate = todo.dueDate;
-      if (todoDate.year == month.year && todoDate.month == month.month) {
-        final dateKey = DateTime(todoDate.year, todoDate.month, todoDate.day);
-        todosByDate[dateKey] = todosByDate[dateKey] ?? [];
-        todosByDate[dateKey]!.add(todo);
-      }
+      final dateKey = DateTime(todoDate.year, todoDate.month, todoDate.day);
+      todosByDate[dateKey] = todosByDate[dateKey] ?? [];
+      todosByDate[dateKey]!.add(TodoModel(
+        id: todo.id,
+        dueDate: todo.dueDate,
+        title: todo.title,
+        isCompleted: todo.isCompleted,
+        description: todo.description,
+        color: todo.color,
+        categoryId: todo.categoryId,
+        icon: todo.icon,
+        createdAt: todo.createdAt,
+        updatedAt: todo.updatedAt,
+        isRecurring: todo.isRecurring,
+        recurringType: todo.recurringType,
+        recurringEndDate: todo.recurringEndDate,
+        recurringDayOfWeek: todo.recurringDayOfWeek,
+        recurringDayOfMonth: todo.recurringDayOfMonth,
+      ));
     }
-
     return todosByDate;
   }
 
@@ -307,7 +367,7 @@ class TodoService {
           currentDate.hour,
           currentDate.minute,
         );
-      
+
       case 'weekly':
         return DateTime(
           currentDate.year,
@@ -316,16 +376,18 @@ class TodoService {
           currentDate.hour,
           currentDate.minute,
         );
-      
+
       case 'monthly':
         if (todo.recurringDayOfMonth != null) {
-          final nextMonth = currentDate.month == 12 
+          final nextMonth = currentDate.month == 12
               ? DateTime(currentDate.year + 1, 1, 1)
               : DateTime(currentDate.year, currentDate.month + 1, 1);
           final targetDay = todo.recurringDayOfMonth!;
-          final lastDayOfMonth = DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
-          final actualDay = targetDay > lastDayOfMonth ? lastDayOfMonth : targetDay;
-          
+          final lastDayOfMonth =
+              DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
+          final actualDay =
+              targetDay > lastDayOfMonth ? lastDayOfMonth : targetDay;
+
           return DateTime(
             nextMonth.year,
             nextMonth.month,
@@ -335,13 +397,14 @@ class TodoService {
           );
         }
         break;
-      
+
       case 'monthly_last':
-        final nextMonth = currentDate.month == 12 
+        final nextMonth = currentDate.month == 12
             ? DateTime(currentDate.year + 1, 1, 1)
             : DateTime(currentDate.year, currentDate.month + 1, 1);
-        final lastDayOfNextMonth = DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
-        
+        final lastDayOfNextMonth =
+            DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
+
         return DateTime(
           nextMonth.year,
           nextMonth.month,
@@ -355,38 +418,54 @@ class TodoService {
   }
 
   /// Generate the next instance of a recurring todo
-  Future<TodoModel?> generateNextRecurringInstance(TodoModel originalTodo) async {
+  Future<TodoModel?> generateNextRecurringInstance(
+      TodoModel originalTodo) async {
     if (originalTodo.isRecurring != true) return null;
 
     final nextDate = calculateNextRecurringDate(originalTodo);
     if (nextDate == null) return null;
 
     // Check if we've passed the end date
-    if (originalTodo.recurringEndDate != null && 
+    if (originalTodo.recurringEndDate != null &&
         nextDate.isAfter(originalTodo.recurringEndDate!)) {
       return null;
     }
 
-    // Create the next instance
-    final nextInstance = TodoModel(
-      id: _nextId++,
+    final now = DateTime.now();
+    final companion = TodosCompanion(
+      title: Value(originalTodo.title),
+      description: Value(originalTodo.description),
+      dueDate: Value(nextDate),
+      isCompleted: const Value(false),
+      color: Value(originalTodo.color),
+      icon: Value(originalTodo.icon),
+      categoryId: Value(originalTodo.categoryId),
+      createdAt: Value(now),
+      updatedAt: Value(now),
+      isRecurring: Value(originalTodo.isRecurring ?? false),
+      recurringType: Value(originalTodo.recurringType),
+      recurringEndDate: Value(originalTodo.recurringEndDate),
+      recurringDayOfWeek: Value(originalTodo.recurringDayOfWeek),
+      recurringDayOfMonth: Value(originalTodo.recurringDayOfMonth),
+    );
+    final id = await _todoTableRepository.insert(companion);
+    return TodoModel(
+      id: id,
       title: originalTodo.title,
       description: originalTodo.description,
       dueDate: nextDate,
       isCompleted: false,
       color: originalTodo.color,
       icon: originalTodo.icon,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      isRecurring: originalTodo.isRecurring,
+      categoryId: originalTodo.categoryId,
+      createdAt: now,
+      updatedAt: now,
+      isRecurring: originalTodo.isRecurring ?? false,
       recurringType: originalTodo.recurringType,
       recurringEndDate: originalTodo.recurringEndDate,
       recurringDayOfWeek: originalTodo.recurringDayOfWeek,
       recurringDayOfMonth: originalTodo.recurringDayOfMonth,
     );
-
-    _inMemoryTodos.add(nextInstance);
-    return nextInstance;
   }
 
   /// Auto-generate recurring todos when needed
@@ -400,45 +479,60 @@ class TodoService {
       if (todo.isRecurring == true && !todo.isCompleted) {
         // Check if we need to generate upcoming instances
         var currentTodo = todo;
-        
+
         // Generate up to 3 future instances within the next week
         for (int i = 0; i < 3; i++) {
           final nextDate = calculateNextRecurringDate(currentTodo);
           if (nextDate == null || nextDate.isAfter(oneWeekFromNow)) break;
-          
+
           // Check if we've passed the end date
-          if (todo.recurringEndDate != null && 
+          if (todo.recurringEndDate != null &&
               nextDate.isAfter(todo.recurringEndDate!)) break;
 
           // Check if this instance already exists
-          final existingInstance = allTodos.any((t) => 
-            t.title == todo.title &&
-            t.dueDate.year == nextDate.year &&
-            t.dueDate.month == nextDate.month &&
-            t.dueDate.day == nextDate.day &&
-            t.dueDate.hour == nextDate.hour &&
-            t.dueDate.minute == nextDate.minute
-          );
-
-          if (!existingInstance) {
+          final exists = allTodos.any((t) =>
+              t.title == todo.title &&
+              t.dueDate.year == nextDate.year &&
+              t.dueDate.month == nextDate.month &&
+              t.dueDate.day == nextDate.day &&
+              t.dueDate.hour == nextDate.hour &&
+              t.dueDate.minute == nextDate.minute);
+          if (!exists) {
+            final now = DateTime.now();
+            final companion = TodosCompanion(
+              title: Value(todo.title),
+              description: Value(todo.description),
+              dueDate: Value(nextDate),
+              isCompleted: const Value(false),
+              color: Value(todo.color),
+              icon: Value(todo.icon),
+              categoryId: Value(todo.categoryId),
+              createdAt: Value(now),
+              updatedAt: Value(now),
+              isRecurring: Value(todo.isRecurring ?? false),
+              recurringType: Value(todo.recurringType),
+              recurringEndDate: Value(todo.recurringEndDate),
+              recurringDayOfWeek: Value(todo.recurringDayOfWeek),
+              recurringDayOfMonth: Value(todo.recurringDayOfMonth),
+            );
+            final id = await _todoTableRepository.insert(companion);
             final nextInstance = TodoModel(
-              id: _nextId++,
+              id: id,
               title: todo.title,
               description: todo.description,
               dueDate: nextDate,
               isCompleted: false,
               color: todo.color,
               icon: todo.icon,
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-              isRecurring: todo.isRecurring,
+              categoryId: todo.categoryId,
+              createdAt: now,
+              updatedAt: now,
+              isRecurring: todo.isRecurring ?? false,
               recurringType: todo.recurringType,
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
             );
-
-            _inMemoryTodos.add(nextInstance);
             generatedTodos.add(nextInstance);
             currentTodo = nextInstance;
           } else {

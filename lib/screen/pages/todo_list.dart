@@ -24,271 +24,253 @@ class TodoListPage extends HookConsumerWidget {
       refreshKey.value++;
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: Theme.of(context).colorScheme.backgroundGradient,
-        ),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          AddTodoDialog.show(context, onSaved: refreshTodos);
+        },
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Icons.add, size: 32),
       ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            // Header with category filter, status filter, and calendar button
-            Container(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const SizedBox(width: 12),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          AddTodoDialog.show(context, onSaved: refreshTodos);
-                        },
-                        icon: Icon(
-                          Icons.add_circle_rounded,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 28,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: Theme.of(context).colorScheme.backgroundGradient,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header with category filter, status filter, and calendar button
+              Container(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    // カテゴリフィルター＋カレンダーボタン横並び
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ValueListenableBuilder<int?>(
+                            valueListenable: selectedCategoryId,
+                            builder: (context, selectedId, _) {
+                              return FutureBuilder<List<CategoryModel>>(
+                                future: CategoryService().getCategories(),
+                                builder: (context, snapshot) {
+                                  final categories = snapshot.data ?? [];
+                                  final valueList = [
+                                    null,
+                                    ...categories.map((cat) => cat.id)
+                                  ];
+                                  final labelList = [
+                                    'すべてのカテゴリ',
+                                    ...categories.map((cat) => cat.title),
+                                  ];
+                                  return DropdownButton<int?>(
+                                    value: selectedId,
+                                    isExpanded: true,
+                                    hint: const Text('カテゴリで絞り込む'),
+                                    selectedItemBuilder: (context) {
+                                      return labelList
+                                          .map((label) => Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(label),
+                                              ))
+                                          .toList();
+                                    },
+                                    items: valueList.map((value) {
+                                      return DropdownMenuItem<int?>(
+                                        value: value,
+                                        child: Text(
+                                          value == null
+                                              ? 'すべてのカテゴリ'
+                                              : labelList[
+                                                  valueList.indexOf(value)],
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) {
+                                      selectedCategoryId.value = value;
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          ),
                         ),
-                        label: Text(
-                          'Todoを追加',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                        const SizedBox(width: 12),
+                        IconButton(
+                          onPressed: () {
+                            nextRouting(context, RouterDefinition.calendar);
+                          },
+                          icon: Icon(
+                            Icons.calendar_today,
                             color:
                                 Theme.of(context).colorScheme.primaryTextColor,
                           ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context)
-                              .colorScheme
-                              .surface
-                              .withValues(alpha: 0.7),
-                          foregroundColor:
-                              Theme.of(context).colorScheme.primaryTextColor,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                          style: IconButton.styleFrom(
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withValues(alpha: 0.2),
+                            padding: const EdgeInsets.all(12),
                           ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 12),
                         ),
-                      ),
-                      const Spacer(),
-                      // カレンダー遷移ボタン
-                      IconButton(
-                        onPressed: () {
-                          nextRouting(context, RouterDefinition.calendar);
-                        },
-                        icon: Icon(
-                          Icons.calendar_today,
-                          color: Theme.of(context).colorScheme.primaryTextColor,
-                        ),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Theme.of(context)
-                              .colorScheme
-                              .surface
-                              .withValues(alpha: 0.2),
-                          padding: const EdgeInsets.all(12),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // カテゴリフィルター
-                  ValueListenableBuilder<int?>(
-                    valueListenable: selectedCategoryId,
-                    builder: (context, selectedId, _) {
-                      return FutureBuilder<List<CategoryModel>>(
-                        future: CategoryService().getCategories(),
-                        builder: (context, snapshot) {
-                          final categories = snapshot.data ?? [];
-                          final valueList = [
-                            null,
-                            ...categories.map((cat) => cat.id)
-                          ];
-                          final labelList = [
-                            'すべてのカテゴリ',
-                            ...categories.map((cat) => cat.title),
-                          ];
-                          return DropdownButton<int?>(
-                            value: selectedId,
-                            isExpanded: true,
-                            hint: const Text('カテゴリで絞り込む'),
-                            selectedItemBuilder: (context) {
-                              return labelList
-                                  .map((label) => Text(label))
-                                  .toList();
-                            },
-                            items: valueList.map((value) {
-                              return DropdownMenuItem<int?>(
-                                value: value,
-                                child: Text(
-                                  value == null
-                                      ? 'すべてのカテゴリ'
-                                      : labelList[valueList.indexOf(value)],
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              selectedCategoryId.value = value;
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  // 状態フィルター
-                  ValueListenableBuilder<TodoFilter>(
-                    valueListenable: filterNotifier,
-                    builder: (context, filter, _) {
-                      return SegmentedButton<TodoFilter>(
-                        showSelectedIcon: false,
-                        style: ButtonStyle(
-                          minimumSize:
-                              WidgetStateProperty.all(const Size(100, 40)),
-                          padding: WidgetStateProperty.all(
-                              const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8)),
-                        ),
-                        segments: const [
-                          ButtonSegment(
-                            value: TodoFilter.incomplete,
-                            label: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Text('未完了'),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // 状態フィルター
+                    ValueListenableBuilder<TodoFilter>(
+                      valueListenable: filterNotifier,
+                      builder: (context, filter, _) {
+                        return SegmentedButton<TodoFilter>(
+                          showSelectedIcon: false,
+                          style: ButtonStyle(
+                            minimumSize:
+                                WidgetStateProperty.all(const Size(100, 40)),
+                            padding: WidgetStateProperty.all(
+                                const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8)),
+                          ),
+                          segments: const [
+                            ButtonSegment(
+                              value: TodoFilter.incomplete,
+                              label: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                child: Text('未完了'),
+                              ),
                             ),
-                          ),
-                          ButtonSegment(
-                            value: TodoFilter.completed,
-                            label: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Text('完了'),
+                            ButtonSegment(
+                              value: TodoFilter.completed,
+                              label: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                child: Text('完了'),
+                              ),
                             ),
-                          ),
-                          ButtonSegment(
-                            value: TodoFilter.all,
-                            label: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Text('すべて'),
+                            ButtonSegment(
+                              value: TodoFilter.all,
+                              label: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                child: Text('すべて'),
+                              ),
                             ),
-                          ),
-                        ],
-                        selected: {filter},
-                        onSelectionChanged: (Set<TodoFilter> newSelection) {
-                          filterNotifier.value = newSelection.first;
-                        },
-                      );
-                    },
-                  ),
-                ],
+                          ],
+                          selected: {filter},
+                          onSelectionChanged: (Set<TodoFilter> newSelection) {
+                            filterNotifier.value = newSelection.first;
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            // Todo sections
-            Expanded(
-              child: ValueListenableBuilder<int?>(
-                valueListenable: selectedCategoryId,
-                builder: (context, categoryId, _) {
-                  return ValueListenableBuilder<TodoFilter>(
-                    valueListenable: filterNotifier,
-                    builder: (context, filter, __) {
-                      return ValueListenableBuilder<int>(
-                        valueListenable: refreshKey,
-                        builder: (context, _, ___) =>
-                            FutureBuilder<Map<String, List<TodoModel>>>(
-                          future: _getTodoSections(categoryId, filter),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            }
+              // Todo sections
+              Expanded(
+                child: ValueListenableBuilder<int?>(
+                  valueListenable: selectedCategoryId,
+                  builder: (context, categoryId, _) {
+                    return ValueListenableBuilder<TodoFilter>(
+                      valueListenable: filterNotifier,
+                      builder: (context, filter, __) {
+                        return ValueListenableBuilder<int>(
+                          valueListenable: refreshKey,
+                          builder: (context, _, ___) =>
+                              FutureBuilder<Map<String, List<TodoModel>>>(
+                            future: _getTodoSections(categoryId, filter),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
 
-                            if (snapshot.hasError) {
-                              return Center(
-                                child: Text(
-                                  'エラーが発生しました',
-                                  style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .errorColor,
+                              if (snapshot.hasError) {
+                                return Center(
+                                  child: Text(
+                                    'エラーが発生しました',
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .errorColor,
+                                    ),
                                   ),
-                                ),
-                              );
-                            }
+                                );
+                              }
 
-                            final sections = snapshot.data ?? {};
+                              final sections = snapshot.data ?? {};
 
-                            return ListView(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              children: [
-                                if (sections['today']?.isNotEmpty == true) ...[
-                                  _buildSectionHeader(context, '今日が期限',
-                                      sections['today']!.length),
-                                  ...sections['today']!.map((todo) =>
-                                      _buildTodoCard(
-                                          context, todo, refreshTodos)),
-                                  const SizedBox(height: 20),
-                                ],
-                                if (sections['upcoming']?.isNotEmpty ==
-                                    true) ...[
-                                  _buildSectionHeader(context, '期限が近い',
-                                      sections['upcoming']!.length),
-                                  ...sections['upcoming']!.map((todo) =>
-                                      _buildTodoCard(
-                                          context, todo, refreshTodos)),
-                                  const SizedBox(height: 20),
-                                ],
-                                if (sections['all']?.isNotEmpty == true) ...[
-                                  _buildSectionHeader(context, 'すべてのTodo',
-                                      sections['all']!.length),
-                                  ...sections['all']!.map((todo) =>
-                                      _buildTodoCard(
-                                          context, todo, refreshTodos)),
-                                ],
-                                if (sections.values
-                                    .every((list) => list.isEmpty)) ...[
-                                  const SizedBox(height: 60),
-                                  Center(
-                                    child: Column(
-                                      children: [
-                                        Icon(
-                                          Icons.task_alt,
-                                          size: 64,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .mutedTextColor,
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Text(
-                                          'Todoがありません',
-                                          style: TextStyle(
-                                            fontSize: 18,
+                              return ListView(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 20),
+                                children: [
+                                  if (sections['today']?.isNotEmpty ==
+                                      true) ...[
+                                    _buildSectionHeader(context, '今日が期限',
+                                        sections['today']!.length),
+                                    ...sections['today']!.map((todo) =>
+                                        _buildTodoCard(
+                                            context, todo, refreshTodos)),
+                                    const SizedBox(height: 20),
+                                  ],
+                                  if (sections['upcoming']?.isNotEmpty ==
+                                      true) ...[
+                                    _buildSectionHeader(context, '期限が近い',
+                                        sections['upcoming']!.length),
+                                    ...sections['upcoming']!.map((todo) =>
+                                        _buildTodoCard(
+                                            context, todo, refreshTodos)),
+                                    const SizedBox(height: 20),
+                                  ],
+                                  if (sections['all']?.isNotEmpty == true) ...[
+                                    _buildSectionHeader(context, 'すべてのTodo',
+                                        sections['all']!.length),
+                                    ...sections['all']!.map((todo) =>
+                                        _buildTodoCard(
+                                            context, todo, refreshTodos)),
+                                  ],
+                                  if (sections.values
+                                      .every((list) => list.isEmpty)) ...[
+                                    const SizedBox(height: 60),
+                                    Center(
+                                      child: Column(
+                                        children: [
+                                          Icon(
+                                            Icons.task_alt,
+                                            size: 64,
                                             color: Theme.of(context)
                                                 .colorScheme
                                                 .mutedTextColor,
                                           ),
-                                        ),
-                                      ],
+                                          const SizedBox(height: 16),
+                                          Text(
+                                            'Todoがありません',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .mutedTextColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
+                                  ],
+                                  const SizedBox(height: 80),
                                 ],
-                                const SizedBox(height: 80),
-                              ],
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  );
-                },
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

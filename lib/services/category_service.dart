@@ -4,79 +4,21 @@ import 'package:solo/repositories/database/drift.dart';
 import 'package:drift/drift.dart';
 
 class CategoryService {
-  // In-memory storage for prototype - in real app this would be persisted
-  static final List<CategoryModel> _inMemoryCategories = [];
-  static int _nextId = 1;
+  final CategoryTableRepository _categoryTableRepository =
+      CategoryTableRepository();
 
   Future<List<CategoryModel>> getCategories() async {
-    final categoryTableRepository = CategoryTableRepository();
-    final categories = await categoryTableRepository.findAll();
-
-    if (categories.isNotEmpty) {
-      return categories
-          .map((category) => CategoryModel(
-                id: category.id,
-                title: category.title,
-                description: category.description,
-                color: category.color,
-                createdAt: category.createdAt,
-                updatedAt: category.updatedAt,
-              ))
-          .toList();
-    }
-
-    // If no categories in database, use in-memory categories with default data
-    if (_inMemoryCategories.isEmpty) {
-      _initializeDefaultCategories();
-    }
-
-    return List.from(_inMemoryCategories);
-  }
-
-  void _initializeDefaultCategories() {
-    final now = DateTime.now();
-    _inMemoryCategories.addAll([
-      CategoryModel(
-        id: _nextId++,
-        title: '仕事',
-        description: '職場での業務やプロジェクト',
-        color: 'blue',
-        createdAt: now,
-        updatedAt: now,
-      ),
-      CategoryModel(
-        id: _nextId++,
-        title: '個人',
-        description: '私生活やプライベートな予定',
-        color: 'green',
-        createdAt: now,
-        updatedAt: now,
-      ),
-      CategoryModel(
-        id: _nextId++,
-        title: '学習',
-        description: '勉強や習得したいスキル',
-        color: 'purple',
-        createdAt: now,
-        updatedAt: now,
-      ),
-      CategoryModel(
-        id: _nextId++,
-        title: '健康',
-        description: '運動や健康管理',
-        color: 'orange',
-        createdAt: now,
-        updatedAt: now,
-      ),
-      CategoryModel(
-        id: _nextId++,
-        title: '緊急',
-        description: '重要で急ぎの項目',
-        color: 'red',
-        createdAt: now,
-        updatedAt: now,
-      ),
-    ]);
+    final categories = await _categoryTableRepository.findAll();
+    return categories
+        .map((category) => CategoryModel(
+              id: category.id,
+              title: category.title,
+              description: category.description,
+              color: category.color,
+              createdAt: category.createdAt,
+              updatedAt: category.updatedAt,
+            ))
+        .toList();
   }
 
   Future<CategoryModel> createCategory({
@@ -84,17 +26,23 @@ class CategoryService {
     String? description,
     required String color,
   }) async {
-    final newCategory = CategoryModel(
-      id: _nextId++,
+    final now = DateTime.now();
+    final companion = CategoriesCompanion(
+      title: Value(title),
+      description: Value(description),
+      color: Value(color),
+      createdAt: Value(now),
+      updatedAt: Value(now),
+    );
+    final id = await _categoryTableRepository.insert(companion);
+    return CategoryModel(
+      id: id,
       title: title,
       description: description,
       color: color,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      createdAt: now,
+      updatedAt: now,
     );
-
-    _inMemoryCategories.add(newCategory);
-    return newCategory;
   }
 
   Future<CategoryModel?> updateCategory(
@@ -103,32 +51,35 @@ class CategoryService {
     String? description,
     String? color,
   }) async {
-    final index = _inMemoryCategories.indexWhere((c) => c.id == id);
-    if (index == -1) return null;
-
-    final category = _inMemoryCategories[index];
-    final updatedCategory = category.copyWith(
-      title: title ?? category.title,
-      description: description ?? category.description,
-      color: color ?? category.color,
-      updatedAt: DateTime.now(),
+    final now = DateTime.now();
+    final companion = CategoriesCompanion(
+      title: title != null ? Value(title) : const Value.absent(),
+      description:
+          description != null ? Value(description) : const Value.absent(),
+      color: color != null ? Value(color) : const Value.absent(),
+      updatedAt: Value(now),
     );
-
-    _inMemoryCategories[index] = updatedCategory;
-    return updatedCategory;
+    final success = await _categoryTableRepository.update(id, companion);
+    if (!success) return null;
+    return getCategoryById(id);
   }
 
   Future<bool> deleteCategory(int id) async {
-    final index = _inMemoryCategories.indexWhere((c) => c.id == id);
-    if (index == -1) return false;
-
-    _inMemoryCategories.removeAt(index);
-    return true;
+    return await _categoryTableRepository.delete(id);
   }
 
   Future<CategoryModel?> getCategoryById(int id) async {
+    final categories = await _categoryTableRepository.findAll();
     try {
-      return _inMemoryCategories.firstWhere((c) => c.id == id);
+      final category = categories.firstWhere((c) => c.id == id);
+      return CategoryModel(
+        id: category.id,
+        title: category.title,
+        description: category.description,
+        color: category.color,
+        createdAt: category.createdAt,
+        updatedAt: category.updatedAt,
+      );
     } catch (e) {
       return null;
     }

@@ -174,35 +174,6 @@ class TimerState extends _$TimerState {
     }
   }
 
-  void _completeCurrentPhase() {
-    _stopTimer();
-    final nextPhase = _getNextPhase();
-    final nextRemainingSeconds = _getSecondsForPhase(nextPhase);
-    if (nextPhase == null) {
-      state = state.copyWith(
-        state: TimerStatus.completed,
-        remainingSeconds: 0,
-      );
-      return;
-    }
-    int newCompletedCycles = state.completedCycles;
-    int newCurrentCycle = state.currentCycle;
-    if (state.currentPhase == PomodoroPhase.work) {
-      newCurrentCycle = state.currentCycle + 1;
-      if (newCurrentCycle >= state.settings.cyclesUntilLongBreak) {
-        newCompletedCycles = state.completedCycles + 1;
-        newCurrentCycle = 0;
-      }
-    }
-    state = state.copyWith(
-      currentPhase: nextPhase,
-      remainingSeconds: nextRemainingSeconds,
-      currentCycle: newCurrentCycle,
-      completedCycles: newCompletedCycles,
-      state: TimerStatus.idle,
-    );
-  }
-
   PomodoroPhase? _getNextPhase() {
     switch (state.currentPhase) {
       case PomodoroPhase.work:

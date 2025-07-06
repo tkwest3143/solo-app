@@ -27,3 +27,10 @@ class Todos extends DefaultTableColumns {
   IntColumn get recurringDayOfWeek => integer().nullable()();
   IntColumn get recurringDayOfMonth => integer().nullable()();
 }
+
+class TodoCheckListItems extends DefaultTableColumns {
+  IntColumn get todoId => integer().references(Todos, #id, onDelete: KeyAction.cascade)();
+  TextColumn get title => text()();
+  BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
+  IntColumn get order => integer()(); // For ordering checklist items
+}
