@@ -9,7 +9,7 @@ class TodoService {
 
   Future<List<TodoModel>> getTodo() async {
     final todos = await _todoTableRepository.findAll();
-    return todos
+    final todoList = todos
         .map((todo) => TodoModel(
               id: todo.id,
               dueDate: todo.dueDate,
@@ -28,6 +28,34 @@ class TodoService {
               recurringDayOfMonth: todo.recurringDayOfMonth,
             ))
         .toList();
+
+    // Get recurring todos and generate instances for the next 30 days
+    final recurringTodos = todoList.where((todo) => todo.isRecurring == true && !todo.isCompleted).toList();
+    final now = DateTime.now();
+    final thirtyDaysFromNow = now.add(const Duration(days: 30));
+    
+    final recurringInstances = generateRecurringInstancesForDateRange(
+      recurringTodos,
+      now,
+      thirtyDaysFromNow,
+    );
+
+    // Add recurring instances, avoiding duplicates
+    for (final instance in recurringInstances) {
+      final alreadyExists = todoList.any((existingTodo) =>
+        existingTodo.title == instance.title &&
+        existingTodo.dueDate.year == instance.dueDate.year &&
+        existingTodo.dueDate.month == instance.dueDate.month &&
+        existingTodo.dueDate.day == instance.dueDate.day &&
+        existingTodo.dueDate.hour == instance.dueDate.hour &&
+        existingTodo.dueDate.minute == instance.dueDate.minute);
+      
+      if (!alreadyExists) {
+        todoList.add(instance);
+      }
+    }
+
+    return todoList;
   }
 
   Future<TodoModel> createTodo({
@@ -299,7 +327,7 @@ class TodoService {
 
   Future<List<TodoModel>> getTodosForDate(DateTime date) async {
     final todos = await _todoTableRepository.findByDate(date);
-    return todos
+    final todoList = todos
         .map((todo) => TodoModel(
               id: todo.id,
               dueDate: todo.dueDate,
@@ -318,12 +346,44 @@ class TodoService {
               recurringDayOfMonth: todo.recurringDayOfMonth,
             ))
         .toList();
+
+    // Get all todos to find recurring ones
+    final allTodos = await getTodo();
+    final recurringTodos = allTodos.where((todo) => todo.isRecurring == true && !todo.isCompleted).toList();
+    
+    // Generate recurring instances for the specific date
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
+    final recurringInstances = generateRecurringInstancesForDateRange(
+      recurringTodos,
+      startOfDay,
+      endOfDay,
+    );
+
+    // Add recurring instances, avoiding duplicates
+    for (final instance in recurringInstances) {
+      final alreadyExists = todoList.any((existingTodo) =>
+        existingTodo.title == instance.title &&
+        existingTodo.dueDate.year == instance.dueDate.year &&
+        existingTodo.dueDate.month == instance.dueDate.month &&
+        existingTodo.dueDate.day == instance.dueDate.day &&
+        existingTodo.dueDate.hour == instance.dueDate.hour &&
+        existingTodo.dueDate.minute == instance.dueDate.minute);
+      
+      if (!alreadyExists) {
+        todoList.add(instance);
+      }
+    }
+
+    return todoList;
   }
 
   Future<Map<DateTime, List<TodoModel>>> getTodosForMonth(
       DateTime month) async {
     final todos = await _todoTableRepository.findByMonth(month);
     final Map<DateTime, List<TodoModel>> todosByDate = {};
+    
+    // Add regular todos from database
     for (final todo in todos) {
       final todoDate = todo.dueDate;
       final dateKey = DateTime(todoDate.year, todoDate.month, todoDate.day);
@@ -346,6 +406,39 @@ class TodoService {
         recurringDayOfMonth: todo.recurringDayOfMonth,
       ));
     }
+
+    // Get all todos to find recurring ones
+    final allTodos = await getTodo();
+    final recurringTodos = allTodos.where((todo) => todo.isRecurring == true && !todo.isCompleted).toList();
+    
+    // Generate recurring instances for the month
+    final startOfMonth = DateTime(month.year, month.month, 1);
+    final endOfMonth = DateTime(month.year, month.month + 1, 0);
+    final recurringInstances = generateRecurringInstancesForDateRange(
+      recurringTodos,
+      startOfMonth,
+      endOfMonth,
+    );
+
+    // Add recurring instances to the map, avoiding duplicates
+    for (final instance in recurringInstances) {
+      final dateKey = DateTime(instance.dueDate.year, instance.dueDate.month, instance.dueDate.day);
+      todosByDate[dateKey] = todosByDate[dateKey] ?? [];
+      
+      // Check if this instance already exists (by title and exact datetime)
+      final alreadyExists = todosByDate[dateKey]!.any((existingTodo) =>
+        existingTodo.title == instance.title &&
+        existingTodo.dueDate.year == instance.dueDate.year &&
+        existingTodo.dueDate.month == instance.dueDate.month &&
+        existingTodo.dueDate.day == instance.dueDate.day &&
+        existingTodo.dueDate.hour == instance.dueDate.hour &&
+        existingTodo.dueDate.minute == instance.dueDate.minute);
+      
+      if (!alreadyExists) {
+        todosByDate[dateKey]!.add(instance);
+      }
+    }
+
     return todosByDate;
   }
 
@@ -543,5 +636,85 @@ class TodoService {
     }
 
     return generatedTodos;
+  }
+
+  /// Generate recurring todo instances for a specific date range (virtual instances, not stored in DB)
+  List<TodoModel> generateRecurringInstancesForDateRange(
+    List<TodoModel> recurringTodos,
+    DateTime startDate,
+    DateTime endDate,
+  ) {
+    final generatedInstances = <TodoModel>[];
+
+    for (final todo in recurringTodos) {
+      if (todo.isRecurring != true || todo.isCompleted) continue;
+
+      // Start from the next occurrence after the original due date
+      var currentTodoForCalculation = todo;
+      var nextDate = calculateNextRecurringDate(currentTodoForCalculation);
+      if (nextDate == null) continue;
+
+      var instanceId = todo.id * 1000000; // Create unique virtual IDs
+
+      // Generate instances within the date range
+      while (nextDate != null && nextDate.isBefore(endDate.add(const Duration(days: 1)))) {
+        // Check if current date is within our target range
+        if (nextDate.isAfter(startDate.subtract(const Duration(days: 1)))) {
+          
+          // Check if we've passed the end date for this recurring todo
+          if (todo.recurringEndDate != null &&
+              nextDate.isAfter(todo.recurringEndDate!)) {
+            break;
+          }
+
+          // Create virtual instance (don't store in DB)
+          generatedInstances.add(TodoModel(
+            id: instanceId++, // Virtual ID
+            title: todo.title,
+            description: todo.description,
+            dueDate: nextDate,
+            isCompleted: false,
+            color: todo.color,
+            icon: todo.icon,
+            categoryId: todo.categoryId,
+            createdAt: todo.createdAt,
+            updatedAt: todo.updatedAt,
+            isRecurring: todo.isRecurring,
+            recurringType: todo.recurringType,
+            recurringEndDate: todo.recurringEndDate,
+            recurringDayOfWeek: todo.recurringDayOfWeek,
+            recurringDayOfMonth: todo.recurringDayOfMonth,
+          ));
+        }
+
+        // Calculate next occurrence
+        currentTodoForCalculation = TodoModel(
+          id: todo.id,
+          title: todo.title,
+          description: todo.description,
+          dueDate: nextDate,
+          isCompleted: todo.isCompleted,
+          color: todo.color,
+          icon: todo.icon,
+          categoryId: todo.categoryId,
+          createdAt: todo.createdAt,
+          updatedAt: todo.updatedAt,
+          isRecurring: todo.isRecurring,
+          recurringType: todo.recurringType,
+          recurringEndDate: todo.recurringEndDate,
+          recurringDayOfWeek: todo.recurringDayOfWeek,
+          recurringDayOfMonth: todo.recurringDayOfMonth,
+        );
+
+        nextDate = calculateNextRecurringDate(currentTodoForCalculation);
+
+        // Safety check to prevent infinite loops
+        if (nextDate != null && nextDate.isAfter(endDate.add(const Duration(days: 365)))) {
+          break;
+        }
+      }
+    }
+
+    return generatedInstances;
   }
 }
