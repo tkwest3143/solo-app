@@ -25,6 +25,146 @@ class TodoTableRepository {
             ))
         .toList();
   }
+
+  Future<int> insert(TodosCompanion todo) async {
+    final database = await AppDatabase.getSingletonInstance();
+    return await database.into(database.todos).insert(todo);
+  }
+
+  Future<bool> update(int id, TodosCompanion todo) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final result = await (database.update(database.todos)
+          ..where((tbl) => tbl.id.equals(id)))
+        .write(todo);
+    return result > 0;
+  }
+
+  Future<bool> delete(int id) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final result = await (database.delete(database.todos)
+          ..where((tbl) => tbl.id.equals(id)))
+        .go();
+    return result > 0;
+  }
+
+  Future<List<Todo>> findByDate(DateTime date) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final start = DateTime(date.year, date.month, date.day);
+    final end = start.add(const Duration(days: 1));
+    final data = await (database.todos.select()
+          ..where((tbl) =>
+              tbl.dueDate.isBiggerOrEqualValue(start) &
+              tbl.dueDate.isSmallerThanValue(end)))
+        .get();
+    return data
+        .map((e) => Todo(
+              id: e.id,
+              dueDate: e.dueDate,
+              title: e.title,
+              isCompleted: e.isCompleted,
+              description: e.description,
+              color: e.color,
+              categoryId: e.categoryId,
+              icon: e.icon,
+              createdAt: e.createdAt,
+              updatedAt: e.updatedAt,
+              isRecurring: e.isRecurring,
+              recurringType: e.recurringType,
+              recurringEndDate: e.recurringEndDate,
+              recurringDayOfWeek: e.recurringDayOfWeek,
+              recurringDayOfMonth: e.recurringDayOfMonth,
+            ))
+        .toList();
+  }
+
+  Future<List<Todo>> findUpcoming(DateTime from, DateTime to) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final data = await (database.todos.select()
+          ..where((tbl) =>
+              tbl.dueDate.isBiggerThanValue(from) &
+              tbl.dueDate.isSmallerThanValue(to)))
+        .get();
+    return data
+        .map((e) => Todo(
+              id: e.id,
+              dueDate: e.dueDate,
+              title: e.title,
+              isCompleted: e.isCompleted,
+              description: e.description,
+              color: e.color,
+              categoryId: e.categoryId,
+              icon: e.icon,
+              createdAt: e.createdAt,
+              updatedAt: e.updatedAt,
+              isRecurring: e.isRecurring,
+              recurringType: e.recurringType,
+              recurringEndDate: e.recurringEndDate,
+              recurringDayOfWeek: e.recurringDayOfWeek,
+              recurringDayOfMonth: e.recurringDayOfMonth,
+            ))
+        .toList();
+  }
+
+  Future<List<Todo>> findFiltered({bool? isCompleted, int? categoryId}) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final query = database.todos.select();
+    if (isCompleted != null) {
+      query.where((tbl) => tbl.isCompleted.equals(isCompleted));
+    }
+    if (categoryId != null) {
+      query.where((tbl) => tbl.categoryId.equals(categoryId));
+    }
+    final data = await query.get();
+    return data
+        .map((e) => Todo(
+              id: e.id,
+              dueDate: e.dueDate,
+              title: e.title,
+              isCompleted: e.isCompleted,
+              description: e.description,
+              color: e.color,
+              categoryId: e.categoryId,
+              icon: e.icon,
+              createdAt: e.createdAt,
+              updatedAt: e.updatedAt,
+              isRecurring: e.isRecurring,
+              recurringType: e.recurringType,
+              recurringEndDate: e.recurringEndDate,
+              recurringDayOfWeek: e.recurringDayOfWeek,
+              recurringDayOfMonth: e.recurringDayOfMonth,
+            ))
+        .toList();
+  }
+
+  Future<List<Todo>> findByMonth(DateTime month) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final start = DateTime(month.year, month.month, 1);
+    final end = DateTime(month.year, month.month + 1, 1);
+    final data = await (database.todos.select()
+          ..where((tbl) =>
+              tbl.dueDate.isBiggerOrEqualValue(start) &
+              tbl.dueDate.isSmallerThanValue(end)))
+        .get();
+    return data
+        .map((e) => Todo(
+              id: e.id,
+              dueDate: e.dueDate,
+              title: e.title,
+              isCompleted: e.isCompleted,
+              description: e.description,
+              color: e.color,
+              categoryId: e.categoryId,
+              icon: e.icon,
+              createdAt: e.createdAt,
+              updatedAt: e.updatedAt,
+              isRecurring: e.isRecurring,
+              recurringType: e.recurringType,
+              recurringEndDate: e.recurringEndDate,
+              recurringDayOfWeek: e.recurringDayOfWeek,
+              recurringDayOfMonth: e.recurringDayOfMonth,
+            ))
+        .toList();
+  }
 }
 
 class CategoryTableRepository {
@@ -119,7 +259,7 @@ class TodoCheckListItemTableRepository {
     final data = await (database.todoCheckListItems.select()
           ..where((tbl) => tbl.id.equals(id)))
         .getSingleOrNull();
-    
+
     if (data != null) {
       return TodoCheckListItem(
         id: data.id,

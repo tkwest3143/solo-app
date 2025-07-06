@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:solo/models/todo_checklist_item_model.dart';
 import 'package:solo/screen/colors.dart';
-import 'package:solo/services/todo_checklist_item_service.dart';
 
 class TodoChecklistWidget extends HookConsumerWidget {
   final int? todoId; // null for new todos
@@ -19,9 +18,9 @@ class TodoChecklistWidget extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final checklistItems = useState<List<TodoCheckListItemModel>>(List.from(initialItems));
+    final checklistItems =
+        useState<List<TodoCheckListItemModel>>(List.from(initialItems));
     final newItemController = useTextEditingController();
-    final checklistService = TodoCheckListItemService();
 
     // Update when initialItems change
     useEffect(() {
@@ -48,14 +47,16 @@ class TodoChecklistWidget extends HookConsumerWidget {
     }
 
     void removeItem(int index) {
-      final updatedItems = List<TodoCheckListItemModel>.from(checklistItems.value);
+      final updatedItems =
+          List<TodoCheckListItemModel>.from(checklistItems.value);
       updatedItems.removeAt(index);
       checklistItems.value = updatedItems;
       onChecklistChanged(checklistItems.value);
     }
 
     void toggleItem(int index) {
-      final updatedItems = List<TodoCheckListItemModel>.from(checklistItems.value);
+      final updatedItems =
+          List<TodoCheckListItemModel>.from(checklistItems.value);
       final item = updatedItems[index];
       updatedItems[index] = TodoCheckListItemModel(
         id: item.id,
@@ -73,7 +74,8 @@ class TodoChecklistWidget extends HookConsumerWidget {
     void editItem(int index, String newTitle) {
       if (newTitle.trim().isEmpty) return;
 
-      final updatedItems = List<TodoCheckListItemModel>.from(checklistItems.value);
+      final updatedItems =
+          List<TodoCheckListItemModel>.from(checklistItems.value);
       final item = updatedItems[index];
       updatedItems[index] = TodoCheckListItemModel(
         id: item.id,
@@ -108,8 +110,11 @@ class TodoChecklistWidget extends HookConsumerWidget {
                     )
                   : null,
               // Add subtle background color change when completed
-              color: item.isCompleted 
-                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.05)
+              color: item.isCompleted
+                  ? Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.05)
                   : null,
             ),
             child: Row(
@@ -130,13 +135,18 @@ class TodoChecklistWidget extends HookConsumerWidget {
                       width: 2,
                     ),
                     // Add shadow when completed for better visual feedback
-                    boxShadow: item.isCompleted ? [
-                      BoxShadow(
-                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ] : null,
+                    boxShadow: item.isCompleted
+                        ? [
+                            BoxShadow(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withValues(alpha: 0.3),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: item.isCompleted
                       ? Icon(
@@ -157,7 +167,9 @@ class TodoChecklistWidget extends HookConsumerWidget {
                         color: item.isCompleted
                             ? Theme.of(context).colorScheme.outline
                             : Theme.of(context).colorScheme.onSurface,
-                        decoration: item.isCompleted ? TextDecoration.lineThrough : null,
+                        decoration: item.isCompleted
+                            ? TextDecoration.lineThrough
+                            : null,
                         decorationColor: Theme.of(context).colorScheme.outline,
                       ),
                       child: Text(item.title),
@@ -204,7 +216,10 @@ class TodoChecklistWidget extends HookConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(

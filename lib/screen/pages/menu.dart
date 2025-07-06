@@ -198,7 +198,7 @@ class MenuPage extends HookConsumerWidget {
                           color: Theme.of(context)
                               .colorScheme
                               .surface
-                              .withOpacity(0.85),
+                              .withValues(alpha: 0.85),
                           border: Border.all(
                             color: Theme.of(context)
                                 .colorScheme

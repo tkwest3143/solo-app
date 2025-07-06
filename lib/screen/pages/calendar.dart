@@ -17,7 +17,7 @@ class CalendarPage extends HookConsumerWidget {
     final selectedDay = useState<DateTime>(DateTime.now());
     final focusedDay = useState<DateTime>(DateTime.now());
     final selectedCategory = useState<int?>(null);
-    final selectedStatus = useState<String?>(null); // ステータスフィルタ用
+    final selectedStatus = useState<String?>(null);
     final todoService = useMemoized(() => TodoService());
     final refreshKey = useState<int>(0);
 
@@ -63,7 +63,7 @@ class CalendarPage extends HookConsumerWidget {
                               horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(25),
-                            color: Theme.of(context).colorScheme.surface, // ←修正
+                            color: Theme.of(context).colorScheme.surface,
                             boxShadow: [
                               BoxShadow(
                                 color: Theme.of(context)
@@ -78,15 +78,36 @@ class CalendarPage extends HookConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '絞り込み',
+                                (selectedCategory.value != null ||
+                                        selectedStatus.value != null)
+                                    ? '絞り込みあり'
+                                    : '絞り込みなし',
                                 style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .secondaryTextColor,
+                                  color: (selectedCategory.value != null ||
+                                          selectedStatus.value != null)
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .secondaryTextColor,
                                   fontSize: 14,
+                                  fontWeight: (selectedCategory.value != null ||
+                                          selectedStatus.value != null)
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
                                 ),
                               ),
-                              const Icon(Icons.filter_alt),
+                              Icon(
+                                (selectedCategory.value != null ||
+                                        selectedStatus.value != null)
+                                    ? Icons.filter_alt
+                                    : Icons.filter_alt_outlined,
+                                color: (selectedCategory.value != null ||
+                                        selectedStatus.value != null)
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .secondaryTextColor,
+                              ),
                             ],
                           ),
                         ),
@@ -105,7 +126,7 @@ class CalendarPage extends HookConsumerWidget {
                           backgroundColor: Theme.of(context)
                               .colorScheme
                               .surface
-                              .withOpacity(0.2), // ←修正
+                              .withValues(alpha: 0.2),
                           padding: const EdgeInsets.all(12),
                         ),
                       ),
@@ -121,7 +142,7 @@ class CalendarPage extends HookConsumerWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  color: Theme.of(context).colorScheme.surface, // ←修正
+                  color: Theme.of(context).colorScheme.surface,
                   boxShadow: [
                     BoxShadow(
                       color: Theme.of(context).colorScheme.lightShadowColor,
@@ -151,8 +172,32 @@ class CalendarPage extends HookConsumerWidget {
                               selectedDayPredicate: (day) =>
                                   isSameDay(selectedDay.value, day),
                               eventLoader: (day) {
-                                // 日付に紐づくTodoを取得
-                                return todosByDate[day] ?? [];
+                                final dateKey =
+                                    DateTime(day.year, day.month, day.day);
+                                List<TodoModel> events =
+                                    todosByDate[dateKey] ?? [];
+                                // カレンダーのフィルター条件をここでも適用
+                                if (selectedCategory.value != null) {
+                                  events = events
+                                      .where((todo) =>
+                                          todo.color == selectedCategory.value)
+                                      .toList();
+                                }
+                                if (selectedStatus.value != null) {
+                                  if (selectedStatus.value == 'completed') {
+                                    events = events
+                                        .where(
+                                            (todo) => todo.isCompleted == true)
+                                        .toList();
+                                  } else if (selectedStatus.value ==
+                                      'incomplete') {
+                                    events = events
+                                        .where(
+                                            (todo) => todo.isCompleted != true)
+                                        .toList();
+                                  }
+                                }
+                                return events;
                               },
                               calendarStyle: CalendarStyle(
                                 defaultDecoration: BoxDecoration(
@@ -202,6 +247,7 @@ class CalendarPage extends HookConsumerWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 markersMaxCount: 1,
+                                markerMargin: const EdgeInsets.only(bottom: 4),
                               ),
                               headerStyle: HeaderStyle(
                                 formatButtonVisible: false,
@@ -230,11 +276,62 @@ class CalendarPage extends HookConsumerWidget {
                               ),
                               calendarBuilders: CalendarBuilders(
                                 markerBuilder: (context, day, events) {
-                                  if (events.isNotEmpty) {
-                                    return _buildTodoMarkers(
-                                        context, events.cast<TodoModel>());
+                                  final now = DateTime.now();
+                                  final isSelected =
+                                      isSameDay(selectedDay.value, day);
+                                  final isToday = day.year == now.year &&
+                                      day.month == now.month &&
+                                      day.day == now.day;
+                                  final isFiltered =
+                                      selectedCategory.value != null ||
+                                          selectedStatus.value != null;
+                                  // events からフィルター条件に合致したTodoのみ抽出（dueDateフィルタは不要）
+                                  List<TodoModel> filteredEvents =
+                                      events.cast<TodoModel>();
+                                  if (isFiltered) {
+                                    if (selectedCategory.value != null) {
+                                      filteredEvents = filteredEvents
+                                          .where((todo) =>
+                                              todo.categoryId ==
+                                              selectedCategory.value)
+                                          .toList();
+                                    }
+                                    if (selectedStatus.value != null) {
+                                      if (selectedStatus.value == 'completed') {
+                                        filteredEvents = filteredEvents
+                                            .where((todo) =>
+                                                todo.isCompleted == true)
+                                            .toList();
+                                      } else if (selectedStatus.value ==
+                                          'incomplete') {
+                                        filteredEvents = filteredEvents
+                                            .where((todo) =>
+                                                todo.isCompleted != true)
+                                            .toList();
+                                      }
+                                    }
                                   }
-                                  return null;
+                                  if (isSelected || isToday) {
+                                    return const SizedBox
+                                        .shrink(); // 枠線と重なる日付にはマーカーを表示しない
+                                  }
+                                  // フィルター後のTodoがなければマーカーを表示しない
+                                  if (filteredEvents.isEmpty) {
+                                    return null;
+                                  }
+                                  return Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: Container(
+                                      width: 8,
+                                      height: 8,
+                                      margin: const EdgeInsets.only(bottom: 2),
+                                      decoration: BoxDecoration(
+                                        color: _getMarkerColor(
+                                            context, filteredEvents),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  );
                                 },
                               ),
                               onDaySelected: (selected, focused) {
@@ -274,37 +371,17 @@ class CalendarPage extends HookConsumerWidget {
     );
   }
 
-  Widget _buildTodoMarkers(BuildContext context, List<TodoModel> todos) {
-    if (todos.isEmpty) return const SizedBox.shrink();
-
+  Color? _getMarkerColor(BuildContext context, List<TodoModel> todos) {
+    if (todos.isEmpty) return null;
     final hasIncomplete = todos.any((todo) => !todo.isCompleted);
     final allCompleted =
         todos.isNotEmpty && todos.every((todo) => todo.isCompleted);
-
-    Color markerColor;
     if (hasIncomplete) {
-      markerColor = Theme.of(context).colorScheme.primary; // 未完了があれば青系
+      return Theme.of(context).colorScheme.primary;
     } else if (allCompleted) {
-      markerColor = Colors.grey; // 全て完了ならグレー
-    } else {
-      return const SizedBox.shrink();
+      return Colors.grey;
     }
-
-    return Positioned(
-      bottom: 2,
-      left: 0,
-      right: 0,
-      child: Center(
-        child: Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: markerColor,
-            shape: BoxShape.circle,
-          ),
-        ),
-      ),
-    );
+    return null;
   }
 
   Widget _buildSelectedDayTodos(BuildContext context, DateTime selectedDay,
@@ -377,8 +454,7 @@ class CalendarPage extends HookConsumerWidget {
                     label: const Text('追加',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Theme.of(context).colorScheme.surface, // ←修正
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                       foregroundColor:
                           Theme.of(context).colorScheme.primaryTextColor,
                       elevation: 0,
