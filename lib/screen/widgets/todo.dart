@@ -539,6 +539,10 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                         );
                         if (pickedDate != null) {
                           selectedDate.value = pickedDate;
+                          // Update recurring day of week if weekly recurring is selected
+                          if (recurringType.value == RecurringType.weekly) {
+                            recurringDayOfWeek.value = pickedDate.weekday;
+                          }
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -748,7 +752,7 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                           const SizedBox(height: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 4),
+                                horizontal: 12, vertical: 12),
                             decoration: BoxDecoration(
                               border: Border.all(
                                 color: Theme.of(context)
@@ -757,38 +761,41 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                     .withValues(alpha: 0.3),
                               ),
                               borderRadius: BorderRadius.circular(8),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surface
+                                  .withValues(alpha: 0.05),
                             ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<int>(
-                                value:
-                                    recurringDayOfWeek.value ?? DateTime.monday,
-                                isExpanded: true,
-                                items: [
-                                  DropdownMenuItem(
-                                      value: DateTime.monday,
-                                      child: Text('月曜日')),
-                                  DropdownMenuItem(
-                                      value: DateTime.tuesday,
-                                      child: Text('火曜日')),
-                                  DropdownMenuItem(
-                                      value: DateTime.wednesday,
-                                      child: Text('水曜日')),
-                                  DropdownMenuItem(
-                                      value: DateTime.thursday,
-                                      child: Text('木曜日')),
-                                  DropdownMenuItem(
-                                      value: DateTime.friday,
-                                      child: Text('金曜日')),
-                                  DropdownMenuItem(
-                                      value: DateTime.saturday,
-                                      child: Text('土曜日')),
-                                  DropdownMenuItem(
-                                      value: DateTime.sunday,
-                                      child: Text('日曜日')),
-                                ],
-                                onChanged: (value) =>
-                                    recurringDayOfWeek.value = value,
-                              ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  size: 16,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .secondaryTextColor,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _getWeekdayName(recurringDayOfWeek.value ?? selectedDate.value.weekday),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primaryTextColor,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '(開始日の曜日に基づく)',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryTextColor,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -985,7 +992,7 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                               isRecurring.value ? recurringEndDate.value : null,
                           recurringDayOfWeek: isRecurring.value &&
                                   recurringType.value == RecurringType.weekly
-                              ? recurringDayOfWeek.value
+                              ? selectedDate.value.weekday
                               : null,
                           recurringDayOfMonth: isRecurring.value &&
                                   recurringType.value == RecurringType.monthly
@@ -1024,7 +1031,7 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                               isRecurring.value ? recurringEndDate.value : null,
                           recurringDayOfWeek: isRecurring.value &&
                                   recurringType.value == RecurringType.weekly
-                              ? recurringDayOfWeek.value
+                              ? selectedDate.value.weekday
                               : null,
                           recurringDayOfMonth: isRecurring.value &&
                                   recurringType.value == RecurringType.monthly
@@ -1118,13 +1125,37 @@ class _TodoDetailContent extends HookConsumerWidget {
         try {
           isLoading.value = true;
           
-          // For virtual recurring todos (negative IDs), load checklist from original todo
+          // For virtual recurring todos (negative IDs), check if a real instance exists first
           int todoIdForChecklist = todo.id;
           if (todo.id < 0) {
-            // This is a virtual recurring instance, get checklist from original recurring todo
-            final positiveId = -todo.id;
-            final originalTodoId = (positiveId - 1000000) ~/ 1000;
-            todoIdForChecklist = originalTodoId;
+            // This is a virtual recurring instance
+            // First check if a real todo instance for this date already exists
+            final todoService = TodoService();
+            final allTodos = await todoService.getTodo();
+            TodoModel? existingRealTodo;
+            try {
+              existingRealTodo = allTodos.firstWhere(
+                (t) => t.id > 0 && 
+                       t.title == todo.title &&
+                       t.dueDate.year == todo.dueDate.year &&
+                       t.dueDate.month == todo.dueDate.month &&
+                       t.dueDate.day == todo.dueDate.day &&
+                       t.dueDate.hour == todo.dueDate.hour &&
+                       t.dueDate.minute == todo.dueDate.minute,
+              );
+            } catch (e) {
+              existingRealTodo = null;
+            }
+            
+            if (existingRealTodo != null) {
+              // Use the real instance's checklist
+              todoIdForChecklist = existingRealTodo.id;
+            } else {
+              // Use the original recurring todo's checklist as template
+              final positiveId = -todo.id;
+              final originalTodoId = (positiveId - 1000000) ~/ 1000;
+              todoIdForChecklist = originalTodoId;
+            }
           }
           
           final items = await TodoCheckListItemService()
@@ -1547,19 +1578,104 @@ class _TodoDetailContent extends HookConsumerWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
           onTap: () async {
-            // Toggle checklist item completion
-            final checklistService = TodoCheckListItemService();
-            await checklistService.toggleCheckListItemComplete(item.id);
+            // For virtual recurring todos (negative IDs), we need special handling
+            if (todo.id < 0) {
+              // This is a virtual recurring instance
+              // We need to create a real todo instance and transfer all checklist items to it
+              final todoService = TodoService();
+              
+              // Check if a real instance for this date already exists
+              final allTodos = await todoService.getTodo();
+              TodoModel? existingRealTodo;
+              try {
+                existingRealTodo = allTodos.firstWhere(
+                  (t) => t.id > 0 && 
+                         t.title == todo.title &&
+                         t.dueDate.year == todo.dueDate.year &&
+                         t.dueDate.month == todo.dueDate.month &&
+                         t.dueDate.day == todo.dueDate.day &&
+                         t.dueDate.hour == todo.dueDate.hour &&
+                         t.dueDate.minute == todo.dueDate.minute,
+                );
+              } catch (e) {
+                existingRealTodo = null;
+              }
+              
+              int actualTodoId;
+              if (existingRealTodo != null) {
+                // Use existing real todo
+                actualTodoId = existingRealTodo.id;
+              } else {
+                // Create a real todo instance
+                final realTodo = await todoService.createTodo(
+                  title: todo.title,
+                  description: todo.description,
+                  dueDate: todo.dueDate,
+                  color: todo.color,
+                  categoryId: todo.categoryId,
+                  // Important: Don't mark this as recurring since it's a specific instance
+                  isRecurring: false,
+                );
+                actualTodoId = realTodo.id;
+                
+                // Copy checklist items from original recurring todo to this real instance
+                final positiveId = -todo.id;
+                final originalTodoId = (positiveId - 1000000) ~/ 1000;
+                final originalChecklistItems = await TodoCheckListItemService()
+                    .getCheckListItemsForTodo(originalTodoId);
+                
+                for (int i = 0; i < originalChecklistItems.length; i++) {
+                  final originalItem = originalChecklistItems[i];
+                  await TodoCheckListItemService().createCheckListItem(
+                    todoId: actualTodoId,
+                    title: originalItem.title,
+                    order: i,
+                  );
+                }
+              }
+              
+              // Now we need to find the corresponding checklist item in the real todo
+              final realChecklistItems = await TodoCheckListItemService()
+                  .getCheckListItemsForTodo(actualTodoId);
+              TodoCheckListItemModel? correspondingItem;
+              try {
+                correspondingItem = realChecklistItems.firstWhere(
+                  (realItem) => realItem.title == item.title && realItem.order == item.order,
+                );
+              } catch (e) {
+                correspondingItem = null;
+              }
+              
+              if (correspondingItem != null) {
+                // Toggle the real checklist item
+                final checklistService = TodoCheckListItemService();
+                await checklistService.toggleCheckListItemComplete(correspondingItem.id);
+                
+                // Check if todo should be auto-completed
+                final wasCompleted = await todoService
+                    .checkAndUpdateTodoCompletionByChecklist(actualTodoId);
 
-            // Check if todo should be auto-completed
-            final todoService = TodoService();
-            final wasCompleted = await todoService
-                .checkAndUpdateTodoCompletionByChecklist(todo.id);
+                if (wasCompleted && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('${todo.title}を完了にしました')),
+                  );
+                }
+              }
+            } else {
+              // Regular todo - handle normally
+              final checklistService = TodoCheckListItemService();
+              await checklistService.toggleCheckListItemComplete(item.id);
 
-            if (wasCompleted && context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${todo.title}を完了にしました')),
-              );
+              // Check if todo should be auto-completed
+              final todoService = TodoService();
+              final wasCompleted = await todoService
+                  .checkAndUpdateTodoCompletionByChecklist(todo.id);
+
+              if (wasCompleted && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('${todo.title}を完了にしました')),
+                );
+              }
             }
 
             // Refresh the UI
@@ -2334,5 +2450,26 @@ class _AddCategoryDialogContent extends HookWidget {
         ),
       ],
     );
+  }
+}
+/// Helper function to get Japanese weekday name
+String _getWeekdayName(int weekday) {
+  switch (weekday) {
+    case DateTime.monday:
+      return '月曜日';
+    case DateTime.tuesday:
+      return '火曜日';
+    case DateTime.wednesday:
+      return '水曜日';
+    case DateTime.thursday:
+      return '木曜日';
+    case DateTime.friday:
+      return '金曜日';
+    case DateTime.saturday:
+      return '土曜日';
+    case DateTime.sunday:
+      return '日曜日';
+    default:
+      return '不明';
   }
 }
