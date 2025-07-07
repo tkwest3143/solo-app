@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:solo/models/timer_model.dart';
+import 'package:solo/services/settings_service.dart';
 
 part 'build/timer_state.g.dart';
 
@@ -10,12 +11,30 @@ class TimerState extends _$TimerState {
 
   @override
   TimerSession build() {
-    // 初期値を設定値に従って設定
+    // 初期値はデフォルト
     const settings = TimerSettings();
+    // 非同期でローカルから設定を取得し、stateを更新
+    _loadSettings();
     return TimerSession(
       settings: settings,
       mode: TimerMode.pomodoro,
       remainingSeconds: settings.workMinutes * 60,
+    );
+  }
+
+  Future<void> _loadSettings() async {
+    // AppSettingsを取得
+    final appSettings = await SettingsService.loadSettings();
+    // AppSettingsからTimerSettingsを生成
+    final loadedSettings = TimerSettings(
+      workMinutes: appSettings.defaultWorkMinutes,
+      shortBreakMinutes: appSettings.defaultShortBreakMinutes,
+      longBreakMinutes: appSettings.defaultLongBreakMinutes,
+      cyclesUntilLongBreak: appSettings.defaultCyclesUntilLongBreak,
+    );
+    state = state.copyWith(
+      settings: loadedSettings,
+      remainingSeconds: loadedSettings.workMinutes * 60,
     );
   }
 
