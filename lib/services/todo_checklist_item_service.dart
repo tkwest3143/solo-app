@@ -99,4 +99,100 @@ class TodoCheckListItemService {
       await updateCheckListItem(newOrder[i], order: i);
     }
   }
+
+  Future<void> reorderCheckListItems(int todoId, List<int> newOrder) async {
+    for (int i = 0; i < newOrder.length; i++) {
+      await updateCheckListItem(newOrder[i], order: i);
+    }
+  }
+
+  // Methods for handling virtual recurring todo checklist persistence
+  
+  /// Gets persistent checklist items for a virtual todo, falling back to template if none exist
+  Future<List<TodoCheckListItemModel>> getVirtualCheckListItems({
+    required int virtualTodoId,
+    required int originalTodoId,
+  }) async {
+    // First try to get any persistent entries for this virtual todo
+    final persistentItems = await _repository.findByTodoId(virtualTodoId);
+    
+    if (persistentItems.isNotEmpty) {
+      // Return persistent items if they exist
+      return persistentItems
+          .map((item) => TodoCheckListItemModel(
+                id: item.id,
+                todoId: item.todoId,
+                title: item.title,
+                isCompleted: item.isCompleted,
+                order: item.order,
+                createdAt: item.createdAt ?? DateTime.now(),
+                updatedAt: item.updatedAt ?? DateTime.now(),
+              ))
+          .toList();
+    } else {
+      // Fall back to template items from original todo
+      final templateItems = await getCheckListItemsForTodo(originalTodoId);
+      
+      // Return template items with virtual associations but keep original IDs
+      return templateItems.map((item) {
+        return TodoCheckListItemModel(
+          id: item.id, // Keep original ID for template reference
+          todoId: virtualTodoId, // Associate with virtual todo
+          title: item.title,
+          isCompleted: false, // Always start unchecked for new virtual instances
+          order: item.order,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+        );
+      }).toList();
+    }
+  }
+
+  /// Creates or updates a persistent checklist item for a virtual recurring todo instance
+  Future<bool> saveVirtualCheckListItemState({
+    required int virtualTodoId,
+    required int templateItemId,
+    required String title,
+    required bool isCompleted,
+    required int order,
+  }) async {
+    // Check if a persistent entry already exists for this virtual todo and template item
+    final existingItems = await _repository.findByTodoId(virtualTodoId);
+    TodoCheckListItem? existingItem;
+    try {
+      existingItem = existingItems.firstWhere((item) => 
+          item.title == title && item.order == order);
+    } catch (e) {
+      existingItem = null;
+    }
+    
+    if (existingItem != null) {
+      // Update existing persistent entry
+      final companion = TodoCheckListItemsCompanion(
+        isCompleted: Value(isCompleted),
+        updatedAt: Value(DateTime.now()),
+      );
+      return await _repository.update(existingItem.id, companion);
+    } else {
+      // Create new persistent entry
+      final now = DateTime.now();
+      final companion = TodoCheckListItemsCompanion(
+        todoId: Value(virtualTodoId), // Store with virtual todo ID
+        title: Value(title),
+        isCompleted: Value(isCompleted),
+        order: Value(order),
+        createdAt: Value(now),
+        updatedAt: Value(now),
+      );
+
+      await _repository.insert(companion);
+      return true;
+    }
+  }
+
+  /// Deletes all persistent checklist items for a virtual todo
+  Future<bool> deleteVirtualCheckListItems(int virtualTodoId) async {
+    return await _repository.deleteByTodoId(virtualTodoId);
+  }
+}
 }
