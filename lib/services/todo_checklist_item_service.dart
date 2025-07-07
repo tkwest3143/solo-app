@@ -23,6 +23,22 @@ class TodoCheckListItemService {
         .toList();
   }
 
+  Future<List<TodoCheckListItemModel>> getCheckListItemsForTodoIds(
+      List<int> todoIds) async {
+    final items = await _repository.findByTodoIds(todoIds);
+    return items
+        .map((item) => TodoCheckListItemModel(
+              id: item.id,
+              todoId: item.todoId,
+              title: item.title,
+              isCompleted: item.isCompleted,
+              order: item.order,
+              createdAt: item.createdAt ?? DateTime.now(),
+              updatedAt: item.updatedAt ?? DateTime.now(),
+            ))
+        .toList();
+  }
+
   Future<TodoCheckListItemModel> createCheckListItem({
     required int todoId,
     required String title,
@@ -89,8 +105,9 @@ class TodoCheckListItemService {
 
   Future<bool> areAllCheckListItemsCompleted(int todoId) async {
     final items = await getCheckListItemsForTodo(todoId);
-    if (items.isEmpty)
+    if (items.isEmpty) {
       return false; // No checklist items means not all completed
+    }
     return items.every((item) => item.isCompleted);
   }
 

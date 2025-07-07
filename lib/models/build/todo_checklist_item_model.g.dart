@@ -6,9 +6,9 @@ part of '../todo_checklist_item_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TodoCheckListItemModelImpl _$$TodoCheckListItemModelImplFromJson(
+_TodoCheckListItemModel _$TodoCheckListItemModelFromJson(
         Map<String, dynamic> json) =>
-    _$TodoCheckListItemModelImpl(
+    _TodoCheckListItemModel(
       id: (json['id'] as num).toInt(),
       todoId: (json['todoId'] as num).toInt(),
       title: json['title'] as String,
@@ -22,8 +22,8 @@ _$TodoCheckListItemModelImpl _$$TodoCheckListItemModelImplFromJson(
           : DateTime.parse(json['updatedAt'] as String),
     );
 
-Map<String, dynamic> _$$TodoCheckListItemModelImplToJson(
-        _$TodoCheckListItemModelImpl instance) =>
+Map<String, dynamic> _$TodoCheckListItemModelToJson(
+        _TodoCheckListItemModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'todoId': instance.todoId,

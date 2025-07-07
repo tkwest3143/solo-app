@@ -6,8 +6,7 @@ part of '../todo_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TodoModelImpl _$$TodoModelImplFromJson(Map<String, dynamic> json) =>
-    _$TodoModelImpl(
+_TodoModel _$TodoModelFromJson(Map<String, dynamic> json) => _TodoModel(
       id: (json['id'] as num).toInt(),
       dueDate: DateTime.parse(json['dueDate'] as String),
       title: json['title'] as String,
@@ -29,9 +28,15 @@ _$TodoModelImpl _$$TodoModelImplFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['recurringEndDate'] as String),
       recurringDayOfWeek: (json['recurringDayOfWeek'] as num?)?.toInt(),
       recurringDayOfMonth: (json['recurringDayOfMonth'] as num?)?.toInt(),
+      parentTodoId: (json['parentTodoId'] as num?)?.toInt(),
+      checklistItem: (json['checklistItem'] as List<dynamic>?)
+              ?.map((e) =>
+                  TodoCheckListItemModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
-Map<String, dynamic> _$$TodoModelImplToJson(_$TodoModelImpl instance) =>
+Map<String, dynamic> _$TodoModelToJson(_TodoModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'dueDate': instance.dueDate.toIso8601String(),
@@ -48,4 +53,6 @@ Map<String, dynamic> _$$TodoModelImplToJson(_$TodoModelImpl instance) =>
       'recurringEndDate': instance.recurringEndDate?.toIso8601String(),
       'recurringDayOfWeek': instance.recurringDayOfWeek,
       'recurringDayOfMonth': instance.recurringDayOfMonth,
+      'parentTodoId': instance.parentTodoId,
+      'checklistItem': instance.checklistItem,
     };

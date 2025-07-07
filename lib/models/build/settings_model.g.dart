@@ -6,8 +6,7 @@ part of '../settings_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$AppSettingsImpl _$$AppSettingsImplFromJson(Map<String, dynamic> json) =>
-    _$AppSettingsImpl(
+_AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => _AppSettings(
       themeMode: $enumDecodeNullable(_$ThemeModeEnumMap, json['themeMode']) ??
           ThemeMode.system,
       defaultWorkMinutes: (json['defaultWorkMinutes'] as num?)?.toInt() ?? 25,
@@ -31,7 +30,7 @@ _$AppSettingsImpl _$$AppSettingsImplFromJson(Map<String, dynamic> json) =>
           (json['countUpNotificationMinutes'] as num?)?.toInt() ?? 60,
     );
 
-Map<String, dynamic> _$$AppSettingsImplToJson(_$AppSettingsImpl instance) =>
+Map<String, dynamic> _$AppSettingsToJson(_AppSettings instance) =>
     <String, dynamic>{
       'themeMode': _$ThemeModeEnumMap[instance.themeMode]!,
       'defaultWorkMinutes': instance.defaultWorkMinutes,

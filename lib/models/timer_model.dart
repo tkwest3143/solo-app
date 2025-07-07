@@ -22,7 +22,7 @@ enum TimerStatus {
 }
 
 @freezed
-class TimerSettings with _$TimerSettings {
+sealed class TimerSettings with _$TimerSettings {
   const factory TimerSettings({
     @Default(25) int workMinutes,
     @Default(5) int shortBreakMinutes,
@@ -35,7 +35,7 @@ class TimerSettings with _$TimerSettings {
 }
 
 @freezed
-class TimerSession with _$TimerSession {
+sealed class TimerSession with _$TimerSession {
   const factory TimerSession({
     @Default(TimerMode.pomodoro) TimerMode mode,
     @Default(TimerStatus.idle) TimerStatus state,

@@ -5,7 +5,7 @@ part 'build/settings_model.freezed.dart';
 part 'build/settings_model.g.dart';
 
 @freezed
-class AppSettings with _$AppSettings {
+sealed class AppSettings with _$AppSettings {
   const factory AppSettings({
     // Theme settings
     @Default(ThemeMode.system) ThemeMode themeMode,

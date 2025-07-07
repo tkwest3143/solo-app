@@ -1117,8 +1117,9 @@ class _TodoDetailContent extends HookConsumerWidget {
       void loadChecklistItems() async {
         try {
           isLoading.value = true;
-          final items = await TodoCheckListItemService()
-              .getCheckListItemsForTodo(todo.id);
+          final id = todo.id < 0 ? todo.id.abs() : todo.id;
+          final items =
+              await TodoCheckListItemService().getCheckListItemsForTodo(id);
           checklistItems.value = items;
         } finally {
           isLoading.value = false;
@@ -1129,7 +1130,6 @@ class _TodoDetailContent extends HookConsumerWidget {
       return null;
     }, [todo.id]);
 
-    // Refresh checklist items when refresh is called
     void refreshChecklistItems() async {
       try {
         isLoading.value = true;

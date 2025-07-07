@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,173 +9,107 @@ part of '../todo_model.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-TodoModel _$TodoModelFromJson(Map<String, dynamic> json) {
-  return _TodoModel.fromJson(json);
-}
 
 /// @nodoc
 mixin _$TodoModel {
-  int get id => throw _privateConstructorUsedError;
-  DateTime get dueDate => throw _privateConstructorUsedError;
-  String get title => throw _privateConstructorUsedError;
-  bool get isCompleted => throw _privateConstructorUsedError;
-  String? get description => throw _privateConstructorUsedError;
-  String? get color =>
-      throw _privateConstructorUsedError; // Keep for backward compatibility
-  int? get categoryId =>
-      throw _privateConstructorUsedError; // New category reference
-  String? get icon => throw _privateConstructorUsedError;
-  DateTime? get createdAt => throw _privateConstructorUsedError;
-  DateTime? get updatedAt =>
-      throw _privateConstructorUsedError; // Recurring fields
-  bool? get isRecurring => throw _privateConstructorUsedError;
-  String? get recurringType => throw _privateConstructorUsedError;
-  DateTime? get recurringEndDate => throw _privateConstructorUsedError;
-  int? get recurringDayOfWeek =>
-      throw _privateConstructorUsedError; // 1-7 for weekly (Monday = 1)
-  int? get recurringDayOfMonth => throw _privateConstructorUsedError;
-
-  /// Serializes this TodoModel to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  int get id;
+  DateTime get dueDate;
+  String get title;
+  bool get isCompleted;
+  String? get description;
+  String? get color; // Keep for backward compatibility
+  int? get categoryId; // New category reference
+  String? get icon;
+  DateTime? get createdAt;
+  DateTime? get updatedAt; // Recurring fields
+  bool? get isRecurring;
+  String? get recurringType;
+  DateTime? get recurringEndDate;
+  int? get recurringDayOfWeek; // 1-7 for weekly (Monday = 1)
+  int? get recurringDayOfMonth; // 1-31 for monthly
+  int? get parentTodoId;
+  List<TodoCheckListItemModel> get checklistItem;
 
   /// Create a copy of TodoModel
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $TodoModelCopyWith<TodoModel> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $TodoModelCopyWith<$Res> {
-  factory $TodoModelCopyWith(TodoModel value, $Res Function(TodoModel) then) =
-      _$TodoModelCopyWithImpl<$Res, TodoModel>;
-  @useResult
-  $Res call(
-      {int id,
-      DateTime dueDate,
-      String title,
-      bool isCompleted,
-      String? description,
-      String? color,
-      int? categoryId,
-      String? icon,
-      DateTime? createdAt,
-      DateTime? updatedAt,
-      bool? isRecurring,
-      String? recurringType,
-      DateTime? recurringEndDate,
-      int? recurringDayOfWeek,
-      int? recurringDayOfMonth});
-}
-
-/// @nodoc
-class _$TodoModelCopyWithImpl<$Res, $Val extends TodoModel>
-    implements $TodoModelCopyWith<$Res> {
-  _$TodoModelCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of TodoModel
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
+  $TodoModelCopyWith<TodoModel> get copyWith =>
+      _$TodoModelCopyWithImpl<TodoModel>(this as TodoModel, _$identity);
+
+  /// Serializes this TodoModel to a JSON map.
+  Map<String, dynamic> toJson();
+
   @override
-  $Res call({
-    Object? id = null,
-    Object? dueDate = null,
-    Object? title = null,
-    Object? isCompleted = null,
-    Object? description = freezed,
-    Object? color = freezed,
-    Object? categoryId = freezed,
-    Object? icon = freezed,
-    Object? createdAt = freezed,
-    Object? updatedAt = freezed,
-    Object? isRecurring = freezed,
-    Object? recurringType = freezed,
-    Object? recurringEndDate = freezed,
-    Object? recurringDayOfWeek = freezed,
-    Object? recurringDayOfMonth = freezed,
-  }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      dueDate: null == dueDate
-          ? _value.dueDate
-          : dueDate // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      title: null == title
-          ? _value.title
-          : title // ignore: cast_nullable_to_non_nullable
-              as String,
-      isCompleted: null == isCompleted
-          ? _value.isCompleted
-          : isCompleted // ignore: cast_nullable_to_non_nullable
-              as bool,
-      description: freezed == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String?,
-      color: freezed == color
-          ? _value.color
-          : color // ignore: cast_nullable_to_non_nullable
-              as String?,
-      categoryId: freezed == categoryId
-          ? _value.categoryId
-          : categoryId // ignore: cast_nullable_to_non_nullable
-              as int?,
-      icon: freezed == icon
-          ? _value.icon
-          : icon // ignore: cast_nullable_to_non_nullable
-              as String?,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      isRecurring: freezed == isRecurring
-          ? _value.isRecurring
-          : isRecurring // ignore: cast_nullable_to_non_nullable
-              as bool?,
-      recurringType: freezed == recurringType
-          ? _value.recurringType
-          : recurringType // ignore: cast_nullable_to_non_nullable
-              as String?,
-      recurringEndDate: freezed == recurringEndDate
-          ? _value.recurringEndDate
-          : recurringEndDate // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      recurringDayOfWeek: freezed == recurringDayOfWeek
-          ? _value.recurringDayOfWeek
-          : recurringDayOfWeek // ignore: cast_nullable_to_non_nullable
-              as int?,
-      recurringDayOfMonth: freezed == recurringDayOfMonth
-          ? _value.recurringDayOfMonth
-          : recurringDayOfMonth // ignore: cast_nullable_to_non_nullable
-              as int?,
-    ) as $Val);
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is TodoModel &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.dueDate, dueDate) || other.dueDate == dueDate) &&
+            (identical(other.title, title) || other.title == title) &&
+            (identical(other.isCompleted, isCompleted) ||
+                other.isCompleted == isCompleted) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
+            (identical(other.color, color) || other.color == color) &&
+            (identical(other.categoryId, categoryId) ||
+                other.categoryId == categoryId) &&
+            (identical(other.icon, icon) || other.icon == icon) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
+            (identical(other.isRecurring, isRecurring) ||
+                other.isRecurring == isRecurring) &&
+            (identical(other.recurringType, recurringType) ||
+                other.recurringType == recurringType) &&
+            (identical(other.recurringEndDate, recurringEndDate) ||
+                other.recurringEndDate == recurringEndDate) &&
+            (identical(other.recurringDayOfWeek, recurringDayOfWeek) ||
+                other.recurringDayOfWeek == recurringDayOfWeek) &&
+            (identical(other.recurringDayOfMonth, recurringDayOfMonth) ||
+                other.recurringDayOfMonth == recurringDayOfMonth) &&
+            (identical(other.parentTodoId, parentTodoId) ||
+                other.parentTodoId == parentTodoId) &&
+            const DeepCollectionEquality()
+                .equals(other.checklistItem, checklistItem));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      dueDate,
+      title,
+      isCompleted,
+      description,
+      color,
+      categoryId,
+      icon,
+      createdAt,
+      updatedAt,
+      isRecurring,
+      recurringType,
+      recurringEndDate,
+      recurringDayOfWeek,
+      recurringDayOfMonth,
+      parentTodoId,
+      const DeepCollectionEquality().hash(checklistItem));
+
+  @override
+  String toString() {
+    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, categoryId: $categoryId, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, recurringDayOfWeek: $recurringDayOfWeek, recurringDayOfMonth: $recurringDayOfMonth, parentTodoId: $parentTodoId, checklistItem: $checklistItem)';
   }
 }
 
 /// @nodoc
-abstract class _$$TodoModelImplCopyWith<$Res>
-    implements $TodoModelCopyWith<$Res> {
-  factory _$$TodoModelImplCopyWith(
-          _$TodoModelImpl value, $Res Function(_$TodoModelImpl) then) =
-      __$$TodoModelImplCopyWithImpl<$Res>;
-  @override
+abstract mixin class $TodoModelCopyWith<$Res> {
+  factory $TodoModelCopyWith(TodoModel value, $Res Function(TodoModel) _then) =
+      _$TodoModelCopyWithImpl;
   @useResult
   $Res call(
       {int id,
@@ -192,16 +126,17 @@ abstract class _$$TodoModelImplCopyWith<$Res>
       String? recurringType,
       DateTime? recurringEndDate,
       int? recurringDayOfWeek,
-      int? recurringDayOfMonth});
+      int? recurringDayOfMonth,
+      int? parentTodoId,
+      List<TodoCheckListItemModel> checklistItem});
 }
 
 /// @nodoc
-class __$$TodoModelImplCopyWithImpl<$Res>
-    extends _$TodoModelCopyWithImpl<$Res, _$TodoModelImpl>
-    implements _$$TodoModelImplCopyWith<$Res> {
-  __$$TodoModelImplCopyWithImpl(
-      _$TodoModelImpl _value, $Res Function(_$TodoModelImpl) _then)
-      : super(_value, _then);
+class _$TodoModelCopyWithImpl<$Res> implements $TodoModelCopyWith<$Res> {
+  _$TodoModelCopyWithImpl(this._self, this._then);
+
+  final TodoModel _self;
+  final $Res Function(TodoModel) _then;
 
   /// Create a copy of TodoModel
   /// with the given fields replaced by the non-null parameter values.
@@ -223,76 +158,344 @@ class __$$TodoModelImplCopyWithImpl<$Res>
     Object? recurringEndDate = freezed,
     Object? recurringDayOfWeek = freezed,
     Object? recurringDayOfMonth = freezed,
+    Object? parentTodoId = freezed,
+    Object? checklistItem = null,
   }) {
-    return _then(_$TodoModelImpl(
+    return _then(_self.copyWith(
       id: null == id
-          ? _value.id
+          ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
       dueDate: null == dueDate
-          ? _value.dueDate
+          ? _self.dueDate
           : dueDate // ignore: cast_nullable_to_non_nullable
               as DateTime,
       title: null == title
-          ? _value.title
+          ? _self.title
           : title // ignore: cast_nullable_to_non_nullable
               as String,
       isCompleted: null == isCompleted
-          ? _value.isCompleted
+          ? _self.isCompleted
           : isCompleted // ignore: cast_nullable_to_non_nullable
               as bool,
       description: freezed == description
-          ? _value.description
+          ? _self.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
       color: freezed == color
-          ? _value.color
+          ? _self.color
           : color // ignore: cast_nullable_to_non_nullable
               as String?,
       categoryId: freezed == categoryId
-          ? _value.categoryId
+          ? _self.categoryId
           : categoryId // ignore: cast_nullable_to_non_nullable
               as int?,
       icon: freezed == icon
-          ? _value.icon
+          ? _self.icon
           : icon // ignore: cast_nullable_to_non_nullable
               as String?,
       createdAt: freezed == createdAt
-          ? _value.createdAt
+          ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
       updatedAt: freezed == updatedAt
-          ? _value.updatedAt
+          ? _self.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
       isRecurring: freezed == isRecurring
-          ? _value.isRecurring
+          ? _self.isRecurring
           : isRecurring // ignore: cast_nullable_to_non_nullable
               as bool?,
       recurringType: freezed == recurringType
-          ? _value.recurringType
+          ? _self.recurringType
           : recurringType // ignore: cast_nullable_to_non_nullable
               as String?,
       recurringEndDate: freezed == recurringEndDate
-          ? _value.recurringEndDate
+          ? _self.recurringEndDate
           : recurringEndDate // ignore: cast_nullable_to_non_nullable
               as DateTime?,
       recurringDayOfWeek: freezed == recurringDayOfWeek
-          ? _value.recurringDayOfWeek
+          ? _self.recurringDayOfWeek
           : recurringDayOfWeek // ignore: cast_nullable_to_non_nullable
               as int?,
       recurringDayOfMonth: freezed == recurringDayOfMonth
-          ? _value.recurringDayOfMonth
+          ? _self.recurringDayOfMonth
           : recurringDayOfMonth // ignore: cast_nullable_to_non_nullable
               as int?,
+      parentTodoId: freezed == parentTodoId
+          ? _self.parentTodoId
+          : parentTodoId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      checklistItem: null == checklistItem
+          ? _self.checklistItem
+          : checklistItem // ignore: cast_nullable_to_non_nullable
+              as List<TodoCheckListItemModel>,
     ));
+  }
+}
+
+/// Adds pattern-matching-related methods to [TodoModel].
+extension TodoModelPatterns on TodoModel {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_TodoModel value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _TodoModel() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_TodoModel value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _TodoModel():
+        return $default(_that);
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_TodoModel value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _TodoModel() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(
+            int id,
+            DateTime dueDate,
+            String title,
+            bool isCompleted,
+            String? description,
+            String? color,
+            int? categoryId,
+            String? icon,
+            DateTime? createdAt,
+            DateTime? updatedAt,
+            bool? isRecurring,
+            String? recurringType,
+            DateTime? recurringEndDate,
+            int? recurringDayOfWeek,
+            int? recurringDayOfMonth,
+            int? parentTodoId,
+            List<TodoCheckListItemModel> checklistItem)?
+        $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _TodoModel() when $default != null:
+        return $default(
+            _that.id,
+            _that.dueDate,
+            _that.title,
+            _that.isCompleted,
+            _that.description,
+            _that.color,
+            _that.categoryId,
+            _that.icon,
+            _that.createdAt,
+            _that.updatedAt,
+            _that.isRecurring,
+            _that.recurringType,
+            _that.recurringEndDate,
+            _that.recurringDayOfWeek,
+            _that.recurringDayOfMonth,
+            _that.parentTodoId,
+            _that.checklistItem);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(
+            int id,
+            DateTime dueDate,
+            String title,
+            bool isCompleted,
+            String? description,
+            String? color,
+            int? categoryId,
+            String? icon,
+            DateTime? createdAt,
+            DateTime? updatedAt,
+            bool? isRecurring,
+            String? recurringType,
+            DateTime? recurringEndDate,
+            int? recurringDayOfWeek,
+            int? recurringDayOfMonth,
+            int? parentTodoId,
+            List<TodoCheckListItemModel> checklistItem)
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _TodoModel():
+        return $default(
+            _that.id,
+            _that.dueDate,
+            _that.title,
+            _that.isCompleted,
+            _that.description,
+            _that.color,
+            _that.categoryId,
+            _that.icon,
+            _that.createdAt,
+            _that.updatedAt,
+            _that.isRecurring,
+            _that.recurringType,
+            _that.recurringEndDate,
+            _that.recurringDayOfWeek,
+            _that.recurringDayOfMonth,
+            _that.parentTodoId,
+            _that.checklistItem);
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(
+            int id,
+            DateTime dueDate,
+            String title,
+            bool isCompleted,
+            String? description,
+            String? color,
+            int? categoryId,
+            String? icon,
+            DateTime? createdAt,
+            DateTime? updatedAt,
+            bool? isRecurring,
+            String? recurringType,
+            DateTime? recurringEndDate,
+            int? recurringDayOfWeek,
+            int? recurringDayOfMonth,
+            int? parentTodoId,
+            List<TodoCheckListItemModel> checklistItem)?
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _TodoModel() when $default != null:
+        return $default(
+            _that.id,
+            _that.dueDate,
+            _that.title,
+            _that.isCompleted,
+            _that.description,
+            _that.color,
+            _that.categoryId,
+            _that.icon,
+            _that.createdAt,
+            _that.updatedAt,
+            _that.isRecurring,
+            _that.recurringType,
+            _that.recurringEndDate,
+            _that.recurringDayOfWeek,
+            _that.recurringDayOfMonth,
+            _that.parentTodoId,
+            _that.checklistItem);
+      case _:
+        return null;
+    }
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$TodoModelImpl implements _TodoModel {
-  const _$TodoModelImpl(
+class _TodoModel implements TodoModel {
+  const _TodoModel(
       {required this.id,
       required this.dueDate,
       required this.title,
@@ -307,10 +510,12 @@ class _$TodoModelImpl implements _TodoModel {
       this.recurringType,
       this.recurringEndDate,
       this.recurringDayOfWeek,
-      this.recurringDayOfMonth});
-
-  factory _$TodoModelImpl.fromJson(Map<String, dynamic> json) =>
-      _$$TodoModelImplFromJson(json);
+      this.recurringDayOfMonth,
+      this.parentTodoId,
+      final List<TodoCheckListItemModel> checklistItem = const []})
+      : _checklistItem = checklistItem;
+  factory _TodoModel.fromJson(Map<String, dynamic> json) =>
+      _$TodoModelFromJson(json);
 
   @override
   final int id;
@@ -346,17 +551,38 @@ class _$TodoModelImpl implements _TodoModel {
 // 1-7 for weekly (Monday = 1)
   @override
   final int? recurringDayOfMonth;
+// 1-31 for monthly
+  @override
+  final int? parentTodoId;
+  final List<TodoCheckListItemModel> _checklistItem;
+  @override
+  @JsonKey()
+  List<TodoCheckListItemModel> get checklistItem {
+    if (_checklistItem is EqualUnmodifiableListView) return _checklistItem;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_checklistItem);
+  }
+
+  /// Create a copy of TodoModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$TodoModelCopyWith<_TodoModel> get copyWith =>
+      __$TodoModelCopyWithImpl<_TodoModel>(this, _$identity);
 
   @override
-  String toString() {
-    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, categoryId: $categoryId, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, recurringDayOfWeek: $recurringDayOfWeek, recurringDayOfMonth: $recurringDayOfMonth)';
+  Map<String, dynamic> toJson() {
+    return _$TodoModelToJson(
+      this,
+    );
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$TodoModelImpl &&
+            other is _TodoModel &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.dueDate, dueDate) || other.dueDate == dueDate) &&
             (identical(other.title, title) || other.title == title) &&
@@ -381,7 +607,11 @@ class _$TodoModelImpl implements _TodoModel {
             (identical(other.recurringDayOfWeek, recurringDayOfWeek) ||
                 other.recurringDayOfWeek == recurringDayOfWeek) &&
             (identical(other.recurringDayOfMonth, recurringDayOfMonth) ||
-                other.recurringDayOfMonth == recurringDayOfMonth));
+                other.recurringDayOfMonth == recurringDayOfMonth) &&
+            (identical(other.parentTodoId, parentTodoId) ||
+                other.parentTodoId == parentTodoId) &&
+            const DeepCollectionEquality()
+                .equals(other._checklistItem, _checklistItem));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -402,80 +632,145 @@ class _$TodoModelImpl implements _TodoModel {
       recurringType,
       recurringEndDate,
       recurringDayOfWeek,
-      recurringDayOfMonth);
-
-  /// Create a copy of TodoModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$TodoModelImplCopyWith<_$TodoModelImpl> get copyWith =>
-      __$$TodoModelImplCopyWithImpl<_$TodoModelImpl>(this, _$identity);
+      recurringDayOfMonth,
+      parentTodoId,
+      const DeepCollectionEquality().hash(_checklistItem));
 
   @override
-  Map<String, dynamic> toJson() {
-    return _$$TodoModelImplToJson(
-      this,
-    );
+  String toString() {
+    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, categoryId: $categoryId, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, recurringDayOfWeek: $recurringDayOfWeek, recurringDayOfMonth: $recurringDayOfMonth, parentTodoId: $parentTodoId, checklistItem: $checklistItem)';
   }
 }
 
-abstract class _TodoModel implements TodoModel {
-  const factory _TodoModel(
-      {required final int id,
-      required final DateTime dueDate,
-      required final String title,
-      required final bool isCompleted,
-      final String? description,
-      final String? color,
-      final int? categoryId,
-      final String? icon,
-      final DateTime? createdAt,
-      final DateTime? updatedAt,
-      final bool? isRecurring,
-      final String? recurringType,
-      final DateTime? recurringEndDate,
-      final int? recurringDayOfWeek,
-      final int? recurringDayOfMonth}) = _$TodoModelImpl;
+/// @nodoc
+abstract mixin class _$TodoModelCopyWith<$Res>
+    implements $TodoModelCopyWith<$Res> {
+  factory _$TodoModelCopyWith(
+          _TodoModel value, $Res Function(_TodoModel) _then) =
+      __$TodoModelCopyWithImpl;
+  @override
+  @useResult
+  $Res call(
+      {int id,
+      DateTime dueDate,
+      String title,
+      bool isCompleted,
+      String? description,
+      String? color,
+      int? categoryId,
+      String? icon,
+      DateTime? createdAt,
+      DateTime? updatedAt,
+      bool? isRecurring,
+      String? recurringType,
+      DateTime? recurringEndDate,
+      int? recurringDayOfWeek,
+      int? recurringDayOfMonth,
+      int? parentTodoId,
+      List<TodoCheckListItemModel> checklistItem});
+}
 
-  factory _TodoModel.fromJson(Map<String, dynamic> json) =
-      _$TodoModelImpl.fromJson;
+/// @nodoc
+class __$TodoModelCopyWithImpl<$Res> implements _$TodoModelCopyWith<$Res> {
+  __$TodoModelCopyWithImpl(this._self, this._then);
 
-  @override
-  int get id;
-  @override
-  DateTime get dueDate;
-  @override
-  String get title;
-  @override
-  bool get isCompleted;
-  @override
-  String? get description;
-  @override
-  String? get color; // Keep for backward compatibility
-  @override
-  int? get categoryId; // New category reference
-  @override
-  String? get icon;
-  @override
-  DateTime? get createdAt;
-  @override
-  DateTime? get updatedAt; // Recurring fields
-  @override
-  bool? get isRecurring;
-  @override
-  String? get recurringType;
-  @override
-  DateTime? get recurringEndDate;
-  @override
-  int? get recurringDayOfWeek; // 1-7 for weekly (Monday = 1)
-  @override
-  int? get recurringDayOfMonth;
+  final _TodoModel _self;
+  final $Res Function(_TodoModel) _then;
 
   /// Create a copy of TodoModel
   /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$TodoModelImplCopyWith<_$TodoModelImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? id = null,
+    Object? dueDate = null,
+    Object? title = null,
+    Object? isCompleted = null,
+    Object? description = freezed,
+    Object? color = freezed,
+    Object? categoryId = freezed,
+    Object? icon = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+    Object? isRecurring = freezed,
+    Object? recurringType = freezed,
+    Object? recurringEndDate = freezed,
+    Object? recurringDayOfWeek = freezed,
+    Object? recurringDayOfMonth = freezed,
+    Object? parentTodoId = freezed,
+    Object? checklistItem = null,
+  }) {
+    return _then(_TodoModel(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      dueDate: null == dueDate
+          ? _self.dueDate
+          : dueDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      title: null == title
+          ? _self.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      isCompleted: null == isCompleted
+          ? _self.isCompleted
+          : isCompleted // ignore: cast_nullable_to_non_nullable
+              as bool,
+      description: freezed == description
+          ? _self.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      color: freezed == color
+          ? _self.color
+          : color // ignore: cast_nullable_to_non_nullable
+              as String?,
+      categoryId: freezed == categoryId
+          ? _self.categoryId
+          : categoryId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      icon: freezed == icon
+          ? _self.icon
+          : icon // ignore: cast_nullable_to_non_nullable
+              as String?,
+      createdAt: freezed == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _self.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      isRecurring: freezed == isRecurring
+          ? _self.isRecurring
+          : isRecurring // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      recurringType: freezed == recurringType
+          ? _self.recurringType
+          : recurringType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      recurringEndDate: freezed == recurringEndDate
+          ? _self.recurringEndDate
+          : recurringEndDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      recurringDayOfWeek: freezed == recurringDayOfWeek
+          ? _self.recurringDayOfWeek
+          : recurringDayOfWeek // ignore: cast_nullable_to_non_nullable
+              as int?,
+      recurringDayOfMonth: freezed == recurringDayOfMonth
+          ? _self.recurringDayOfMonth
+          : recurringDayOfMonth // ignore: cast_nullable_to_non_nullable
+              as int?,
+      parentTodoId: freezed == parentTodoId
+          ? _self.parentTodoId
+          : parentTodoId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      checklistItem: null == checklistItem
+          ? _self._checklistItem
+          : checklistItem // ignore: cast_nullable_to_non_nullable
+              as List<TodoCheckListItemModel>,
+    ));
+  }
 }
+
+// dart format on

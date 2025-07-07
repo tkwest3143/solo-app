@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,205 +9,34 @@ part of '../category_model.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-CategoryModel _$CategoryModelFromJson(Map<String, dynamic> json) {
-  return _CategoryModel.fromJson(json);
-}
 
 /// @nodoc
 mixin _$CategoryModel {
-  int get id => throw _privateConstructorUsedError;
-  String get title => throw _privateConstructorUsedError;
-  String? get description => throw _privateConstructorUsedError;
-  String get color =>
-      throw _privateConstructorUsedError; // Color name from TodoColor enum
-  DateTime? get createdAt => throw _privateConstructorUsedError;
-  DateTime? get updatedAt => throw _privateConstructorUsedError;
-
-  /// Serializes this CategoryModel to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  int get id;
+  String get title;
+  String? get description;
+  String get color; // Color name from TodoColor enum
+  DateTime? get createdAt;
+  DateTime? get updatedAt;
 
   /// Create a copy of CategoryModel
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
   $CategoryModelCopyWith<CategoryModel> get copyWith =>
-      throw _privateConstructorUsedError;
-}
+      _$CategoryModelCopyWithImpl<CategoryModel>(
+          this as CategoryModel, _$identity);
 
-/// @nodoc
-abstract class $CategoryModelCopyWith<$Res> {
-  factory $CategoryModelCopyWith(
-          CategoryModel value, $Res Function(CategoryModel) then) =
-      _$CategoryModelCopyWithImpl<$Res, CategoryModel>;
-  @useResult
-  $Res call(
-      {int id,
-      String title,
-      String? description,
-      String color,
-      DateTime? createdAt,
-      DateTime? updatedAt});
-}
-
-/// @nodoc
-class _$CategoryModelCopyWithImpl<$Res, $Val extends CategoryModel>
-    implements $CategoryModelCopyWith<$Res> {
-  _$CategoryModelCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of CategoryModel
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? title = null,
-    Object? description = freezed,
-    Object? color = null,
-    Object? createdAt = freezed,
-    Object? updatedAt = freezed,
-  }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      title: null == title
-          ? _value.title
-          : title // ignore: cast_nullable_to_non_nullable
-              as String,
-      description: freezed == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String?,
-      color: null == color
-          ? _value.color
-          : color // ignore: cast_nullable_to_non_nullable
-              as String,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-    ) as $Val);
-  }
-}
-
-/// @nodoc
-abstract class _$$CategoryModelImplCopyWith<$Res>
-    implements $CategoryModelCopyWith<$Res> {
-  factory _$$CategoryModelImplCopyWith(
-          _$CategoryModelImpl value, $Res Function(_$CategoryModelImpl) then) =
-      __$$CategoryModelImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {int id,
-      String title,
-      String? description,
-      String color,
-      DateTime? createdAt,
-      DateTime? updatedAt});
-}
-
-/// @nodoc
-class __$$CategoryModelImplCopyWithImpl<$Res>
-    extends _$CategoryModelCopyWithImpl<$Res, _$CategoryModelImpl>
-    implements _$$CategoryModelImplCopyWith<$Res> {
-  __$$CategoryModelImplCopyWithImpl(
-      _$CategoryModelImpl _value, $Res Function(_$CategoryModelImpl) _then)
-      : super(_value, _then);
-
-  /// Create a copy of CategoryModel
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? title = null,
-    Object? description = freezed,
-    Object? color = null,
-    Object? createdAt = freezed,
-    Object? updatedAt = freezed,
-  }) {
-    return _then(_$CategoryModelImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      title: null == title
-          ? _value.title
-          : title // ignore: cast_nullable_to_non_nullable
-              as String,
-      description: freezed == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String?,
-      color: null == color
-          ? _value.color
-          : color // ignore: cast_nullable_to_non_nullable
-              as String,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-    ));
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-class _$CategoryModelImpl implements _CategoryModel {
-  const _$CategoryModelImpl(
-      {required this.id,
-      required this.title,
-      this.description,
-      required this.color,
-      this.createdAt,
-      this.updatedAt});
-
-  factory _$CategoryModelImpl.fromJson(Map<String, dynamic> json) =>
-      _$$CategoryModelImplFromJson(json);
-
-  @override
-  final int id;
-  @override
-  final String title;
-  @override
-  final String? description;
-  @override
-  final String color;
-// Color name from TodoColor enum
-  @override
-  final DateTime? createdAt;
-  @override
-  final DateTime? updatedAt;
-
-  @override
-  String toString() {
-    return 'CategoryModel(id: $id, title: $title, description: $description, color: $color, createdAt: $createdAt, updatedAt: $updatedAt)';
-  }
+  /// Serializes this CategoryModel to a JSON map.
+  Map<String, dynamic> toJson();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$CategoryModelImpl &&
+            other is CategoryModel &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
@@ -224,51 +53,371 @@ class _$CategoryModelImpl implements _CategoryModel {
   int get hashCode => Object.hash(
       runtimeType, id, title, description, color, createdAt, updatedAt);
 
-  /// Create a copy of CategoryModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  @pragma('vm:prefer-inline')
-  _$$CategoryModelImplCopyWith<_$CategoryModelImpl> get copyWith =>
-      __$$CategoryModelImplCopyWithImpl<_$CategoryModelImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$CategoryModelImplToJson(
-      this,
-    );
+  String toString() {
+    return 'CategoryModel(id: $id, title: $title, description: $description, color: $color, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
-abstract class _CategoryModel implements CategoryModel {
-  const factory _CategoryModel(
-      {required final int id,
-      required final String title,
-      final String? description,
-      required final String color,
-      final DateTime? createdAt,
-      final DateTime? updatedAt}) = _$CategoryModelImpl;
+/// @nodoc
+abstract mixin class $CategoryModelCopyWith<$Res> {
+  factory $CategoryModelCopyWith(
+          CategoryModel value, $Res Function(CategoryModel) _then) =
+      _$CategoryModelCopyWithImpl;
+  @useResult
+  $Res call(
+      {int id,
+      String title,
+      String? description,
+      String color,
+      DateTime? createdAt,
+      DateTime? updatedAt});
+}
 
-  factory _CategoryModel.fromJson(Map<String, dynamic> json) =
-      _$CategoryModelImpl.fromJson;
+/// @nodoc
+class _$CategoryModelCopyWithImpl<$Res>
+    implements $CategoryModelCopyWith<$Res> {
+  _$CategoryModelCopyWithImpl(this._self, this._then);
+
+  final CategoryModel _self;
+  final $Res Function(CategoryModel) _then;
+
+  /// Create a copy of CategoryModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? title = null,
+    Object? description = freezed,
+    Object? color = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+  }) {
+    return _then(_self.copyWith(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      title: null == title
+          ? _self.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      description: freezed == description
+          ? _self.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      color: null == color
+          ? _self.color
+          : color // ignore: cast_nullable_to_non_nullable
+              as String,
+      createdAt: freezed == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _self.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+    ));
+  }
+}
+
+/// Adds pattern-matching-related methods to [CategoryModel].
+extension CategoryModelPatterns on CategoryModel {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_CategoryModel value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _CategoryModel() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_CategoryModel value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CategoryModel():
+        return $default(_that);
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_CategoryModel value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CategoryModel() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(int id, String title, String? description, String color,
+            DateTime? createdAt, DateTime? updatedAt)?
+        $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _CategoryModel() when $default != null:
+        return $default(_that.id, _that.title, _that.description, _that.color,
+            _that.createdAt, _that.updatedAt);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(int id, String title, String? description, String color,
+            DateTime? createdAt, DateTime? updatedAt)
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CategoryModel():
+        return $default(_that.id, _that.title, _that.description, _that.color,
+            _that.createdAt, _that.updatedAt);
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(int id, String title, String? description, String color,
+            DateTime? createdAt, DateTime? updatedAt)?
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CategoryModel() when $default != null:
+        return $default(_that.id, _that.title, _that.description, _that.color,
+            _that.createdAt, _that.updatedAt);
+      case _:
+        return null;
+    }
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _CategoryModel implements CategoryModel {
+  const _CategoryModel(
+      {required this.id,
+      required this.title,
+      this.description,
+      required this.color,
+      this.createdAt,
+      this.updatedAt});
+  factory _CategoryModel.fromJson(Map<String, dynamic> json) =>
+      _$CategoryModelFromJson(json);
 
   @override
-  int get id;
+  final int id;
   @override
-  String get title;
+  final String title;
   @override
-  String? get description;
+  final String? description;
   @override
-  String get color; // Color name from TodoColor enum
+  final String color;
+// Color name from TodoColor enum
   @override
-  DateTime? get createdAt;
+  final DateTime? createdAt;
   @override
-  DateTime? get updatedAt;
+  final DateTime? updatedAt;
 
   /// Create a copy of CategoryModel
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$CategoryModelImplCopyWith<_$CategoryModelImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  @pragma('vm:prefer-inline')
+  _$CategoryModelCopyWith<_CategoryModel> get copyWith =>
+      __$CategoryModelCopyWithImpl<_CategoryModel>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$CategoryModelToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _CategoryModel &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.title, title) || other.title == title) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
+            (identical(other.color, color) || other.color == color) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, id, title, description, color, createdAt, updatedAt);
+
+  @override
+  String toString() {
+    return 'CategoryModel(id: $id, title: $title, description: $description, color: $color, createdAt: $createdAt, updatedAt: $updatedAt)';
+  }
 }
+
+/// @nodoc
+abstract mixin class _$CategoryModelCopyWith<$Res>
+    implements $CategoryModelCopyWith<$Res> {
+  factory _$CategoryModelCopyWith(
+          _CategoryModel value, $Res Function(_CategoryModel) _then) =
+      __$CategoryModelCopyWithImpl;
+  @override
+  @useResult
+  $Res call(
+      {int id,
+      String title,
+      String? description,
+      String color,
+      DateTime? createdAt,
+      DateTime? updatedAt});
+}
+
+/// @nodoc
+class __$CategoryModelCopyWithImpl<$Res>
+    implements _$CategoryModelCopyWith<$Res> {
+  __$CategoryModelCopyWithImpl(this._self, this._then);
+
+  final _CategoryModel _self;
+  final $Res Function(_CategoryModel) _then;
+
+  /// Create a copy of CategoryModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? id = null,
+    Object? title = null,
+    Object? description = freezed,
+    Object? color = null,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+  }) {
+    return _then(_CategoryModel(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      title: null == title
+          ? _self.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String,
+      description: freezed == description
+          ? _self.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      color: null == color
+          ? _self.color
+          : color // ignore: cast_nullable_to_non_nullable
+              as String,
+      createdAt: freezed == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _self.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+    ));
+  }
+}
+
+// dart format on

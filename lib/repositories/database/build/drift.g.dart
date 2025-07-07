@@ -1729,7 +1729,7 @@ class $$CategoriesTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (todosRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<Category, $CategoriesTable, Todo>(
                         currentTable: table,
                         referencedTable:
                             $$CategoriesTableReferences._todosRefsTable(db),
@@ -2225,7 +2225,8 @@ class $$TodosTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (todoCheckListItemsRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<Todo, $TodosTable,
+                            TodoCheckListItem>(
                         currentTable: table,
                         referencedTable: $$TodosTableReferences
                             ._todoCheckListItemsRefsTable(db),

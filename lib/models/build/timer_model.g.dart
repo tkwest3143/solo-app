@@ -6,8 +6,8 @@ part of '../timer_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TimerSettingsImpl _$$TimerSettingsImplFromJson(Map<String, dynamic> json) =>
-    _$TimerSettingsImpl(
+_TimerSettings _$TimerSettingsFromJson(Map<String, dynamic> json) =>
+    _TimerSettings(
       workMinutes: (json['workMinutes'] as num?)?.toInt() ?? 25,
       shortBreakMinutes: (json['shortBreakMinutes'] as num?)?.toInt() ?? 5,
       longBreakMinutes: (json['longBreakMinutes'] as num?)?.toInt() ?? 15,
@@ -15,7 +15,7 @@ _$TimerSettingsImpl _$$TimerSettingsImplFromJson(Map<String, dynamic> json) =>
           (json['cyclesUntilLongBreak'] as num?)?.toInt() ?? 4,
     );
 
-Map<String, dynamic> _$$TimerSettingsImplToJson(_$TimerSettingsImpl instance) =>
+Map<String, dynamic> _$TimerSettingsToJson(_TimerSettings instance) =>
     <String, dynamic>{
       'workMinutes': instance.workMinutes,
       'shortBreakMinutes': instance.shortBreakMinutes,
@@ -23,8 +23,8 @@ Map<String, dynamic> _$$TimerSettingsImplToJson(_$TimerSettingsImpl instance) =>
       'cyclesUntilLongBreak': instance.cyclesUntilLongBreak,
     };
 
-_$TimerSessionImpl _$$TimerSessionImplFromJson(Map<String, dynamic> json) =>
-    _$TimerSessionImpl(
+_TimerSession _$TimerSessionFromJson(Map<String, dynamic> json) =>
+    _TimerSession(
       mode: $enumDecodeNullable(_$TimerModeEnumMap, json['mode']) ??
           TimerMode.pomodoro,
       state: $enumDecodeNullable(_$TimerStatusEnumMap, json['state']) ??
@@ -40,7 +40,7 @@ _$TimerSessionImpl _$$TimerSessionImplFromJson(Map<String, dynamic> json) =>
           TimerSettings.fromJson(json['settings'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$$TimerSessionImplToJson(_$TimerSessionImpl instance) =>
+Map<String, dynamic> _$TimerSessionToJson(_TimerSession instance) =>
     <String, dynamic>{
       'mode': _$TimerModeEnumMap[instance.mode]!,
       'state': _$TimerStatusEnumMap[instance.state]!,

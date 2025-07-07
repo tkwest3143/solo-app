@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:solo/models/todo_model.dart';
+import 'package:solo/models/todo_checklist_item_model.dart';
 import 'package:solo/repositories/database/drift.dart';
 import 'package:solo/repositories/database.dart';
 import 'package:solo/services/todo_checklist_item_service.dart';
@@ -299,7 +300,8 @@ class TodoService {
 
   Future<List<TodoModel>> getTodosForDate(DateTime date) async {
     final todos = await _todoTableRepository.findByDate(date);
-    return todos
+    final allTodos = await _todoTableRepository.findAll();
+    final List<TodoModel> result = todos
         .map((todo) => TodoModel(
               id: todo.id,
               dueDate: todo.dueDate,
@@ -318,35 +320,190 @@ class TodoService {
               recurringDayOfMonth: todo.recurringDayOfMonth,
             ))
         .toList();
+    // 繰り返しTodoの仮想インスタンスも追加
+    for (final todo in allTodos) {
+      if (todo.isRecurring == true && todo.recurringType != null) {
+        if (_isRecurringOnDay(
+            TodoModel(
+                id: todo.id,
+                dueDate: todo.dueDate,
+                title: todo.title,
+                isCompleted: todo.isCompleted,
+                description: todo.description,
+                color: todo.color,
+                categoryId: todo.categoryId,
+                icon: todo.icon,
+                createdAt: todo.createdAt,
+                updatedAt: todo.updatedAt,
+                isRecurring: todo.isRecurring,
+                recurringType: todo.recurringType,
+                recurringEndDate: todo.recurringEndDate,
+                recurringDayOfWeek: todo.recurringDayOfWeek,
+                recurringDayOfMonth: todo.recurringDayOfMonth),
+            date)) {
+          // 既に通常Todoとして存在しない場合のみ追加
+          final exists = result.any((t) =>
+              t.title == todo.title &&
+              t.dueDate.year == date.year &&
+              t.dueDate.month == date.month &&
+              t.dueDate.day == date.day);
+          if (!exists) {
+            result.add(TodoModel(
+              id: -todo.id, // 仮想インスタンスは負のIDで区別
+              dueDate: DateTime(date.year, date.month, date.day,
+                  todo.dueDate.hour, todo.dueDate.minute),
+              title: todo.title,
+              isCompleted: false,
+              description: todo.description,
+              color: todo.color,
+              categoryId: todo.categoryId,
+              icon: todo.icon,
+              createdAt: todo.createdAt,
+              updatedAt: todo.updatedAt,
+              isRecurring: todo.isRecurring,
+              recurringType: todo.recurringType,
+              recurringEndDate: todo.recurringEndDate,
+              recurringDayOfWeek: todo.recurringDayOfWeek,
+              recurringDayOfMonth: todo.recurringDayOfMonth,
+            ));
+          }
+        }
+      }
+    }
+    return result;
   }
 
   Future<Map<DateTime, List<TodoModel>>> getTodosForMonth(
       DateTime month) async {
-    final todos = await _todoTableRepository.findByMonth(month);
+    final todos = await _todoTableRepository.findAll();
+    final checklistService = TodoCheckListItemService();
     final Map<DateTime, List<TodoModel>> todosByDate = {};
+    final List<TodoModel> recurringTodos = [];
+    final List<TodoModel> normalTodos = [];
+    final firstDay = DateTime(month.year, month.month, 1);
+    final lastDay = DateTime(month.year, month.month + 1, 0);
+    // すべてのTodoのIDリストを作成
+    final todoIds = todos.map((t) => t.id).toList();
+    // 一括でチェックリストを取得
+    final allChecklistItems =
+        await checklistService.getCheckListItemsForTodoIds(todoIds);
+    // todoIdごとにグループ化
+    final Map<int, List<TodoCheckListItemModel>> checklistMap = {};
+    for (final item in allChecklistItems) {
+      checklistMap[item.todoId] = checklistMap[item.todoId] ?? [];
+      checklistMap[item.todoId]!.add(item);
+    }
     for (final todo in todos) {
-      final todoDate = todo.dueDate;
-      final dateKey = DateTime(todoDate.year, todoDate.month, todoDate.day);
+      if (todo.isRecurring == true && todo.recurringType != null) {
+        // 開始日がその月以前の繰り返しTodoを対象
+        if (!todo.dueDate.isAfter(lastDay)) {
+          recurringTodos.add(TodoModel(
+            id: todo.id,
+            dueDate: todo.dueDate,
+            title: todo.title,
+            isCompleted: todo.isCompleted,
+            description: todo.description,
+            color: todo.color,
+            categoryId: todo.categoryId,
+            icon: todo.icon,
+            createdAt: todo.createdAt,
+            updatedAt: todo.updatedAt,
+            isRecurring: todo.isRecurring,
+            recurringType: todo.recurringType,
+            recurringEndDate: todo.recurringEndDate,
+            recurringDayOfWeek: todo.recurringDayOfWeek,
+            recurringDayOfMonth: todo.recurringDayOfMonth,
+            checklistItem: checklistMap[todo.id] ?? [],
+          ));
+        }
+      } else {
+        // 通常Todoはその月の日付のみ
+        if (todo.dueDate.year == month.year &&
+            todo.dueDate.month == month.month) {
+          normalTodos.add(TodoModel(
+            id: todo.id,
+            dueDate: todo.dueDate,
+            title: todo.title,
+            isCompleted: todo.isCompleted,
+            description: todo.description,
+            color: todo.color,
+            categoryId: todo.categoryId,
+            icon: todo.icon,
+            createdAt: todo.createdAt,
+            updatedAt: todo.updatedAt,
+            isRecurring: todo.isRecurring,
+            recurringType: todo.recurringType,
+            recurringEndDate: todo.recurringEndDate,
+            recurringDayOfWeek: todo.recurringDayOfWeek,
+            recurringDayOfMonth: todo.recurringDayOfMonth,
+            checklistItem: checklistMap[todo.id] ?? [],
+          ));
+        }
+      }
+    }
+    // 通常Todoを日付ごとに追加
+    for (final todo in normalTodos) {
+      final dateKey =
+          DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day);
       todosByDate[dateKey] = todosByDate[dateKey] ?? [];
-      todosByDate[dateKey]!.add(TodoModel(
-        id: todo.id,
-        dueDate: todo.dueDate,
-        title: todo.title,
-        isCompleted: todo.isCompleted,
-        description: todo.description,
-        color: todo.color,
-        categoryId: todo.categoryId,
-        icon: todo.icon,
-        createdAt: todo.createdAt,
-        updatedAt: todo.updatedAt,
-        isRecurring: todo.isRecurring,
-        recurringType: todo.recurringType,
-        recurringEndDate: todo.recurringEndDate,
-        recurringDayOfWeek: todo.recurringDayOfWeek,
-        recurringDayOfMonth: todo.recurringDayOfMonth,
-      ));
+      todosByDate[dateKey]!.add(todo);
+    }
+    // 繰り返しTodoを月内の日付ごとに仮想インスタンス生成
+    for (final todo in recurringTodos) {
+      for (DateTime day = firstDay;
+          !day.isAfter(lastDay);
+          day = day.add(const Duration(days: 1))) {
+        if (_isRecurringOnDay(todo, day)) {
+          final instance = TodoModel(
+            id: -todo.id, // 仮想インスタンスは負のIDで区別
+            dueDate: DateTime(day.year, day.month, day.day, todo.dueDate.hour,
+                todo.dueDate.minute),
+            title: todo.title,
+            isCompleted: false, // 仮想インスタンスは未完了扱い
+            description: todo.description,
+            color: todo.color,
+            categoryId: todo.categoryId,
+            icon: todo.icon,
+            createdAt: todo.createdAt,
+            updatedAt: todo.updatedAt,
+            isRecurring: todo.isRecurring,
+            recurringType: todo.recurringType,
+            recurringEndDate: todo.recurringEndDate,
+            recurringDayOfWeek: todo.recurringDayOfWeek,
+            recurringDayOfMonth: todo.recurringDayOfMonth,
+            parentTodoId: todo.id,
+            checklistItem: checklistMap[todo.id] ?? [], // 親Todoのチェックリストをコピー
+          );
+          final dateKey = DateTime(day.year, day.month, day.day);
+          todosByDate[dateKey] = todosByDate[dateKey] ?? [];
+          todosByDate[dateKey]!.add(instance);
+        }
+      }
     }
     return todosByDate;
+  }
+
+  // 指定日が繰り返しTodoの該当日か判定
+  bool _isRecurringOnDay(TodoModel todo, DateTime day) {
+    if (todo.isRecurring != true || todo.recurringType == null) return false;
+    if (todo.recurringEndDate != null && day.isAfter(todo.recurringEndDate!)) {
+      return false;
+    }
+    switch (todo.recurringType) {
+      case 'daily':
+        return !day.isBefore(todo.dueDate);
+      case 'weekly':
+        return !day.isBefore(todo.dueDate) &&
+            day.weekday == (todo.recurringDayOfWeek ?? todo.dueDate.weekday);
+      case 'monthly':
+        return !day.isBefore(todo.dueDate) &&
+            day.day == (todo.recurringDayOfMonth ?? todo.dueDate.day);
+      case 'monthly_last':
+        final lastDay = DateTime(day.year, day.month + 1, 0).day;
+        return !day.isBefore(todo.dueDate) && day.day == lastDay;
+      default:
+        return false;
+    }
   }
 
   /// Calculate the next due date for a recurring todo
@@ -487,7 +644,9 @@ class TodoService {
 
           // Check if we've passed the end date
           if (todo.recurringEndDate != null &&
-              nextDate.isAfter(todo.recurringEndDate!)) break;
+              nextDate.isAfter(todo.recurringEndDate!)) {
+            break;
+          }
 
           // Check if this instance already exists
           final exists = allTodos.any((t) =>

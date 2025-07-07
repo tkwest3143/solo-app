@@ -54,7 +54,7 @@ class RouterDefinition {
       builder: (context, state) => BulderWidget(child: const AboutPage()));
 }
 
-nextRouting(BuildContext context, Route route) {
+void nextRouting(BuildContext context, Route route) {
   GoRouter.of(context).go(route.path);
 }
 

@@ -273,4 +273,24 @@ class TodoCheckListItemTableRepository {
     }
     return null;
   }
+
+  Future<List<TodoCheckListItem>> findByTodoIds(List<int> todoIds) async {
+    if (todoIds.isEmpty) return [];
+    final database = await AppDatabase.getSingletonInstance();
+    final data = await (database.todoCheckListItems.select()
+          ..where((tbl) => tbl.todoId.isIn(todoIds))
+          ..orderBy([(tbl) => OrderingTerm(expression: tbl.order)]))
+        .get();
+    return data
+        .map((e) => TodoCheckListItem(
+              id: e.id,
+              todoId: e.todoId,
+              title: e.title,
+              isCompleted: e.isCompleted,
+              order: e.order,
+              createdAt: e.createdAt,
+              updatedAt: e.updatedAt,
+            ))
+        .toList();
+  }
 }
