@@ -777,7 +777,8 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  _getWeekdayName(recurringDayOfWeek.value ?? selectedDate.value.weekday),
+                                  _getWeekdayName(recurringDayOfWeek.value ??
+                                      selectedDate.value.weekday),
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Theme.of(context)
@@ -1124,7 +1125,7 @@ class _TodoDetailContent extends HookConsumerWidget {
       void loadChecklistItems() async {
         try {
           isLoading.value = true;
-          
+
           // For virtual recurring todos (negative IDs), check if a real instance exists first
           if (todo.id < 0) {
             // This is a virtual recurring instance
@@ -1134,18 +1135,19 @@ class _TodoDetailContent extends HookConsumerWidget {
             TodoModel? existingRealTodo;
             try {
               existingRealTodo = allTodos.firstWhere(
-                (t) => t.id > 0 && 
-                       t.title == todo.title &&
-                       t.dueDate.year == todo.dueDate.year &&
-                       t.dueDate.month == todo.dueDate.month &&
-                       t.dueDate.day == todo.dueDate.day &&
-                       t.dueDate.hour == todo.dueDate.hour &&
-                       t.dueDate.minute == todo.dueDate.minute,
+                (t) =>
+                    t.id > 0 &&
+                    t.title == todo.title &&
+                    t.dueDate.year == todo.dueDate.year &&
+                    t.dueDate.month == todo.dueDate.month &&
+                    t.dueDate.day == todo.dueDate.day &&
+                    t.dueDate.hour == todo.dueDate.hour &&
+                    t.dueDate.minute == todo.dueDate.minute,
               );
             } catch (e) {
               existingRealTodo = null;
             }
-            
+
             if (existingRealTodo != null) {
               // Use the real instance's checklist
               final items = await TodoCheckListItemService()
@@ -1155,11 +1157,11 @@ class _TodoDetailContent extends HookConsumerWidget {
               // For virtual instances, use the new persistent checklist service
               final positiveId = -todo.id;
               final originalTodoId = (positiveId - 1000000) ~/ 1000;
-              final items = await TodoCheckListItemService()
-                  .getVirtualCheckListItems(
-                    virtualTodoId: todo.id,
-                    originalTodoId: originalTodoId,
-                  );
+              final items =
+                  await TodoCheckListItemService().getVirtualCheckListItems(
+                virtualTodoId: todo.id,
+                originalTodoId: originalTodoId,
+              );
               checklistItems.value = items;
             }
           } else {
@@ -1181,7 +1183,7 @@ class _TodoDetailContent extends HookConsumerWidget {
     void refreshChecklistItems() async {
       try {
         isLoading.value = true;
-        
+
         if (todo.id < 0) {
           // This is a virtual recurring instance
           // Check if a real todo instance for this date now exists
@@ -1190,18 +1192,19 @@ class _TodoDetailContent extends HookConsumerWidget {
           TodoModel? existingRealTodo;
           try {
             existingRealTodo = allTodos.firstWhere(
-              (t) => t.id > 0 && 
-                     t.title == todo.title &&
-                     t.dueDate.year == todo.dueDate.year &&
-                     t.dueDate.month == todo.dueDate.month &&
-                     t.dueDate.day == todo.dueDate.day &&
-                     t.dueDate.hour == todo.dueDate.hour &&
-                     t.dueDate.minute == todo.dueDate.minute,
+              (t) =>
+                  t.id > 0 &&
+                  t.title == todo.title &&
+                  t.dueDate.year == todo.dueDate.year &&
+                  t.dueDate.month == todo.dueDate.month &&
+                  t.dueDate.day == todo.dueDate.day &&
+                  t.dueDate.hour == todo.dueDate.hour &&
+                  t.dueDate.minute == todo.dueDate.minute,
             );
           } catch (e) {
             existingRealTodo = null;
           }
-          
+
           if (existingRealTodo != null) {
             // A real instance now exists, load its checklist
             final items = await TodoCheckListItemService()
@@ -1211,17 +1214,17 @@ class _TodoDetailContent extends HookConsumerWidget {
             // Still virtual - reload the virtual checklist state
             final positiveId = -todo.id;
             final originalTodoId = (positiveId - 1000000) ~/ 1000;
-            final items = await TodoCheckListItemService()
-                .getVirtualCheckListItems(
-                  virtualTodoId: todo.id,
-                  originalTodoId: originalTodoId,
-                );
+            final items =
+                await TodoCheckListItemService().getVirtualCheckListItems(
+              virtualTodoId: todo.id,
+              originalTodoId: originalTodoId,
+            );
             checklistItems.value = items;
           }
         } else {
           // Regular todo - reload normally
-          final items =
-              await TodoCheckListItemService().getCheckListItemsForTodo(todo.id);
+          final items = await TodoCheckListItemService()
+              .getCheckListItemsForTodo(todo.id);
           checklistItems.value = items;
         }
       } finally {
@@ -1620,7 +1623,7 @@ class _TodoDetailContent extends HookConsumerWidget {
             if (todo.id < 0) {
               // This is a virtual checklist item - save the state persistently
               final newCompletionState = !item.isCompleted;
-              
+
               // Save the new state to persistent storage
               final checklistService = TodoCheckListItemService();
               await checklistService.saveVirtualCheckListItemState(
@@ -1630,7 +1633,7 @@ class _TodoDetailContent extends HookConsumerWidget {
                 isCompleted: newCompletionState,
                 order: item.order,
               );
-              
+
               // Update local state immediately for responsiveness
               final updatedItems = checklistItems.value.map((checklistItem) {
                 if (checklistItem.id == item.id) {
@@ -1646,33 +1649,35 @@ class _TodoDetailContent extends HookConsumerWidget {
                 }
                 return checklistItem;
               }).toList();
-              
+
               checklistItems.value = updatedItems;
-              
+
               // Check if all items are now completed
-              final allCompleted = updatedItems.every((item) => item.isCompleted);
-              
+              final allCompleted =
+                  updatedItems.every((item) => item.isCompleted);
+
               if (allCompleted) {
                 // All virtual checklist items completed - create real todo instance
                 final todoService = TodoService();
-                
+
                 // Check if a real instance already exists
                 final allTodos = await todoService.getTodo();
                 TodoModel? existingRealTodo;
                 try {
                   existingRealTodo = allTodos.firstWhere(
-                    (t) => t.id > 0 && 
-                           t.title == todo.title &&
-                           t.dueDate.year == todo.dueDate.year &&
-                           t.dueDate.month == todo.dueDate.month &&
-                           t.dueDate.day == todo.dueDate.day &&
-                           t.dueDate.hour == todo.dueDate.hour &&
-                           t.dueDate.minute == todo.dueDate.minute,
+                    (t) =>
+                        t.id > 0 &&
+                        t.title == todo.title &&
+                        t.dueDate.year == todo.dueDate.year &&
+                        t.dueDate.month == todo.dueDate.month &&
+                        t.dueDate.day == todo.dueDate.day &&
+                        t.dueDate.hour == todo.dueDate.hour &&
+                        t.dueDate.minute == todo.dueDate.minute,
                   );
                 } catch (e) {
                   existingRealTodo = null;
                 }
-                
+
                 int actualTodoId;
                 if (existingRealTodo != null) {
                   actualTodoId = existingRealTodo.id;
@@ -1688,7 +1693,7 @@ class _TodoDetailContent extends HookConsumerWidget {
                   );
                   actualTodoId = realTodo.id;
                 }
-                
+
                 // Transfer all persistent checklist items to the real todo
                 for (int i = 0; i < updatedItems.length; i++) {
                   final virtualItem = updatedItems[i];
@@ -1705,10 +1710,10 @@ class _TodoDetailContent extends HookConsumerWidget {
                     );
                   }
                 }
-                
+
                 // Clean up virtual checklist entries
                 await checklistService.deleteVirtualCheckListItems(todo.id);
-                
+
                 // Check if todo should be auto-completed
                 final wasCompleted = await todoService
                     .checkAndUpdateTodoCompletionByChecklist(actualTodoId);
@@ -1718,7 +1723,7 @@ class _TodoDetailContent extends HookConsumerWidget {
                     SnackBar(content: Text('${todo.title}を完了にしました')),
                   );
                 }
-                
+
                 // Refresh to show real checklist items
                 refreshChecklistItems();
               }
@@ -1737,7 +1742,7 @@ class _TodoDetailContent extends HookConsumerWidget {
                   SnackBar(content: Text('${todo.title}を完了にしました')),
                 );
               }
-              
+
               refreshChecklistItems();
             }
 
@@ -2514,6 +2519,7 @@ class _AddCategoryDialogContent extends HookWidget {
     );
   }
 }
+
 /// Helper function to get Japanese weekday name
 String _getWeekdayName(int weekday) {
   switch (weekday) {

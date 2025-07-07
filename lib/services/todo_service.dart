@@ -30,10 +30,12 @@ class TodoService {
         .toList();
 
     // Get recurring todos and generate instances for the next 30 days
-    final recurringTodos = todoList.where((todo) => todo.isRecurring == true && !todo.isCompleted).toList();
+    final recurringTodos = todoList
+        .where((todo) => todo.isRecurring == true && !todo.isCompleted)
+        .toList();
     final now = DateTime.now();
     final thirtyDaysFromNow = now.add(const Duration(days: 30));
-    
+
     final recurringInstances = generateRecurringInstancesForDateRange(
       recurringTodos,
       now,
@@ -173,11 +175,11 @@ class TodoService {
       final allTodos = await getTodo();
       final originalTodo = _findOriginalTodoForVirtualInstance(allTodos, id);
       if (originalTodo == null) return null;
-      
+
       // Create a real database entry for this specific instance
       final virtualInstance = _findVirtualInstanceById(allTodos, id);
       if (virtualInstance == null) return null;
-      
+
       // Create the real todo instance
       final realTodo = await createTodo(
         title: virtualInstance.title,
@@ -188,11 +190,11 @@ class TodoService {
         // Important: Don't mark this as recurring since it's a specific instance
         isRecurring: false,
       );
-      
+
       // Now toggle its completion
       return await toggleTodoComplete(realTodo.id);
     }
-    
+
     // Handle regular todos (positive IDs)
     final todos = await _todoTableRepository.findAll();
     Todo? todo;
@@ -234,12 +236,13 @@ class TodoService {
   }
 
   /// Helper method to find the original recurring todo for a virtual instance
-  TodoModel? _findOriginalTodoForVirtualInstance(List<TodoModel> allTodos, int virtualId) {
+  TodoModel? _findOriginalTodoForVirtualInstance(
+      List<TodoModel> allTodos, int virtualId) {
     // Extract original todo ID from virtual ID
     // Virtual ID format: -(1000000 + originalId * 1000 + counter)
     final positiveId = -virtualId;
     final baseId = (positiveId - 1000000) ~/ 1000;
-    
+
     try {
       return allTodos.firstWhere(
         (todo) => todo.id == baseId && todo.isRecurring == true,
@@ -391,8 +394,10 @@ class TodoService {
 
     // Get all todos to find recurring ones
     final allTodos = await getTodo();
-    final recurringTodos = allTodos.where((todo) => todo.isRecurring == true && !todo.isCompleted).toList();
-    
+    final recurringTodos = allTodos
+        .where((todo) => todo.isRecurring == true && !todo.isCompleted)
+        .toList();
+
     // Generate recurring instances for the specific date
     final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
@@ -413,7 +418,7 @@ class TodoService {
       DateTime month) async {
     final todos = await _todoTableRepository.findByMonth(month);
     final Map<DateTime, List<TodoModel>> todosByDate = {};
-    
+
     // Add regular todos from database
     final todoList = <TodoModel>[];
     for (final todo in todos) {
@@ -435,7 +440,7 @@ class TodoService {
         recurringDayOfMonth: todo.recurringDayOfMonth,
       );
       todoList.add(todoModel);
-      
+
       final todoDate = todo.dueDate;
       final dateKey = DateTime(todoDate.year, todoDate.month, todoDate.day);
       todosByDate[dateKey] = todosByDate[dateKey] ?? [];
@@ -444,8 +449,10 @@ class TodoService {
 
     // Get all todos to find recurring ones
     final allTodos = await getTodo();
-    final recurringTodos = allTodos.where((todo) => todo.isRecurring == true && !todo.isCompleted).toList();
-    
+    final recurringTodos = allTodos
+        .where((todo) => todo.isRecurring == true && !todo.isCompleted)
+        .toList();
+
     // Generate recurring instances for the month
     final startOfMonth = DateTime(month.year, month.month, 1);
     final endOfMonth = DateTime(month.year, month.month + 1, 0);
@@ -458,7 +465,8 @@ class TodoService {
 
     // Add recurring instances to the map
     for (final instance in recurringInstances) {
-      final dateKey = DateTime(instance.dueDate.year, instance.dueDate.month, instance.dueDate.day);
+      final dateKey = DateTime(
+          instance.dueDate.year, instance.dueDate.month, instance.dueDate.day);
       todosByDate[dateKey] = todosByDate[dateKey] ?? [];
       todosByDate[dateKey]!.add(instance);
     }
@@ -604,7 +612,9 @@ class TodoService {
 
           // Check if we've passed the end date
           if (todo.recurringEndDate != null &&
-              nextDate.isAfter(todo.recurringEndDate!)) break;
+              nextDate.isAfter(todo.recurringEndDate!)) {
+            break;
+          }
 
           // Check if this instance already exists
           final exists = allTodos.any((t) =>
@@ -677,12 +687,11 @@ class TodoService {
 
       // Start with the original due date
       var currentDate = todo.dueDate;
-      
+
       // Generate all occurrences within the range (including the original if it falls in range)
       while (currentDate.isBefore(endDate.add(const Duration(days: 1)))) {
         // Check if current date is within our target range
         if (currentDate.isAfter(startDate.subtract(const Duration(days: 1)))) {
-          
           // Check if we've passed the end date for this recurring todo
           if (todo.recurringEndDate != null &&
               currentDate.isAfter(todo.recurringEndDate!)) {
@@ -691,16 +700,17 @@ class TodoService {
 
           // Check if this instance already exists in the database
           final alreadyExists = existingTodos.any((existingTodo) =>
-            existingTodo.title == todo.title &&
-            existingTodo.dueDate.year == currentDate.year &&
-            existingTodo.dueDate.month == currentDate.month &&
-            existingTodo.dueDate.day == currentDate.day &&
-            existingTodo.dueDate.hour == currentDate.hour &&
-            existingTodo.dueDate.minute == currentDate.minute);
-          
+              existingTodo.title == todo.title &&
+              existingTodo.dueDate.year == currentDate.year &&
+              existingTodo.dueDate.month == currentDate.month &&
+              existingTodo.dueDate.day == currentDate.day &&
+              existingTodo.dueDate.hour == currentDate.hour &&
+              existingTodo.dueDate.minute == currentDate.minute);
+
           if (!alreadyExists) {
             // Create virtual instance with unique negative ID to avoid conflicts with real todos
-            final virtualId = -(1000000 + todo.id * 1000 + globalInstanceCounter);
+            final virtualId =
+                -(1000000 + todo.id * 1000 + globalInstanceCounter);
             generatedInstances.add(TodoModel(
               id: virtualId,
               title: todo.title,

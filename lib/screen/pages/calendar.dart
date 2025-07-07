@@ -180,7 +180,8 @@ class CalendarPage extends HookConsumerWidget {
                                 if (selectedCategory.value != null) {
                                   events = events
                                       .where((todo) =>
-                                          todo.color == selectedCategory.value)
+                                          todo.categoryId ==
+                                          selectedCategory.value)
                                       .toList();
                                 }
                                 if (selectedStatus.value != null) {
@@ -395,7 +396,8 @@ class CalendarPage extends HookConsumerWidget {
 
         var todos = snapshot.data ?? [];
         if (categoryFilter != null) {
-          todos = todos.where((todo) => todo.color == categoryFilter).toList();
+          todos =
+              todos.where((todo) => todo.categoryId == categoryFilter).toList();
         }
         if (statusFilter != null) {
           if (statusFilter == 'completed') {
