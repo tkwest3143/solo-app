@@ -1126,7 +1126,6 @@ class _TodoDetailContent extends HookConsumerWidget {
           isLoading.value = true;
           
           // For virtual recurring todos (negative IDs), check if a real instance exists first
-          int todoIdForChecklist = todo.id;
           if (todo.id < 0) {
             // This is a virtual recurring instance
             // First check if a real todo instance for this date already exists
@@ -1149,18 +1148,37 @@ class _TodoDetailContent extends HookConsumerWidget {
             
             if (existingRealTodo != null) {
               // Use the real instance's checklist
-              todoIdForChecklist = existingRealTodo.id;
+              final items = await TodoCheckListItemService()
+                  .getCheckListItemsForTodo(existingRealTodo.id);
+              checklistItems.value = items;
             } else {
-              // Use the original recurring todo's checklist as template
+              // For virtual instances, create isolated copies of the template items
+              // This prevents cross-contamination between virtual instances
               final positiveId = -todo.id;
               final originalTodoId = (positiveId - 1000000) ~/ 1000;
-              todoIdForChecklist = originalTodoId;
+              final templateItems = await TodoCheckListItemService()
+                  .getCheckListItemsForTodo(originalTodoId);
+              
+              // Create isolated copies with virtual IDs to prevent conflicts
+              final virtualItems = templateItems.map((item) {
+                return TodoCheckListItemModel(
+                  id: -(1000000000 + todo.id.abs() * 1000 + item.id), // Create unique virtual ID
+                  todoId: todo.id, // Use virtual todo ID
+                  title: item.title,
+                  isCompleted: false, // Always start unchecked for virtual instances
+                  order: item.order,
+                  createdAt: item.createdAt,
+                  updatedAt: item.updatedAt,
+                );
+              }).toList();
+              checklistItems.value = virtualItems;
             }
+          } else {
+            // Regular todo - load normally
+            final items = await TodoCheckListItemService()
+                .getCheckListItemsForTodo(todo.id);
+            checklistItems.value = items;
           }
-          
-          final items = await TodoCheckListItemService()
-              .getCheckListItemsForTodo(todoIdForChecklist);
-          checklistItems.value = items;
         } finally {
           isLoading.value = false;
         }
@@ -1175,18 +1193,42 @@ class _TodoDetailContent extends HookConsumerWidget {
       try {
         isLoading.value = true;
         
-        // For virtual recurring todos (negative IDs), load checklist from original todo
-        int todoIdForChecklist = todo.id;
         if (todo.id < 0) {
-          // This is a virtual recurring instance, get checklist from original recurring todo
-          final positiveId = -todo.id;
-          final originalTodoId = (positiveId - 1000000) ~/ 1000;
-          todoIdForChecklist = originalTodoId;
+          // This is a virtual recurring instance
+          // Check if a real todo instance for this date now exists
+          final todoService = TodoService();
+          final allTodos = await todoService.getTodo();
+          TodoModel? existingRealTodo;
+          try {
+            existingRealTodo = allTodos.firstWhere(
+              (t) => t.id > 0 && 
+                     t.title == todo.title &&
+                     t.dueDate.year == todo.dueDate.year &&
+                     t.dueDate.month == todo.dueDate.month &&
+                     t.dueDate.day == todo.dueDate.day &&
+                     t.dueDate.hour == todo.dueDate.hour &&
+                     t.dueDate.minute == todo.dueDate.minute,
+            );
+          } catch (e) {
+            existingRealTodo = null;
+          }
+          
+          if (existingRealTodo != null) {
+            // A real instance now exists, load its checklist
+            final items = await TodoCheckListItemService()
+                .getCheckListItemsForTodo(existingRealTodo.id);
+            checklistItems.value = items;
+          } else {
+            // Still virtual - keep the current virtual checklist state
+            // Don't reload from template to maintain isolation
+            // checklistItems.value remains unchanged
+          }
+        } else {
+          // Regular todo - reload normally
+          final items =
+              await TodoCheckListItemService().getCheckListItemsForTodo(todo.id);
+          checklistItems.value = items;
         }
-        
-        final items =
-            await TodoCheckListItemService().getCheckListItemsForTodo(todoIdForChecklist);
-        checklistItems.value = items;
       } finally {
         isLoading.value = false;
       }
@@ -1419,7 +1461,7 @@ class _TodoDetailContent extends HookConsumerWidget {
                               const SizedBox(height: 8),
                               ...checklistItems.value.map((item) =>
                                   _buildChecklistItemRow(context, item, todo,
-                                      refreshChecklistItems)),
+                                      refreshChecklistItems, checklistItems)),
                             ],
                           ),
                       ],
@@ -1570,7 +1612,8 @@ class _TodoDetailContent extends HookConsumerWidget {
       BuildContext context,
       TodoCheckListItemModel item,
       TodoModel todo,
-      VoidCallback refreshChecklistItems) {
+      VoidCallback refreshChecklistItems,
+      ValueNotifier<List<TodoCheckListItemModel>> checklistItems) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Material(
@@ -1580,86 +1623,116 @@ class _TodoDetailContent extends HookConsumerWidget {
           onTap: () async {
             // For virtual recurring todos (negative IDs), we need special handling
             if (todo.id < 0) {
-              // This is a virtual recurring instance
-              // We need to create a real todo instance and transfer all checklist items to it
-              final todoService = TodoService();
-              
-              // Check if a real instance for this date already exists
-              final allTodos = await todoService.getTodo();
-              TodoModel? existingRealTodo;
-              try {
-                existingRealTodo = allTodos.firstWhere(
-                  (t) => t.id > 0 && 
-                         t.title == todo.title &&
-                         t.dueDate.year == todo.dueDate.year &&
-                         t.dueDate.month == todo.dueDate.month &&
-                         t.dueDate.day == todo.dueDate.day &&
-                         t.dueDate.hour == todo.dueDate.hour &&
-                         t.dueDate.minute == todo.dueDate.minute,
-                );
-              } catch (e) {
-                existingRealTodo = null;
-              }
-              
-              int actualTodoId;
-              if (existingRealTodo != null) {
-                // Use existing real todo
-                actualTodoId = existingRealTodo.id;
-              } else {
-                // Create a real todo instance
-                final realTodo = await todoService.createTodo(
-                  title: todo.title,
-                  description: todo.description,
-                  dueDate: todo.dueDate,
-                  color: todo.color,
-                  categoryId: todo.categoryId,
-                  // Important: Don't mark this as recurring since it's a specific instance
-                  isRecurring: false,
-                );
-                actualTodoId = realTodo.id;
+              // Check if this is a virtual checklist item (negative ID)
+              if (item.id < 0) {
+                // This is a virtual checklist item - toggle it locally first
+                final updatedItems = checklistItems.value.map((checklistItem) {
+                  if (checklistItem.id == item.id) {
+                    return TodoCheckListItemModel(
+                      id: checklistItem.id,
+                      todoId: checklistItem.todoId,
+                      title: checklistItem.title,
+                      isCompleted: !checklistItem.isCompleted,
+                      order: checklistItem.order,
+                      createdAt: checklistItem.createdAt,
+                      updatedAt: DateTime.now(),
+                    );
+                  }
+                  return checklistItem;
+                }).toList();
                 
-                // Copy checklist items from original recurring todo to this real instance
-                final positiveId = -todo.id;
-                final originalTodoId = (positiveId - 1000000) ~/ 1000;
-                final originalChecklistItems = await TodoCheckListItemService()
-                    .getCheckListItemsForTodo(originalTodoId);
+                // Check if all items are now completed
+                final allCompleted = updatedItems.every((item) => item.isCompleted);
                 
-                for (int i = 0; i < originalChecklistItems.length; i++) {
-                  final originalItem = originalChecklistItems[i];
-                  await TodoCheckListItemService().createCheckListItem(
-                    todoId: actualTodoId,
-                    title: originalItem.title,
-                    order: i,
-                  );
-                }
-              }
-              
-              // Now we need to find the corresponding checklist item in the real todo
-              final realChecklistItems = await TodoCheckListItemService()
-                  .getCheckListItemsForTodo(actualTodoId);
-              TodoCheckListItemModel? correspondingItem;
-              try {
-                correspondingItem = realChecklistItems.firstWhere(
-                  (realItem) => realItem.title == item.title && realItem.order == item.order,
-                );
-              } catch (e) {
-                correspondingItem = null;
-              }
-              
-              if (correspondingItem != null) {
-                // Toggle the real checklist item
-                final checklistService = TodoCheckListItemService();
-                await checklistService.toggleCheckListItemComplete(correspondingItem.id);
-                
-                // Check if todo should be auto-completed
-                final wasCompleted = await todoService
-                    .checkAndUpdateTodoCompletionByChecklist(actualTodoId);
+                if (allCompleted) {
+                  // All virtual checklist items completed - create real todo instance
+                  final todoService = TodoService();
+                  
+                  // Check if a real instance already exists
+                  final allTodos = await todoService.getTodo();
+                  TodoModel? existingRealTodo;
+                  try {
+                    existingRealTodo = allTodos.firstWhere(
+                      (t) => t.id > 0 && 
+                             t.title == todo.title &&
+                             t.dueDate.year == todo.dueDate.year &&
+                             t.dueDate.month == todo.dueDate.month &&
+                             t.dueDate.day == todo.dueDate.day &&
+                             t.dueDate.hour == todo.dueDate.hour &&
+                             t.dueDate.minute == todo.dueDate.minute,
+                    );
+                  } catch (e) {
+                    existingRealTodo = null;
+                  }
+                  
+                  int actualTodoId;
+                  if (existingRealTodo != null) {
+                    actualTodoId = existingRealTodo.id;
+                  } else {
+                    // Create real todo instance
+                    final realTodo = await todoService.createTodo(
+                      title: todo.title,
+                      description: todo.description,
+                      dueDate: todo.dueDate,
+                      color: todo.color,
+                      categoryId: todo.categoryId,
+                      isRecurring: false,
+                    );
+                    actualTodoId = realTodo.id;
+                  }
+                  
+                  // Create all checklist items as completed in the real todo
+                  final checklistService = TodoCheckListItemService();
+                  for (int i = 0; i < updatedItems.length; i++) {
+                    final virtualItem = updatedItems[i];
+                    final realItem = await checklistService.createCheckListItem(
+                      todoId: actualTodoId,
+                      title: virtualItem.title,
+                      order: i,
+                    );
+                    // Mark as completed if it was completed in virtual state
+                    if (virtualItem.isCompleted) {
+                      await checklistService.updateCheckListItem(
+                        realItem.id,
+                        isCompleted: true,
+                      );
+                    }
+                  }
+                  
+                  // Check if todo should be auto-completed
+                  final wasCompleted = await todoService
+                      .checkAndUpdateTodoCompletionByChecklist(actualTodoId);
 
-                if (wasCompleted && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('${todo.title}を完了にしました')),
-                  );
+                  if (wasCompleted && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('${todo.title}を完了にしました')),
+                    );
+                  }
+                  
+                  // Refresh to show real checklist items
+                  refreshChecklistItems();
+                } else {
+                  // Just update virtual state locally
+                  final newChecklistItems = [...checklistItems.value];
+                  final itemIndex = newChecklistItems.indexWhere((i) => i.id == item.id);
+                  if (itemIndex != -1) {
+                    newChecklistItems[itemIndex] = TodoCheckListItemModel(
+                      id: item.id,
+                      todoId: item.todoId,
+                      title: item.title,
+                      isCompleted: !item.isCompleted,
+                      order: item.order,
+                      createdAt: item.createdAt,
+                      updatedAt: DateTime.now(),
+                    );
+                    checklistItems.value = newChecklistItems;
+                  }
                 }
+              } else {
+                // This is a real checklist item in a virtual todo context - handle normally
+                final checklistService = TodoCheckListItemService();
+                await checklistService.toggleCheckListItemComplete(item.id);
+                refreshChecklistItems();
               }
             } else {
               // Regular todo - handle normally
@@ -1676,10 +1749,11 @@ class _TodoDetailContent extends HookConsumerWidget {
                   SnackBar(content: Text('${todo.title}を完了にしました')),
                 );
               }
+              
+              refreshChecklistItems();
             }
 
-            // Refresh the UI
-            refreshChecklistItems();
+            // Always call onRefresh to update parent components
             onRefresh?.call();
           },
           child: Container(
