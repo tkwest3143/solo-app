@@ -145,6 +145,31 @@ class TodoTableRepository {
 // sqflite、hive、その他のデータベースライブラリ
 ```
 
+### 6. 国際化・ローカライゼーション
+**使用ライブラリ**: `intl`
+
+**パターン**: 日本語ロケール（ja-JP）で初期化し、日付フォーマットを使用
+
+```dart
+// ✅ main.dartでの初期化例
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting("ja-JP", null);
+  
+  runApp(/* ... */);
+}
+
+// ✅ 日付フォーマットの使用例
+Text(
+  DateFormat('yyyy年MM月dd日').format(DateTime.now()),
+)
+
+// ✅ UIテキストは日本語で統一
+Text('設定'),
+Text('タスクを追加'),
+Text('ポモドーロタイマー'),
+```
+
 ### 5. ルーティング: GoRouter
 **使用ライブラリ**: `go_router`
 
@@ -207,7 +232,24 @@ lib/
 - **Provider**: `xxxStateProvider`, `xxxServiceProvider`
 - **Model**: `XxxModel` (例: `TodoModel`, `SettingsModel`)
 - **Service**: `XxxService` (例: `TodoService`, `SettingsService`)
+- **Repository**: `XxxTableRepository` (例: `TodoTableRepository`)
 - **Widget**: `XxxPage`, `XxxWidget`
+- **State**: `XxxState` (例: `SettingsState`, `TimerState`)
+- **Extension**: `XxxExtension` (例: `AppSettingsExtension`)
+
+### 3. Japanese UI Text Convention
+UIテキストはすべて日本語で統一してください：
+
+```dart
+// ✅ 正しい例
+Text('設定'),
+Text('タスクを追加'),
+Text('ポモドーロタイマー'),
+
+// ❌ 間違い
+Text('Settings'),
+Text('Add Task'),
+```
 
 ### 3. コード生成
 
@@ -216,11 +258,20 @@ lib/
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-**重要**: `part` ディレクティブは `build/` フォルダを使用してください：
+**重要**: `part` ディレクティブは `build/` フォルダを使用してください（build.yamlで設定済み）：
 ```dart
-part 'build/settings_state.g.dart';  // ✅ 正しい
-part 'settings_state.g.dart';        // ❌ 間違い
+part 'build/settings_state.g.dart';     // ✅ 正しい（Riverpod）
+part 'build/settings_model.freezed.dart'; // ✅ 正しい（Freezed）
+part 'build/settings_model.g.dart';     // ✅ 正しい（JSON）
+
+part 'settings_state.g.dart';           // ❌ 間違い
 ```
+
+### 4. ディレクトリ構成での注意点
+- 生成されたファイルは必ず `build/` サブディレクトリに配置される
+- 手動で生成ファイルの場所を変更しない
+- 生成ファイルは `.gitignore` で除外されないため、コミットに含まれる
+- `/build/` (ルートレベル) は除外されているが、`lib/**/build/` は追跡対象
 
 ## 実装パターン
 
@@ -432,7 +483,7 @@ class HomePage extends HookConsumerWidget {
 
 ### カラーテーマパターン
 ```dart
-// ✅ Theme拡張の使用
+// ✅ Theme拡張の使用（lib/screen/colors.dartで定義された拡張を使用）
 Container(
   decoration: BoxDecoration(
     gradient: LinearGradient(
@@ -443,9 +494,23 @@ Container(
     'サンプルテキスト',
     style: TextStyle(
       color: Theme.of(context).colorScheme.primaryTextColor,
+      fontSize: 16,
     ),
   ),
 )
+
+// 利用可能なカラー拡張:
+// - backgroundGradient: List<Color>
+// - primaryGradient: List<Color>
+// - primaryTextColor: Color
+// - secondaryTextColor: Color
+// - mutedTextColor: Color
+// - successColor: Color
+// - infoColor: Color
+// - warningColor: Color
+// - errorColor: Color
+// - accentColor: Color
+// - purpleColor: Color
 ```
 
 ## テストパターン
