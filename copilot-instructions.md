@@ -58,10 +58,44 @@ class SettingsState extends _$SettingsState {
 ### 2. UIコンポーネント: Flutter Hooks
 **使用ライブラリ**: `flutter_hooks`, `hooks_riverpod`
 
-**パターン**: すべてのWidgetは`HookConsumerWidget`を継承してください。
+**パターン**: 使用する機能に応じて適切なWidget基底クラスを選択してください：
+
+- **状態がない場合**: `StatelessWidget`
+- **Flutter Hooksのみ使用**: `HookWidget`
+- **Riverpodの状態のみ使用**: `ConsumerWidget`
+- **両方使用**: `HookConsumerWidget`
 
 ```dart
-// ✅ 正しい実装例
+// ✅ 状態がない場合
+class SimpleButton extends StatelessWidget {
+  const SimpleButton({super.key, required this.onPressed});
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(/* ... */);
+  }
+}
+
+// ✅ Flutter Hooksのみ使用
+class AnimatedCounter extends HookWidget {
+  @override
+  Widget build(BuildContext context) {
+    final animationController = useAnimationController(duration: Duration(seconds: 1));
+    return AnimatedBuilder(/* ... */);
+  }
+}
+
+// ✅ Riverpodの状態のみ使用
+class SettingsDisplay extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsStateProvider);
+    return Text(settings.themeName);
+  }
+}
+
+// ✅ 両方使用する場合
 class SettingsPage extends HookConsumerWidget {
   const SettingsPage({super.key});
 
@@ -69,13 +103,14 @@ class SettingsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsStateProvider);
     final settingsController = ref.read(settingsStateProvider.notifier);
+    final tabController = useTabController(initialLength: 3);
     
     return Scaffold(/* ... */);
   }
 }
 
 // ❌ 使用禁止
-// StatefulWidget, ConsumerWidget（HookConsumerWidgetを使用）
+// StatefulWidget（上記のパターンを使用）
 ```
 
 ### 3. データモデル: Freezed
@@ -434,7 +469,7 @@ class TimerState extends _$TimerState {
 - Global変数の使用
 - Singletonパターン（Riverpod Provider使用、ただしDatabase層は例外）
 - 生のFutureBuilder（AsyncValueパターン使用）
-- `StatefulWidget`や`StatelessWidget`の直接使用（`HookConsumerWidget`使用）
+- `StatefulWidget`の直接使用（適切なWidget基底クラスを使用）
 
 ## Freezed拡張パターン
 
