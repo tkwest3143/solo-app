@@ -219,65 +219,64 @@ class TodoCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-            const SizedBox(height: 12),
+            const SizedBox(height: 4),
+            FutureBuilder<CategoryModel?>(
+              future: todo.categoryId != null
+                  ? CategoryService().getCategoryById(todo.categoryId!)
+                  : Future.value(null),
+              builder: (context, snapshot) {
+                final category = snapshot.data;
+                if (category == null) {
+                  return const SizedBox.shrink(); // Show nothing while loading
+                }
+                return Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: TodoColor.getColorFromString(category.color)
+                        .withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: TodoColor.getColorFromString(category.color)
+                          .withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: TodoColor.getColorFromString(category.color),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        category.title,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: TodoColor.getColorFromString(category.color),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+                return Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: TodoColor.getColorFromString(todo.color),
+                    shape: BoxShape.circle,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
             Row(
               children: [
-                // Category chip
-                FutureBuilder<CategoryModel?>(
-                  future: todo.categoryId != null
-                      ? CategoryService().getCategoryById(todo.categoryId!)
-                      : Future.value(null),
-                  builder: (context, snapshot) {
-                    final category = snapshot.data;
-                    if (category != null) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: TodoColor.getColorFromString(category.color)
-                              .withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: TodoColor.getColorFromString(category.color)
-                                .withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: TodoColor.getColorFromString(
-                                    category.color),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              category.title,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: TodoColor.getColorFromString(
-                                    category.color),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                    return Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: TodoColor.getColorFromString(todo.color),
-                        shape: BoxShape.circle,
-                      ),
-                    );
-                  },
-                ),
                 const SizedBox(width: 8),
                 Icon(
                   Icons.schedule_rounded,
@@ -1108,19 +1107,60 @@ class _TodoDetailContent extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final realTodo = useState(todo);
     final color = TodoColor.getColorFromString(todo.color);
     final checklistItems = useState<List<TodoCheckListItemModel>>([]);
     final isLoading = useState<bool>(true);
 
-    // Load checklist items
+    // Load checklist items and register new Todo if id is negative
     useEffect(() {
       void loadChecklistItems() async {
         try {
           isLoading.value = true;
+
           final id = todo.id < 0 ? todo.id.abs() : todo.id;
           final items =
               await TodoCheckListItemService().getCheckListItemsForTodo(id);
-          checklistItems.value = items;
+
+          if (todo.id < 0) {
+            // 新規Todoとして登録
+            final newTodo = await TodoService().createTodo(
+              title: todo.title,
+              description: todo.description,
+              dueDate: todo.dueDate,
+              color: todo.color,
+              categoryId: todo.categoryId,
+              isRecurring: todo.isRecurring,
+              recurringType: todo.recurringType,
+              recurringEndDate: todo.recurringEndDate,
+              recurringDayOfWeek: todo.recurringDayOfWeek,
+              recurringDayOfMonth: todo.recurringDayOfMonth,
+            );
+            // 新規TodoのIDでチェックリストも新規登録
+            final newItems = <TodoCheckListItemModel>[];
+            for (final item in items) {
+              final newItem =
+                  await TodoCheckListItemService().createCheckListItem(
+                todoId: newTodo.id,
+                title: item.title,
+                order: item.order,
+              );
+              newItems.add(newItem);
+            }
+            // 状態を新しいTodo/new checklistに更新
+            realTodo.value = newTodo;
+            checklistItems.value = newItems;
+            // 追加: onRefreshを呼び出してUIをリロード（カレンダーやリストのアイコン更新用）
+            onRefresh?.call();
+            return;
+          } else {
+            // 既存のTodoのチェックリストアイテムを取得
+            if (items.isEmpty) {
+              checklistItems.value = [];
+            } else {
+              checklistItems.value = items;
+            }
+          }
         } finally {
           isLoading.value = false;
         }
@@ -1133,8 +1173,8 @@ class _TodoDetailContent extends HookConsumerWidget {
     void refreshChecklistItems() async {
       try {
         isLoading.value = true;
-        final items =
-            await TodoCheckListItemService().getCheckListItemsForTodo(todo.id);
+        final items = await TodoCheckListItemService()
+            .getCheckListItemsForTodo(realTodo.value.id);
         checklistItems.value = items;
       } finally {
         isLoading.value = false;
@@ -1162,8 +1202,8 @@ class _TodoDetailContent extends HookConsumerWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: FutureBuilder<CategoryModel?>(
-          future: todo.categoryId != null
-              ? CategoryService().getCategoryById(todo.categoryId!)
+          future: realTodo.value.categoryId != null
+              ? CategoryService().getCategoryById(realTodo.value.categoryId!)
               : Future.value(null),
           builder: (context, snapshot) {
             final category = snapshot.data;
@@ -1265,9 +1305,9 @@ class _TodoDetailContent extends HookConsumerWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              todo.isCompleted ? '完了済み' : '未完了',
+                              realTodo.value.isCompleted ? '完了済み' : '未完了',
                               style: TextStyle(
-                                color: todo.isCompleted
+                                color: realTodo.value.isCompleted
                                     ? Theme.of(context).colorScheme.successColor
                                     : Theme.of(context)
                                         .colorScheme
@@ -1283,7 +1323,7 @@ class _TodoDetailContent extends HookConsumerWidget {
                                     .primaryTextColor),
                             const SizedBox(width: 4),
                             Text(
-                              formatDate(todo.dueDate,
+                              formatDate(realTodo.value.dueDate,
                                   format: 'yyyy/MM/dd (EEE) HH:mm'),
                               style: TextStyle(
                                 color: Theme.of(context)
@@ -1294,7 +1334,7 @@ class _TodoDetailContent extends HookConsumerWidget {
                             ),
                           ],
                         ),
-                        if (todo.isRecurring == true) ...[
+                        if (realTodo.value.isRecurring == true) ...[
                           const SizedBox(height: 10),
                           Row(
                             children: [
@@ -1303,7 +1343,8 @@ class _TodoDetailContent extends HookConsumerWidget {
                                   color: Theme.of(context).colorScheme.primary),
                               const SizedBox(width: 4),
                               Text(
-                                _getRecurringLabel(todo.recurringType),
+                                _getRecurringLabel(
+                                    realTodo.value.recurringType),
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Theme.of(context).colorScheme.primary,
@@ -1313,8 +1354,8 @@ class _TodoDetailContent extends HookConsumerWidget {
                             ],
                           ),
                         ],
-                        if (todo.description != null &&
-                            todo.description!.isNotEmpty) ...[
+                        if (realTodo.value.description != null &&
+                            realTodo.value.description!.isNotEmpty) ...[
                           const SizedBox(height: 14),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1367,8 +1408,8 @@ class _TodoDetailContent extends HookConsumerWidget {
                               ),
                               const SizedBox(height: 8),
                               ...checklistItems.value.map((item) =>
-                                  _buildChecklistItemRow(context, item, todo,
-                                      refreshChecklistItems)),
+                                  _buildChecklistItemRow(context, item,
+                                      realTodo.value, refreshChecklistItems)),
                             ],
                           ),
                       ],
@@ -1380,7 +1421,7 @@ class _TodoDetailContent extends HookConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    if (!todo.isCompleted)
+                    if (!realTodo.value.isCompleted)
                       Expanded(
                         child: ElevatedButton.icon(
                           icon: Icon(Icons.check,
@@ -1401,18 +1442,20 @@ class _TodoDetailContent extends HookConsumerWidget {
                           ),
                           onPressed: () async {
                             Navigator.of(context).pop();
-                            await TodoService().toggleTodoComplete(todo.id);
+                            await TodoService()
+                                .toggleTodoComplete(realTodo.value.id);
                             onRefresh?.call();
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                    content: Text('${todo.title}を完了にしました')),
+                                    content: Text(
+                                        '${realTodo.value.title}を完了にしました')),
                               );
                             }
                           },
                         ),
                       ),
-                    if (!todo.isCompleted) const SizedBox(width: 12),
+                    if (!realTodo.value.isCompleted) const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton.icon(
                         icon: Icon(Icons.edit,
@@ -1435,7 +1478,7 @@ class _TodoDetailContent extends HookConsumerWidget {
                           Navigator.of(context).pop();
                           await AddTodoDialog.show(
                             context,
-                            initialTodo: todo,
+                            initialTodo: realTodo.value,
                             onSaved: onRefresh,
                           );
                         },
@@ -1462,11 +1505,13 @@ class _TodoDetailContent extends HookConsumerWidget {
                         ),
                         onPressed: () async {
                           Navigator.of(context).pop();
-                          await TodoService().deleteTodo(todo.id);
+                          await TodoService().deleteTodo(realTodo.value.id);
                           onRefresh?.call();
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('${todo.title}を削除しました')),
+                              SnackBar(
+                                  content:
+                                      Text('${realTodo.value.title}を削除しました')),
                             );
                           }
                         },
@@ -1527,6 +1572,18 @@ class _TodoDetailContent extends HookConsumerWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
           onTap: () async {
+            // 仮想インスタンスの場合は新規Todo生成し、onRefreshでUI再取得
+            int realTodoId = todo.id;
+            if (todo.id < 0) {
+              final todoService = TodoService();
+              final newTodo =
+                  await todoService.generateNextRecurringInstance(todo);
+              if (newTodo != null) {
+                realTodoId = newTodo.id;
+                onRefresh?.call();
+                return;
+              }
+            }
             // Toggle checklist item completion
             final checklistService = TodoCheckListItemService();
             await checklistService.toggleCheckListItemComplete(item.id);
@@ -1534,7 +1591,7 @@ class _TodoDetailContent extends HookConsumerWidget {
             // Check if todo should be auto-completed
             final todoService = TodoService();
             final wasCompleted = await todoService
-                .checkAndUpdateTodoCompletionByChecklist(todo.id);
+                .checkAndUpdateTodoCompletionByChecklist(realTodoId);
 
             if (wasCompleted && context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(

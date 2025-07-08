@@ -38,7 +38,7 @@ class CalendarPage extends HookConsumerWidget {
           children: [
             // Header with category filter and add button
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -139,7 +139,7 @@ class CalendarPage extends HookConsumerWidget {
             // Calendar
             Expanded(
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 2),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   color: Theme.of(context).colorScheme.surface,
@@ -338,26 +338,54 @@ class CalendarPage extends HookConsumerWidget {
                               onDaySelected: (selected, focused) {
                                 selectedDay.value = selected;
                                 focusedDay.value = focused;
+                                // 日付タップ時にその日のTodoリストをBottomSheetで表示（高さ: 画面1/3、内部スクロール）
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) {
+                                    final height =
+                                        MediaQuery.of(context).size.height *
+                                            0.4;
+                                    return Container(
+                                      height: height,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surface,
+                                        borderRadius:
+                                            const BorderRadius.vertical(
+                                                top: Radius.circular(28)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .mediumShadowColor,
+                                            blurRadius: 24,
+                                            offset: const Offset(0, -8),
+                                          ),
+                                        ],
+                                      ),
+                                      padding: const EdgeInsets.only(
+                                          top: 4, left: 0, right: 0, bottom: 4),
+                                      child: SafeArea(
+                                        child: _buildSelectedDayTodosSheet(
+                                          context,
+                                          selected,
+                                          selectedCategory.value,
+                                          selectedStatus.value,
+                                          refreshTodos,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
                               },
                               onPageChanged: (focused) {
                                 focusedDay.value = focused;
                               },
                             );
                           },
-                        ),
-                      ),
-
-                      // Selected day's todos
-                      SizedBox(
-                        height: 320,
-                        child: ValueListenableBuilder<int>(
-                          valueListenable: refreshKey,
-                          builder: (context, _, __) => _buildSelectedDayTodos(
-                              context,
-                              selectedDay.value,
-                              selectedCategory.value,
-                              selectedStatus.value, // ステータスも渡す
-                              refreshTodos),
                         ),
                       ),
                     ],
@@ -385,7 +413,7 @@ class CalendarPage extends HookConsumerWidget {
     return null;
   }
 
-  Widget _buildSelectedDayTodos(BuildContext context, DateTime selectedDay,
+  Widget _buildSelectedDayTodosSheet(BuildContext context, DateTime selectedDay,
       int? categoryFilter, String? statusFilter, VoidCallback onRefresh) {
     return FutureBuilder<List<TodoModel>>(
       future: TodoService().getTodosForDate(selectedDay),
@@ -393,7 +421,6 @@ class CalendarPage extends HookConsumerWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-
         var todos = snapshot.data ?? [];
         if (categoryFilter != null) {
           todos =
@@ -406,26 +433,28 @@ class CalendarPage extends HookConsumerWidget {
             todos = todos.where((todo) => todo.isCompleted != true).toList();
           }
         }
-
         if (todos.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.event_available,
-                  size: 48,
-                  color: Theme.of(context).colorScheme.mutedTextColor,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${formatDate(selectedDay, format: 'M月d日(EEE)')}のTodoはありません',
-                  style: TextStyle(
+          return Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.event_available,
+                    size: 48,
                     color: Theme.of(context).colorScheme.mutedTextColor,
-                    fontSize: 16,
                   ),
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    '${formatDate(selectedDay, format: 'M月d日(EEE)')}のTodoはありません',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.mutedTextColor,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -434,7 +463,7 @@ class CalendarPage extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
                 children: [
                   Text(
@@ -469,6 +498,8 @@ class CalendarPage extends HookConsumerWidget {
                 ],
               ),
             ),
+            const Divider(height: 1),
+            SizedBox(height: 8),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
