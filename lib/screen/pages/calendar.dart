@@ -205,76 +205,180 @@ class CalendarPage extends HookConsumerWidget {
                               calendarStyle: CalendarStyle(
                                 defaultDecoration: BoxDecoration(
                                   color: Colors.transparent,
-                                  shape: BoxShape.rectangle,
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 weekendDecoration: BoxDecoration(
                                   color: Colors.transparent,
-                                  shape: BoxShape.rectangle,
-                                ),
-                                outsideDaysVisible: false,
-                                weekendTextStyle: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.errorColor,
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 todayDecoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryGradient
-                                      .first
-                                      .withValues(alpha: 0.3),
-                                  shape: BoxShape.rectangle,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.7),
+                                      Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.4),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.18),
+                                      blurRadius: 12,
+                                      offset: Offset(0, 4),
+                                    ),
+                                  ],
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
                                 selectedDecoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .calendarSelectedDayColor,
-                                  shape: BoxShape.rectangle,
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: Theme.of(context).colorScheme.primary,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.18),
+                                      blurRadius: 16,
+                                      offset: Offset(0, 4),
+                                    ),
+                                  ],
                                   border: Border.all(
                                     color:
                                         Theme.of(context).colorScheme.primary,
-                                    width: 1,
+                                    width: 2,
                                   ),
                                 ),
                                 selectedTextStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                                todayTextStyle: TextStyle(
                                   color: Theme.of(context)
                                       .colorScheme
                                       .primaryTextColor,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 16,
                                 ),
+                                weekendTextStyle: TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                outsideDaysVisible: false,
                                 markerDecoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.18),
+                                      blurRadius: 6,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                markersMaxCount: 2,
+                                markerMargin: const EdgeInsets.only(bottom: 4),
+                              ),
+                              daysOfWeekStyle: DaysOfWeekStyle(
+                                weekdayStyle: TextStyle(
                                   color: Theme.of(context)
                                       .colorScheme
-                                      .primaryGradient
-                                      .last,
-                                  shape: BoxShape.circle,
+                                      .secondaryTextColor,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
                                 ),
-                                markersMaxCount: 1,
-                                markerMargin: const EdgeInsets.only(bottom: 4),
+                                weekendStyle: TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
+                                dowTextFormatter: (date, locale) {
+                                  switch (date.weekday) {
+                                    case DateTime.sunday:
+                                      return '日';
+                                    case DateTime.monday:
+                                      return '月';
+                                    case DateTime.tuesday:
+                                      return '火';
+                                    case DateTime.wednesday:
+                                      return '水';
+                                    case DateTime.thursday:
+                                      return '木';
+                                    case DateTime.friday:
+                                      return '金';
+                                    case DateTime.saturday:
+                                      return '土';
+                                    default:
+                                      return '';
+                                  }
+                                },
                               ),
                               headerStyle: HeaderStyle(
                                 formatButtonVisible: false,
                                 titleCentered: true,
-                                leftChevronIcon: Icon(
-                                  Icons.chevron_left,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryGradient
-                                      .first,
-                                ),
-                                rightChevronIcon: Icon(
-                                  Icons.chevron_right,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryGradient
-                                      .first,
-                                ),
                                 titleTextStyle: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 22,
                                   fontWeight: FontWeight.bold,
                                   color: Theme.of(context)
                                       .colorScheme
                                       .primaryTextColor,
+                                  letterSpacing: 1.2,
+                                ),
+                                leftChevronIcon: Container(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Theme.of(context).colorScheme.surface,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withValues(alpha: 0.08),
+                                        blurRadius: 8,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    Icons.chevron_left,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 28,
+                                  ),
+                                ),
+                                rightChevronIcon: Container(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Theme.of(context).colorScheme.surface,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withValues(alpha: 0.08),
+                                        blurRadius: 8,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    Icons.chevron_right,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 28,
+                                  ),
                                 ),
                               ),
                               calendarBuilders: CalendarBuilders(
@@ -288,7 +392,6 @@ class CalendarPage extends HookConsumerWidget {
                                   final isFiltered =
                                       selectedCategory.value != null ||
                                           selectedStatus.value != null;
-                                  // events からフィルター条件に合致したTodoのみ抽出（dueDateフィルタは不要）
                                   List<TodoModel> filteredEvents =
                                       events.cast<TodoModel>();
                                   if (isFiltered) {
@@ -315,25 +418,62 @@ class CalendarPage extends HookConsumerWidget {
                                     }
                                   }
                                   if (isSelected || isToday) {
-                                    return const SizedBox
-                                        .shrink(); // 枠線と重なる日付にはマーカーを表示しない
+                                    return const SizedBox.shrink();
                                   }
-                                  // フィルター後のTodoがなければマーカーを表示しない
                                   if (filteredEvents.isEmpty) {
                                     return null;
                                   }
-                                  return Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: Container(
-                                      width: 8,
-                                      height: 8,
-                                      margin: const EdgeInsets.only(bottom: 2),
-                                      decoration: BoxDecoration(
-                                        color: _getMarkerColor(
-                                            context, filteredEvents),
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
+                                  // 未完了はprimary、完了はグレーで複数マーカー
+                                  final hasIncomplete = filteredEvents
+                                      .any((todo) => !todo.isCompleted);
+                                  final hasCompleted = filteredEvents
+                                      .any((todo) => todo.isCompleted);
+                                  return Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (hasIncomplete)
+                                        Container(
+                                          width: 9,
+                                          height: 9,
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 1),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                    .withValues(alpha: 0.18),
+                                                blurRadius: 4,
+                                                offset: Offset(0, 1),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      if (hasCompleted)
+                                        Container(
+                                          width: 9,
+                                          height: 9,
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 1),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey,
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey
+                                                    .withValues(alpha: 0.18),
+                                                blurRadius: 4,
+                                                offset: Offset(0, 1),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
                                   );
                                 },
                               ),

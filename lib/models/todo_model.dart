@@ -26,6 +26,13 @@ sealed class TodoModel with _$TodoModel {
     int? parentTodoId,
     @Default([])
     List<TodoCheckListItemModel> checklistItem, // Optional checklist item
+    String? timerType, // 'none', 'pomodoro', 'countup'
+    int? countupElapsedSeconds, // For countup timer
+    int? pomodoroWorkMinutes, // For pomodoro timer
+    int? pomodoroShortBreakMinutes, // For short break
+    int? pomodoroLongBreakMinutes, // For long break
+    int? pomodoroCycle, // Number of pomodoro cycles
+    int? pomodoroCompletedCycle, // Completed pomodoro cycles
   }) = _TodoModel;
 
   factory TodoModel.fromJson(Map<String, dynamic> json) =>

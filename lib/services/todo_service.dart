@@ -27,6 +27,13 @@ class TodoService {
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
+              timerType: todo.timerType,
+              countupElapsedSeconds: todo.countupElapsedSeconds,
+              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
+              pomodoroCycle: todo.pomodoroCycle,
+              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
             ))
         .toList();
   }
@@ -42,23 +49,36 @@ class TodoService {
     DateTime? recurringEndDate,
     int? recurringDayOfWeek,
     int? recurringDayOfMonth,
+    String? timerType,
+    int? countupElapsedSeconds,
+    int? pomodoroWorkMinutes,
+    int? pomodoroShortBreakMinutes,
+    int? pomodoroLongBreakMinutes,
+    int? pomodoroCycle,
+    int? pomodoroCompletedCycle,
   }) async {
     final now = DateTime.now();
     final companion = TodosCompanion(
-      title: Value(title),
-      description: Value(description),
-      dueDate: Value(dueDate),
-      isCompleted: const Value(false),
-      color: Value(color ?? 'blue'),
-      categoryId: Value(categoryId),
-      createdAt: Value(now),
-      updatedAt: Value(now),
-      isRecurring: Value(isRecurring ?? false),
-      recurringType: Value(recurringType),
-      recurringEndDate: Value(recurringEndDate),
-      recurringDayOfWeek: Value(recurringDayOfWeek),
-      recurringDayOfMonth: Value(recurringDayOfMonth),
-    );
+        title: Value(title),
+        description: Value(description),
+        dueDate: Value(dueDate),
+        isCompleted: const Value(false),
+        color: Value(color ?? 'blue'),
+        categoryId: Value(categoryId),
+        createdAt: Value(now),
+        updatedAt: Value(now),
+        isRecurring: Value(isRecurring ?? false),
+        recurringType: Value(recurringType),
+        recurringEndDate: Value(recurringEndDate),
+        recurringDayOfWeek: Value(recurringDayOfWeek),
+        recurringDayOfMonth: Value(recurringDayOfMonth),
+        timerType: Value(timerType ?? 'none'),
+        countupElapsedSeconds: Value(countupElapsedSeconds),
+        pomodoroWorkMinutes: Value(pomodoroWorkMinutes),
+        pomodoroShortBreakMinutes: Value(pomodoroShortBreakMinutes),
+        pomodoroLongBreakMinutes: Value(pomodoroLongBreakMinutes),
+        pomodoroCycle: Value(pomodoroCycle),
+        pomodoroCompletedCycle: Value(pomodoroCompletedCycle));
     final id = await _todoTableRepository.insert(companion);
     return TodoModel(
       id: id,
@@ -78,20 +98,25 @@ class TodoService {
     );
   }
 
-  Future<TodoModel?> updateTodo(
-    int id, {
-    String? title,
-    String? description,
-    DateTime? dueDate,
-    String? color,
-    int? categoryId,
-    bool? isCompleted,
-    bool? isRecurring,
-    String? recurringType,
-    DateTime? recurringEndDate,
-    int? recurringDayOfWeek,
-    int? recurringDayOfMonth,
-  }) async {
+  Future<TodoModel?> updateTodo(int id,
+      {String? title,
+      String? description,
+      DateTime? dueDate,
+      String? color,
+      int? categoryId,
+      bool? isCompleted,
+      bool? isRecurring,
+      String? recurringType,
+      DateTime? recurringEndDate,
+      int? recurringDayOfWeek,
+      int? recurringDayOfMonth,
+      String? timerType,
+      int? countupElapsedSeconds,
+      int? pomodoroWorkMinutes,
+      int? pomodoroShortBreakMinutes,
+      int? pomodoroLongBreakMinutes,
+      int? pomodoroCycle,
+      int? pomodoroCompletedCycle}) async {
     final now = DateTime.now();
     final companion = TodosCompanion(
       title: title != null ? Value(title) : const Value.absent(),
@@ -115,6 +140,24 @@ class TodoService {
           : const Value.absent(),
       recurringDayOfMonth: recurringDayOfMonth != null
           ? Value(recurringDayOfMonth)
+          : const Value.absent(),
+      timerType: timerType != null ? Value(timerType) : const Value('none'),
+      countupElapsedSeconds: countupElapsedSeconds != null
+          ? Value(countupElapsedSeconds)
+          : const Value.absent(),
+      pomodoroWorkMinutes: pomodoroWorkMinutes != null
+          ? Value(pomodoroWorkMinutes)
+          : const Value.absent(),
+      pomodoroShortBreakMinutes: pomodoroShortBreakMinutes != null
+          ? Value(pomodoroShortBreakMinutes)
+          : const Value.absent(),
+      pomodoroLongBreakMinutes: pomodoroLongBreakMinutes != null
+          ? Value(pomodoroLongBreakMinutes)
+          : const Value.absent(),
+      pomodoroCycle:
+          pomodoroCycle != null ? Value(pomodoroCycle) : const Value.absent(),
+      pomodoroCompletedCycle: pomodoroCompletedCycle != null
+          ? Value(pomodoroCompletedCycle)
           : const Value.absent(),
     );
     final success = await _todoTableRepository.update(id, companion);
@@ -233,6 +276,13 @@ class TodoService {
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
+              timerType: todo.timerType,
+              countupElapsedSeconds: todo.countupElapsedSeconds,
+              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
+              pomodoroCycle: todo.pomodoroCycle,
+              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
             ))
         .toList();
   }
@@ -265,6 +315,13 @@ class TodoService {
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
+              timerType: todo.timerType,
+              countupElapsedSeconds: todo.countupElapsedSeconds,
+              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
+              pomodoroCycle: todo.pomodoroCycle,
+              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
             ))
         .toList();
   }
@@ -294,6 +351,13 @@ class TodoService {
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
+              timerType: todo.timerType,
+              countupElapsedSeconds: todo.countupElapsedSeconds,
+              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
+              pomodoroCycle: todo.pomodoroCycle,
+              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
             ))
         .toList();
   }
@@ -318,6 +382,13 @@ class TodoService {
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
+              timerType: todo.timerType,
+              countupElapsedSeconds: todo.countupElapsedSeconds,
+              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
+              pomodoroCycle: todo.pomodoroCycle,
+              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
             ))
         .toList();
     // 繰り返しTodoの仮想インスタンスも追加

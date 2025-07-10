@@ -22,6 +22,13 @@ class TodoTableRepository {
               recurringEndDate: e.recurringEndDate,
               recurringDayOfWeek: e.recurringDayOfWeek,
               recurringDayOfMonth: e.recurringDayOfMonth,
+              timerType: e.timerType,
+              countupElapsedSeconds: e.countupElapsedSeconds,
+              pomodoroWorkMinutes: e.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: e.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: e.pomodoroLongBreakMinutes,
+              pomodoroCycle: e.pomodoroCycle,
+              pomodoroCompletedCycle: e.pomodoroCompletedCycle,
             ))
         .toList();
   }
@@ -73,6 +80,13 @@ class TodoTableRepository {
               recurringEndDate: e.recurringEndDate,
               recurringDayOfWeek: e.recurringDayOfWeek,
               recurringDayOfMonth: e.recurringDayOfMonth,
+              timerType: e.timerType,
+              countupElapsedSeconds: e.countupElapsedSeconds,
+              pomodoroWorkMinutes: e.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: e.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: e.pomodoroLongBreakMinutes,
+              pomodoroCycle: e.pomodoroCycle,
+              pomodoroCompletedCycle: e.pomodoroCompletedCycle,
             ))
         .toList();
   }
@@ -101,6 +115,13 @@ class TodoTableRepository {
               recurringEndDate: e.recurringEndDate,
               recurringDayOfWeek: e.recurringDayOfWeek,
               recurringDayOfMonth: e.recurringDayOfMonth,
+              timerType: e.timerType,
+              countupElapsedSeconds: e.countupElapsedSeconds,
+              pomodoroWorkMinutes: e.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: e.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: e.pomodoroLongBreakMinutes,
+              pomodoroCycle: e.pomodoroCycle,
+              pomodoroCompletedCycle: e.pomodoroCompletedCycle,
             ))
         .toList();
   }
@@ -132,6 +153,13 @@ class TodoTableRepository {
               recurringEndDate: e.recurringEndDate,
               recurringDayOfWeek: e.recurringDayOfWeek,
               recurringDayOfMonth: e.recurringDayOfMonth,
+              timerType: e.timerType,
+              countupElapsedSeconds: e.countupElapsedSeconds,
+              pomodoroWorkMinutes: e.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: e.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: e.pomodoroLongBreakMinutes,
+              pomodoroCycle: e.pomodoroCycle,
+              pomodoroCompletedCycle: e.pomodoroCompletedCycle,
             ))
         .toList();
   }
@@ -162,6 +190,13 @@ class TodoTableRepository {
               recurringEndDate: e.recurringEndDate,
               recurringDayOfWeek: e.recurringDayOfWeek,
               recurringDayOfMonth: e.recurringDayOfMonth,
+              timerType: e.timerType,
+              countupElapsedSeconds: e.countupElapsedSeconds,
+              pomodoroWorkMinutes: e.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: e.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: e.pomodoroLongBreakMinutes,
+              pomodoroCycle: e.pomodoroCycle,
+              pomodoroCompletedCycle: e.pomodoroCompletedCycle,
             ))
         .toList();
   }

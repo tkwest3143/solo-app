@@ -34,6 +34,15 @@ _TodoModel _$TodoModelFromJson(Map<String, dynamic> json) => _TodoModel(
                   TodoCheckListItemModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      timerType: json['timerType'] as String?,
+      countupElapsedSeconds: (json['countupElapsedSeconds'] as num?)?.toInt(),
+      pomodoroWorkMinutes: (json['pomodoroWorkMinutes'] as num?)?.toInt(),
+      pomodoroShortBreakMinutes:
+          (json['pomodoroShortBreakMinutes'] as num?)?.toInt(),
+      pomodoroLongBreakMinutes:
+          (json['pomodoroLongBreakMinutes'] as num?)?.toInt(),
+      pomodoroCycle: (json['pomodoroCycle'] as num?)?.toInt(),
+      pomodoroCompletedCycle: (json['pomodoroCompletedCycle'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$TodoModelToJson(_TodoModel instance) =>
@@ -55,4 +64,11 @@ Map<String, dynamic> _$TodoModelToJson(_TodoModel instance) =>
       'recurringDayOfMonth': instance.recurringDayOfMonth,
       'parentTodoId': instance.parentTodoId,
       'checklistItem': instance.checklistItem,
+      'timerType': instance.timerType,
+      'countupElapsedSeconds': instance.countupElapsedSeconds,
+      'pomodoroWorkMinutes': instance.pomodoroWorkMinutes,
+      'pomodoroShortBreakMinutes': instance.pomodoroShortBreakMinutes,
+      'pomodoroLongBreakMinutes': instance.pomodoroLongBreakMinutes,
+      'pomodoroCycle': instance.pomodoroCycle,
+      'pomodoroCompletedCycle': instance.pomodoroCompletedCycle,
     };

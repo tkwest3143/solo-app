@@ -30,7 +30,14 @@ mixin _$TodoModel {
   int? get recurringDayOfWeek; // 1-7 for weekly (Monday = 1)
   int? get recurringDayOfMonth; // 1-31 for monthly
   int? get parentTodoId;
-  List<TodoCheckListItemModel> get checklistItem;
+  List<TodoCheckListItemModel> get checklistItem; // Optional checklist item
+  String? get timerType; // 'none', 'pomodoro', 'countup'
+  int? get countupElapsedSeconds; // For countup timer
+  int? get pomodoroWorkMinutes; // For pomodoro timer
+  int? get pomodoroShortBreakMinutes; // For short break
+  int? get pomodoroLongBreakMinutes; // For long break
+  int? get pomodoroCycle; // Number of pomodoro cycles
+  int? get pomodoroCompletedCycle;
 
   /// Create a copy of TodoModel
   /// with the given fields replaced by the non-null parameter values.
@@ -75,34 +82,58 @@ mixin _$TodoModel {
             (identical(other.parentTodoId, parentTodoId) ||
                 other.parentTodoId == parentTodoId) &&
             const DeepCollectionEquality()
-                .equals(other.checklistItem, checklistItem));
+                .equals(other.checklistItem, checklistItem) &&
+            (identical(other.timerType, timerType) ||
+                other.timerType == timerType) &&
+            (identical(other.countupElapsedSeconds, countupElapsedSeconds) ||
+                other.countupElapsedSeconds == countupElapsedSeconds) &&
+            (identical(other.pomodoroWorkMinutes, pomodoroWorkMinutes) ||
+                other.pomodoroWorkMinutes == pomodoroWorkMinutes) &&
+            (identical(other.pomodoroShortBreakMinutes,
+                    pomodoroShortBreakMinutes) ||
+                other.pomodoroShortBreakMinutes == pomodoroShortBreakMinutes) &&
+            (identical(
+                    other.pomodoroLongBreakMinutes, pomodoroLongBreakMinutes) ||
+                other.pomodoroLongBreakMinutes == pomodoroLongBreakMinutes) &&
+            (identical(other.pomodoroCycle, pomodoroCycle) ||
+                other.pomodoroCycle == pomodoroCycle) &&
+            (identical(other.pomodoroCompletedCycle, pomodoroCompletedCycle) ||
+                other.pomodoroCompletedCycle == pomodoroCompletedCycle));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      dueDate,
-      title,
-      isCompleted,
-      description,
-      color,
-      categoryId,
-      icon,
-      createdAt,
-      updatedAt,
-      isRecurring,
-      recurringType,
-      recurringEndDate,
-      recurringDayOfWeek,
-      recurringDayOfMonth,
-      parentTodoId,
-      const DeepCollectionEquality().hash(checklistItem));
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        dueDate,
+        title,
+        isCompleted,
+        description,
+        color,
+        categoryId,
+        icon,
+        createdAt,
+        updatedAt,
+        isRecurring,
+        recurringType,
+        recurringEndDate,
+        recurringDayOfWeek,
+        recurringDayOfMonth,
+        parentTodoId,
+        const DeepCollectionEquality().hash(checklistItem),
+        timerType,
+        countupElapsedSeconds,
+        pomodoroWorkMinutes,
+        pomodoroShortBreakMinutes,
+        pomodoroLongBreakMinutes,
+        pomodoroCycle,
+        pomodoroCompletedCycle
+      ]);
 
   @override
   String toString() {
-    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, categoryId: $categoryId, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, recurringDayOfWeek: $recurringDayOfWeek, recurringDayOfMonth: $recurringDayOfMonth, parentTodoId: $parentTodoId, checklistItem: $checklistItem)';
+    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, categoryId: $categoryId, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, recurringDayOfWeek: $recurringDayOfWeek, recurringDayOfMonth: $recurringDayOfMonth, parentTodoId: $parentTodoId, checklistItem: $checklistItem, timerType: $timerType, countupElapsedSeconds: $countupElapsedSeconds, pomodoroWorkMinutes: $pomodoroWorkMinutes, pomodoroShortBreakMinutes: $pomodoroShortBreakMinutes, pomodoroLongBreakMinutes: $pomodoroLongBreakMinutes, pomodoroCycle: $pomodoroCycle, pomodoroCompletedCycle: $pomodoroCompletedCycle)';
   }
 }
 
@@ -128,7 +159,14 @@ abstract mixin class $TodoModelCopyWith<$Res> {
       int? recurringDayOfWeek,
       int? recurringDayOfMonth,
       int? parentTodoId,
-      List<TodoCheckListItemModel> checklistItem});
+      List<TodoCheckListItemModel> checklistItem,
+      String? timerType,
+      int? countupElapsedSeconds,
+      int? pomodoroWorkMinutes,
+      int? pomodoroShortBreakMinutes,
+      int? pomodoroLongBreakMinutes,
+      int? pomodoroCycle,
+      int? pomodoroCompletedCycle});
 }
 
 /// @nodoc
@@ -160,6 +198,13 @@ class _$TodoModelCopyWithImpl<$Res> implements $TodoModelCopyWith<$Res> {
     Object? recurringDayOfMonth = freezed,
     Object? parentTodoId = freezed,
     Object? checklistItem = null,
+    Object? timerType = freezed,
+    Object? countupElapsedSeconds = freezed,
+    Object? pomodoroWorkMinutes = freezed,
+    Object? pomodoroShortBreakMinutes = freezed,
+    Object? pomodoroLongBreakMinutes = freezed,
+    Object? pomodoroCycle = freezed,
+    Object? pomodoroCompletedCycle = freezed,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -230,6 +275,34 @@ class _$TodoModelCopyWithImpl<$Res> implements $TodoModelCopyWith<$Res> {
           ? _self.checklistItem
           : checklistItem // ignore: cast_nullable_to_non_nullable
               as List<TodoCheckListItemModel>,
+      timerType: freezed == timerType
+          ? _self.timerType
+          : timerType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      countupElapsedSeconds: freezed == countupElapsedSeconds
+          ? _self.countupElapsedSeconds
+          : countupElapsedSeconds // ignore: cast_nullable_to_non_nullable
+              as int?,
+      pomodoroWorkMinutes: freezed == pomodoroWorkMinutes
+          ? _self.pomodoroWorkMinutes
+          : pomodoroWorkMinutes // ignore: cast_nullable_to_non_nullable
+              as int?,
+      pomodoroShortBreakMinutes: freezed == pomodoroShortBreakMinutes
+          ? _self.pomodoroShortBreakMinutes
+          : pomodoroShortBreakMinutes // ignore: cast_nullable_to_non_nullable
+              as int?,
+      pomodoroLongBreakMinutes: freezed == pomodoroLongBreakMinutes
+          ? _self.pomodoroLongBreakMinutes
+          : pomodoroLongBreakMinutes // ignore: cast_nullable_to_non_nullable
+              as int?,
+      pomodoroCycle: freezed == pomodoroCycle
+          ? _self.pomodoroCycle
+          : pomodoroCycle // ignore: cast_nullable_to_non_nullable
+              as int?,
+      pomodoroCompletedCycle: freezed == pomodoroCompletedCycle
+          ? _self.pomodoroCompletedCycle
+          : pomodoroCompletedCycle // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -342,7 +415,14 @@ extension TodoModelPatterns on TodoModel {
             int? recurringDayOfWeek,
             int? recurringDayOfMonth,
             int? parentTodoId,
-            List<TodoCheckListItemModel> checklistItem)?
+            List<TodoCheckListItemModel> checklistItem,
+            String? timerType,
+            int? countupElapsedSeconds,
+            int? pomodoroWorkMinutes,
+            int? pomodoroShortBreakMinutes,
+            int? pomodoroLongBreakMinutes,
+            int? pomodoroCycle,
+            int? pomodoroCompletedCycle)?
         $default, {
     required TResult orElse(),
   }) {
@@ -366,7 +446,14 @@ extension TodoModelPatterns on TodoModel {
             _that.recurringDayOfWeek,
             _that.recurringDayOfMonth,
             _that.parentTodoId,
-            _that.checklistItem);
+            _that.checklistItem,
+            _that.timerType,
+            _that.countupElapsedSeconds,
+            _that.pomodoroWorkMinutes,
+            _that.pomodoroShortBreakMinutes,
+            _that.pomodoroLongBreakMinutes,
+            _that.pomodoroCycle,
+            _that.pomodoroCompletedCycle);
       case _:
         return orElse();
     }
@@ -404,7 +491,14 @@ extension TodoModelPatterns on TodoModel {
             int? recurringDayOfWeek,
             int? recurringDayOfMonth,
             int? parentTodoId,
-            List<TodoCheckListItemModel> checklistItem)
+            List<TodoCheckListItemModel> checklistItem,
+            String? timerType,
+            int? countupElapsedSeconds,
+            int? pomodoroWorkMinutes,
+            int? pomodoroShortBreakMinutes,
+            int? pomodoroLongBreakMinutes,
+            int? pomodoroCycle,
+            int? pomodoroCompletedCycle)
         $default,
   ) {
     final _that = this;
@@ -427,7 +521,14 @@ extension TodoModelPatterns on TodoModel {
             _that.recurringDayOfWeek,
             _that.recurringDayOfMonth,
             _that.parentTodoId,
-            _that.checklistItem);
+            _that.checklistItem,
+            _that.timerType,
+            _that.countupElapsedSeconds,
+            _that.pomodoroWorkMinutes,
+            _that.pomodoroShortBreakMinutes,
+            _that.pomodoroLongBreakMinutes,
+            _that.pomodoroCycle,
+            _that.pomodoroCompletedCycle);
     }
   }
 
@@ -462,7 +563,14 @@ extension TodoModelPatterns on TodoModel {
             int? recurringDayOfWeek,
             int? recurringDayOfMonth,
             int? parentTodoId,
-            List<TodoCheckListItemModel> checklistItem)?
+            List<TodoCheckListItemModel> checklistItem,
+            String? timerType,
+            int? countupElapsedSeconds,
+            int? pomodoroWorkMinutes,
+            int? pomodoroShortBreakMinutes,
+            int? pomodoroLongBreakMinutes,
+            int? pomodoroCycle,
+            int? pomodoroCompletedCycle)?
         $default,
   ) {
     final _that = this;
@@ -485,7 +593,14 @@ extension TodoModelPatterns on TodoModel {
             _that.recurringDayOfWeek,
             _that.recurringDayOfMonth,
             _that.parentTodoId,
-            _that.checklistItem);
+            _that.checklistItem,
+            _that.timerType,
+            _that.countupElapsedSeconds,
+            _that.pomodoroWorkMinutes,
+            _that.pomodoroShortBreakMinutes,
+            _that.pomodoroLongBreakMinutes,
+            _that.pomodoroCycle,
+            _that.pomodoroCompletedCycle);
       case _:
         return null;
     }
@@ -512,7 +627,14 @@ class _TodoModel implements TodoModel {
       this.recurringDayOfWeek,
       this.recurringDayOfMonth,
       this.parentTodoId,
-      final List<TodoCheckListItemModel> checklistItem = const []})
+      final List<TodoCheckListItemModel> checklistItem = const [],
+      this.timerType,
+      this.countupElapsedSeconds,
+      this.pomodoroWorkMinutes,
+      this.pomodoroShortBreakMinutes,
+      this.pomodoroLongBreakMinutes,
+      this.pomodoroCycle,
+      this.pomodoroCompletedCycle})
       : _checklistItem = checklistItem;
   factory _TodoModel.fromJson(Map<String, dynamic> json) =>
       _$TodoModelFromJson(json);
@@ -563,6 +685,28 @@ class _TodoModel implements TodoModel {
     return EqualUnmodifiableListView(_checklistItem);
   }
 
+// Optional checklist item
+  @override
+  final String? timerType;
+// 'none', 'pomodoro', 'countup'
+  @override
+  final int? countupElapsedSeconds;
+// For countup timer
+  @override
+  final int? pomodoroWorkMinutes;
+// For pomodoro timer
+  @override
+  final int? pomodoroShortBreakMinutes;
+// For short break
+  @override
+  final int? pomodoroLongBreakMinutes;
+// For long break
+  @override
+  final int? pomodoroCycle;
+// Number of pomodoro cycles
+  @override
+  final int? pomodoroCompletedCycle;
+
   /// Create a copy of TodoModel
   /// with the given fields replaced by the non-null parameter values.
   @override
@@ -611,34 +755,58 @@ class _TodoModel implements TodoModel {
             (identical(other.parentTodoId, parentTodoId) ||
                 other.parentTodoId == parentTodoId) &&
             const DeepCollectionEquality()
-                .equals(other._checklistItem, _checklistItem));
+                .equals(other._checklistItem, _checklistItem) &&
+            (identical(other.timerType, timerType) ||
+                other.timerType == timerType) &&
+            (identical(other.countupElapsedSeconds, countupElapsedSeconds) ||
+                other.countupElapsedSeconds == countupElapsedSeconds) &&
+            (identical(other.pomodoroWorkMinutes, pomodoroWorkMinutes) ||
+                other.pomodoroWorkMinutes == pomodoroWorkMinutes) &&
+            (identical(other.pomodoroShortBreakMinutes,
+                    pomodoroShortBreakMinutes) ||
+                other.pomodoroShortBreakMinutes == pomodoroShortBreakMinutes) &&
+            (identical(
+                    other.pomodoroLongBreakMinutes, pomodoroLongBreakMinutes) ||
+                other.pomodoroLongBreakMinutes == pomodoroLongBreakMinutes) &&
+            (identical(other.pomodoroCycle, pomodoroCycle) ||
+                other.pomodoroCycle == pomodoroCycle) &&
+            (identical(other.pomodoroCompletedCycle, pomodoroCompletedCycle) ||
+                other.pomodoroCompletedCycle == pomodoroCompletedCycle));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      dueDate,
-      title,
-      isCompleted,
-      description,
-      color,
-      categoryId,
-      icon,
-      createdAt,
-      updatedAt,
-      isRecurring,
-      recurringType,
-      recurringEndDate,
-      recurringDayOfWeek,
-      recurringDayOfMonth,
-      parentTodoId,
-      const DeepCollectionEquality().hash(_checklistItem));
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        dueDate,
+        title,
+        isCompleted,
+        description,
+        color,
+        categoryId,
+        icon,
+        createdAt,
+        updatedAt,
+        isRecurring,
+        recurringType,
+        recurringEndDate,
+        recurringDayOfWeek,
+        recurringDayOfMonth,
+        parentTodoId,
+        const DeepCollectionEquality().hash(_checklistItem),
+        timerType,
+        countupElapsedSeconds,
+        pomodoroWorkMinutes,
+        pomodoroShortBreakMinutes,
+        pomodoroLongBreakMinutes,
+        pomodoroCycle,
+        pomodoroCompletedCycle
+      ]);
 
   @override
   String toString() {
-    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, categoryId: $categoryId, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, recurringDayOfWeek: $recurringDayOfWeek, recurringDayOfMonth: $recurringDayOfMonth, parentTodoId: $parentTodoId, checklistItem: $checklistItem)';
+    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, categoryId: $categoryId, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, recurringDayOfWeek: $recurringDayOfWeek, recurringDayOfMonth: $recurringDayOfMonth, parentTodoId: $parentTodoId, checklistItem: $checklistItem, timerType: $timerType, countupElapsedSeconds: $countupElapsedSeconds, pomodoroWorkMinutes: $pomodoroWorkMinutes, pomodoroShortBreakMinutes: $pomodoroShortBreakMinutes, pomodoroLongBreakMinutes: $pomodoroLongBreakMinutes, pomodoroCycle: $pomodoroCycle, pomodoroCompletedCycle: $pomodoroCompletedCycle)';
   }
 }
 
@@ -667,7 +835,14 @@ abstract mixin class _$TodoModelCopyWith<$Res>
       int? recurringDayOfWeek,
       int? recurringDayOfMonth,
       int? parentTodoId,
-      List<TodoCheckListItemModel> checklistItem});
+      List<TodoCheckListItemModel> checklistItem,
+      String? timerType,
+      int? countupElapsedSeconds,
+      int? pomodoroWorkMinutes,
+      int? pomodoroShortBreakMinutes,
+      int? pomodoroLongBreakMinutes,
+      int? pomodoroCycle,
+      int? pomodoroCompletedCycle});
 }
 
 /// @nodoc
@@ -699,6 +874,13 @@ class __$TodoModelCopyWithImpl<$Res> implements _$TodoModelCopyWith<$Res> {
     Object? recurringDayOfMonth = freezed,
     Object? parentTodoId = freezed,
     Object? checklistItem = null,
+    Object? timerType = freezed,
+    Object? countupElapsedSeconds = freezed,
+    Object? pomodoroWorkMinutes = freezed,
+    Object? pomodoroShortBreakMinutes = freezed,
+    Object? pomodoroLongBreakMinutes = freezed,
+    Object? pomodoroCycle = freezed,
+    Object? pomodoroCompletedCycle = freezed,
   }) {
     return _then(_TodoModel(
       id: null == id
@@ -769,6 +951,34 @@ class __$TodoModelCopyWithImpl<$Res> implements _$TodoModelCopyWith<$Res> {
           ? _self._checklistItem
           : checklistItem // ignore: cast_nullable_to_non_nullable
               as List<TodoCheckListItemModel>,
+      timerType: freezed == timerType
+          ? _self.timerType
+          : timerType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      countupElapsedSeconds: freezed == countupElapsedSeconds
+          ? _self.countupElapsedSeconds
+          : countupElapsedSeconds // ignore: cast_nullable_to_non_nullable
+              as int?,
+      pomodoroWorkMinutes: freezed == pomodoroWorkMinutes
+          ? _self.pomodoroWorkMinutes
+          : pomodoroWorkMinutes // ignore: cast_nullable_to_non_nullable
+              as int?,
+      pomodoroShortBreakMinutes: freezed == pomodoroShortBreakMinutes
+          ? _self.pomodoroShortBreakMinutes
+          : pomodoroShortBreakMinutes // ignore: cast_nullable_to_non_nullable
+              as int?,
+      pomodoroLongBreakMinutes: freezed == pomodoroLongBreakMinutes
+          ? _self.pomodoroLongBreakMinutes
+          : pomodoroLongBreakMinutes // ignore: cast_nullable_to_non_nullable
+              as int?,
+      pomodoroCycle: freezed == pomodoroCycle
+          ? _self.pomodoroCycle
+          : pomodoroCycle // ignore: cast_nullable_to_non_nullable
+              as int?,
+      pomodoroCompletedCycle: freezed == pomodoroCompletedCycle
+          ? _self.pomodoroCompletedCycle
+          : pomodoroCompletedCycle // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
