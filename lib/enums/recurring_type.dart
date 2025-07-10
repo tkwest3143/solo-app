@@ -5,7 +5,7 @@ enum RecurringType {
   monthlyLast('monthly_last', '毎月最終日');
 
   const RecurringType(this.value, this.label);
-  
+
   final String value;
   final String label;
 
@@ -14,6 +14,6 @@ enum RecurringType {
     for (final type in RecurringType.values) {
       if (type.value == value) return type;
     }
-    return null;
+    return RecurringType.daily;
   }
 }

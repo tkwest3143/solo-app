@@ -485,10 +485,9 @@ class _TodoDetailContent extends HookConsumerWidget {
     );
   }
 
-  String _getRecurringLabel(String? recurringType) {
+  String _getRecurringLabel(RecurringType? recurringType) {
     if (recurringType == null) return '';
-    final type = RecurringType.fromString(recurringType);
-    return type?.label ?? '';
+    return recurringType.label;
   }
 
   Widget _buildChecklistItemRow(

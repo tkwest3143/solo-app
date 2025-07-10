@@ -25,13 +25,13 @@ mixin _$TodoModel {
   DateTime? get createdAt;
   DateTime? get updatedAt; // Recurring fields
   bool? get isRecurring;
-  String? get recurringType;
+  RecurringType get recurringType;
   DateTime? get recurringEndDate;
   int? get recurringDayOfWeek; // 1-7 for weekly (Monday = 1)
   int? get recurringDayOfMonth; // 1-31 for monthly
   int? get parentTodoId;
   List<TodoCheckListItemModel> get checklistItem; // Optional checklist item
-  String? get timerType; // 'none', 'pomodoro', 'countup'
+  TimerType get timerType; // 'none', 'pomodoro', 'countup'
   int? get countupElapsedSeconds; // For countup timer
   int? get pomodoroWorkMinutes; // For pomodoro timer
   int? get pomodoroShortBreakMinutes; // For short break
@@ -154,13 +154,13 @@ abstract mixin class $TodoModelCopyWith<$Res> {
       DateTime? createdAt,
       DateTime? updatedAt,
       bool? isRecurring,
-      String? recurringType,
+      RecurringType recurringType,
       DateTime? recurringEndDate,
       int? recurringDayOfWeek,
       int? recurringDayOfMonth,
       int? parentTodoId,
       List<TodoCheckListItemModel> checklistItem,
-      String? timerType,
+      TimerType timerType,
       int? countupElapsedSeconds,
       int? pomodoroWorkMinutes,
       int? pomodoroShortBreakMinutes,
@@ -192,13 +192,13 @@ class _$TodoModelCopyWithImpl<$Res> implements $TodoModelCopyWith<$Res> {
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
     Object? isRecurring = freezed,
-    Object? recurringType = freezed,
+    Object? recurringType = null,
     Object? recurringEndDate = freezed,
     Object? recurringDayOfWeek = freezed,
     Object? recurringDayOfMonth = freezed,
     Object? parentTodoId = freezed,
     Object? checklistItem = null,
-    Object? timerType = freezed,
+    Object? timerType = null,
     Object? countupElapsedSeconds = freezed,
     Object? pomodoroWorkMinutes = freezed,
     Object? pomodoroShortBreakMinutes = freezed,
@@ -251,10 +251,10 @@ class _$TodoModelCopyWithImpl<$Res> implements $TodoModelCopyWith<$Res> {
           ? _self.isRecurring
           : isRecurring // ignore: cast_nullable_to_non_nullable
               as bool?,
-      recurringType: freezed == recurringType
+      recurringType: null == recurringType
           ? _self.recurringType
           : recurringType // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as RecurringType,
       recurringEndDate: freezed == recurringEndDate
           ? _self.recurringEndDate
           : recurringEndDate // ignore: cast_nullable_to_non_nullable
@@ -275,10 +275,10 @@ class _$TodoModelCopyWithImpl<$Res> implements $TodoModelCopyWith<$Res> {
           ? _self.checklistItem
           : checklistItem // ignore: cast_nullable_to_non_nullable
               as List<TodoCheckListItemModel>,
-      timerType: freezed == timerType
+      timerType: null == timerType
           ? _self.timerType
           : timerType // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as TimerType,
       countupElapsedSeconds: freezed == countupElapsedSeconds
           ? _self.countupElapsedSeconds
           : countupElapsedSeconds // ignore: cast_nullable_to_non_nullable
@@ -410,13 +410,13 @@ extension TodoModelPatterns on TodoModel {
             DateTime? createdAt,
             DateTime? updatedAt,
             bool? isRecurring,
-            String? recurringType,
+            RecurringType recurringType,
             DateTime? recurringEndDate,
             int? recurringDayOfWeek,
             int? recurringDayOfMonth,
             int? parentTodoId,
             List<TodoCheckListItemModel> checklistItem,
-            String? timerType,
+            TimerType timerType,
             int? countupElapsedSeconds,
             int? pomodoroWorkMinutes,
             int? pomodoroShortBreakMinutes,
@@ -486,13 +486,13 @@ extension TodoModelPatterns on TodoModel {
             DateTime? createdAt,
             DateTime? updatedAt,
             bool? isRecurring,
-            String? recurringType,
+            RecurringType recurringType,
             DateTime? recurringEndDate,
             int? recurringDayOfWeek,
             int? recurringDayOfMonth,
             int? parentTodoId,
             List<TodoCheckListItemModel> checklistItem,
-            String? timerType,
+            TimerType timerType,
             int? countupElapsedSeconds,
             int? pomodoroWorkMinutes,
             int? pomodoroShortBreakMinutes,
@@ -558,13 +558,13 @@ extension TodoModelPatterns on TodoModel {
             DateTime? createdAt,
             DateTime? updatedAt,
             bool? isRecurring,
-            String? recurringType,
+            RecurringType recurringType,
             DateTime? recurringEndDate,
             int? recurringDayOfWeek,
             int? recurringDayOfMonth,
             int? parentTodoId,
             List<TodoCheckListItemModel> checklistItem,
-            String? timerType,
+            TimerType timerType,
             int? countupElapsedSeconds,
             int? pomodoroWorkMinutes,
             int? pomodoroShortBreakMinutes,
@@ -622,13 +622,13 @@ class _TodoModel implements TodoModel {
       this.createdAt,
       this.updatedAt,
       this.isRecurring,
-      this.recurringType,
+      this.recurringType = RecurringType.daily,
       this.recurringEndDate,
       this.recurringDayOfWeek,
       this.recurringDayOfMonth,
       this.parentTodoId,
       final List<TodoCheckListItemModel> checklistItem = const [],
-      this.timerType,
+      this.timerType = TimerType.none,
       this.countupElapsedSeconds,
       this.pomodoroWorkMinutes,
       this.pomodoroShortBreakMinutes,
@@ -665,7 +665,8 @@ class _TodoModel implements TodoModel {
   @override
   final bool? isRecurring;
   @override
-  final String? recurringType;
+  @JsonKey()
+  final RecurringType recurringType;
   @override
   final DateTime? recurringEndDate;
   @override
@@ -687,7 +688,8 @@ class _TodoModel implements TodoModel {
 
 // Optional checklist item
   @override
-  final String? timerType;
+  @JsonKey()
+  final TimerType timerType;
 // 'none', 'pomodoro', 'countup'
   @override
   final int? countupElapsedSeconds;
@@ -830,13 +832,13 @@ abstract mixin class _$TodoModelCopyWith<$Res>
       DateTime? createdAt,
       DateTime? updatedAt,
       bool? isRecurring,
-      String? recurringType,
+      RecurringType recurringType,
       DateTime? recurringEndDate,
       int? recurringDayOfWeek,
       int? recurringDayOfMonth,
       int? parentTodoId,
       List<TodoCheckListItemModel> checklistItem,
-      String? timerType,
+      TimerType timerType,
       int? countupElapsedSeconds,
       int? pomodoroWorkMinutes,
       int? pomodoroShortBreakMinutes,
@@ -868,13 +870,13 @@ class __$TodoModelCopyWithImpl<$Res> implements _$TodoModelCopyWith<$Res> {
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
     Object? isRecurring = freezed,
-    Object? recurringType = freezed,
+    Object? recurringType = null,
     Object? recurringEndDate = freezed,
     Object? recurringDayOfWeek = freezed,
     Object? recurringDayOfMonth = freezed,
     Object? parentTodoId = freezed,
     Object? checklistItem = null,
-    Object? timerType = freezed,
+    Object? timerType = null,
     Object? countupElapsedSeconds = freezed,
     Object? pomodoroWorkMinutes = freezed,
     Object? pomodoroShortBreakMinutes = freezed,
@@ -927,10 +929,10 @@ class __$TodoModelCopyWithImpl<$Res> implements _$TodoModelCopyWith<$Res> {
           ? _self.isRecurring
           : isRecurring // ignore: cast_nullable_to_non_nullable
               as bool?,
-      recurringType: freezed == recurringType
+      recurringType: null == recurringType
           ? _self.recurringType
           : recurringType // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as RecurringType,
       recurringEndDate: freezed == recurringEndDate
           ? _self.recurringEndDate
           : recurringEndDate // ignore: cast_nullable_to_non_nullable
@@ -951,10 +953,10 @@ class __$TodoModelCopyWithImpl<$Res> implements _$TodoModelCopyWith<$Res> {
           ? _self._checklistItem
           : checklistItem // ignore: cast_nullable_to_non_nullable
               as List<TodoCheckListItemModel>,
-      timerType: freezed == timerType
+      timerType: null == timerType
           ? _self.timerType
           : timerType // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as TimerType,
       countupElapsedSeconds: freezed == countupElapsedSeconds
           ? _self.countupElapsedSeconds
           : countupElapsedSeconds // ignore: cast_nullable_to_non_nullable

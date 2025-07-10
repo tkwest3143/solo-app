@@ -1,4 +1,6 @@
 import 'package:drift/drift.dart';
+import 'package:solo/enums/recurring_type.dart';
+import 'package:solo/enums/timer_type.dart';
 import 'package:solo/models/todo_model.dart';
 import 'package:solo/models/todo_checklist_item_model.dart';
 import 'package:solo/repositories/database/drift.dart';
@@ -23,11 +25,13 @@ class TodoService {
               createdAt: todo.createdAt,
               updatedAt: todo.updatedAt,
               isRecurring: todo.isRecurring,
-              recurringType: todo.recurringType,
+              recurringType: RecurringType.fromString(
+                      todo.recurringType ?? RecurringType.daily.name) ??
+                  RecurringType.daily,
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
-              timerType: todo.timerType,
+              timerType: TimerTypeExtension.fromString(todo.timerType),
               countupElapsedSeconds: todo.countupElapsedSeconds,
               pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
               pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
@@ -45,11 +49,11 @@ class TodoService {
     String? color,
     int? categoryId,
     bool? isRecurring,
-    String? recurringType,
+    RecurringType? recurringType,
     DateTime? recurringEndDate,
     int? recurringDayOfWeek,
     int? recurringDayOfMonth,
-    String? timerType,
+    TimerType? timerType,
     int? countupElapsedSeconds,
     int? pomodoroWorkMinutes,
     int? pomodoroShortBreakMinutes,
@@ -68,11 +72,11 @@ class TodoService {
         createdAt: Value(now),
         updatedAt: Value(now),
         isRecurring: Value(isRecurring ?? false),
-        recurringType: Value(recurringType),
+        recurringType: Value(recurringType?.name ?? RecurringType.daily.name),
         recurringEndDate: Value(recurringEndDate),
         recurringDayOfWeek: Value(recurringDayOfWeek),
         recurringDayOfMonth: Value(recurringDayOfMonth),
-        timerType: Value(timerType ?? 'none'),
+        timerType: Value(timerType?.name ?? TimerType.none.name),
         countupElapsedSeconds: Value(countupElapsedSeconds),
         pomodoroWorkMinutes: Value(pomodoroWorkMinutes),
         pomodoroShortBreakMinutes: Value(pomodoroShortBreakMinutes),
@@ -91,7 +95,9 @@ class TodoService {
       createdAt: now,
       updatedAt: now,
       isRecurring: isRecurring ?? false,
-      recurringType: recurringType,
+      recurringType: RecurringType.fromString(
+              recurringType?.name ?? RecurringType.daily.name) ??
+          RecurringType.daily,
       recurringEndDate: recurringEndDate,
       recurringDayOfWeek: recurringDayOfWeek,
       recurringDayOfMonth: recurringDayOfMonth,
@@ -106,11 +112,11 @@ class TodoService {
       int? categoryId,
       bool? isCompleted,
       bool? isRecurring,
-      String? recurringType,
+      RecurringType? recurringType,
       DateTime? recurringEndDate,
       int? recurringDayOfWeek,
       int? recurringDayOfMonth,
-      String? timerType,
+      TimerType? timerType,
       int? countupElapsedSeconds,
       int? pomodoroWorkMinutes,
       int? pomodoroShortBreakMinutes,
@@ -130,8 +136,9 @@ class TodoService {
       updatedAt: Value(now),
       isRecurring:
           isRecurring != null ? Value(isRecurring) : const Value.absent(),
-      recurringType:
-          recurringType != null ? Value(recurringType) : const Value.absent(),
+      recurringType: recurringType != null
+          ? Value(recurringType.value)
+          : const Value.absent(),
       recurringEndDate: recurringEndDate != null
           ? Value(recurringEndDate)
           : const Value.absent(),
@@ -141,7 +148,8 @@ class TodoService {
       recurringDayOfMonth: recurringDayOfMonth != null
           ? Value(recurringDayOfMonth)
           : const Value.absent(),
-      timerType: timerType != null ? Value(timerType) : const Value('none'),
+      timerType:
+          timerType != null ? Value(timerType.name) : const Value('none'),
       countupElapsedSeconds: countupElapsedSeconds != null
           ? Value(countupElapsedSeconds)
           : const Value.absent(),
@@ -181,7 +189,9 @@ class TodoService {
       createdAt: todo.createdAt,
       updatedAt: todo.updatedAt,
       isRecurring: todo.isRecurring,
-      recurringType: todo.recurringType,
+      recurringType: RecurringType.fromString(
+              todo.recurringType ?? RecurringType.daily.name) ??
+          RecurringType.daily,
       recurringEndDate: todo.recurringEndDate,
       recurringDayOfWeek: todo.recurringDayOfWeek,
       recurringDayOfMonth: todo.recurringDayOfMonth,
@@ -225,10 +235,19 @@ class TodoService {
       createdAt: updatedTodo.createdAt,
       updatedAt: updatedTodo.updatedAt,
       isRecurring: updatedTodo.isRecurring,
-      recurringType: updatedTodo.recurringType,
+      recurringType: RecurringType.fromString(
+              updatedTodo.recurringType ?? RecurringType.daily.name) ??
+          RecurringType.daily,
       recurringEndDate: updatedTodo.recurringEndDate,
       recurringDayOfWeek: updatedTodo.recurringDayOfWeek,
       recurringDayOfMonth: updatedTodo.recurringDayOfMonth,
+      timerType: TimerTypeExtension.fromString(updatedTodo.timerType),
+      countupElapsedSeconds: updatedTodo.countupElapsedSeconds,
+      pomodoroWorkMinutes: updatedTodo.pomodoroWorkMinutes,
+      pomodoroShortBreakMinutes: updatedTodo.pomodoroShortBreakMinutes,
+      pomodoroLongBreakMinutes: updatedTodo.pomodoroLongBreakMinutes,
+      pomodoroCycle: updatedTodo.pomodoroCycle,
+      pomodoroCompletedCycle: updatedTodo.pomodoroCompletedCycle,
     );
   }
 
@@ -272,11 +291,13 @@ class TodoService {
               createdAt: todo.createdAt,
               updatedAt: todo.updatedAt,
               isRecurring: todo.isRecurring,
-              recurringType: todo.recurringType,
+              recurringType: RecurringType.fromString(
+                      todo.recurringType ?? RecurringType.daily.name) ??
+                  RecurringType.daily,
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
-              timerType: todo.timerType,
+              timerType: TimerTypeExtension.fromString(todo.timerType),
               countupElapsedSeconds: todo.countupElapsedSeconds,
               pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
               pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
@@ -311,11 +332,13 @@ class TodoService {
               createdAt: todo.createdAt,
               updatedAt: todo.updatedAt,
               isRecurring: todo.isRecurring,
-              recurringType: todo.recurringType,
+              recurringType: RecurringType.fromString(
+                      todo.recurringType ?? RecurringType.daily.name) ??
+                  RecurringType.daily,
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
-              timerType: todo.timerType,
+              timerType: TimerTypeExtension.fromString(todo.timerType),
               countupElapsedSeconds: todo.countupElapsedSeconds,
               pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
               pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
@@ -347,11 +370,13 @@ class TodoService {
               createdAt: todo.createdAt,
               updatedAt: todo.updatedAt,
               isRecurring: todo.isRecurring,
-              recurringType: todo.recurringType,
+              recurringType: RecurringType.fromString(
+                      todo.recurringType ?? RecurringType.daily.name) ??
+                  RecurringType.daily,
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
-              timerType: todo.timerType,
+              timerType: TimerTypeExtension.fromString(todo.timerType),
               countupElapsedSeconds: todo.countupElapsedSeconds,
               pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
               pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
@@ -378,11 +403,13 @@ class TodoService {
               createdAt: todo.createdAt,
               updatedAt: todo.updatedAt,
               isRecurring: todo.isRecurring,
-              recurringType: todo.recurringType,
+              recurringType: RecurringType.fromString(
+                      todo.recurringType ?? RecurringType.daily.name) ??
+                  RecurringType.daily,
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
-              timerType: todo.timerType,
+              timerType: TimerTypeExtension.fromString(todo.timerType),
               countupElapsedSeconds: todo.countupElapsedSeconds,
               pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
               pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
@@ -407,7 +434,9 @@ class TodoService {
                 createdAt: todo.createdAt,
                 updatedAt: todo.updatedAt,
                 isRecurring: todo.isRecurring,
-                recurringType: todo.recurringType,
+                recurringType: RecurringType.fromString(
+                        todo.recurringType ?? RecurringType.daily.name) ??
+                    RecurringType.daily,
                 recurringEndDate: todo.recurringEndDate,
                 recurringDayOfWeek: todo.recurringDayOfWeek,
                 recurringDayOfMonth: todo.recurringDayOfMonth),
@@ -432,7 +461,9 @@ class TodoService {
               createdAt: todo.createdAt,
               updatedAt: todo.updatedAt,
               isRecurring: todo.isRecurring,
-              recurringType: todo.recurringType,
+              recurringType: RecurringType.fromString(
+                      todo.recurringType ?? RecurringType.daily.name) ??
+                  RecurringType.daily,
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
@@ -480,7 +511,9 @@ class TodoService {
             createdAt: todo.createdAt,
             updatedAt: todo.updatedAt,
             isRecurring: todo.isRecurring,
-            recurringType: todo.recurringType,
+            recurringType: RecurringType.fromString(
+                    todo.recurringType ?? RecurringType.daily.name) ??
+                RecurringType.daily,
             recurringEndDate: todo.recurringEndDate,
             recurringDayOfWeek: todo.recurringDayOfWeek,
             recurringDayOfMonth: todo.recurringDayOfMonth,
@@ -503,7 +536,9 @@ class TodoService {
             createdAt: todo.createdAt,
             updatedAt: todo.updatedAt,
             isRecurring: todo.isRecurring,
-            recurringType: todo.recurringType,
+            recurringType: RecurringType.fromString(
+                    todo.recurringType ?? RecurringType.daily.name) ??
+                RecurringType.daily,
             recurringEndDate: todo.recurringEndDate,
             recurringDayOfWeek: todo.recurringDayOfWeek,
             recurringDayOfMonth: todo.recurringDayOfMonth,
@@ -556,38 +591,36 @@ class TodoService {
 
   // 指定日が繰り返しTodoの該当日か判定
   bool _isRecurringOnDay(TodoModel todo, DateTime day) {
-    if (todo.isRecurring != true || todo.recurringType == null) return false;
+    if (todo.isRecurring != true) return false;
     if (todo.recurringEndDate != null && day.isAfter(todo.recurringEndDate!)) {
       return false;
     }
     switch (todo.recurringType) {
-      case 'daily':
+      case RecurringType.daily:
         return !day.isBefore(todo.dueDate);
-      case 'weekly':
+      case RecurringType.weekly:
         return !day.isBefore(todo.dueDate) &&
             day.weekday == (todo.recurringDayOfWeek ?? todo.dueDate.weekday);
-      case 'monthly':
+      case RecurringType.monthly:
         return !day.isBefore(todo.dueDate) &&
             day.day == (todo.recurringDayOfMonth ?? todo.dueDate.day);
-      case 'monthly_last':
+      case RecurringType.monthlyLast:
         final lastDay = DateTime(day.year, day.month + 1, 0).day;
         return !day.isBefore(todo.dueDate) && day.day == lastDay;
-      default:
-        return false;
     }
   }
 
   /// Calculate the next due date for a recurring todo
   DateTime? calculateNextRecurringDate(TodoModel todo) {
-    if (todo.isRecurring != true || todo.recurringType == null) {
+    if (todo.isRecurring != true) {
       return null;
     }
 
     final currentDate = todo.dueDate;
-    final recurringType = todo.recurringType!;
+    final recurringType = todo.recurringType;
 
     switch (recurringType) {
-      case 'daily':
+      case RecurringType.daily:
         return DateTime(
           currentDate.year,
           currentDate.month,
@@ -596,7 +629,7 @@ class TodoService {
           currentDate.minute,
         );
 
-      case 'weekly':
+      case RecurringType.weekly:
         return DateTime(
           currentDate.year,
           currentDate.month,
@@ -605,7 +638,7 @@ class TodoService {
           currentDate.minute,
         );
 
-      case 'monthly':
+      case RecurringType.monthly:
         if (todo.recurringDayOfMonth != null) {
           final nextMonth = currentDate.month == 12
               ? DateTime(currentDate.year + 1, 1, 1)
@@ -626,7 +659,7 @@ class TodoService {
         }
         break;
 
-      case 'monthly_last':
+      case RecurringType.monthlyLast:
         final nextMonth = currentDate.month == 12
             ? DateTime(currentDate.year + 1, 1, 1)
             : DateTime(currentDate.year, currentDate.month + 1, 1);
@@ -671,10 +704,21 @@ class TodoService {
       createdAt: Value(now),
       updatedAt: Value(now),
       isRecurring: Value(originalTodo.isRecurring ?? false),
-      recurringType: Value(originalTodo.recurringType),
+      recurringType: Value(
+        (originalTodo.recurringType is String)
+            ? originalTodo.recurringType as String
+            : (originalTodo.recurringType).name,
+      ),
       recurringEndDate: Value(originalTodo.recurringEndDate),
       recurringDayOfWeek: Value(originalTodo.recurringDayOfWeek),
       recurringDayOfMonth: Value(originalTodo.recurringDayOfMonth),
+      timerType: Value(originalTodo.timerType.name),
+      countupElapsedSeconds: Value(originalTodo.countupElapsedSeconds),
+      pomodoroWorkMinutes: Value(originalTodo.pomodoroWorkMinutes),
+      pomodoroShortBreakMinutes: Value(originalTodo.pomodoroShortBreakMinutes),
+      pomodoroLongBreakMinutes: Value(originalTodo.pomodoroLongBreakMinutes),
+      pomodoroCycle: Value(originalTodo.pomodoroCycle),
+      pomodoroCompletedCycle: Value(originalTodo.pomodoroCompletedCycle),
     );
     final id = await _todoTableRepository.insert(companion);
     return TodoModel(
@@ -740,7 +784,11 @@ class TodoService {
               createdAt: Value(now),
               updatedAt: Value(now),
               isRecurring: Value(todo.isRecurring ?? false),
-              recurringType: Value(todo.recurringType),
+              recurringType: Value(
+                (todo.recurringType is String)
+                    ? todo.recurringType as String
+                    : (todo.recurringType).name,
+              ),
               recurringEndDate: Value(todo.recurringEndDate),
               recurringDayOfWeek: Value(todo.recurringDayOfWeek),
               recurringDayOfMonth: Value(todo.recurringDayOfMonth),

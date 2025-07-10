@@ -22,7 +22,9 @@ _TodoModel _$TodoModelFromJson(Map<String, dynamic> json) => _TodoModel(
           ? null
           : DateTime.parse(json['updatedAt'] as String),
       isRecurring: json['isRecurring'] as bool?,
-      recurringType: json['recurringType'] as String?,
+      recurringType:
+          $enumDecodeNullable(_$RecurringTypeEnumMap, json['recurringType']) ??
+              RecurringType.daily,
       recurringEndDate: json['recurringEndDate'] == null
           ? null
           : DateTime.parse(json['recurringEndDate'] as String),
@@ -34,7 +36,8 @@ _TodoModel _$TodoModelFromJson(Map<String, dynamic> json) => _TodoModel(
                   TodoCheckListItemModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      timerType: json['timerType'] as String?,
+      timerType: $enumDecodeNullable(_$TimerTypeEnumMap, json['timerType']) ??
+          TimerType.none,
       countupElapsedSeconds: (json['countupElapsedSeconds'] as num?)?.toInt(),
       pomodoroWorkMinutes: (json['pomodoroWorkMinutes'] as num?)?.toInt(),
       pomodoroShortBreakMinutes:
@@ -58,13 +61,13 @@ Map<String, dynamic> _$TodoModelToJson(_TodoModel instance) =>
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
       'isRecurring': instance.isRecurring,
-      'recurringType': instance.recurringType,
+      'recurringType': _$RecurringTypeEnumMap[instance.recurringType]!,
       'recurringEndDate': instance.recurringEndDate?.toIso8601String(),
       'recurringDayOfWeek': instance.recurringDayOfWeek,
       'recurringDayOfMonth': instance.recurringDayOfMonth,
       'parentTodoId': instance.parentTodoId,
       'checklistItem': instance.checklistItem,
-      'timerType': instance.timerType,
+      'timerType': _$TimerTypeEnumMap[instance.timerType]!,
       'countupElapsedSeconds': instance.countupElapsedSeconds,
       'pomodoroWorkMinutes': instance.pomodoroWorkMinutes,
       'pomodoroShortBreakMinutes': instance.pomodoroShortBreakMinutes,
@@ -72,3 +75,16 @@ Map<String, dynamic> _$TodoModelToJson(_TodoModel instance) =>
       'pomodoroCycle': instance.pomodoroCycle,
       'pomodoroCompletedCycle': instance.pomodoroCompletedCycle,
     };
+
+const _$RecurringTypeEnumMap = {
+  RecurringType.daily: 'daily',
+  RecurringType.weekly: 'weekly',
+  RecurringType.monthly: 'monthly',
+  RecurringType.monthlyLast: 'monthlyLast',
+};
+
+const _$TimerTypeEnumMap = {
+  TimerType.none: 'none',
+  TimerType.pomodoro: 'pomodoro',
+  TimerType.countup: 'countup',
+};

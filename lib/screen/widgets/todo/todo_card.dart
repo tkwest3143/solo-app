@@ -309,10 +309,9 @@ class TodoCard extends StatelessWidget {
     );
   }
 
-  String _getRecurringLabel(String? recurringType) {
+  String _getRecurringLabel(RecurringType? recurringType) {
     if (recurringType == null) return '';
-    final type = RecurringType.fromString(recurringType);
-    return type?.label ?? '';
+    return recurringType.label;
   }
 
   void _showDeleteConfirmation(BuildContext context, TodoModel todo) {

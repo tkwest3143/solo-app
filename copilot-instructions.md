@@ -1,13 +1,14 @@
 # GitHub Copilot Instructions for Solo App
 
-このファイルは、GitHub CopilotがSoloアプリの開発において一貫したコードを生成するためのガイドラインです。
+このファイルは、GitHub Copilot が Solo アプリの開発において一貫したコードを生成するためのガイドラインです。
 
 ## プロジェクト概要
 
-Soloは、タスク管理とポモドーロタイマー機能を備えたFlutter製の生産性向上アプリです。
+Solo は、タスク管理とポモドーロタイマー機能を備えた Flutter 製の生産性向上アプリです。
 
 ### 主要機能
-- Todoタスク管理
+
+- Todo タスク管理
 - ポモドーロタイマー
 - カウントアップタイマー
 - 設定管理（テーマ、通知、タイマー設定）
@@ -32,9 +33,10 @@ Soloは、タスク管理とポモドーロタイマー機能を備えたFlutter
 ## 必須技術スタック
 
 ### 1. 状態管理: Riverpod
+
 **使用ライブラリ**: `hooks_riverpod`, `riverpod_annotation`, `riverpod_generator`
 
-**重要**: 状態管理では必ずRiverpodを使用し、他のライブラリ（Provider, Bloc, GetX等）は使用しないでください。
+**重要**: 状態管理では必ず Riverpod を使用し、他のライブラリ（Provider, Bloc, GetX 等）は使用しないでください。
 
 ```dart
 // ✅ 正しい実装例
@@ -55,14 +57,15 @@ class SettingsState extends _$SettingsState {
 // Provider, BlocProvider, GetXなどの他の状態管理ライブラリ
 ```
 
-### 2. UIコンポーネント: Flutter Hooks
+### 2. UI コンポーネント: Flutter Hooks
+
 **使用ライブラリ**: `flutter_hooks`, `hooks_riverpod`
 
-**パターン**: 使用する機能に応じて適切なWidget基底クラスを選択してください：
+**パターン**: 使用する機能に応じて適切な Widget 基底クラスを選択してください：
 
 - **状態がない場合**: `StatelessWidget`
-- **Flutter Hooksのみ使用**: `HookWidget`
-- **Riverpodの状態のみ使用**: `ConsumerWidget`
+- **Flutter Hooks のみ使用**: `HookWidget`
+- **Riverpod の状態のみ使用**: `ConsumerWidget`
 - **両方使用**: `HookConsumerWidget`
 
 ```dart
@@ -104,7 +107,7 @@ class SettingsPage extends HookConsumerWidget {
     final settings = ref.watch(settingsStateProvider);
     final settingsController = ref.read(settingsStateProvider.notifier);
     final tabController = useTabController(initialLength: 3);
-    
+
     return Scaffold(/* ... */);
   }
 }
@@ -114,9 +117,10 @@ class SettingsPage extends HookConsumerWidget {
 ```
 
 ### 3. データモデル: Freezed
+
 **使用ライブラリ**: `freezed`, `freezed_annotation`, `json_serializable`
 
-**パターン**: すべてのデータクラスはFreezedを使用して不変オブジェクトとして定義してください。
+**パターン**: すべてのデータクラスは Freezed を使用して不変オブジェクトとして定義してください。また、テキストでの固定値は enum を使用して定義します。
 
 ```dart
 // ✅ 正しい実装例
@@ -137,9 +141,10 @@ class AppSettings with _$AppSettings {
 ```
 
 ### 4. データベース: Drift
+
 **使用ライブラリ**: `drift`, `drift_flutter`
 
-**パターン**: Singletonパターンでデータベースインスタンスを管理し、Repositoryパターンで操作してください。
+**パターン**: Singleton パターンでデータベースインスタンスを管理し、Repository パターンで操作してください。
 
 ```dart
 // ✅ 正しい実装例 - Database定義
@@ -148,7 +153,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   static AppDatabase? _instance;
-  
+
   @override
   int get schemaVersion => 3;
 
@@ -181,6 +186,7 @@ class TodoTableRepository {
 ```
 
 ### 6. 国際化・ローカライゼーション
+
 **使用ライブラリ**: `intl`
 
 **パターン**: 日本語ロケール（ja-JP）で初期化し、日付フォーマットを使用
@@ -190,7 +196,7 @@ class TodoTableRepository {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting("ja-JP", null);
-  
+
   runApp(/* ... */);
 }
 
@@ -206,9 +212,10 @@ Text('ポモドーロタイマー'),
 ```
 
 ### 5. ルーティング: GoRouter
+
 **使用ライブラリ**: `go_router`
 
-**パターン**: ルート定義はRouterDefinitionクラスで管理し、BulderWidgetでラップしてください。
+**パターン**: ルート定義は RouterDefinition クラスで管理し、BulderWidget でラップしてください。
 
 ```dart
 // ✅ 正しい実装例
@@ -218,7 +225,7 @@ class RouterDefinition {
     name: '/',
     builder: (context, state) => BulderWidget(child: const HomePage())
   );
-  
+
   static Route settings = Route(
     path: '/settings',
     name: '/settings',
@@ -273,7 +280,8 @@ lib/
 - **Extension**: `XxxExtension` (例: `AppSettingsExtension`)
 
 ### 3. Japanese UI Text Convention
-UIテキストはすべて日本語で統一してください：
+
+UI テキストはすべて日本語で統一してください：
 
 ```dart
 // ✅ 正しい例
@@ -289,11 +297,13 @@ Text('Add Task'),
 ### 3. コード生成
 
 以下のコマンドでコード生成を実行：
+
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-**重要**: `part` ディレクティブは `build/` フォルダを使用してください（build.yamlで設定済み）：
+**重要**: `part` ディレクティブは `build/` フォルダを使用してください（build.yaml で設定済み）：
+
 ```dart
 part 'build/settings_state.g.dart';     // ✅ 正しい（Riverpod）
 part 'build/settings_model.freezed.dart'; // ✅ 正しい（Freezed）
@@ -303,6 +313,7 @@ part 'settings_state.g.dart';           // ❌ 間違い
 ```
 
 ### 4. ディレクトリ構成での注意点
+
 - 生成されたファイルは必ず `build/` サブディレクトリに配置される
 - 手動で生成ファイルの場所を変更しない
 - 生成ファイルは `.gitignore` で除外されないため、コミットに含まれる
@@ -356,7 +367,7 @@ class SettingsState extends _$SettingsState {
 }
 ```
 
-### 2. UI更新パターン
+### 2. UI 更新パターン
 
 ```dart
 class SettingsPage extends HookConsumerWidget {
@@ -419,7 +430,7 @@ Widget build(BuildContext context, WidgetRef ref) {
 }
 ```
 
-### 4. Timer管理パターン
+### 4. Timer 管理パターン
 
 ```dart
 @riverpod
@@ -457,21 +468,23 @@ class TimerState extends _$TimerState {
 ## 禁止事項
 
 ### 使用禁止のライブラリ・パターン
+
 - **状態管理**: Provider, Bloc, GetX, MobX
-- **UI**: StatefulWidget（HookConsumerWidget使用）
-- **データクラス**: built_value, equatable（Freezed使用）
-- **データベース**: sqflite, hive（Drift使用）
-- **ルーティング**: 直接Navigator使用（GoRouter使用）
+- **UI**: StatefulWidget（HookConsumerWidget 使用）
+- **データクラス**: built_value, equatable（Freezed 使用）
+- **データベース**: sqflite, hive（Drift 使用）
+- **ルーティング**: 直接 Navigator 使用（GoRouter 使用）
 - **HTTP**: dio, http（現在未使用、必要時は要相談）
 
 ### コーディング禁止パターン
-- `setState`の使用（Riverpod使用）
-- Global変数の使用
-- Singletonパターン（Riverpod Provider使用、ただしDatabase層は例外）
-- 生のFutureBuilder（AsyncValueパターン使用）
-- `StatefulWidget`の直接使用（適切なWidget基底クラスを使用）
 
-## Freezed拡張パターン
+- `setState`の使用（Riverpod 使用）
+- Global 変数の使用
+- Singleton パターン（Riverpod Provider 使用、ただし Database 層は例外）
+- 生の FutureBuilder（AsyncValue パターン使用）
+- `StatefulWidget`の直接使用（適切な Widget 基底クラスを使用）
+
+## Freezed 拡張パターン
 
 ```dart
 // ✅ Extensionを使った表示用メソッド
@@ -499,9 +512,10 @@ extension AppSettingsExtension on AppSettings {
 }
 ```
 
-## UI共通パターン
+## UI 共通パターン
 
-### BulderWidget使用パターン
+### BulderWidget 使用パターン
+
 ```dart
 // ✅ 全ページでBulderWidgetを使用
 class HomePage extends HookConsumerWidget {
@@ -517,6 +531,7 @@ class HomePage extends HookConsumerWidget {
 ```
 
 ### カラーテーマパターン
+
 ```dart
 // ✅ Theme拡張の使用（lib/screen/colors.dartで定義された拡張を使用）
 Container(
@@ -600,23 +615,23 @@ void main() {
 
 ## まとめ
 
-1. **状態管理**: Riverpodのみ使用
-2. **UI**: HookConsumerWidgetパターン
-3. **データモデル**: Freezedパターン
-4. **データベース**: Driftパターン
-5. **ルーティング**: GoRouterパターン
+1. **状態管理**: Riverpod のみ使用
+2. **UI**: HookConsumerWidget パターン
+3. **データモデル**: Freezed パターン
+4. **データベース**: Drift パターン
+5. **ルーティング**: GoRouter パターン
 6. **アーキテクチャ**: レイヤード・アーキテクチャ
 
 新機能追加時は、必ずこれらのパターンに従って実装し、既存コードとの一貫性を保ってください。
 
-## GitHub Copilot利用時の注意点
+## GitHub Copilot 利用時の注意点
 
 このファイルを参照して、以下を必ず確認してください：
 
-1. **状態管理**: 他のライブラリではなくRiverpodを提案すること
-2. **UIコンポーネント**: StatefulWidgetではなくHookConsumerWidgetを使用すること  
-3. **データクラス**: 通常のクラスではなくFreezedパターンを使用すること
-4. **命名規約**: 日本語UIテキストと適切なファイル/クラス命名を使用すること
+1. **状態管理**: 他のライブラリではなく Riverpod を提案すること
+2. **UI コンポーネント**: StatefulWidget ではなく HookConsumerWidget を使用すること
+3. **データクラス**: 通常のクラスではなく Freezed パターンを使用すること
+4. **命名規約**: 日本語 UI テキストと適切なファイル/クラス命名を使用すること
 5. **アーキテクチャ**: レイヤード構造を維持すること
 
 このガイドラインに従うことで、コードベース全体の一貫性と保守性が向上します。

@@ -65,9 +65,7 @@ class _AddTodoDialogContent extends HookConsumerWidget {
 
     // Recurring state variables
     final isRecurring = useState<bool>(initialTodo?.isRecurring ?? false);
-    final recurringType = useState<RecurringType?>(
-      RecurringType.fromString(initialTodo?.recurringType),
-    );
+    final recurringType = useState<RecurringType?>(initialTodo?.recurringType);
     final recurringEndDate = useState<DateTime?>(initialTodo?.recurringEndDate);
     final recurringDayOfMonth =
         useState<int?>(initialTodo?.recurringDayOfMonth);
@@ -822,9 +820,8 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                               selectedColor.value,
                           categoryId: selectedCategory.value?.id,
                           isRecurring: isRecurring.value,
-                          recurringType: isRecurring.value
-                              ? recurringType.value?.value
-                              : null,
+                          recurringType:
+                              isRecurring.value ? recurringType.value : null,
                           recurringEndDate:
                               isRecurring.value ? recurringEndDate.value : null,
                           recurringDayOfWeek: isRecurring.value &&
@@ -859,9 +856,8 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                               selectedColor.value,
                           categoryId: selectedCategory.value?.id,
                           isRecurring: isRecurring.value,
-                          recurringType: isRecurring.value
-                              ? recurringType.value?.value
-                              : null,
+                          recurringType:
+                              isRecurring.value ? recurringType.value : null,
                           recurringEndDate:
                               isRecurring.value ? recurringEndDate.value : null,
                           recurringDayOfWeek: isRecurring.value &&
@@ -923,7 +919,6 @@ class _AddTodoDialogContent extends HookConsumerWidget {
   }
 }
 
-// --- セクションタイトルとカードのWidgetを追加 ---
 Widget _SectionTitle(String title) => Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 6),
       child: Text(
