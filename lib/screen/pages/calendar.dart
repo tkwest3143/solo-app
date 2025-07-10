@@ -437,7 +437,7 @@ class CalendarPage extends HookConsumerWidget {
         }
         if (todos.isEmpty) {
           return Padding(
-            padding: const EdgeInsets.only(top: 4),
+            padding: const EdgeInsets.only(top: 24),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -453,6 +453,29 @@ class CalendarPage extends HookConsumerWidget {
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.mutedTextColor,
                       fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await AddTodoDialog.show(context,
+                          initialDate: selectedDay, onSaved: onRefresh);
+                    },
+                    icon: Icon(Icons.add_circle_rounded,
+                        color: Theme.of(context).colorScheme.primary, size: 28),
+                    label: const Text('追加する',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      foregroundColor:
+                          Theme.of(context).colorScheme.primaryTextColor,
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(32),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 16),
                     ),
                   ),
                 ],
