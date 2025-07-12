@@ -4,7 +4,20 @@
       "Bash(grep:*)",
       "Bash(rm:*)",
       "Bash(mkdir:*)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(gh issue view:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(find:*)",
+      "Bash(flutter test:*)",
+      "Bash(fvm use:*)",
+      "Bash(fvm flutter:*)",
+      "Bash(ls:*)",
+      "Bash(git rm:*)",
+      "Bash(flutter:*)",
+      "Bash(fvm list:*)",
+      "Bash(dart run build_runner:*)",
+      "Bash(fvm dart run build_runner build:*)"
     ],
     "deny": []
   }

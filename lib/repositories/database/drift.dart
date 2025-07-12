@@ -15,7 +15,22 @@ class AppDatabase extends _$AppDatabase {
   static AppDatabase? _instance;
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (Migrator m) async {
+        await m.createAll();
+      },
+      onUpgrade: (Migrator m, int from, int to) async {
+        if (from < 2) {
+          // Add parentTodoId column to todos table
+          await m.addColumn(todos, todos.parentTodoId);
+        }
+      },
+    );
+  }
 
   static Future<AppDatabase> getSingletonInstance() async {
     _instance ??= AppDatabase(LazyDatabase(() async {

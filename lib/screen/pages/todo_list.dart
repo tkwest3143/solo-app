@@ -323,10 +323,19 @@ class TodoListPage extends HookConsumerWidget {
       int? categoryId, TodoFilter filter) async {
     final todoService = TodoService();
     final allTodos = await todoService.getTodo();
+    
+    // 繰り返しTodoの表示フィルタリングを適用
+    final filteredTodosWithRecurringDisplay = 
+        await todoService.getFilteredTodosWithRecurringDisplay(
+      currentDate: DateTime.now(),
+      todos: allTodos,
+    );
+    
     // カテゴリでフィルタ
     var filteredData = categoryId == null
-        ? allTodos
-        : allTodos.where((todo) => todo.categoryId == categoryId).toList();
+        ? filteredTodosWithRecurringDisplay
+        : filteredTodosWithRecurringDisplay.where((todo) => todo.categoryId == categoryId).toList();
+    
     // 状態でフィルタ
     switch (filter) {
       case TodoFilter.completed:
@@ -338,10 +347,12 @@ class TodoListPage extends HookConsumerWidget {
       case TodoFilter.all:
         break;
     }
+    
     final today = DateTime.now();
     final todayTodos = <TodoModel>[];
     final upcomingTodos = <TodoModel>[];
     final allFilteredTodos = <TodoModel>[];
+    
     for (final todo in filteredData) {
       final isToday = todo.dueDate.year == today.year &&
           todo.dueDate.month == today.month &&
@@ -357,6 +368,7 @@ class TodoListPage extends HookConsumerWidget {
         allFilteredTodos.add(todo);
       }
     }
+    
     return {
       'today': todayTodos,
       'upcoming': upcomingTodos,
