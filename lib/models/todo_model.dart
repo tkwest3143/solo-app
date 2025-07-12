@@ -44,61 +44,33 @@ sealed class TodoModel with _$TodoModel {
 
   /// TodoエンティティからTodoModelに変換するファクトリコンストラクタ
   /// オプショナルパラメータで特定のフィールドを上書き可能
-  factory TodoModel.fromTodo(
-    Todo todo, {
-    int? id,
-    DateTime? dueDate,
-    String? title,
-    bool? isCompleted,
-    String? description,
-    String? color,
-    int? categoryId,
-    String? icon,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    bool? isRecurring,
-    RecurringType? recurringType,
-    DateTime? recurringEndDate,
-    int? recurringDayOfWeek,
-    int? recurringDayOfMonth,
-    int? parentTodoId,
-    List<TodoCheckListItemModel>? checklistItem,
-    TimerType? timerType,
-    int? countupElapsedSeconds,
-    int? pomodoroWorkMinutes,
-    int? pomodoroShortBreakMinutes,
-    int? pomodoroLongBreakMinutes,
-    int? pomodoroCycle,
-    int? pomodoroCompletedCycle,
-  }) {
+  factory TodoModel.fromTodo(Todo todo) {
     return TodoModel(
-      id: id ?? todo.id,
-      dueDate: dueDate ?? todo.dueDate,
-      title: title ?? todo.title,
-      isCompleted: isCompleted ?? todo.isCompleted,
-      description: description ?? todo.description,
-      color: color ?? todo.color,
-      categoryId: categoryId ?? todo.categoryId,
-      icon: icon ?? todo.icon,
-      createdAt: createdAt ?? todo.createdAt,
-      updatedAt: updatedAt ?? todo.updatedAt,
-      isRecurring: isRecurring ?? todo.isRecurring,
-      recurringType: recurringType ??
-          (RecurringType.fromString(
-                  todo.recurringType ?? RecurringType.daily.name) ??
-              RecurringType.daily),
-      recurringEndDate: recurringEndDate ?? todo.recurringEndDate,
-      recurringDayOfWeek: recurringDayOfWeek ?? todo.recurringDayOfWeek,
-      recurringDayOfMonth: recurringDayOfMonth ?? todo.recurringDayOfMonth,
-      parentTodoId: parentTodoId ?? todo.parentTodoId,
-      checklistItem: checklistItem ?? [],
-      timerType: timerType ?? TimerTypeExtension.fromString(todo.timerType),
-      countupElapsedSeconds: countupElapsedSeconds ?? todo.countupElapsedSeconds,
-      pomodoroWorkMinutes: pomodoroWorkMinutes ?? todo.pomodoroWorkMinutes,
-      pomodoroShortBreakMinutes: pomodoroShortBreakMinutes ?? todo.pomodoroShortBreakMinutes,
-      pomodoroLongBreakMinutes: pomodoroLongBreakMinutes ?? todo.pomodoroLongBreakMinutes,
-      pomodoroCycle: pomodoroCycle ?? todo.pomodoroCycle,
-      pomodoroCompletedCycle: pomodoroCompletedCycle ?? todo.pomodoroCompletedCycle,
+      id: todo.id,
+      dueDate: todo.dueDate,
+      title: todo.title,
+      isCompleted: todo.isCompleted,
+      description: todo.description,
+      color: todo.color,
+      categoryId: todo.categoryId,
+      icon: todo.icon,
+      createdAt: todo.createdAt,
+      updatedAt: todo.updatedAt,
+      isRecurring: todo.isRecurring,
+      recurringType: (RecurringType.fromString(
+              todo.recurringType ?? RecurringType.daily.name) ??
+          RecurringType.daily),
+      recurringEndDate: todo.recurringEndDate,
+      recurringDayOfWeek: todo.recurringDayOfWeek,
+      recurringDayOfMonth: todo.recurringDayOfMonth,
+      parentTodoId: todo.parentTodoId,
+      timerType: TimerTypeExtension.fromString(todo.timerType),
+      countupElapsedSeconds: todo.countupElapsedSeconds,
+      pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
+      pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
+      pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
+      pomodoroCycle: todo.pomodoroCycle,
+      pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
     );
   }
 }

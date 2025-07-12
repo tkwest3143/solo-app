@@ -279,34 +279,11 @@ class TodoService {
               t.dueDate.month == date.month &&
               t.dueDate.day == date.day);
           if (!exists) {
-            result.add(TodoModel(
-              id: -todo.id, // 仮想インスタンスは負のIDで区別
-              dueDate: DateTime(date.year, date.month, date.day,
-                  todo.dueDate.hour, todo.dueDate.minute),
-              title: todo.title,
-              isCompleted: false,
-              description: todo.description,
-              color: todo.color,
-              categoryId: todo.categoryId,
-              icon: todo.icon,
-              createdAt: todo.createdAt,
-              updatedAt: todo.updatedAt,
-              isRecurring: todo.isRecurring,
-              recurringType: RecurringType.fromString(
-                      todo.recurringType ?? RecurringType.daily.name) ??
-                  RecurringType.daily,
-              recurringEndDate: todo.recurringEndDate,
-              recurringDayOfWeek: todo.recurringDayOfWeek,
-              recurringDayOfMonth: todo.recurringDayOfMonth,
-              // タイマー設定をコピー
-              timerType: TimerTypeExtension.fromString(todo.timerType),
-              countupElapsedSeconds: todo.countupElapsedSeconds,
-              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
-              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
-              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
-              pomodoroCycle: todo.pomodoroCycle,
-              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
-            ));
+            result.add(TodoModel.fromTodo(todo).copyWith(
+                id: -todo.id, // 仮想インスタンスは負のIDで区別
+                dueDate: DateTime(date.year, date.month, date.day,
+                    todo.dueDate.hour, todo.dueDate.minute),
+                isCompleted: false));
           }
         }
       }
@@ -338,8 +315,7 @@ class TodoService {
       if (todo.isRecurring == true && todo.recurringType != null) {
         // 開始日がその月以前の繰り返しTodoを対象
         if (!todo.dueDate.isAfter(lastDay)) {
-          recurringTodos.add(TodoModel.fromTodo(
-            todo,
+          recurringTodos.add(TodoModel.fromTodo(todo).copyWith(
             checklistItem: checklistMap[todo.id] ?? [],
           ));
         }
@@ -347,8 +323,7 @@ class TodoService {
         // 通常Todoはその月の日付のみ
         if (todo.dueDate.year == month.year &&
             todo.dueDate.month == month.month) {
-          normalTodos.add(TodoModel.fromTodo(
-            todo,
+          normalTodos.add(TodoModel.fromTodo(todo).copyWith(
             checklistItem: checklistMap[todo.id] ?? [],
           ));
         }
@@ -367,33 +342,13 @@ class TodoService {
           !day.isAfter(lastDay);
           day = day.add(const Duration(days: 1))) {
         if (_isRecurringOnDay(todo, day)) {
-          final instance = TodoModel(
+          final instance = todo.copyWith(
             id: -todo.id, // 仮想インスタンスは負のIDで区別
             dueDate: DateTime(day.year, day.month, day.day, todo.dueDate.hour,
                 todo.dueDate.minute),
-            title: todo.title,
             isCompleted: false, // 仮想インスタンスは未完了扱い
-            description: todo.description,
-            color: todo.color,
-            categoryId: todo.categoryId,
-            icon: todo.icon,
-            createdAt: todo.createdAt,
-            updatedAt: todo.updatedAt,
-            isRecurring: todo.isRecurring,
-            recurringType: todo.recurringType,
-            recurringEndDate: todo.recurringEndDate,
-            recurringDayOfWeek: todo.recurringDayOfWeek,
-            recurringDayOfMonth: todo.recurringDayOfMonth,
-            parentTodoId: todo.id,
+
             checklistItem: checklistMap[todo.id] ?? [], // 親Todoのチェックリストをコピー
-            // タイマー設定をコピー
-            timerType: todo.timerType,
-            countupElapsedSeconds: todo.countupElapsedSeconds,
-            pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
-            pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
-            pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
-            pomodoroCycle: todo.pomodoroCycle,
-            pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
           );
           final dateKey = DateTime(day.year, day.month, day.day);
           todosByDate[dateKey] = todosByDate[dateKey] ?? [];
@@ -536,22 +491,13 @@ class TodoService {
       pomodoroCompletedCycle: Value(originalTodo.pomodoroCompletedCycle),
     );
     final id = await _todoTableRepository.insert(companion);
-    return TodoModel(
+
+    return originalTodo.copyWith(
       id: id,
-      title: originalTodo.title,
-      description: originalTodo.description,
       dueDate: nextDate,
-      isCompleted: false,
-      color: originalTodo.color,
-      icon: originalTodo.icon,
-      categoryId: originalTodo.categoryId,
       createdAt: now,
       updatedAt: now,
-      isRecurring: originalTodo.isRecurring ?? false,
-      recurringType: originalTodo.recurringType,
-      recurringEndDate: originalTodo.recurringEndDate,
-      recurringDayOfWeek: originalTodo.recurringDayOfWeek,
-      recurringDayOfMonth: originalTodo.recurringDayOfMonth,
+      isCompleted: false,
     );
   }
 
@@ -612,30 +558,13 @@ class TodoService {
               pomodoroCompletedCycle: Value(todo.pomodoroCompletedCycle),
             );
             final id = await _todoTableRepository.insert(companion);
-            final nextInstance = TodoModel(
+
+            final nextInstance = todo.copyWith(
               id: id,
-              title: todo.title,
-              description: todo.description,
-              dueDate: nextDate,
               isCompleted: false,
-              color: todo.color,
-              icon: todo.icon,
-              categoryId: todo.categoryId,
+              dueDate: nextDate,
               createdAt: now,
               updatedAt: now,
-              isRecurring: todo.isRecurring ?? false,
-              recurringType: todo.recurringType,
-              recurringEndDate: todo.recurringEndDate,
-              recurringDayOfWeek: todo.recurringDayOfWeek,
-              recurringDayOfMonth: todo.recurringDayOfMonth,
-              // タイマー設定をコピー
-              timerType: todo.timerType,
-              countupElapsedSeconds: todo.countupElapsedSeconds,
-              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
-              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
-              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
-              pomodoroCycle: todo.pomodoroCycle,
-              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
             );
             generatedTodos.add(nextInstance);
             currentTodo = nextInstance;
@@ -702,33 +631,7 @@ class TodoService {
         final todoDateOnly =
             DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day);
         if (todoDateOnly.isAtSameMomentAs(dateOnly)) {
-          return TodoModel(
-            id: todo.id,
-            dueDate: todo.dueDate,
-            title: todo.title,
-            isCompleted: todo.isCompleted,
-            description: todo.description,
-            color: todo.color,
-            categoryId: todo.categoryId,
-            icon: todo.icon,
-            createdAt: todo.createdAt,
-            updatedAt: todo.updatedAt,
-            isRecurring: todo.isRecurring,
-            recurringType: RecurringType.fromString(
-                    todo.recurringType ?? RecurringType.daily.name) ??
-                RecurringType.daily,
-            recurringEndDate: todo.recurringEndDate,
-            recurringDayOfWeek: todo.recurringDayOfWeek,
-            recurringDayOfMonth: todo.recurringDayOfMonth,
-            parentTodoId: todo.parentTodoId,
-            timerType: TimerTypeExtension.fromString(todo.timerType),
-            countupElapsedSeconds: todo.countupElapsedSeconds,
-            pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
-            pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
-            pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
-            pomodoroCycle: todo.pomodoroCycle,
-            pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
-          );
+          return TodoModel.fromTodo(todo);
         }
       }
     }
@@ -837,6 +740,7 @@ class TodoService {
 
     // 通常Todo（繰り返しではない）を追加
     result.addAll(normalTodos);
+    result.addAll(recurringParentTodos);
 
     // 繰り返しTodoを処理
     for (final parentTodo in recurringParentTodos) {
