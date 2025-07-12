@@ -8,6 +8,7 @@ import 'package:solo/services/category_service.dart';
 import 'package:solo/utilities/date.dart';
 import 'package:solo/enums/todo_color.dart';
 import 'package:solo/enums/recurring_type.dart';
+import 'package:solo/enums/timer_type.dart';
 import 'package:flutter/material.dart';
 
 class TodoCard extends StatelessWidget {
@@ -148,6 +149,27 @@ class TodoCard extends StatelessWidget {
                         color: Theme.of(context).colorScheme.todayTagColor,
                         fontWeight: FontWeight.w500,
                       ),
+                    ),
+                  ),
+                ],
+                // タイマー設定インジケーター
+                if (todo.timerType != TimerType.none && !todo.isCompleted) ...[
+                  const SizedBox(width: 4),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6),
+                      color: Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.1),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Icon(
+                      todo.timerType == TimerType.pomodoro 
+                          ? Icons.timer 
+                          : Icons.timer_outlined,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.accentColor,
                     ),
                   ),
                 ],

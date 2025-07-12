@@ -45,6 +45,7 @@ sealed class TimerSession with _$TimerSession {
     @Default(0) int currentCycle,
     @Default(0) int completedCycles,
     required TimerSettings settings,
+    int? selectedTodoId,
   }) = _TimerSession;
 
   factory TimerSession.fromJson(Map<String, dynamic> json) =>

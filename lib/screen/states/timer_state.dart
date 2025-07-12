@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:solo/models/timer_model.dart';
+import 'package:solo/enums/timer_type.dart';
 import 'package:solo/services/settings_service.dart';
+import 'package:solo/services/todo_service.dart';
 
 part 'build/timer_state.g.dart';
 
@@ -38,6 +40,117 @@ class TimerState extends _$TimerState {
     );
   }
 
+  void selectTodo(int? todoId) {
+    // Todo切り替え時は常にタイマーをリセット
+    _stopTimer();
+    
+    state = state.copyWith(
+      selectedTodoId: todoId,
+      state: TimerStatus.idle,
+      elapsedSeconds: 0,
+      currentCycle: 0,
+      completedCycles: 0,
+      currentPhase: PomodoroPhase.work,
+    );
+    
+    // Todo選択時に設定を自動適用
+    if (todoId != null) {
+      _loadAndApplyTodoSettings(todoId);
+    } else {
+      // Todo選択解除時は、ポモドーロモードならデフォルト設定を適用
+      if (state.mode == TimerMode.pomodoro) {
+        _ensureDefaultSettingsForPomodoro();
+        // ポモドーロの初期状態を設定
+        state = state.copyWith(
+          remainingSeconds: state.settings.workMinutes * 60,
+        );
+      } else if (state.mode == TimerMode.countUp) {
+        // カウントアップの場合は0秒から開始
+        state = state.copyWith(
+          remainingSeconds: 0,
+        );
+      }
+    }
+  }
+
+  Future<void> _loadAndApplyTodoSettings(int todoId) async {
+    try {
+      final todos = await TodoService().getTodo();
+      final todo = todos.firstWhere(
+        (t) => t.id == todoId,
+        orElse: () => throw Exception('Todo not found'),
+      );
+      
+      // ポモドーロタイマーの設定を適用
+      if (todo.timerType == TimerType.pomodoro &&
+          todo.pomodoroWorkMinutes != null &&
+          todo.pomodoroShortBreakMinutes != null &&
+          todo.pomodoroLongBreakMinutes != null &&
+          todo.pomodoroCycle != null) {
+        
+        // タイマーモードをポモドーロに切り替え
+        if (state.mode != TimerMode.pomodoro) {
+          switchMode(TimerMode.pomodoro);
+        }
+        
+        // Todo固有の設定を適用
+        applyTodoSettings(
+          workMinutes: todo.pomodoroWorkMinutes!,
+          shortBreakMinutes: todo.pomodoroShortBreakMinutes!,
+          longBreakMinutes: todo.pomodoroLongBreakMinutes!,
+          cyclesUntilLongBreak: todo.pomodoroCycle!,
+        );
+        
+        // ポモドーロタイマーを初期状態にリセット
+        state = state.copyWith(
+          remainingSeconds: todo.pomodoroWorkMinutes! * 60,
+          currentPhase: PomodoroPhase.work,
+        );
+      }
+      // カウントアップタイマーの設定を適用
+      else if (todo.timerType == TimerType.countup) {
+        // タイマーモードをカウントアップに切り替え
+        if (state.mode != TimerMode.countUp) {
+          switchMode(TimerMode.countUp);
+        }
+        
+        // カウントアップタイマーをリセット
+        state = state.copyWith(
+          elapsedSeconds: 0,
+          remainingSeconds: 0,
+        );
+      }
+    } catch (e) {
+      // エラーハンドリング - デバッグ時のみログ出力
+      assert(() {
+        print('Failed to load todo settings: $e');
+        return true;
+      }());
+    }
+  }
+
+  void applyTodoSettings({
+    required int workMinutes,
+    required int shortBreakMinutes,
+    required int longBreakMinutes,
+    required int cyclesUntilLongBreak,
+  }) {
+    // タイマーが動いていない場合のみ設定を適用
+    if (state.state == TimerStatus.idle) {
+      final newSettings = TimerSettings(
+        workMinutes: workMinutes,
+        shortBreakMinutes: shortBreakMinutes,
+        longBreakMinutes: longBreakMinutes,
+        cyclesUntilLongBreak: cyclesUntilLongBreak,
+      );
+      
+      state = state.copyWith(
+        settings: newSettings,
+        remainingSeconds: workMinutes * 60,
+      );
+    }
+  }
+
   void switchMode(TimerMode mode) {
     _stopTimer();
     state = state.copyWith(
@@ -48,9 +161,29 @@ class TimerState extends _$TimerState {
       elapsedSeconds: 0,
       currentCycle: 0,
       currentPhase: PomodoroPhase.work,
+      selectedTodoId: null, // モード切り替え時にTodo選択をクリア
     );
     if (mode == TimerMode.pomodoro) {
+      _ensureDefaultSettingsForPomodoro();
       _initializePomodoroSession();
+    }
+  }
+
+  Future<void> _ensureDefaultSettingsForPomodoro() async {
+    // Todo未選択時またはTodo設定がない場合、デフォルト設定を使用
+    if (state.selectedTodoId == null) {
+      final appSettings = await SettingsService.loadSettings();
+      final defaultSettings = TimerSettings(
+        workMinutes: appSettings.defaultWorkMinutes,
+        shortBreakMinutes: appSettings.defaultShortBreakMinutes,
+        longBreakMinutes: appSettings.defaultLongBreakMinutes,
+        cyclesUntilLongBreak: appSettings.defaultCyclesUntilLongBreak,
+      );
+      
+      state = state.copyWith(
+        settings: defaultSettings,
+        remainingSeconds: defaultSettings.workMinutes * 60,
+      );
     }
   }
 
@@ -112,6 +245,8 @@ class TimerState extends _$TimerState {
         state: TimerStatus.completed,
         remainingSeconds: 0,
       );
+      // 選択されたTodoを完了にする
+      _completeTodoIfSelected();
       return;
     }
     int newCompletedCycles = state.completedCycles;
@@ -224,5 +359,28 @@ class TimerState extends _$TimerState {
   void _stopTimer() {
     _timer?.cancel();
     _timer = null;
+  }
+
+  void stop() {
+    _stopTimer();
+    
+    // カウントアップタイマーの場合、停止時にTodoを完了にする
+    if (state.mode == TimerMode.countUp && state.elapsedSeconds > 0) {
+      _completeTodoIfSelected();
+    }
+    
+    state = state.copyWith(state: TimerStatus.idle);
+    _initializeSession();
+  }
+
+  Future<void> _completeTodoIfSelected() async {
+    // if (state.selectedTodoId != null) {
+    //   try {
+    //     await TodoService().toggleTodoComplete(state.selectedTodoId!);
+    //   } catch (e) {
+    //     // エラーハンドリング - ログ出力など
+    //     print('Failed to complete todo: $e');
+    //   }
+    // }
   }
 }

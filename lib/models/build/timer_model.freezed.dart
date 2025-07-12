@@ -399,6 +399,7 @@ mixin _$TimerSession {
   int get currentCycle;
   int get completedCycles;
   TimerSettings get settings;
+  int? get selectedTodoId;
 
   /// Create a copy of TimerSession
   /// with the given fields replaced by the non-null parameter values.
@@ -429,7 +430,9 @@ mixin _$TimerSession {
             (identical(other.completedCycles, completedCycles) ||
                 other.completedCycles == completedCycles) &&
             (identical(other.settings, settings) ||
-                other.settings == settings));
+                other.settings == settings) &&
+            (identical(other.selectedTodoId, selectedTodoId) ||
+                other.selectedTodoId == selectedTodoId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -443,11 +446,12 @@ mixin _$TimerSession {
       elapsedSeconds,
       currentCycle,
       completedCycles,
-      settings);
+      settings,
+      selectedTodoId);
 
   @override
   String toString() {
-    return 'TimerSession(mode: $mode, state: $state, currentPhase: $currentPhase, remainingSeconds: $remainingSeconds, elapsedSeconds: $elapsedSeconds, currentCycle: $currentCycle, completedCycles: $completedCycles, settings: $settings)';
+    return 'TimerSession(mode: $mode, state: $state, currentPhase: $currentPhase, remainingSeconds: $remainingSeconds, elapsedSeconds: $elapsedSeconds, currentCycle: $currentCycle, completedCycles: $completedCycles, settings: $settings, selectedTodoId: $selectedTodoId)';
   }
 }
 
@@ -465,7 +469,8 @@ abstract mixin class $TimerSessionCopyWith<$Res> {
       int elapsedSeconds,
       int currentCycle,
       int completedCycles,
-      TimerSettings settings});
+      TimerSettings settings,
+      int? selectedTodoId});
 
   $TimerSettingsCopyWith<$Res> get settings;
 }
@@ -490,6 +495,7 @@ class _$TimerSessionCopyWithImpl<$Res> implements $TimerSessionCopyWith<$Res> {
     Object? currentCycle = null,
     Object? completedCycles = null,
     Object? settings = null,
+    Object? selectedTodoId = freezed,
   }) {
     return _then(_self.copyWith(
       mode: null == mode
@@ -524,6 +530,10 @@ class _$TimerSessionCopyWithImpl<$Res> implements $TimerSessionCopyWith<$Res> {
           ? _self.settings
           : settings // ignore: cast_nullable_to_non_nullable
               as TimerSettings,
+      selectedTodoId: freezed == selectedTodoId
+          ? _self.selectedTodoId
+          : selectedTodoId // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 
@@ -637,7 +647,8 @@ extension TimerSessionPatterns on TimerSession {
             int elapsedSeconds,
             int currentCycle,
             int completedCycles,
-            TimerSettings settings)?
+            TimerSettings settings,
+            int? selectedTodoId)?
         $default, {
     required TResult orElse(),
   }) {
@@ -652,7 +663,8 @@ extension TimerSessionPatterns on TimerSession {
             _that.elapsedSeconds,
             _that.currentCycle,
             _that.completedCycles,
-            _that.settings);
+            _that.settings,
+            _that.selectedTodoId);
       case _:
         return orElse();
     }
@@ -681,7 +693,8 @@ extension TimerSessionPatterns on TimerSession {
             int elapsedSeconds,
             int currentCycle,
             int completedCycles,
-            TimerSettings settings)
+            TimerSettings settings,
+            int? selectedTodoId)
         $default,
   ) {
     final _that = this;
@@ -695,7 +708,8 @@ extension TimerSessionPatterns on TimerSession {
             _that.elapsedSeconds,
             _that.currentCycle,
             _that.completedCycles,
-            _that.settings);
+            _that.settings,
+            _that.selectedTodoId);
     }
   }
 
@@ -721,7 +735,8 @@ extension TimerSessionPatterns on TimerSession {
             int elapsedSeconds,
             int currentCycle,
             int completedCycles,
-            TimerSettings settings)?
+            TimerSettings settings,
+            int? selectedTodoId)?
         $default,
   ) {
     final _that = this;
@@ -735,7 +750,8 @@ extension TimerSessionPatterns on TimerSession {
             _that.elapsedSeconds,
             _that.currentCycle,
             _that.completedCycles,
-            _that.settings);
+            _that.settings,
+            _that.selectedTodoId);
       case _:
         return null;
     }
@@ -753,7 +769,8 @@ class _TimerSession implements TimerSession {
       this.elapsedSeconds = 0,
       this.currentCycle = 0,
       this.completedCycles = 0,
-      required this.settings});
+      required this.settings,
+      this.selectedTodoId});
   factory _TimerSession.fromJson(Map<String, dynamic> json) =>
       _$TimerSessionFromJson(json);
 
@@ -780,6 +797,8 @@ class _TimerSession implements TimerSession {
   final int completedCycles;
   @override
   final TimerSettings settings;
+  @override
+  final int? selectedTodoId;
 
   /// Create a copy of TimerSession
   /// with the given fields replaced by the non-null parameter values.
@@ -814,7 +833,9 @@ class _TimerSession implements TimerSession {
             (identical(other.completedCycles, completedCycles) ||
                 other.completedCycles == completedCycles) &&
             (identical(other.settings, settings) ||
-                other.settings == settings));
+                other.settings == settings) &&
+            (identical(other.selectedTodoId, selectedTodoId) ||
+                other.selectedTodoId == selectedTodoId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -828,11 +849,12 @@ class _TimerSession implements TimerSession {
       elapsedSeconds,
       currentCycle,
       completedCycles,
-      settings);
+      settings,
+      selectedTodoId);
 
   @override
   String toString() {
-    return 'TimerSession(mode: $mode, state: $state, currentPhase: $currentPhase, remainingSeconds: $remainingSeconds, elapsedSeconds: $elapsedSeconds, currentCycle: $currentCycle, completedCycles: $completedCycles, settings: $settings)';
+    return 'TimerSession(mode: $mode, state: $state, currentPhase: $currentPhase, remainingSeconds: $remainingSeconds, elapsedSeconds: $elapsedSeconds, currentCycle: $currentCycle, completedCycles: $completedCycles, settings: $settings, selectedTodoId: $selectedTodoId)';
   }
 }
 
@@ -852,7 +874,8 @@ abstract mixin class _$TimerSessionCopyWith<$Res>
       int elapsedSeconds,
       int currentCycle,
       int completedCycles,
-      TimerSettings settings});
+      TimerSettings settings,
+      int? selectedTodoId});
 
   @override
   $TimerSettingsCopyWith<$Res> get settings;
@@ -879,6 +902,7 @@ class __$TimerSessionCopyWithImpl<$Res>
     Object? currentCycle = null,
     Object? completedCycles = null,
     Object? settings = null,
+    Object? selectedTodoId = freezed,
   }) {
     return _then(_TimerSession(
       mode: null == mode
@@ -913,6 +937,10 @@ class __$TimerSessionCopyWithImpl<$Res>
           ? _self.settings
           : settings // ignore: cast_nullable_to_non_nullable
               as TimerSettings,
+      selectedTodoId: freezed == selectedTodoId
+          ? _self.selectedTodoId
+          : selectedTodoId // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 

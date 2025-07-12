@@ -12,6 +12,8 @@ import 'package:solo/services/todo_checklist_item_service.dart';
 import 'package:solo/utilities/date.dart';
 import 'package:solo/enums/todo_color.dart';
 import 'package:solo/enums/recurring_type.dart';
+import 'package:solo/enums/timer_type.dart';
+import 'package:go_router/go_router.dart';
 
 class TodoDetailDialog {
   static void show(
@@ -348,6 +350,47 @@ class _TodoDetailContent extends HookConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
+                
+                // タイマー関連のタスクの場合、タイマーへのボタンを表示
+                if (realTodo.value.timerType != TimerType.none && !realTodo.value.isCompleted) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: Icon(
+                        realTodo.value.timerType == TimerType.pomodoro 
+                            ? Icons.timer 
+                            : Icons.timer_outlined,
+                        color: Theme.of(context).colorScheme.surface,
+                        size: 24,
+                      ),
+                      label: Text(
+                        realTodo.value.timerType == TimerType.pomodoro 
+                            ? 'ポモドーロタイマーを開始'
+                            : 'カウントアップタイマーを開始',
+                        style: const TextStyle(
+                          fontSize: 18, 
+                          fontWeight: FontWeight.bold
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.accentColor,
+                        foregroundColor: Theme.of(context).colorScheme.surface,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        // タイマー画面に遷移してこのTodoを選択し、適切なタイマーモードを設定
+                        final timerMode = realTodo.value.timerType == TimerType.pomodoro ? 'pomodoro' : 'countup';
+                        context.go('/timer?todoId=${realTodo.value.id}&mode=$timerMode');
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                
                 // アクションボタン
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/states/settings_state.dart';
@@ -452,7 +453,7 @@ class _ThemeOption extends StatelessWidget {
 }
 
 // Setting Item Widget (for numeric values)
-class _SettingItem extends StatefulWidget {
+class _SettingItem extends HookWidget {
   final String title;
   final String subtitle;
   final int value;
@@ -474,19 +475,14 @@ class _SettingItem extends StatefulWidget {
   });
 
   @override
-  State<_SettingItem> createState() => _SettingItemState();
-}
-
-class _SettingItemState extends State<_SettingItem> {
-  @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: widget.color.withValues(alpha: 0.1), // 透明度を下げて視認性UP
+        color: color.withValues(alpha: 0.1), // 透明度を下げて視認性UP
         border: Border.all(
-          color: widget.color.withValues(alpha: 0.15), // ボーダーも薄く
+          color: color.withValues(alpha: 0.15), // ボーダーも薄く
         ),
       ),
       child: Column(
@@ -500,7 +496,7 @@ class _SettingItemState extends State<_SettingItem> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.title,
+                      title,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -509,7 +505,7 @@ class _SettingItemState extends State<_SettingItem> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      widget.subtitle,
+                      subtitle,
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(context).colorScheme.secondaryTextColor,
@@ -519,16 +515,16 @@ class _SettingItemState extends State<_SettingItem> {
                 ),
               ),
               GestureDetector(
-                onTap: () => _showValueDialog(),
+                onTap: () => _showValueDialog(context),
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: widget.color,
+                    color: color,
                   ),
                   child: Text(
-                    '${widget.value} ${widget.unit}',
+                    '$value $unit',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -544,15 +540,23 @@ class _SettingItemState extends State<_SettingItem> {
     );
   }
 
-  void _showValueDialog() {
-    final controller = TextEditingController(text: widget.value.toString());
+  void _showValueDialog(BuildContext context) {
+    final controller = TextEditingController(text: value.toString());
+    
+    void submitValue(String inputValue) {
+      final intValue = int.tryParse(inputValue);
+      if (intValue != null && intValue >= min && intValue <= max) {
+        onChanged(intValue);
+      }
+    }
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        title: Text(widget.title),
+        title: Text(title),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -561,24 +565,24 @@ class _SettingItemState extends State<_SettingItem> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: '値を入力',
-                suffixText: widget.unit,
+                suffixText: unit,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: widget.color, width: 2),
+                  borderSide: BorderSide(color: color, width: 2),
                 ),
               ),
               autofocus: true,
-              onSubmitted: (value) {
-                _submitValue(value);
+              onSubmitted: (inputValue) {
+                submitValue(inputValue);
                 Navigator.of(context).pop();
               },
             ),
             const SizedBox(height: 12),
             Text(
-              '範囲: ${widget.min}〜${widget.max} ${widget.unit}',
+              '範囲: $min〜$max $unit',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.secondaryTextColor,
                 fontSize: 14,
@@ -593,11 +597,11 @@ class _SettingItemState extends State<_SettingItem> {
           ),
           ElevatedButton(
             onPressed: () {
-              _submitValue(controller.text);
+              submitValue(controller.text);
               Navigator.of(context).pop();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: widget.color,
+              backgroundColor: color,
               foregroundColor: Theme.of(context).colorScheme.surface,
             ),
             child: const Text('設定'),
@@ -605,13 +609,6 @@ class _SettingItemState extends State<_SettingItem> {
         ],
       ),
     );
-  }
-
-  void _submitValue(String value) {
-    final intValue = int.tryParse(value);
-    if (intValue != null && intValue >= widget.min && intValue <= widget.max) {
-      widget.onChanged(intValue);
-    }
   }
 }
 

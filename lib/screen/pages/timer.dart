@@ -1,18 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/models/timer_model.dart';
 import 'package:solo/screen/states/timer_state.dart';
-import 'package:solo/screen/widgets/timer_widgets.dart';
+import 'package:solo/screen/widgets/timer/timer_main.dart';
+import 'package:solo/screen/widgets/timer/timer_settings.dart';
 
-class TimerPage extends ConsumerWidget {
-  const TimerPage({super.key});
+class TimerPage extends HookConsumerWidget {
+  final String? todoId;
+  final String? mode;
+  
+  const TimerPage({
+    super.key,
+    this.todoId,
+    this.mode,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final timerSession = ref.watch(timerStateProvider);
     final timerController = ref.read(timerStateProvider.notifier);
     final showSettings = ValueNotifier(false);
+
+    // Handle URL parameters when page loads
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Todo IDが指定されている場合は優先的に処理（設定も自動適用される）
+        if (todoId != null) {
+          final todoIdInt = int.tryParse(todoId!);
+          if (todoIdInt != null) {
+            timerController.selectTodo(todoIdInt);
+            return; // Todo設定が自動適用されるので、mode設定はスキップ
+          }
+        }
+        
+        // Todo IDが指定されていない場合のみ、手動でモード設定
+        if (mode != null) {
+          final timerMode = mode == 'pomodoro' ? TimerMode.pomodoro : TimerMode.countUp;
+          if (timerSession.mode != timerMode) {
+            timerController.switchMode(timerMode);
+          }
+        }
+      });
+      return null;
+    }, [todoId, mode]);
 
     // Only allow settings for Pomodoro mode
     void openSettings() {
@@ -38,8 +70,8 @@ class TimerPage extends ConsumerWidget {
                     onClose: () => showSettings.value = false,
                   )
                 : TimerMainWidget(
-                    timerController: timerController,
                     timerSession: timerSession,
+                    timerController: timerController,
                     onOpenSettings: openSettings,
                   ),
           ),
@@ -49,77 +81,3 @@ class TimerPage extends ConsumerWidget {
   }
 }
 
-class TimerMainWidget extends StatelessWidget {
-  final TimerState timerController;
-  final TimerSession timerSession;
-  final VoidCallback onOpenSettings;
-
-  const TimerMainWidget({
-    super.key,
-    required this.timerController,
-    required this.timerSession,
-    required this.onOpenSettings,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      child: Column(
-        children: [
-          // Elegant header with centered mode switch
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Center(
-              child: TimerModeSwitch(),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // Timer Display Section
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(minHeight: constraints.maxHeight),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Main timer circle with long press for settings
-                        GestureDetector(
-                          onLongPress: timerSession.mode == TimerMode.pomodoro
-                              ? onOpenSettings
-                              : null,
-                          child: TimerCircle(
-                            timerSession: timerSession,
-                            onLongPress: timerSession.mode == TimerMode.pomodoro
-                                ? onOpenSettings
-                                : null,
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        // Timer controls
-                        TimerControls(),
-
-                        if (timerSession.mode == TimerMode.pomodoro) ...[
-                          const SizedBox(height: 12),
-                          PomodoroProgressInfo(timerSession: timerSession),
-                        ],
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

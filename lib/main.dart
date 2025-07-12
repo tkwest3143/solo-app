@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/router.dart';
@@ -17,32 +18,26 @@ void main() async {
   );
 }
 
-class MyApp extends ConsumerStatefulWidget {
+class MyApp extends HookConsumerWidget {
   const MyApp({super.key});
 
   @override
-  ConsumerState<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends ConsumerState<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-    // Initialize settings and timer integration on app startup
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Load settings from storage
-      await ref.read(settingsStateProvider.notifier).initialize();
-      
-      // Initialize timer system with loaded settings
-      ref.read(settingsIntegrationProvider);
-      ref.read(settingsIntegrationProvider.notifier).initializeTimerWithSettings();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouter);
     final settings = ref.watch(settingsStateProvider);
+    
+    // Initialize settings and timer integration on app startup
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        // Load settings from storage
+        await ref.read(settingsStateProvider.notifier).initialize();
+        
+        // Initialize timer system with loaded settings
+        ref.read(settingsIntegrationProvider);
+        ref.read(settingsIntegrationProvider.notifier).initializeTimerWithSettings();
+      });
+      return null;
+    }, []);
     
     return PopScope(
         canPop: false,
