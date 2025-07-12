@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:solo/enums/recurring_type.dart';
 import 'package:solo/enums/timer_type.dart';
 import 'package:solo/models/todo_checklist_item_model.dart';
+import 'package:solo/repositories/database/drift.dart';
 
 part 'build/todo_model.freezed.dart';
 part 'build/todo_model.g.dart';
@@ -40,4 +41,35 @@ sealed class TodoModel with _$TodoModel {
 
   factory TodoModel.fromJson(Map<String, dynamic> json) =>
       _$TodoModelFromJson(json);
+
+  /// TodoエンティティからTodoModelに変換するファクトリコンストラクタ
+  factory TodoModel.fromTodo(Todo todo) {
+    return TodoModel(
+      id: todo.id,
+      dueDate: todo.dueDate,
+      title: todo.title,
+      isCompleted: todo.isCompleted,
+      description: todo.description,
+      color: todo.color,
+      categoryId: todo.categoryId,
+      icon: todo.icon,
+      createdAt: todo.createdAt,
+      updatedAt: todo.updatedAt,
+      isRecurring: todo.isRecurring,
+      recurringType: RecurringType.fromString(
+              todo.recurringType ?? RecurringType.daily.name) ??
+          RecurringType.daily,
+      recurringEndDate: todo.recurringEndDate,
+      recurringDayOfWeek: todo.recurringDayOfWeek,
+      recurringDayOfMonth: todo.recurringDayOfMonth,
+      parentTodoId: todo.parentTodoId,
+      timerType: TimerTypeExtension.fromString(todo.timerType),
+      countupElapsedSeconds: todo.countupElapsedSeconds,
+      pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
+      pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
+      pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
+      pomodoroCycle: todo.pomodoroCycle,
+      pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
+    );
+  }
 }

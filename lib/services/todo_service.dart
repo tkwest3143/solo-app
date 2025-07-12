@@ -12,34 +12,7 @@ class TodoService {
 
   Future<List<TodoModel>> getTodo() async {
     final todos = await _todoTableRepository.findAll();
-    return todos
-        .map((todo) => TodoModel(
-              id: todo.id,
-              dueDate: todo.dueDate,
-              title: todo.title,
-              isCompleted: todo.isCompleted,
-              description: todo.description,
-              color: todo.color,
-              categoryId: todo.categoryId,
-              icon: todo.icon,
-              createdAt: todo.createdAt,
-              updatedAt: todo.updatedAt,
-              isRecurring: todo.isRecurring,
-              recurringType: RecurringType.fromString(
-                      todo.recurringType ?? RecurringType.daily.name) ??
-                  RecurringType.daily,
-              recurringEndDate: todo.recurringEndDate,
-              recurringDayOfWeek: todo.recurringDayOfWeek,
-              recurringDayOfMonth: todo.recurringDayOfMonth,
-              timerType: TimerTypeExtension.fromString(todo.timerType),
-              countupElapsedSeconds: todo.countupElapsedSeconds,
-              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
-              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
-              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
-              pomodoroCycle: todo.pomodoroCycle,
-              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
-            ))
-        .toList();
+    return todos.map((todo) => TodoModel.fromTodo(todo)).toList();
   }
 
   Future<TodoModel> createTodo({
@@ -185,25 +158,7 @@ class TodoService {
     } catch (e) {
       return null;
     }
-    return TodoModel(
-      id: todo.id,
-      dueDate: todo.dueDate,
-      title: todo.title,
-      isCompleted: todo.isCompleted,
-      description: todo.description,
-      color: todo.color,
-      categoryId: todo.categoryId,
-      icon: todo.icon,
-      createdAt: todo.createdAt,
-      updatedAt: todo.updatedAt,
-      isRecurring: todo.isRecurring,
-      recurringType: RecurringType.fromString(
-              todo.recurringType ?? RecurringType.daily.name) ??
-          RecurringType.daily,
-      recurringEndDate: todo.recurringEndDate,
-      recurringDayOfWeek: todo.recurringDayOfWeek,
-      recurringDayOfMonth: todo.recurringDayOfMonth,
-    );
+    return TodoModel.fromTodo(todo);
   }
 
   Future<bool> deleteTodo(int id) async {
@@ -248,32 +203,7 @@ class TodoService {
     } catch (e) {
       return null;
     }
-    return TodoModel(
-      id: updatedTodo.id,
-      dueDate: updatedTodo.dueDate,
-      title: updatedTodo.title,
-      isCompleted: updatedTodo.isCompleted,
-      description: updatedTodo.description,
-      color: updatedTodo.color,
-      categoryId: updatedTodo.categoryId,
-      icon: updatedTodo.icon,
-      createdAt: updatedTodo.createdAt,
-      updatedAt: updatedTodo.updatedAt,
-      isRecurring: updatedTodo.isRecurring,
-      recurringType: RecurringType.fromString(
-              updatedTodo.recurringType ?? RecurringType.daily.name) ??
-          RecurringType.daily,
-      recurringEndDate: updatedTodo.recurringEndDate,
-      recurringDayOfWeek: updatedTodo.recurringDayOfWeek,
-      recurringDayOfMonth: updatedTodo.recurringDayOfMonth,
-      timerType: TimerTypeExtension.fromString(updatedTodo.timerType),
-      countupElapsedSeconds: updatedTodo.countupElapsedSeconds,
-      pomodoroWorkMinutes: updatedTodo.pomodoroWorkMinutes,
-      pomodoroShortBreakMinutes: updatedTodo.pomodoroShortBreakMinutes,
-      pomodoroLongBreakMinutes: updatedTodo.pomodoroLongBreakMinutes,
-      pomodoroCycle: updatedTodo.pomodoroCycle,
-      pomodoroCompletedCycle: updatedTodo.pomodoroCompletedCycle,
-    );
+    return TodoModel.fromTodo(updatedTodo);
   }
 
   Future<bool> checkAndUpdateTodoCompletionByChecklist(int todoId) async {
@@ -303,34 +233,7 @@ class TodoService {
   Future<List<TodoModel>> getTodayTodos() async {
     final today = DateTime.now();
     final todos = await _todoTableRepository.findByDate(today);
-    return todos
-        .map((todo) => TodoModel(
-              id: todo.id,
-              dueDate: todo.dueDate,
-              title: todo.title,
-              isCompleted: todo.isCompleted,
-              description: todo.description,
-              color: todo.color,
-              categoryId: todo.categoryId,
-              icon: todo.icon,
-              createdAt: todo.createdAt,
-              updatedAt: todo.updatedAt,
-              isRecurring: todo.isRecurring,
-              recurringType: RecurringType.fromString(
-                      todo.recurringType ?? RecurringType.daily.name) ??
-                  RecurringType.daily,
-              recurringEndDate: todo.recurringEndDate,
-              recurringDayOfWeek: todo.recurringDayOfWeek,
-              recurringDayOfMonth: todo.recurringDayOfMonth,
-              timerType: TimerTypeExtension.fromString(todo.timerType),
-              countupElapsedSeconds: todo.countupElapsedSeconds,
-              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
-              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
-              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
-              pomodoroCycle: todo.pomodoroCycle,
-              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
-            ))
-        .toList();
+    return todos.map((todo) => TodoModel.fromTodo(todo)).toList();
   }
 
   Future<List<TodoModel>> getUpcomingTodos() async {
@@ -345,32 +248,7 @@ class TodoService {
               todoDate.day == today.day;
           return !isToday;
         })
-        .map((todo) => TodoModel(
-              id: todo.id,
-              dueDate: todo.dueDate,
-              title: todo.title,
-              isCompleted: todo.isCompleted,
-              description: todo.description,
-              color: todo.color,
-              categoryId: todo.categoryId,
-              icon: todo.icon,
-              createdAt: todo.createdAt,
-              updatedAt: todo.updatedAt,
-              isRecurring: todo.isRecurring,
-              recurringType: RecurringType.fromString(
-                      todo.recurringType ?? RecurringType.daily.name) ??
-                  RecurringType.daily,
-              recurringEndDate: todo.recurringEndDate,
-              recurringDayOfWeek: todo.recurringDayOfWeek,
-              recurringDayOfMonth: todo.recurringDayOfMonth,
-              timerType: TimerTypeExtension.fromString(todo.timerType),
-              countupElapsedSeconds: todo.countupElapsedSeconds,
-              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
-              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
-              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
-              pomodoroCycle: todo.pomodoroCycle,
-              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
-            ))
+        .map((todo) => TodoModel.fromTodo(todo))
         .toList();
   }
 
@@ -383,32 +261,7 @@ class TodoService {
       categoryId: categoryId,
     );
     return todos
-        .map((todo) => TodoModel(
-              id: todo.id,
-              dueDate: todo.dueDate,
-              title: todo.title,
-              isCompleted: todo.isCompleted,
-              description: todo.description,
-              color: todo.color,
-              categoryId: todo.categoryId,
-              icon: todo.icon,
-              createdAt: todo.createdAt,
-              updatedAt: todo.updatedAt,
-              isRecurring: todo.isRecurring,
-              recurringType: RecurringType.fromString(
-                      todo.recurringType ?? RecurringType.daily.name) ??
-                  RecurringType.daily,
-              recurringEndDate: todo.recurringEndDate,
-              recurringDayOfWeek: todo.recurringDayOfWeek,
-              recurringDayOfMonth: todo.recurringDayOfMonth,
-              timerType: TimerTypeExtension.fromString(todo.timerType),
-              countupElapsedSeconds: todo.countupElapsedSeconds,
-              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
-              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
-              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
-              pomodoroCycle: todo.pomodoroCycle,
-              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
-            ))
+        .map((todo) => TodoModel.fromTodo(todo))
         .toList();
   }
 
@@ -416,32 +269,7 @@ class TodoService {
     final todos = await _todoTableRepository.findByDate(date);
     final allTodos = await _todoTableRepository.findAll();
     final List<TodoModel> result = todos
-        .map((todo) => TodoModel(
-              id: todo.id,
-              dueDate: todo.dueDate,
-              title: todo.title,
-              isCompleted: todo.isCompleted,
-              description: todo.description,
-              color: todo.color,
-              categoryId: todo.categoryId,
-              icon: todo.icon,
-              createdAt: todo.createdAt,
-              updatedAt: todo.updatedAt,
-              isRecurring: todo.isRecurring,
-              recurringType: RecurringType.fromString(
-                      todo.recurringType ?? RecurringType.daily.name) ??
-                  RecurringType.daily,
-              recurringEndDate: todo.recurringEndDate,
-              recurringDayOfWeek: todo.recurringDayOfWeek,
-              recurringDayOfMonth: todo.recurringDayOfMonth,
-              timerType: TimerTypeExtension.fromString(todo.timerType),
-              countupElapsedSeconds: todo.countupElapsedSeconds,
-              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
-              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
-              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
-              pomodoroCycle: todo.pomodoroCycle,
-              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
-            ))
+        .map((todo) => TodoModel.fromTodo(todo))
         .toList();
     // 繰り返しTodoの仮想インスタンスも追加
     for (final todo in allTodos) {
@@ -1096,33 +924,7 @@ class TodoService {
           .toList();
 
       for (final instance in pastInstances) {
-        result.add(TodoModel(
-          id: instance.id,
-          dueDate: instance.dueDate,
-          title: instance.title,
-          isCompleted: instance.isCompleted,
-          description: instance.description,
-          color: instance.color,
-          categoryId: instance.categoryId,
-          icon: instance.icon,
-          createdAt: instance.createdAt,
-          updatedAt: instance.updatedAt,
-          isRecurring: instance.isRecurring,
-          recurringType: RecurringType.fromString(
-                  instance.recurringType ?? RecurringType.daily.name) ??
-              RecurringType.daily,
-          recurringEndDate: instance.recurringEndDate,
-          recurringDayOfWeek: instance.recurringDayOfWeek,
-          recurringDayOfMonth: instance.recurringDayOfMonth,
-          parentTodoId: parentTodo.id,
-          timerType: TimerTypeExtension.fromString(instance.timerType),
-          countupElapsedSeconds: instance.countupElapsedSeconds,
-          pomodoroWorkMinutes: instance.pomodoroWorkMinutes,
-          pomodoroShortBreakMinutes: instance.pomodoroShortBreakMinutes,
-          pomodoroLongBreakMinutes: instance.pomodoroLongBreakMinutes,
-          pomodoroCycle: instance.pomodoroCycle,
-          pomodoroCompletedCycle: instance.pomodoroCompletedCycle,
-        ));
+        result.add(TodoModel.fromTodo(instance));
       }
 
       // 今日以降の既存インスタンスを取得
@@ -1139,33 +941,7 @@ class TodoService {
         futureInstances.sort((a, b) => a.dueDate.compareTo(b.dueDate));
         final nearestInstance = futureInstances.first;
         
-        result.add(TodoModel(
-          id: nearestInstance.id,
-          dueDate: nearestInstance.dueDate,
-          title: nearestInstance.title,
-          isCompleted: nearestInstance.isCompleted,
-          description: nearestInstance.description,
-          color: nearestInstance.color,
-          categoryId: nearestInstance.categoryId,
-          icon: nearestInstance.icon,
-          createdAt: nearestInstance.createdAt,
-          updatedAt: nearestInstance.updatedAt,
-          isRecurring: nearestInstance.isRecurring,
-          recurringType: RecurringType.fromString(
-                  nearestInstance.recurringType ?? RecurringType.daily.name) ??
-              RecurringType.daily,
-          recurringEndDate: nearestInstance.recurringEndDate,
-          recurringDayOfWeek: nearestInstance.recurringDayOfWeek,
-          recurringDayOfMonth: nearestInstance.recurringDayOfMonth,
-          parentTodoId: parentTodo.id,
-          timerType: TimerTypeExtension.fromString(nearestInstance.timerType),
-          countupElapsedSeconds: nearestInstance.countupElapsedSeconds,
-          pomodoroWorkMinutes: nearestInstance.pomodoroWorkMinutes,
-          pomodoroShortBreakMinutes: nearestInstance.pomodoroShortBreakMinutes,
-          pomodoroLongBreakMinutes: nearestInstance.pomodoroLongBreakMinutes,
-          pomodoroCycle: nearestInstance.pomodoroCycle,
-          pomodoroCompletedCycle: nearestInstance.pomodoroCompletedCycle,
-        ));
+        result.add(TodoModel.fromTodo(nearestInstance));
       } else {
         // 既存の未来インスタンスがない場合のみ、新しいインスタンスを作成
         final nextDate = getNextRecurringDateFromToday(parentTodo, today);
