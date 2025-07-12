@@ -895,4 +895,65 @@ class TodoService {
 
     return generatedTodos;
   }
+
+  /// 繰り返しTodoの表示フィルタリング
+  /// - 今日以前かつ未完了のものは全て表示
+  /// - 明日以降のものは現在日付に最も近いもの1件のみ表示
+  Future<List<TodoModel>> getFilteredTodosWithRecurringDisplay({
+    required DateTime currentDate,
+    required List<TodoModel> todos,
+  }) async {
+    final result = <TodoModel>[];
+    final today = DateTime(currentDate.year, currentDate.month, currentDate.day);
+    
+    // 繰り返しTodoと通常Todoを分別
+    final recurringTodos = <TodoModel>[];
+    final normalTodos = <TodoModel>[];
+    
+    for (final todo in todos) {
+      if (todo.isRecurring == true) {
+        recurringTodos.add(todo);
+      } else {
+        normalTodos.add(todo);
+      }
+    }
+    
+    // 通常Todoはそのまま追加（既存動作を維持）
+    result.addAll(normalTodos);
+    
+    // 繰り返しTodoを処理
+    for (final todo in recurringTodos) {
+      final todoDueDate = DateTime(
+        todo.dueDate.year, 
+        todo.dueDate.month, 
+        todo.dueDate.day
+      );
+      
+      // 今日以前かつ未完了の場合は表示
+      if (!todoDueDate.isAfter(today) && !todo.isCompleted) {
+        result.add(todo);
+      }
+      // 明日以降の場合はスキップ（後で最も近いものを1件だけ選択）
+    }
+    
+    // 明日以降の繰り返しTodoから最も近いものを1件だけ選択
+    final futureTodos = recurringTodos
+        .where((todo) {
+          final todoDueDate = DateTime(
+            todo.dueDate.year, 
+            todo.dueDate.month, 
+            todo.dueDate.day
+          );
+          return todoDueDate.isAfter(today);
+        })
+        .toList();
+    
+    if (futureTodos.isNotEmpty) {
+      // 日付順にソートして最も近いものを取得
+      futureTodos.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+      result.add(futureTodos.first);
+    }
+    
+    return result;
+  }
 }
