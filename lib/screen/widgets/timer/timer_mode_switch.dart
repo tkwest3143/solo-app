@@ -40,13 +40,13 @@ class TimerModeSwitch extends ConsumerWidget {
           _ModeButton(
             title: 'ポモドーロ',
             isSelected: timerSession.mode == TimerMode.pomodoro,
-            onTap: () => timerController.switchMode(TimerMode.pomodoro),
+            onTap: () async => await timerController.switchMode(TimerMode.pomodoro),
           ),
           const SizedBox(width: 6),
           _ModeButton(
             title: 'カウントアップ',
             isSelected: timerSession.mode == TimerMode.countUp,
-            onTap: () => timerController.switchMode(TimerMode.countUp),
+            onTap: () async => await timerController.switchMode(TimerMode.countUp),
           ),
         ],
       ),

@@ -101,6 +101,14 @@ class TodoService {
       recurringEndDate: recurringEndDate,
       recurringDayOfWeek: recurringDayOfWeek,
       recurringDayOfMonth: recurringDayOfMonth,
+      timerType:
+          TimerTypeExtension.fromString(timerType?.name ?? TimerType.none.name),
+      pomodoroCompletedCycle: pomodoroCompletedCycle,
+      countupElapsedSeconds: countupElapsedSeconds,
+      pomodoroWorkMinutes: pomodoroWorkMinutes,
+      pomodoroShortBreakMinutes: pomodoroShortBreakMinutes,
+      pomodoroLongBreakMinutes: pomodoroLongBreakMinutes,
+      pomodoroCycle: pomodoroCycle,
     );
   }
 
@@ -149,7 +157,7 @@ class TodoService {
           ? Value(recurringDayOfMonth)
           : const Value.absent(),
       timerType:
-          timerType != null ? Value(timerType.name) : const Value('none'),
+          timerType != null ? Value(timerType.name) : const Value.absent(),
       countupElapsedSeconds: countupElapsedSeconds != null
           ? Value(countupElapsedSeconds)
           : const Value.absent(),
@@ -200,6 +208,23 @@ class TodoService {
 
   Future<bool> deleteTodo(int id) async {
     return await _todoTableRepository.delete(id);
+  }
+
+  Future<TodoModel?> updateTodoPomodoroSettings(
+    int todoId, {
+    required int workMinutes,
+    required int shortBreakMinutes,
+    required int longBreakMinutes,
+    required int cycle,
+  }) async {
+    return await updateTodo(
+      todoId,
+      timerType: TimerType.pomodoro, // ポモドーロタイマータイプを明示的に設定
+      pomodoroWorkMinutes: workMinutes,
+      pomodoroShortBreakMinutes: shortBreakMinutes,
+      pomodoroLongBreakMinutes: longBreakMinutes,
+      pomodoroCycle: cycle,
+    );
   }
 
   Future<TodoModel?> toggleTodoComplete(int id) async {
@@ -467,6 +492,14 @@ class TodoService {
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
+              // タイマー設定をコピー
+              timerType: TimerTypeExtension.fromString(todo.timerType),
+              countupElapsedSeconds: todo.countupElapsedSeconds,
+              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
+              pomodoroCycle: todo.pomodoroCycle,
+              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
             ));
           }
         }
@@ -518,6 +551,14 @@ class TodoService {
             recurringDayOfWeek: todo.recurringDayOfWeek,
             recurringDayOfMonth: todo.recurringDayOfMonth,
             checklistItem: checklistMap[todo.id] ?? [],
+            // タイマー設定をコピー
+            timerType: TimerTypeExtension.fromString(todo.timerType),
+            countupElapsedSeconds: todo.countupElapsedSeconds,
+            pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
+            pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
+            pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
+            pomodoroCycle: todo.pomodoroCycle,
+            pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
           ));
         }
       } else {
@@ -543,6 +584,14 @@ class TodoService {
             recurringDayOfWeek: todo.recurringDayOfWeek,
             recurringDayOfMonth: todo.recurringDayOfMonth,
             checklistItem: checklistMap[todo.id] ?? [],
+            // タイマー設定をコピー
+            timerType: TimerTypeExtension.fromString(todo.timerType),
+            countupElapsedSeconds: todo.countupElapsedSeconds,
+            pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
+            pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
+            pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
+            pomodoroCycle: todo.pomodoroCycle,
+            pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
           ));
         }
       }
@@ -579,6 +628,14 @@ class TodoService {
             recurringDayOfMonth: todo.recurringDayOfMonth,
             parentTodoId: todo.id,
             checklistItem: checklistMap[todo.id] ?? [], // 親Todoのチェックリストをコピー
+            // タイマー設定をコピー
+            timerType: todo.timerType,
+            countupElapsedSeconds: todo.countupElapsedSeconds,
+            pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
+            pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
+            pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
+            pomodoroCycle: todo.pomodoroCycle,
+            pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
           );
           final dateKey = DateTime(day.year, day.month, day.day);
           todosByDate[dateKey] = todosByDate[dateKey] ?? [];
@@ -792,6 +849,14 @@ class TodoService {
               recurringEndDate: Value(todo.recurringEndDate),
               recurringDayOfWeek: Value(todo.recurringDayOfWeek),
               recurringDayOfMonth: Value(todo.recurringDayOfMonth),
+              // タイマー設定をコピー
+              timerType: Value(todo.timerType.name),
+              countupElapsedSeconds: Value(todo.countupElapsedSeconds),
+              pomodoroWorkMinutes: Value(todo.pomodoroWorkMinutes),
+              pomodoroShortBreakMinutes: Value(todo.pomodoroShortBreakMinutes),
+              pomodoroLongBreakMinutes: Value(todo.pomodoroLongBreakMinutes),
+              pomodoroCycle: Value(todo.pomodoroCycle),
+              pomodoroCompletedCycle: Value(todo.pomodoroCompletedCycle),
             );
             final id = await _todoTableRepository.insert(companion);
             final nextInstance = TodoModel(
@@ -810,6 +875,14 @@ class TodoService {
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
+              // タイマー設定をコピー
+              timerType: todo.timerType,
+              countupElapsedSeconds: todo.countupElapsedSeconds,
+              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
+              pomodoroCycle: todo.pomodoroCycle,
+              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
             );
             generatedTodos.add(nextInstance);
             currentTodo = nextInstance;

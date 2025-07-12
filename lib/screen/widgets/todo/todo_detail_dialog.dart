@@ -68,6 +68,14 @@ class _TodoDetailContent extends HookConsumerWidget {
               recurringEndDate: todo.recurringEndDate,
               recurringDayOfWeek: todo.recurringDayOfWeek,
               recurringDayOfMonth: todo.recurringDayOfMonth,
+              // タイマー設定を引き継ぎ
+              timerType: todo.timerType,
+              countupElapsedSeconds: todo.countupElapsedSeconds,
+              pomodoroWorkMinutes: todo.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: todo.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
+              pomodoroCycle: todo.pomodoroCycle,
+              pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
             );
             // 新規TodoのIDでチェックリストも新規登録
             final newItems = <TodoCheckListItemModel>[];

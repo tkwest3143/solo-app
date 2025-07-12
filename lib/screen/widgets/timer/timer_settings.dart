@@ -20,7 +20,7 @@ class TimerSettingsWidget extends HookConsumerWidget {
     final longBreakMinutes = useState<int>(timerSettings.longBreakMinutes);
     final cyclesUntilLongBreak = useState<int>(timerSettings.cyclesUntilLongBreak);
 
-    void saveSettings() {
+    void saveSettings() async {
       final timerController = ref.read(timerStateProvider.notifier);
       final newSettings = TimerSettings(
         workMinutes: workMinutes.value,
@@ -28,7 +28,9 @@ class TimerSettingsWidget extends HookConsumerWidget {
         longBreakMinutes: longBreakMinutes.value,
         cyclesUntilLongBreak: cyclesUntilLongBreak.value,
       );
-      timerController.updateSettings(newSettings);
+      
+      // Todoが選択されている場合はTodo設定を更新、未選択の場合はアプリデフォルト設定を更新
+      await timerController.saveTimerSettings(newSettings);
       timerController.resetTimer();
       onClose();
     }

@@ -15,7 +15,7 @@ class AppDatabase extends _$AppDatabase {
   static AppDatabase? _instance;
 
   @override
-  int get schemaVersion => 3; // Increment version for checklist schema change
+  int get schemaVersion => 1;
 
   static Future<AppDatabase> getSingletonInstance() async {
     _instance ??= AppDatabase(LazyDatabase(() async {

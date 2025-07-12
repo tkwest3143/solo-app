@@ -25,12 +25,12 @@ class TimerPage extends HookConsumerWidget {
 
     // Handle URL parameters when page loads
     useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         // Todo IDが指定されている場合は優先的に処理（設定も自動適用される）
         if (todoId != null) {
           final todoIdInt = int.tryParse(todoId!);
           if (todoIdInt != null) {
-            timerController.selectTodo(todoIdInt);
+            await timerController.selectTodo(todoIdInt);
             return; // Todo設定が自動適用されるので、mode設定はスキップ
           }
         }
@@ -39,7 +39,7 @@ class TimerPage extends HookConsumerWidget {
         if (mode != null) {
           final timerMode = mode == 'pomodoro' ? TimerMode.pomodoro : TimerMode.countUp;
           if (timerSession.mode != timerMode) {
-            timerController.switchMode(timerMode);
+            await timerController.switchMode(timerMode);
           }
         }
       });

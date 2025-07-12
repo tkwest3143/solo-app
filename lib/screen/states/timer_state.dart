@@ -40,7 +40,7 @@ class TimerState extends _$TimerState {
     );
   }
 
-  void selectTodo(int? todoId) {
+  Future<void> selectTodo(int? todoId) async {
     // Todo切り替え時は常にタイマーをリセット
     _stopTimer();
     
@@ -55,11 +55,11 @@ class TimerState extends _$TimerState {
     
     // Todo選択時に設定を自動適用
     if (todoId != null) {
-      _loadAndApplyTodoSettings(todoId);
+      await _loadAndApplyTodoSettings(todoId);
     } else {
       // Todo選択解除時は、ポモドーロモードならデフォルト設定を適用
       if (state.mode == TimerMode.pomodoro) {
-        _ensureDefaultSettingsForPomodoro();
+        await _ensureDefaultSettingsForPomodoro();
         // ポモドーロの初期状態を設定
         state = state.copyWith(
           remainingSeconds: state.settings.workMinutes * 60,
@@ -88,9 +88,17 @@ class TimerState extends _$TimerState {
           todo.pomodoroLongBreakMinutes != null &&
           todo.pomodoroCycle != null) {
         
-        // タイマーモードをポモドーロに切り替え
+        // タイマーモードをポモドーロに切り替え（Todo選択は保持）
         if (state.mode != TimerMode.pomodoro) {
-          switchMode(TimerMode.pomodoro);
+          _stopTimer();
+          state = state.copyWith(
+            mode: TimerMode.pomodoro,
+            state: TimerStatus.idle,
+            elapsedSeconds: 0,
+            currentCycle: 0,
+            currentPhase: PomodoroPhase.work,
+          );
+          await _ensureDefaultSettingsForPomodoro();
         }
         
         // Todo固有の設定を適用
@@ -109,9 +117,16 @@ class TimerState extends _$TimerState {
       }
       // カウントアップタイマーの設定を適用
       else if (todo.timerType == TimerType.countup) {
-        // タイマーモードをカウントアップに切り替え
+        // タイマーモードをカウントアップに切り替え（Todo選択は保持）
         if (state.mode != TimerMode.countUp) {
-          switchMode(TimerMode.countUp);
+          _stopTimer();
+          state = state.copyWith(
+            mode: TimerMode.countUp,
+            state: TimerStatus.idle,
+            elapsedSeconds: 0,
+            currentCycle: 0,
+            currentPhase: PomodoroPhase.work,
+          );
         }
         
         // カウントアップタイマーをリセット
@@ -151,7 +166,7 @@ class TimerState extends _$TimerState {
     }
   }
 
-  void switchMode(TimerMode mode) {
+  Future<void> switchMode(TimerMode mode) async {
     _stopTimer();
     state = state.copyWith(
       mode: mode,
@@ -164,7 +179,7 @@ class TimerState extends _$TimerState {
       selectedTodoId: null, // モード切り替え時にTodo選択をクリア
     );
     if (mode == TimerMode.pomodoro) {
-      _ensureDefaultSettingsForPomodoro();
+      await _ensureDefaultSettingsForPomodoro();
       _initializePomodoroSession();
     }
   }
@@ -191,6 +206,55 @@ class TimerState extends _$TimerState {
     state = state.copyWith(settings: settings);
     if (state.mode == TimerMode.pomodoro && state.state == TimerStatus.idle) {
       _initializePomodoroSession();
+    }
+  }
+
+  Future<void> saveTimerSettings(TimerSettings settings) async {
+    // タイマー設定の更新
+    updateSettings(settings);
+    
+    // Todo選択されている場合はTodo設定を更新、未選択の場合はアプリデフォルト設定を更新
+    if (state.selectedTodoId != null) {
+      await _updateTodoSettings(state.selectedTodoId!, settings);
+    } else {
+      await _updateAppDefaultSettings(settings);
+    }
+  }
+
+  Future<void> _updateTodoSettings(int todoId, TimerSettings settings) async {
+    try {
+      // TodoServiceを使用してTodoのポモドーロ設定を更新
+      await TodoService().updateTodoPomodoroSettings(
+        todoId,
+        workMinutes: settings.workMinutes,
+        shortBreakMinutes: settings.shortBreakMinutes,
+        longBreakMinutes: settings.longBreakMinutes,
+        cycle: settings.cyclesUntilLongBreak,
+      );
+    } catch (e) {
+      // エラーハンドリング
+      assert(() {
+        print('Failed to update todo settings: $e');
+        return true;
+      }());
+    }
+  }
+
+  Future<void> _updateAppDefaultSettings(TimerSettings settings) async {
+    try {
+      // SettingsServiceを使用してアプリデフォルト設定を更新
+      await SettingsService.updateDefaultPomodoroSettings(
+        workMinutes: settings.workMinutes,
+        shortBreakMinutes: settings.shortBreakMinutes,
+        longBreakMinutes: settings.longBreakMinutes,
+        cyclesUntilLongBreak: settings.cyclesUntilLongBreak,
+      );
+    } catch (e) {
+      // エラーハンドリング
+      assert(() {
+        print('Failed to update app default settings: $e');
+        return true;
+      }());
     }
   }
 

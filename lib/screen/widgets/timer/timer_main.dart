@@ -88,7 +88,7 @@ class TimerMainWidget extends HookConsumerWidget {
       );
       
       if (selectedId != timerSession.selectedTodoId) {
-        timerController.selectTodo(selectedId);
+        await timerController.selectTodo(selectedId);
       }
     }
 

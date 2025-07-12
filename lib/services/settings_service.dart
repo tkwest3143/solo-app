@@ -47,4 +47,26 @@ class SettingsService {
       return false;
     }
   }
+
+  /// Update default pomodoro settings
+  static Future<bool> updateDefaultPomodoroSettings({
+    required int workMinutes,
+    required int shortBreakMinutes,
+    required int longBreakMinutes,
+    required int cyclesUntilLongBreak,
+  }) async {
+    try {
+      final currentSettings = await loadSettings();
+      final updatedSettings = currentSettings.copyWith(
+        defaultWorkMinutes: workMinutes,
+        defaultShortBreakMinutes: shortBreakMinutes,
+        defaultLongBreakMinutes: longBreakMinutes,
+        defaultCyclesUntilLongBreak: cyclesUntilLongBreak,
+      );
+      return await saveSettings(updatedSettings);
+    } catch (e) {
+      print('Error updating default pomodoro settings: $e');
+      return false;
+    }
+  }
 }
