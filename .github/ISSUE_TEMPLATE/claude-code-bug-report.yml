@@ -1,0 +1,163 @@
+name: 🐛 Bug Report (Claude Code Optimized)
+description: Report a bug with detailed context for Claude Code assistance
+title: "[Bug]: "
+labels: ["bug", "claude-code"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Claude Code Bug Report Template
+        
+        This template is optimized for efficient debugging with Claude Code.
+        Please provide as much context as possible to help Claude understand and fix the issue quickly.
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: Clear, concise description of what the bug is
+      placeholder: "The timer button doesn't appear when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Reproduction Steps
+      description: Detailed steps to reproduce the issue
+      placeholder: |
+        1. Navigate to...
+        2. Click on...
+        3. Enter...
+        4. Observe...
+      value: |
+        1. 
+        2. 
+        3. 
+        4. 
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What should happen
+      placeholder: "The timer button should appear and be clickable..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happens
+      placeholder: "The timer button is missing/not working..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected-files
+    attributes:
+      label: Affected Files/Components
+      description: List specific files, classes, or components related to this bug
+      placeholder: |
+        - lib/screen/widgets/timer/timer_main.dart
+        - lib/services/todo_service.dart
+        - lib/models/todo_model.dart
+      value: |
+        - 
+        - 
+        - 
+
+  - type: textarea
+    id: error-logs
+    attributes:
+      label: Error Messages/Logs
+      description: Include any error messages, console output, or relevant logs
+      placeholder: |
+        ```
+        flutter: Error: ...
+        flutter: Stack trace: ...
+        ```
+      render: shell
+
+  - type: textarea
+    id: code-context
+    attributes:
+      label: Relevant Code Context
+      description: Include relevant code snippets that might be related to the issue
+      placeholder: |
+        ```dart
+        // In timer_main.dart around line 123
+        if (timerSession.mode == TimerMode.pomodoro) {
+          // Issue might be here
+        }
+        ```
+      render: dart
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug?
+      options:
+        - Critical (App crashes/unusable)
+        - High (Major feature broken)
+        - Medium (Feature partially broken)
+        - Low (Minor issue/cosmetic)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Frequency
+      description: How often does this occur?
+      options:
+        - Always (100%)
+        - Often (>75%)
+        - Sometimes (25-75%)
+        - Rarely (<25%)
+        - Once
+    validations:
+      required: true
+
+  - type: textarea
+    id: device-info
+    attributes:
+      label: Device/Environment Info
+      description: Platform and version information
+      placeholder: |
+        - OS: macOS 13.0, iOS 16.0, Android 12, etc.
+        - Flutter version: 3.16.0
+        - Device: iPhone 14, Pixel 7, etc.
+        - App version: 1.0.0
+      value: |
+        - OS: 
+        - Flutter version: 
+        - Device: 
+        - App version: 
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or information that might help
+      placeholder: |
+        - Screenshots/videos
+        - Related issues
+        - Workarounds tried
+        - Recent changes that might be related
+
+  - type: checkboxes
+    id: claude-code-checklist
+    attributes:
+      label: Claude Code Assistance Checklist
+      description: Help Claude provide better assistance
+      options:
+        - label: I have checked CLAUDE.md for relevant coding guidelines
+        - label: I have provided specific file paths where the issue might be located
+        - label: I have included relevant error messages or logs
+        - label: I am available to test fixes and provide feedback
+        - label: I can provide additional context if needed

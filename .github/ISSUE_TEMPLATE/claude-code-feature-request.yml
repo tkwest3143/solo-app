@@ -1,0 +1,179 @@
+name: ✨ Feature Request (Claude Code Optimized)
+description: Request a new feature with detailed specifications for Claude Code implementation
+title: "[Feature]: "
+labels: ["enhancement", "claude-code"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Claude Code Feature Request Template
+        
+        This template is optimized for efficient feature development with Claude Code.
+        Please provide detailed specifications to help Claude implement the feature correctly.
+
+  - type: textarea
+    id: feature-summary
+    attributes:
+      label: Feature Summary
+      description: Brief, clear description of the feature
+      placeholder: "Add ability to set custom pomodoro work intervals per todo item..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User Story
+      description: Describe the feature from the user's perspective
+      placeholder: |
+        As a [type of user], I want to [action] so that [benefit/goal].
+        
+        Example: As a productivity user, I want to set custom pomodoro intervals for different types of tasks so that I can optimize my focus time based on task complexity.
+    validations:
+      required: true
+
+  - type: textarea
+    id: detailed-description
+    attributes:
+      label: Detailed Description
+      description: Comprehensive description of the feature and its functionality
+      placeholder: |
+        Provide detailed explanation of:
+        - What the feature should do
+        - How it should work
+        - User interactions
+        - Business logic
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Specific, testable criteria that define when the feature is complete
+      placeholder: |
+        - [ ] User can set custom work interval duration when creating a todo
+        - [ ] Custom intervals are saved and persist between app sessions
+        - [ ] Timer displays the custom duration when selected
+        - [ ] Default intervals are used when no custom interval is set
+        - [ ] Validation prevents invalid time values (e.g., negative numbers)
+      value: |
+        - [ ] 
+        - [ ] 
+        - [ ] 
+        - [ ] 
+    validations:
+      required: true
+
+  - type: textarea
+    id: ui-mockup
+    attributes:
+      label: UI/UX Design Description
+      description: Describe the user interface changes needed
+      placeholder: |
+        - Where should the feature appear in the UI?
+        - What new screens/dialogs are needed?
+        - How should users interact with it?
+        - Any specific design requirements?
+
+  - type: textarea
+    id: affected-components
+    attributes:
+      label: Affected Files/Components
+      description: List files, classes, or components that will likely need changes
+      placeholder: |
+        - lib/screen/widgets/todo/add_todo_dialog.dart (add custom interval input)
+        - lib/models/todo_model.dart (add new fields)
+        - lib/services/todo_service.dart (update CRUD operations)
+        - lib/screen/widgets/timer/timer_main.dart (use custom intervals)
+        - Database migration needed for new columns
+      value: |
+        - 
+        - 
+        - 
+        - 
+
+  - type: textarea
+    id: technical-requirements
+    attributes:
+      label: Technical Requirements
+      description: Specific technical constraints or requirements
+      placeholder: |
+        - Database schema changes needed
+        - API changes required
+        - Performance considerations
+        - Backwards compatibility
+        - Integration with existing features
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature?
+      options:
+        - Critical (Blocking other work)
+        - High (Important for next release)
+        - Medium (Nice to have soon)
+        - Low (Future enhancement)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Estimated Complexity
+      description: How complex do you think this feature is to implement?
+      options:
+        - Simple (1-2 files, minimal changes)
+        - Medium (Multiple files, some new logic)
+        - Complex (Major changes, new components)
+        - Very Complex (Architectural changes needed)
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Does this feature depend on other features or external factors?
+      placeholder: |
+        - Requires completion of issue #123
+        - Depends on new timer state management
+        - Needs design approval from team
+
+  - type: textarea
+    id: test-scenarios
+    attributes:
+      label: Test Scenarios
+      description: Key scenarios that should be tested
+      placeholder: |
+        - Test custom interval input validation
+        - Test saving and loading custom intervals
+        - Test timer behavior with custom intervals
+        - Test backwards compatibility with existing todos
+      value: |
+        - 
+        - 
+        - 
+        - 
+
+  - type: textarea
+    id: alternative-solutions
+    attributes:
+      label: Alternative Solutions Considered
+      description: Other approaches you've considered for solving this problem
+      placeholder: |
+        - Alternative 1: Use global settings instead of per-todo intervals
+        - Alternative 2: Preset interval templates
+        - Why the proposed solution is preferred
+
+  - type: checkboxes
+    id: claude-code-checklist
+    attributes:
+      label: Claude Code Implementation Checklist
+      description: Help Claude provide better implementation
+      options:
+        - label: I have checked CLAUDE.md for relevant coding guidelines
+        - label: I have provided specific UI/UX requirements
+        - label: I have identified likely files that need changes
+        - label: I am available to review and test the implementation
+        - label: I can provide clarification on requirements if needed
+        - label: I understand this feature may require database migrations or breaking changes

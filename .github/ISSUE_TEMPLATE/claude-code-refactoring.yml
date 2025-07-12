@@ -1,0 +1,209 @@
+name: 🔧 Refactoring Task (Claude Code Optimized)
+description: Request code refactoring with clear scope and guidelines for Claude Code
+title: "[Refactor]: "
+labels: ["refactoring", "claude-code", "technical-debt"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Claude Code Refactoring Template
+        
+        This template is optimized for code refactoring tasks with Claude Code.
+        Please provide clear scope and guidelines to ensure safe, effective refactoring.
+
+  - type: textarea
+    id: refactoring-goal
+    attributes:
+      label: Refactoring Goal
+      description: What do you want to achieve with this refactoring?
+      placeholder: "Convert all StatefulWidget components to HookConsumerWidget following CLAUDE.md guidelines..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-problems
+    attributes:
+      label: Current Problems/Pain Points
+      description: What issues does the current code have?
+      placeholder: |
+        - Code violates CLAUDE.md guidelines
+        - Difficult to maintain/test
+        - Performance issues
+        - Code duplication
+        - Poor separation of concerns
+      value: |
+        - 
+        - 
+        - 
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Refactoring Scope
+      description: Clearly define what should and shouldn't be refactored
+      placeholder: |
+        **Include:**
+        - lib/screen/widgets/timer/ directory
+        - All timer-related state management
+        - Database access patterns in timer components
+        
+        **Exclude:**
+        - Authentication logic
+        - Database schema changes
+        - Third-party integrations
+      value: |
+        **Include:**
+        - 
+        - 
+        - 
+        
+        **Exclude:**
+        - 
+        - 
+        - 
+    validations:
+      required: true
+
+  - type: textarea
+    id: target-files
+    attributes:
+      label: Target Files/Components
+      description: List specific files or components that need refactoring
+      placeholder: |
+        - lib/screen/widgets/timer/timer_main_widget.dart
+        - lib/screen/widgets/timer/timer_settings_widget.dart
+        - lib/screen/states/timer_state.dart
+        - lib/services/timer_service.dart
+      value: |
+        - 
+        - 
+        - 
+        - 
+
+  - type: textarea
+    id: refactoring-guidelines
+    attributes:
+      label: Refactoring Guidelines
+      description: Specific rules and patterns to follow
+      placeholder: |
+        - Follow CLAUDE.md coding standards
+        - Use HookConsumerWidget instead of StatefulWidget
+        - Implement proper error handling
+        - Maintain backwards compatibility
+        - Keep existing public APIs
+        - Add proper documentation
+      value: |
+        - Follow CLAUDE.md coding standards
+        - 
+        - 
+        - 
+    validations:
+      required: true
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints & Requirements
+      description: What limitations or requirements must be respected?
+      placeholder: |
+        - Must not break existing functionality
+        - Must maintain database compatibility
+        - Cannot change public API signatures
+        - Must pass all existing tests
+        - Performance should not degrade
+
+  - type: dropdown
+    id: risk-level
+    attributes:
+      label: Risk Level
+      description: How risky is this refactoring?
+      options:
+        - Low (Isolated changes, easy to revert)
+        - Medium (Multiple components, some complexity)
+        - High (Core changes, significant impact)
+        - Critical (Major architectural changes)
+    validations:
+      required: true
+
+  - type: textarea
+    id: success-criteria
+    attributes:
+      label: Success Criteria
+      description: How will you know the refactoring is successful?
+      placeholder: |
+        - [ ] All code follows CLAUDE.md guidelines
+        - [ ] No StatefulWidget usage in target files
+        - [ ] All existing functionality works as before
+        - [ ] Code is more maintainable/readable
+        - [ ] All tests pass
+        - [ ] No performance regression
+      value: |
+        - [ ] 
+        - [ ] 
+        - [ ] 
+        - [ ] 
+    validations:
+      required: true
+
+  - type: textarea
+    id: testing-strategy
+    attributes:
+      label: Testing Strategy
+      description: How should the refactored code be tested?
+      placeholder: |
+        - Run existing unit tests
+        - Manual testing of timer functionality
+        - Performance benchmarks
+        - Integration testing with other components
+        - Regression testing of critical user flows
+
+  - type: textarea
+    id: rollback-plan
+    attributes:
+      label: Rollback Plan
+      description: What's the plan if the refactoring goes wrong?
+      placeholder: |
+        - Git branch for safe refactoring
+        - Specific commit points for easy revert
+        - Backup of critical files
+        - Testing checkpoints during refactoring
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this refactoring?
+      options:
+        - Critical (Blocking other work)
+        - High (Important for code quality)
+        - Medium (Technical debt cleanup)
+        - Low (Nice to have improvement)
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information
+      placeholder: |
+        - Related issues or PRs
+        - Historical context
+        - Team discussions
+        - External dependencies
+
+  - type: checkboxes
+    id: claude-code-checklist
+    attributes:
+      label: Claude Code Refactoring Checklist
+      description: Ensure effective refactoring with Claude Code
+      options:
+        - label: I have clearly defined the refactoring scope
+        - label: I have identified specific files that need changes
+        - label: I have provided clear guidelines and constraints
+        - label: I understand the risk level and have a rollback plan
+        - label: I am available to test the refactored code
+        - label: I can provide clarification on requirements during refactoring
+        - label: I have considered the impact on other team members
