@@ -179,6 +179,65 @@ void main() {
         // Assert
         expect(result, isNull);
       });
+
+      test('今日が繰り返し日の場合、今日の日付を返す', () {
+        // Arrange
+        final today = DateTime(2024, 1, 15); // 月曜日
+        final recurringTodo = TodoModel(
+          id: 7,
+          title: '毎日のタスク',
+          dueDate: DateTime(2024, 1, 1, 10, 0), // 過去の日付から開始
+          isCompleted: false,
+          isRecurring: true,
+          recurringType: RecurringType.daily,
+          description: '',
+          color: 'blue',
+          createdAt: DateTime(2024, 1, 1),
+          updatedAt: DateTime(2024, 1, 1),
+          timerType: TimerType.none,
+        );
+
+        // Act
+        final result = todoService.getNextRecurringDateFromToday(recurringTodo, today);
+
+        // Assert
+        expect(result, isNotNull);
+        expect(result!.year, equals(2024));
+        expect(result.month, equals(1));
+        expect(result.day, equals(15)); // 今日の日付
+        expect(result.hour, equals(10));
+        expect(result.minute, equals(0));
+      });
+
+      test('今日が毎週の繰り返し曜日の場合、今日の日付を返す', () {
+        // Arrange
+        final today = DateTime(2024, 1, 17); // 水曜日
+        final recurringTodo = TodoModel(
+          id: 8,
+          title: '毎週水曜日のタスク',
+          dueDate: DateTime(2024, 1, 3, 14, 30), // 過去の水曜日
+          isCompleted: false,
+          isRecurring: true,
+          recurringType: RecurringType.weekly,
+          recurringDayOfWeek: 3, // 水曜日
+          description: '',
+          color: 'blue',
+          createdAt: DateTime(2024, 1, 3),
+          updatedAt: DateTime(2024, 1, 3),
+          timerType: TimerType.none,
+        );
+
+        // Act
+        final result = todoService.getNextRecurringDateFromToday(recurringTodo, today);
+
+        // Assert
+        expect(result, isNotNull);
+        expect(result!.year, equals(2024));
+        expect(result.month, equals(1));
+        expect(result.day, equals(17)); // 今日（水曜日）
+        expect(result.hour, equals(14));
+        expect(result.minute, equals(30));
+      });
     });
   });
 }

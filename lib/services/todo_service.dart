@@ -1124,8 +1124,8 @@ class TodoService {
         ));
       }
       
-      // 明日以降の最も近い日付を取得
-      final nextDate = getNextRecurringDateFromToday(parentTodo, today.add(const Duration(days: 1)));
+      // 今日以降の最も近い日付を取得（今日も含む）
+      final nextDate = getNextRecurringDateFromToday(parentTodo, today);
       if (nextDate != null) {
         // 既存のインスタンスを検索、存在しない場合は新規作成
         final existingInstance = await findRecurringInstance(parentTodo.id, nextDate) 
