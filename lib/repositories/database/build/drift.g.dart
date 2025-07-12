@@ -450,6 +450,15 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
   late final GeneratedColumn<int> recurringDayOfMonth = GeneratedColumn<int>(
       'recurring_day_of_month', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _parentTodoIdMeta =
+      const VerificationMeta('parentTodoId');
+  @override
+  late final GeneratedColumn<int> parentTodoId = GeneratedColumn<int>(
+      'parent_todo_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES todos (id)'));
   static const VerificationMeta _timerTypeMeta =
       const VerificationMeta('timerType');
   @override
@@ -511,6 +520,7 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
         recurringEndDate,
         recurringDayOfWeek,
         recurringDayOfMonth,
+        parentTodoId,
         timerType,
         countupElapsedSeconds,
         pomodoroWorkMinutes,
@@ -608,6 +618,12 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
           recurringDayOfMonth.isAcceptableOrUnknown(
               data['recurring_day_of_month']!, _recurringDayOfMonthMeta));
     }
+    if (data.containsKey('parent_todo_id')) {
+      context.handle(
+          _parentTodoIdMeta,
+          parentTodoId.isAcceptableOrUnknown(
+              data['parent_todo_id']!, _parentTodoIdMeta));
+    }
     if (data.containsKey('timer_type')) {
       context.handle(_timerTypeMeta,
           timerType.isAcceptableOrUnknown(data['timer_type']!, _timerTypeMeta));
@@ -689,6 +705,8 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
           DriftSqlType.int, data['${effectivePrefix}recurring_day_of_week']),
       recurringDayOfMonth: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}recurring_day_of_month']),
+      parentTodoId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}parent_todo_id']),
       timerType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}timer_type'])!,
       countupElapsedSeconds: attachedDatabase.typeMapping.read(
@@ -730,6 +748,7 @@ class Todo extends DataClass implements Insertable<Todo> {
   final DateTime? recurringEndDate;
   final int? recurringDayOfWeek;
   final int? recurringDayOfMonth;
+  final int? parentTodoId;
   final String timerType;
   final int? countupElapsedSeconds;
   final int? pomodoroWorkMinutes;
@@ -753,6 +772,7 @@ class Todo extends DataClass implements Insertable<Todo> {
       this.recurringEndDate,
       this.recurringDayOfWeek,
       this.recurringDayOfMonth,
+      this.parentTodoId,
       required this.timerType,
       this.countupElapsedSeconds,
       this.pomodoroWorkMinutes,
@@ -797,6 +817,9 @@ class Todo extends DataClass implements Insertable<Todo> {
     }
     if (!nullToAbsent || recurringDayOfMonth != null) {
       map['recurring_day_of_month'] = Variable<int>(recurringDayOfMonth);
+    }
+    if (!nullToAbsent || parentTodoId != null) {
+      map['parent_todo_id'] = Variable<int>(parentTodoId);
     }
     map['timer_type'] = Variable<String>(timerType);
     if (!nullToAbsent || countupElapsedSeconds != null) {
@@ -856,6 +879,9 @@ class Todo extends DataClass implements Insertable<Todo> {
       recurringDayOfMonth: recurringDayOfMonth == null && nullToAbsent
           ? const Value.absent()
           : Value(recurringDayOfMonth),
+      parentTodoId: parentTodoId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentTodoId),
       timerType: Value(timerType),
       countupElapsedSeconds: countupElapsedSeconds == null && nullToAbsent
           ? const Value.absent()
@@ -900,6 +926,7 @@ class Todo extends DataClass implements Insertable<Todo> {
       recurringDayOfWeek: serializer.fromJson<int?>(json['recurringDayOfWeek']),
       recurringDayOfMonth:
           serializer.fromJson<int?>(json['recurringDayOfMonth']),
+      parentTodoId: serializer.fromJson<int?>(json['parentTodoId']),
       timerType: serializer.fromJson<String>(json['timerType']),
       countupElapsedSeconds:
           serializer.fromJson<int?>(json['countupElapsedSeconds']),
@@ -933,6 +960,7 @@ class Todo extends DataClass implements Insertable<Todo> {
       'recurringEndDate': serializer.toJson<DateTime?>(recurringEndDate),
       'recurringDayOfWeek': serializer.toJson<int?>(recurringDayOfWeek),
       'recurringDayOfMonth': serializer.toJson<int?>(recurringDayOfMonth),
+      'parentTodoId': serializer.toJson<int?>(parentTodoId),
       'timerType': serializer.toJson<String>(timerType),
       'countupElapsedSeconds': serializer.toJson<int?>(countupElapsedSeconds),
       'pomodoroWorkMinutes': serializer.toJson<int?>(pomodoroWorkMinutes),
@@ -961,6 +989,7 @@ class Todo extends DataClass implements Insertable<Todo> {
           Value<DateTime?> recurringEndDate = const Value.absent(),
           Value<int?> recurringDayOfWeek = const Value.absent(),
           Value<int?> recurringDayOfMonth = const Value.absent(),
+          Value<int?> parentTodoId = const Value.absent(),
           String? timerType,
           Value<int?> countupElapsedSeconds = const Value.absent(),
           Value<int?> pomodoroWorkMinutes = const Value.absent(),
@@ -991,6 +1020,8 @@ class Todo extends DataClass implements Insertable<Todo> {
         recurringDayOfMonth: recurringDayOfMonth.present
             ? recurringDayOfMonth.value
             : this.recurringDayOfMonth,
+        parentTodoId:
+            parentTodoId.present ? parentTodoId.value : this.parentTodoId,
         timerType: timerType ?? this.timerType,
         countupElapsedSeconds: countupElapsedSeconds.present
             ? countupElapsedSeconds.value
@@ -1039,6 +1070,9 @@ class Todo extends DataClass implements Insertable<Todo> {
       recurringDayOfMonth: data.recurringDayOfMonth.present
           ? data.recurringDayOfMonth.value
           : this.recurringDayOfMonth,
+      parentTodoId: data.parentTodoId.present
+          ? data.parentTodoId.value
+          : this.parentTodoId,
       timerType: data.timerType.present ? data.timerType.value : this.timerType,
       countupElapsedSeconds: data.countupElapsedSeconds.present
           ? data.countupElapsedSeconds.value
@@ -1079,6 +1113,7 @@ class Todo extends DataClass implements Insertable<Todo> {
           ..write('recurringEndDate: $recurringEndDate, ')
           ..write('recurringDayOfWeek: $recurringDayOfWeek, ')
           ..write('recurringDayOfMonth: $recurringDayOfMonth, ')
+          ..write('parentTodoId: $parentTodoId, ')
           ..write('timerType: $timerType, ')
           ..write('countupElapsedSeconds: $countupElapsedSeconds, ')
           ..write('pomodoroWorkMinutes: $pomodoroWorkMinutes, ')
@@ -1107,6 +1142,7 @@ class Todo extends DataClass implements Insertable<Todo> {
         recurringEndDate,
         recurringDayOfWeek,
         recurringDayOfMonth,
+        parentTodoId,
         timerType,
         countupElapsedSeconds,
         pomodoroWorkMinutes,
@@ -1134,6 +1170,7 @@ class Todo extends DataClass implements Insertable<Todo> {
           other.recurringEndDate == this.recurringEndDate &&
           other.recurringDayOfWeek == this.recurringDayOfWeek &&
           other.recurringDayOfMonth == this.recurringDayOfMonth &&
+          other.parentTodoId == this.parentTodoId &&
           other.timerType == this.timerType &&
           other.countupElapsedSeconds == this.countupElapsedSeconds &&
           other.pomodoroWorkMinutes == this.pomodoroWorkMinutes &&
@@ -1159,6 +1196,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
   final Value<DateTime?> recurringEndDate;
   final Value<int?> recurringDayOfWeek;
   final Value<int?> recurringDayOfMonth;
+  final Value<int?> parentTodoId;
   final Value<String> timerType;
   final Value<int?> countupElapsedSeconds;
   final Value<int?> pomodoroWorkMinutes;
@@ -1182,6 +1220,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     this.recurringEndDate = const Value.absent(),
     this.recurringDayOfWeek = const Value.absent(),
     this.recurringDayOfMonth = const Value.absent(),
+    this.parentTodoId = const Value.absent(),
     this.timerType = const Value.absent(),
     this.countupElapsedSeconds = const Value.absent(),
     this.pomodoroWorkMinutes = const Value.absent(),
@@ -1206,6 +1245,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     this.recurringEndDate = const Value.absent(),
     this.recurringDayOfWeek = const Value.absent(),
     this.recurringDayOfMonth = const Value.absent(),
+    this.parentTodoId = const Value.absent(),
     this.timerType = const Value.absent(),
     this.countupElapsedSeconds = const Value.absent(),
     this.pomodoroWorkMinutes = const Value.absent(),
@@ -1231,6 +1271,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     Expression<DateTime>? recurringEndDate,
     Expression<int>? recurringDayOfWeek,
     Expression<int>? recurringDayOfMonth,
+    Expression<int>? parentTodoId,
     Expression<String>? timerType,
     Expression<int>? countupElapsedSeconds,
     Expression<int>? pomodoroWorkMinutes,
@@ -1257,6 +1298,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
         'recurring_day_of_week': recurringDayOfWeek,
       if (recurringDayOfMonth != null)
         'recurring_day_of_month': recurringDayOfMonth,
+      if (parentTodoId != null) 'parent_todo_id': parentTodoId,
       if (timerType != null) 'timer_type': timerType,
       if (countupElapsedSeconds != null)
         'countup_elapsed_seconds': countupElapsedSeconds,
@@ -1288,6 +1330,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
       Value<DateTime?>? recurringEndDate,
       Value<int?>? recurringDayOfWeek,
       Value<int?>? recurringDayOfMonth,
+      Value<int?>? parentTodoId,
       Value<String>? timerType,
       Value<int?>? countupElapsedSeconds,
       Value<int?>? pomodoroWorkMinutes,
@@ -1311,6 +1354,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
       recurringEndDate: recurringEndDate ?? this.recurringEndDate,
       recurringDayOfWeek: recurringDayOfWeek ?? this.recurringDayOfWeek,
       recurringDayOfMonth: recurringDayOfMonth ?? this.recurringDayOfMonth,
+      parentTodoId: parentTodoId ?? this.parentTodoId,
       timerType: timerType ?? this.timerType,
       countupElapsedSeconds:
           countupElapsedSeconds ?? this.countupElapsedSeconds,
@@ -1373,6 +1417,9 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     if (recurringDayOfMonth.present) {
       map['recurring_day_of_month'] = Variable<int>(recurringDayOfMonth.value);
     }
+    if (parentTodoId.present) {
+      map['parent_todo_id'] = Variable<int>(parentTodoId.value);
+    }
     if (timerType.present) {
       map['timer_type'] = Variable<String>(timerType.value);
     }
@@ -1419,6 +1466,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
           ..write('recurringEndDate: $recurringEndDate, ')
           ..write('recurringDayOfWeek: $recurringDayOfWeek, ')
           ..write('recurringDayOfMonth: $recurringDayOfMonth, ')
+          ..write('parentTodoId: $parentTodoId, ')
           ..write('timerType: $timerType, ')
           ..write('countupElapsedSeconds: $countupElapsedSeconds, ')
           ..write('pomodoroWorkMinutes: $pomodoroWorkMinutes, ')
@@ -2116,6 +2164,7 @@ typedef $$TodosTableCreateCompanionBuilder = TodosCompanion Function({
   Value<DateTime?> recurringEndDate,
   Value<int?> recurringDayOfWeek,
   Value<int?> recurringDayOfMonth,
+  Value<int?> parentTodoId,
   Value<String> timerType,
   Value<int?> countupElapsedSeconds,
   Value<int?> pomodoroWorkMinutes,
@@ -2140,6 +2189,7 @@ typedef $$TodosTableUpdateCompanionBuilder = TodosCompanion Function({
   Value<DateTime?> recurringEndDate,
   Value<int?> recurringDayOfWeek,
   Value<int?> recurringDayOfMonth,
+  Value<int?> parentTodoId,
   Value<String> timerType,
   Value<int?> countupElapsedSeconds,
   Value<int?> pomodoroWorkMinutes,
@@ -2162,6 +2212,20 @@ final class $$TodosTableReferences
     final manager = $$CategoriesTableTableManager($_db, $_db.categories)
         .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_categoryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $TodosTable _parentTodoIdTable(_$AppDatabase db) => db.todos
+      .createAlias($_aliasNameGenerator(db.todos.parentTodoId, db.todos.id));
+
+  $$TodosTableProcessedTableManager? get parentTodoId {
+    final $_column = $_itemColumn<int>('parent_todo_id');
+    if ($_column == null) return null;
+    final manager = $$TodosTableTableManager($_db, $_db.todos)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_parentTodoIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
@@ -2276,6 +2340,26 @@ class $$TodosTableFilterComposer extends Composer<_$AppDatabase, $TodosTable> {
             $$CategoriesTableFilterComposer(
               $db: $db,
               $table: $db.categories,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$TodosTableFilterComposer get parentTodoId {
+    final $$TodosTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.parentTodoId,
+        referencedTable: $db.todos,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TodosTableFilterComposer(
+              $db: $db,
+              $table: $db.todos,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -2407,6 +2491,26 @@ class $$TodosTableOrderingComposer
             ));
     return composer;
   }
+
+  $$TodosTableOrderingComposer get parentTodoId {
+    final $$TodosTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.parentTodoId,
+        referencedTable: $db.todos,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TodosTableOrderingComposer(
+              $db: $db,
+              $table: $db.todos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$TodosTableAnnotationComposer
@@ -2501,6 +2605,26 @@ class $$TodosTableAnnotationComposer
     return composer;
   }
 
+  $$TodosTableAnnotationComposer get parentTodoId {
+    final $$TodosTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.parentTodoId,
+        referencedTable: $db.todos,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TodosTableAnnotationComposer(
+              $db: $db,
+              $table: $db.todos,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   Expression<T> todoCheckListItemsRefs<T extends Object>(
       Expression<T> Function($$TodoCheckListItemsTableAnnotationComposer a) f) {
     final $$TodoCheckListItemsTableAnnotationComposer composer =
@@ -2535,7 +2659,8 @@ class $$TodosTableTableManager extends RootTableManager<
     $$TodosTableUpdateCompanionBuilder,
     (Todo, $$TodosTableReferences),
     Todo,
-    PrefetchHooks Function({bool categoryId, bool todoCheckListItemsRefs})> {
+    PrefetchHooks Function(
+        {bool categoryId, bool parentTodoId, bool todoCheckListItemsRefs})> {
   $$TodosTableTableManager(_$AppDatabase db, $TodosTable table)
       : super(TableManagerState(
           db: db,
@@ -2562,6 +2687,7 @@ class $$TodosTableTableManager extends RootTableManager<
             Value<DateTime?> recurringEndDate = const Value.absent(),
             Value<int?> recurringDayOfWeek = const Value.absent(),
             Value<int?> recurringDayOfMonth = const Value.absent(),
+            Value<int?> parentTodoId = const Value.absent(),
             Value<String> timerType = const Value.absent(),
             Value<int?> countupElapsedSeconds = const Value.absent(),
             Value<int?> pomodoroWorkMinutes = const Value.absent(),
@@ -2586,6 +2712,7 @@ class $$TodosTableTableManager extends RootTableManager<
             recurringEndDate: recurringEndDate,
             recurringDayOfWeek: recurringDayOfWeek,
             recurringDayOfMonth: recurringDayOfMonth,
+            parentTodoId: parentTodoId,
             timerType: timerType,
             countupElapsedSeconds: countupElapsedSeconds,
             pomodoroWorkMinutes: pomodoroWorkMinutes,
@@ -2610,6 +2737,7 @@ class $$TodosTableTableManager extends RootTableManager<
             Value<DateTime?> recurringEndDate = const Value.absent(),
             Value<int?> recurringDayOfWeek = const Value.absent(),
             Value<int?> recurringDayOfMonth = const Value.absent(),
+            Value<int?> parentTodoId = const Value.absent(),
             Value<String> timerType = const Value.absent(),
             Value<int?> countupElapsedSeconds = const Value.absent(),
             Value<int?> pomodoroWorkMinutes = const Value.absent(),
@@ -2634,6 +2762,7 @@ class $$TodosTableTableManager extends RootTableManager<
             recurringEndDate: recurringEndDate,
             recurringDayOfWeek: recurringDayOfWeek,
             recurringDayOfMonth: recurringDayOfMonth,
+            parentTodoId: parentTodoId,
             timerType: timerType,
             countupElapsedSeconds: countupElapsedSeconds,
             pomodoroWorkMinutes: pomodoroWorkMinutes,
@@ -2647,7 +2776,9 @@ class $$TodosTableTableManager extends RootTableManager<
                   (e.readTable(table), $$TodosTableReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: (
-              {categoryId = false, todoCheckListItemsRefs = false}) {
+              {categoryId = false,
+              parentTodoId = false,
+              todoCheckListItemsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
@@ -2674,6 +2805,16 @@ class $$TodosTableTableManager extends RootTableManager<
                         $$TodosTableReferences._categoryIdTable(db),
                     referencedColumn:
                         $$TodosTableReferences._categoryIdTable(db).id,
+                  ) as T;
+                }
+                if (parentTodoId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.parentTodoId,
+                    referencedTable:
+                        $$TodosTableReferences._parentTodoIdTable(db),
+                    referencedColumn:
+                        $$TodosTableReferences._parentTodoIdTable(db).id,
                   ) as T;
                 }
 
@@ -2712,7 +2853,8 @@ typedef $$TodosTableProcessedTableManager = ProcessedTableManager<
     $$TodosTableUpdateCompanionBuilder,
     (Todo, $$TodosTableReferences),
     Todo,
-    PrefetchHooks Function({bool categoryId, bool todoCheckListItemsRefs})>;
+    PrefetchHooks Function(
+        {bool categoryId, bool parentTodoId, bool todoCheckListItemsRefs})>;
 typedef $$TodoCheckListItemsTableCreateCompanionBuilder
     = TodoCheckListItemsCompanion Function({
   Value<int> id,
