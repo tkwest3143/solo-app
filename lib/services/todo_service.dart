@@ -1066,32 +1066,34 @@ class TodoService {
     final today = DateTime(currentDate.year, currentDate.month, currentDate.day);
     
     // 繰り返しTodoと通常Todoを分別
-    final recurringTodos = <TodoModel>[];
+    final recurringParentTodos = <TodoModel>[];
     final normalTodos = <TodoModel>[];
     
     for (final todo in todos) {
       if (todo.isRecurring == true && todo.parentTodoId == null) {
         // 親の繰り返しTodoのみを処理（子インスタンスは除外）
-        recurringTodos.add(todo);
-      } else {
-        // 通常Todoと子インスタンスを追加
+        recurringParentTodos.add(todo);
+      } else if (todo.parentTodoId == null) {
+        // parentTodoIdがnullの通常Todo（繰り返しではない）のみを追加
         normalTodos.add(todo);
       }
+      // parentTodoIdがnullでないもの（子インスタンス）は後で処理するため、ここでは無視
     }
     
-    // 通常Todoと既存の子インスタンスを追加
+    // 通常Todo（繰り返しではない）を追加
     result.addAll(normalTodos);
     
     // 繰り返しTodoを処理
-    for (final parentTodo in recurringTodos) {
-      // 今日以前の未完了インスタンスを検索・追加
+    for (final parentTodo in recurringParentTodos) {
       final allTodos = await _todoTableRepository.findAll();
+      
+      // 今日以前の未完了インスタンスを検索・追加（今日は含まない）
       final pastInstances = allTodos
           .where((todo) => 
               todo.parentTodoId == parentTodo.id &&
               !todo.isCompleted &&
               DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day)
-                  .isBefore(today.add(const Duration(days: 1))))
+                  .isBefore(today))
           .toList();
       
       for (final instance in pastInstances) {
