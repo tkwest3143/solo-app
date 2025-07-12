@@ -27,6 +27,7 @@ class TimerMainWidget extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedTodo = useState<TodoModel?>(null);
+    final hasShownTargetDialog = useState<bool>(false);
 
     void applyTodoSettingsToTimer(TodoModel todo) {
       if (todo.timerType == TimerType.pomodoro && 
@@ -79,6 +80,53 @@ class TimerMainWidget extends HookConsumerWidget {
       loadSelectedTodo();
       return null;
     }, [timerSession.selectedTodoId]);
+
+    // Show completion dialog when count-up timer reaches target
+    useEffect(() {
+      void checkTargetReached() async {
+        if (timerSession.mode == TimerMode.countUp &&
+            selectedTodo.value != null &&
+            selectedTodo.value!.countupElapsedSeconds != null &&
+            timerSession.elapsedSeconds >= selectedTodo.value!.countupElapsedSeconds! &&
+            timerSession.state == TimerStatus.running &&
+            !hasShownTargetDialog.value) {
+          
+          hasShownTargetDialog.value = true;
+          
+          // Show completion dialog
+          final confirmed = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('目標時間達成！'),
+              content: Text('${selectedTodo.value!.title} の目標時間に達しました。\nタスクを完了済みにしますか？'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('キャンセル'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('完了'),
+                ),
+              ],
+            ),
+          );
+
+          if (confirmed == true) {
+            await timerController.completeTodoIfSelected();
+          }
+        }
+      }
+      
+      checkTargetReached();
+      return null;
+    }, [timerSession.elapsedSeconds, timerSession.state, selectedTodo.value]);
+
+    // Reset dialog flag when timer is reset or todo is changed
+    useEffect(() {
+      hasShownTargetDialog.value = false;
+      return null;
+    }, [timerSession.selectedTodoId, timerSession.state]);
 
     Future<void> selectTodo() async {
       final selectedId = await showTodoSelectionDialog(

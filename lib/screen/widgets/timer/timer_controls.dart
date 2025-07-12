@@ -7,6 +7,31 @@ import 'package:solo/models/timer_model.dart';
 class TimerControls extends ConsumerWidget {
   const TimerControls({super.key});
 
+  Future<void> _showCompletionDialog(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('タスク完了'),
+        content: const Text('選択中のタスクを完了済みにしますか？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('キャンセル'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('完了'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final timerController = ref.read(timerStateProvider.notifier);
+      await timerController.completeTodoIfSelected();
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final timerSession = ref.watch(timerStateProvider);
@@ -16,6 +41,13 @@ class TimerControls extends ConsumerWidget {
     final showSkip = timerSession.mode == TimerMode.pomodoro &&
         (timerSession.state == TimerStatus.running ||
             timerSession.state == TimerStatus.paused);
+    final showComplete = timerSession.selectedTodoId != null &&
+        ((timerSession.mode == TimerMode.pomodoro &&
+                (timerSession.state == TimerStatus.idle ||
+                    timerSession.state == TimerStatus.paused)) ||
+            (timerSession.mode == TimerMode.countUp &&
+                timerSession.elapsedSeconds > 0 &&
+                timerSession.state == TimerStatus.idle));
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
@@ -65,13 +97,21 @@ class TimerControls extends ConsumerWidget {
 
           const SizedBox(width: 32),
 
-          // Skip button (only for Pomodoro)
+          // Skip button (only for Pomodoro) or Complete button
           if (showSkip)
             _TimerControlButton(
               icon: Icons.skip_next_rounded,
               onTap: timerController.skipPhase,
               backgroundColor:
                   Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
+              size: 64,
+              iconSize: 28,
+            )
+          else if (showComplete)
+            _TimerControlButton(
+              icon: Icons.check_rounded,
+              onTap: () => _showCompletionDialog(context, ref),
+              backgroundColor: Theme.of(context).colorScheme.successColor,
               size: 64,
               iconSize: 28,
             )

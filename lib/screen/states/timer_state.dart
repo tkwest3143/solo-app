@@ -438,13 +438,20 @@ class TimerState extends _$TimerState {
   }
 
   Future<void> _completeTodoIfSelected() async {
-    // if (state.selectedTodoId != null) {
-    //   try {
-    //     await TodoService().toggleTodoComplete(state.selectedTodoId!);
-    //   } catch (e) {
-    //     // エラーハンドリング - ログ出力など
-    //     print('Failed to complete todo: $e');
-    //   }
-    // }
+    if (state.selectedTodoId != null) {
+      try {
+        await TodoService().completeTodoById(state.selectedTodoId!);
+      } catch (e) {
+        // エラーハンドリング - デバッグ時のみログ出力
+        assert(() {
+          print('Failed to complete todo: $e');
+          return true;
+        }());
+      }
+    }
+  }
+
+  Future<void> completeTodoIfSelected() async {
+    await _completeTodoIfSelected();
   }
 }
