@@ -1,62 +1,62 @@
-name: ✨ Feature Request (Claude Code Optimized)
-description: Request a new feature with detailed specifications for Claude Code implementation
-title: "[Feature]: "
+name: ✨ 機能要求 (Claude Code対応)
+description: Claude Codeでの効率的な実装のための詳細な機能仕様書
+title: "[機能要求]: "
 labels: ["enhancement", "claude-code"]
 body:
   - type: markdown
     attributes:
       value: |
-        ## Claude Code Feature Request Template
+        ## Claude Code 機能要求テンプレート
         
-        This template is optimized for efficient feature development with Claude Code.
-        Please provide detailed specifications to help Claude implement the feature correctly.
+        このテンプレートはClaude Codeでの効率的な機能開発に最適化されています。
+        Claude Codeが機能を正しく実装できるよう、詳細な仕様を提供してください。
 
   - type: textarea
     id: feature-summary
     attributes:
-      label: Feature Summary
-      description: Brief, clear description of the feature
-      placeholder: "Add ability to set custom pomodoro work intervals per todo item..."
+      label: 機能概要
+      description: 機能の簡潔で明確な説明
+      placeholder: "Todo項目ごとにカスタムポモドーロ作業間隔を設定できる機能..."
     validations:
       required: true
 
   - type: textarea
     id: user-story
     attributes:
-      label: User Story
-      description: Describe the feature from the user's perspective
+      label: ユーザーストーリー
+      description: ユーザーの視点から機能を説明してください
       placeholder: |
-        As a [type of user], I want to [action] so that [benefit/goal].
+        [ユーザータイプ]として、[アクション]を行いたい。なぜなら[利益/目標]のため。
         
-        Example: As a productivity user, I want to set custom pomodoro intervals for different types of tasks so that I can optimize my focus time based on task complexity.
+        例：生産性を重視するユーザーとして、タスクの種類に応じて異なるポモドーロ間隔を設定したい。タスクの複雑さに基づいて集中時間を最適化できるため。
     validations:
       required: true
 
   - type: textarea
     id: detailed-description
     attributes:
-      label: Detailed Description
-      description: Comprehensive description of the feature and its functionality
+      label: 詳細な説明
+      description: 機能とその動作の包括的な説明
       placeholder: |
-        Provide detailed explanation of:
-        - What the feature should do
-        - How it should work
-        - User interactions
-        - Business logic
+        以下について詳細に説明してください：
+        - 機能が何をするべきか
+        - どのように動作するべきか
+        - ユーザーとのインタラクション
+        - ビジネスロジック
     validations:
       required: true
 
   - type: textarea
     id: acceptance-criteria
     attributes:
-      label: Acceptance Criteria
-      description: Specific, testable criteria that define when the feature is complete
+      label: 受け入れ条件
+      description: 機能が完成したと判断する具体的でテスト可能な条件
       placeholder: |
-        - [ ] User can set custom work interval duration when creating a todo
-        - [ ] Custom intervals are saved and persist between app sessions
-        - [ ] Timer displays the custom duration when selected
-        - [ ] Default intervals are used when no custom interval is set
-        - [ ] Validation prevents invalid time values (e.g., negative numbers)
+        - [ ] Todo作成時にカスタム作業間隔時間を設定できる
+        - [ ] カスタム間隔が保存され、アプリセッション間で持続する
+        - [ ] 選択時にタイマーがカスタム時間を表示する
+        - [ ] カスタム間隔が設定されていない場合、デフォルト間隔が使用される
+        - [ ] 無効な時間値（負の数など）を防ぐバリデーションがある
       value: |
         - [ ] 
         - [ ] 
@@ -68,25 +68,25 @@ body:
   - type: textarea
     id: ui-mockup
     attributes:
-      label: UI/UX Design Description
-      description: Describe the user interface changes needed
+      label: UI/UX設計説明
+      description: 必要なユーザーインターフェースの変更を説明してください
       placeholder: |
-        - Where should the feature appear in the UI?
-        - What new screens/dialogs are needed?
-        - How should users interact with it?
-        - Any specific design requirements?
+        - UIのどこに機能を配置するか？
+        - 新しい画面/ダイアログが必要か？
+        - ユーザーはどのように操作するか？
+        - 特定の設計要件はあるか？
 
   - type: textarea
     id: affected-components
     attributes:
-      label: Affected Files/Components
-      description: List files, classes, or components that will likely need changes
+      label: 影響を受けるファイル/コンポーネント
+      description: 変更が必要になりそうなファイル、クラス、コンポーネントをリストアップ
       placeholder: |
-        - lib/screen/widgets/todo/add_todo_dialog.dart (add custom interval input)
-        - lib/models/todo_model.dart (add new fields)
-        - lib/services/todo_service.dart (update CRUD operations)
-        - lib/screen/widgets/timer/timer_main.dart (use custom intervals)
-        - Database migration needed for new columns
+        - lib/screen/widgets/todo/add_todo_dialog.dart (カスタム間隔入力追加)
+        - lib/models/todo_model.dart (新しいフィールド追加)
+        - lib/services/todo_service.dart (CRUD操作更新)
+        - lib/screen/widgets/timer/timer_main.dart (カスタム間隔使用)
+        - 新しいカラム用のデータベースマイグレーションが必要
       value: |
         - 
         - 
@@ -96,59 +96,59 @@ body:
   - type: textarea
     id: technical-requirements
     attributes:
-      label: Technical Requirements
-      description: Specific technical constraints or requirements
+      label: 技術的要件
+      description: 特定の技術的制約や要件
       placeholder: |
-        - Database schema changes needed
-        - API changes required
-        - Performance considerations
-        - Backwards compatibility
-        - Integration with existing features
+        - データベーススキーマの変更が必要
+        - API変更が必要
+        - パフォーマンスの考慮事項
+        - 後方互換性
+        - 既存機能との統合
 
   - type: dropdown
     id: priority
     attributes:
-      label: Priority
-      description: How important is this feature?
+      label: 優先度
+      description: この機能はどの程度重要ですか？
       options:
-        - Critical (Blocking other work)
-        - High (Important for next release)
-        - Medium (Nice to have soon)
-        - Low (Future enhancement)
+        - 致命的 (他の作業をブロック)
+        - 高 (次のリリースで重要)
+        - 中 (近いうちに欲しい)
+        - 低 (将来的な改善)
     validations:
       required: true
 
   - type: dropdown
     id: complexity
     attributes:
-      label: Estimated Complexity
-      description: How complex do you think this feature is to implement?
+      label: 推定複雑度
+      description: この機能の実装はどの程度複雑だと思いますか？
       options:
-        - Simple (1-2 files, minimal changes)
-        - Medium (Multiple files, some new logic)
-        - Complex (Major changes, new components)
-        - Very Complex (Architectural changes needed)
+        - 簡単 (1-2ファイル、最小限の変更)
+        - 中程度 (複数ファイル、いくつかの新しいロジック)
+        - 複雑 (大きな変更、新しいコンポーネント)
+        - 非常に複雑 (アーキテクチャの変更が必要)
 
   - type: textarea
     id: dependencies
     attributes:
-      label: Dependencies
-      description: Does this feature depend on other features or external factors?
+      label: 依存関係
+      description: この機能は他の機能や外部要因に依存していますか？
       placeholder: |
-        - Requires completion of issue #123
-        - Depends on new timer state management
-        - Needs design approval from team
+        - issue #123の完了が必要
+        - 新しいタイマー状態管理に依存
+        - チームからの設計承認が必要
 
   - type: textarea
     id: test-scenarios
     attributes:
-      label: Test Scenarios
-      description: Key scenarios that should be tested
+      label: テストシナリオ
+      description: テストすべき主要なシナリオ
       placeholder: |
-        - Test custom interval input validation
-        - Test saving and loading custom intervals
-        - Test timer behavior with custom intervals
-        - Test backwards compatibility with existing todos
+        - カスタム間隔入力のバリデーションテスト
+        - カスタム間隔の保存と読み込みテスト
+        - カスタム間隔でのタイマー動作テスト
+        - 既存Todoとの後方互換性テスト
       value: |
         - 
         - 
@@ -158,22 +158,22 @@ body:
   - type: textarea
     id: alternative-solutions
     attributes:
-      label: Alternative Solutions Considered
-      description: Other approaches you've considered for solving this problem
+      label: 検討した代替案
+      description: この問題を解決するために検討した他のアプローチ
       placeholder: |
-        - Alternative 1: Use global settings instead of per-todo intervals
-        - Alternative 2: Preset interval templates
-        - Why the proposed solution is preferred
+        - 代替案1: Todo別設定ではなくグローバル設定を使用
+        - 代替案2: プリセット間隔テンプレート
+        - 提案されたソリューションが好まれる理由
 
   - type: checkboxes
     id: claude-code-checklist
     attributes:
-      label: Claude Code Implementation Checklist
-      description: Help Claude provide better implementation
+      label: Claude Code 実装チェックリスト
+      description: Claude Codeによるより良い実装のためのチェックリスト
       options:
-        - label: I have checked CLAUDE.md for relevant coding guidelines
-        - label: I have provided specific UI/UX requirements
-        - label: I have identified likely files that need changes
-        - label: I am available to review and test the implementation
-        - label: I can provide clarification on requirements if needed
-        - label: I understand this feature may require database migrations or breaking changes
+        - label: CLAUDE.mdの関連するコーディングガイドラインを確認しました
+        - label: 具体的なUI/UX要件を提供しました
+        - label: 変更が必要になりそうなファイルを特定しました
+        - label: 実装のレビューとテストが可能です
+        - label: 要件について必要に応じて明確化を提供できます
+        - label: この機能がデータベースマイグレーションや破壊的変更を必要とする可能性があることを理解しています

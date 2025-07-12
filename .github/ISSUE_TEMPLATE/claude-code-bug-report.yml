@@ -1,35 +1,35 @@
-name: 🐛 Bug Report (Claude Code Optimized)
-description: Report a bug with detailed context for Claude Code assistance
-title: "[Bug]: "
+name: 🐛 バグ報告 (Claude Code対応)
+description: Claude Codeでの効率的なバグ修正のための詳細なバグ報告
+title: "[バグ]: "
 labels: ["bug", "claude-code"]
 body:
   - type: markdown
     attributes:
       value: |
-        ## Claude Code Bug Report Template
+        ## Claude Code バグ報告テンプレート
         
-        This template is optimized for efficient debugging with Claude Code.
-        Please provide as much context as possible to help Claude understand and fix the issue quickly.
+        このテンプレートはClaude Codeでの効率的なデバッグに最適化されています。
+        Claude Codeが問題を素早く理解・修正できるよう、できるだけ多くの情報を提供してください。
 
   - type: textarea
     id: bug-description
     attributes:
-      label: Bug Description
-      description: Clear, concise description of what the bug is
-      placeholder: "The timer button doesn't appear when..."
+      label: バグの説明
+      description: バグの内容を明確かつ簡潔に説明してください
+      placeholder: "タイマーボタンが表示されない..."
     validations:
       required: true
 
   - type: textarea
     id: reproduction-steps
     attributes:
-      label: Reproduction Steps
-      description: Detailed steps to reproduce the issue
+      label: 再現手順
+      description: 問題を再現するための詳細な手順
       placeholder: |
-        1. Navigate to...
-        2. Click on...
-        3. Enter...
-        4. Observe...
+        1. ○○画面に移動
+        2. ○○ボタンをタップ
+        3. ○○を入力
+        4. ○○が発生することを確認
       value: |
         1. 
         2. 
@@ -41,26 +41,26 @@ body:
   - type: textarea
     id: expected-behavior
     attributes:
-      label: Expected Behavior
-      description: What should happen
-      placeholder: "The timer button should appear and be clickable..."
+      label: 期待される動作
+      description: 本来どのような動作をするべきか
+      placeholder: "タイマーボタンが表示され、タップできるはず..."
     validations:
       required: true
 
   - type: textarea
     id: actual-behavior
     attributes:
-      label: Actual Behavior
-      description: What actually happens
-      placeholder: "The timer button is missing/not working..."
+      label: 実際の動作
+      description: 実際に何が起こっているか
+      placeholder: "タイマーボタンが表示されない/動作しない..."
     validations:
       required: true
 
   - type: textarea
     id: affected-files
     attributes:
-      label: Affected Files/Components
-      description: List specific files, classes, or components related to this bug
+      label: 関連ファイル/コンポーネント
+      description: このバグに関連する具体的なファイル、クラス、コンポーネントをリストアップ
       placeholder: |
         - lib/screen/widgets/timer/timer_main.dart
         - lib/services/todo_service.dart
@@ -73,8 +73,8 @@ body:
   - type: textarea
     id: error-logs
     attributes:
-      label: Error Messages/Logs
-      description: Include any error messages, console output, or relevant logs
+      label: エラーメッセージ/ログ
+      description: エラーメッセージ、コンソール出力、関連するログを含めてください
       placeholder: |
         ```
         flutter: Error: ...
@@ -85,13 +85,13 @@ body:
   - type: textarea
     id: code-context
     attributes:
-      label: Relevant Code Context
-      description: Include relevant code snippets that might be related to the issue
+      label: 関連するコードコンテキスト
+      description: 問題に関連する可能性のあるコードスニペットを含めてください
       placeholder: |
         ```dart
-        // In timer_main.dart around line 123
+        // timer_main.dart の123行目付近
         if (timerSession.mode == TimerMode.pomodoro) {
-          // Issue might be here
+          // ここに問題がある可能性
         }
         ```
       render: dart
@@ -99,39 +99,39 @@ body:
   - type: dropdown
     id: severity
     attributes:
-      label: Severity
-      description: How severe is this bug?
+      label: 重要度
+      description: このバグはどの程度深刻ですか？
       options:
-        - Critical (App crashes/unusable)
-        - High (Major feature broken)
-        - Medium (Feature partially broken)
-        - Low (Minor issue/cosmetic)
+        - 致命的 (アプリがクラッシュ/使用不可)
+        - 高 (主要機能が破損)
+        - 中 (機能が部分的に破損)
+        - 低 (軽微な問題/見た目の問題)
     validations:
       required: true
 
   - type: dropdown
     id: frequency
     attributes:
-      label: Frequency
-      description: How often does this occur?
+      label: 発生頻度
+      description: どのくらいの頻度で発生しますか？
       options:
-        - Always (100%)
-        - Often (>75%)
-        - Sometimes (25-75%)
-        - Rarely (<25%)
-        - Once
+        - 常に (100%)
+        - 頻繁に (>75%)
+        - 時々 (25-75%)
+        - 稀に (<25%)
+        - 一度だけ
     validations:
       required: true
 
   - type: textarea
     id: device-info
     attributes:
-      label: Device/Environment Info
-      description: Platform and version information
+      label: デバイス/環境情報
+      description: プラットフォームとバージョン情報
       placeholder: |
-        - OS: macOS 13.0, iOS 16.0, Android 12, etc.
+        - OS: macOS 13.0, iOS 16.0, Android 12 など
         - Flutter version: 3.16.0
-        - Device: iPhone 14, Pixel 7, etc.
+        - Device: iPhone 14, Pixel 7 など
         - App version: 1.0.0
       value: |
         - OS: 
@@ -142,22 +142,22 @@ body:
   - type: textarea
     id: additional-context
     attributes:
-      label: Additional Context
-      description: Any other context, screenshots, or information that might help
+      label: 追加情報
+      description: その他の関連情報、スクリーンショット、参考情報があれば記載してください
       placeholder: |
-        - Screenshots/videos
-        - Related issues
-        - Workarounds tried
-        - Recent changes that might be related
+        - スクリーンショット/動画
+        - 関連するissue
+        - 試したワークアラウンド
+        - 関連する可能性のある最近の変更
 
   - type: checkboxes
     id: claude-code-checklist
     attributes:
-      label: Claude Code Assistance Checklist
-      description: Help Claude provide better assistance
+      label: Claude Code サポートチェックリスト
+      description: Claude Codeがより良いサポートを提供するためのチェックリスト
       options:
-        - label: I have checked CLAUDE.md for relevant coding guidelines
-        - label: I have provided specific file paths where the issue might be located
-        - label: I have included relevant error messages or logs
-        - label: I am available to test fixes and provide feedback
-        - label: I can provide additional context if needed
+        - label: CLAUDE.mdの関連するコーディングガイドラインを確認しました
+        - label: 問題が発生している可能性のある具体的なファイルパスを提供しました
+        - label: 関連するエラーメッセージやログを含めました
+        - label: 修正のテストやフィードバックを提供できます
+        - label: 必要に応じて追加の情報を提供できます

@@ -1,36 +1,36 @@
-name: 🔧 Refactoring Task (Claude Code Optimized)
-description: Request code refactoring with clear scope and guidelines for Claude Code
-title: "[Refactor]: "
+name: 🔧 リファクタリング (Claude Code対応)
+description: Claude Codeでの明確なスコープとガイドラインによるコードリファクタリング要求
+title: "[リファクタリング]: "
 labels: ["refactoring", "claude-code", "technical-debt"]
 body:
   - type: markdown
     attributes:
       value: |
-        ## Claude Code Refactoring Template
+        ## Claude Code リファクタリングテンプレート
         
-        This template is optimized for code refactoring tasks with Claude Code.
-        Please provide clear scope and guidelines to ensure safe, effective refactoring.
+        このテンプレートはClaude Codeでのコードリファクタリングタスクに最適化されています。
+        安全で効果的なリファクタリングを確実にするため、明確なスコープとガイドラインを提供してください。
 
   - type: textarea
     id: refactoring-goal
     attributes:
-      label: Refactoring Goal
-      description: What do you want to achieve with this refactoring?
-      placeholder: "Convert all StatefulWidget components to HookConsumerWidget following CLAUDE.md guidelines..."
+      label: リファクタリングの目標
+      description: このリファクタリングで何を達成したいですか？
+      placeholder: "CLAUDE.mdガイドラインに従って、すべてのStatefulWidgetコンポーネントをHookConsumerWidgetに変換する..."
     validations:
       required: true
 
   - type: textarea
     id: current-problems
     attributes:
-      label: Current Problems/Pain Points
-      description: What issues does the current code have?
+      label: 現在の問題/課題
+      description: 現在のコードにはどのような問題がありますか？
       placeholder: |
-        - Code violates CLAUDE.md guidelines
-        - Difficult to maintain/test
-        - Performance issues
-        - Code duplication
-        - Poor separation of concerns
+        - CLAUDE.mdガイドラインに違反している
+        - 保守/テストが困難
+        - パフォーマンスの問題
+        - コードの重複
+        - 関心事の分離が不十分
       value: |
         - 
         - 
@@ -41,25 +41,25 @@ body:
   - type: textarea
     id: scope
     attributes:
-      label: Refactoring Scope
-      description: Clearly define what should and shouldn't be refactored
+      label: リファクタリングの範囲
+      description: 何をリファクタリングすべきか、何をすべきでないかを明確に定義してください
       placeholder: |
-        **Include:**
-        - lib/screen/widgets/timer/ directory
-        - All timer-related state management
-        - Database access patterns in timer components
+        **含める：**
+        - lib/screen/widgets/timer/ ディレクトリ
+        - すべてのタイマー関連の状態管理
+        - タイマーコンポーネントのデータベースアクセスパターン
         
-        **Exclude:**
-        - Authentication logic
-        - Database schema changes
-        - Third-party integrations
+        **除外する：**
+        - 認証ロジック
+        - データベーススキーマの変更
+        - サードパーティとの統合
       value: |
-        **Include:**
+        **含める：**
         - 
         - 
         - 
         
-        **Exclude:**
+        **除外する：**
         - 
         - 
         - 
@@ -69,8 +69,8 @@ body:
   - type: textarea
     id: target-files
     attributes:
-      label: Target Files/Components
-      description: List specific files or components that need refactoring
+      label: 対象ファイル/コンポーネント
+      description: リファクタリングが必要な具体的なファイルやコンポーネントをリストアップ
       placeholder: |
         - lib/screen/widgets/timer/timer_main_widget.dart
         - lib/screen/widgets/timer/timer_settings_widget.dart
@@ -85,17 +85,17 @@ body:
   - type: textarea
     id: refactoring-guidelines
     attributes:
-      label: Refactoring Guidelines
-      description: Specific rules and patterns to follow
+      label: リファクタリングガイドライン
+      description: 従うべき具体的なルールとパターン
       placeholder: |
-        - Follow CLAUDE.md coding standards
-        - Use HookConsumerWidget instead of StatefulWidget
-        - Implement proper error handling
-        - Maintain backwards compatibility
-        - Keep existing public APIs
-        - Add proper documentation
+        - CLAUDE.mdコーディング標準に従う
+        - StatefulWidgetの代わりにHookConsumerWidgetを使用
+        - 適切なエラーハンドリングを実装
+        - 後方互換性を維持
+        - 既存のパブリックAPIを保持
+        - 適切なドキュメントを追加
       value: |
-        - Follow CLAUDE.md coding standards
+        - CLAUDE.mdコーディング標準に従う
         - 
         - 
         - 
@@ -105,40 +105,40 @@ body:
   - type: textarea
     id: constraints
     attributes:
-      label: Constraints & Requirements
-      description: What limitations or requirements must be respected?
+      label: 制約と要件
+      description: 尊重すべき制限や要件は何ですか？
       placeholder: |
-        - Must not break existing functionality
-        - Must maintain database compatibility
-        - Cannot change public API signatures
-        - Must pass all existing tests
-        - Performance should not degrade
+        - 既存の機能を壊してはいけない
+        - データベース互換性を維持する必要がある
+        - パブリックAPIシグネチャを変更できない
+        - すべての既存テストが通る必要がある
+        - パフォーマンスを悪化させてはいけない
 
   - type: dropdown
     id: risk-level
     attributes:
-      label: Risk Level
-      description: How risky is this refactoring?
+      label: リスクレベル
+      description: このリファクタリングはどの程度リスキーですか？
       options:
-        - Low (Isolated changes, easy to revert)
-        - Medium (Multiple components, some complexity)
-        - High (Core changes, significant impact)
-        - Critical (Major architectural changes)
+        - 低 (分離された変更、簡単に元に戻せる)
+        - 中 (複数のコンポーネント、やや複雑)
+        - 高 (コアな変更、大きな影響)
+        - 致命的 (主要なアーキテクチャ変更)
     validations:
       required: true
 
   - type: textarea
     id: success-criteria
     attributes:
-      label: Success Criteria
-      description: How will you know the refactoring is successful?
+      label: 成功基準
+      description: リファクタリングが成功したとどのように判断しますか？
       placeholder: |
-        - [ ] All code follows CLAUDE.md guidelines
-        - [ ] No StatefulWidget usage in target files
-        - [ ] All existing functionality works as before
-        - [ ] Code is more maintainable/readable
-        - [ ] All tests pass
-        - [ ] No performance regression
+        - [ ] すべてのコードがCLAUDE.mdガイドラインに従っている
+        - [ ] 対象ファイルでStatefulWidgetの使用がない
+        - [ ] すべての既存機能が以前と同様に動作する
+        - [ ] コードがより保守しやすく/読みやすくなっている
+        - [ ] すべてのテストが通る
+        - [ ] パフォーマンスの回帰がない
       value: |
         - [ ] 
         - [ ] 
@@ -150,60 +150,60 @@ body:
   - type: textarea
     id: testing-strategy
     attributes:
-      label: Testing Strategy
-      description: How should the refactored code be tested?
+      label: テスト戦略
+      description: リファクタリング後のコードをどのようにテストすべきですか？
       placeholder: |
-        - Run existing unit tests
-        - Manual testing of timer functionality
-        - Performance benchmarks
-        - Integration testing with other components
-        - Regression testing of critical user flows
+        - 既存のユニットテストを実行
+        - タイマー機能の手動テスト
+        - パフォーマンスベンチマーク
+        - 他のコンポーネントとの統合テスト
+        - 重要なユーザーフローの回帰テスト
 
   - type: textarea
     id: rollback-plan
     attributes:
-      label: Rollback Plan
-      description: What's the plan if the refactoring goes wrong?
+      label: ロールバック計画
+      description: リファクタリングがうまくいかなかった場合の計画は何ですか？
       placeholder: |
-        - Git branch for safe refactoring
-        - Specific commit points for easy revert
-        - Backup of critical files
-        - Testing checkpoints during refactoring
+        - 安全なリファクタリングのためのGitブランチ
+        - 簡単に元に戻すための特定のコミットポイント
+        - 重要なファイルのバックアップ
+        - リファクタリング中のテストチェックポイント
 
   - type: dropdown
     id: priority
     attributes:
-      label: Priority
-      description: How urgent is this refactoring?
+      label: 優先度
+      description: このリファクタリングはどの程度緊急ですか？
       options:
-        - Critical (Blocking other work)
-        - High (Important for code quality)
-        - Medium (Technical debt cleanup)
-        - Low (Nice to have improvement)
+        - 致命的 (他の作業をブロック)
+        - 高 (コード品質にとって重要)
+        - 中 (技術的負債のクリーンアップ)
+        - 低 (あると良い改善)
     validations:
       required: true
 
   - type: textarea
     id: additional-context
     attributes:
-      label: Additional Context
-      description: Any other relevant information
+      label: 追加情報
+      description: その他の関連情報
       placeholder: |
-        - Related issues or PRs
-        - Historical context
-        - Team discussions
-        - External dependencies
+        - 関連するissueやPR
+        - 履歴的背景
+        - チームでの議論
+        - 外部依存関係
 
   - type: checkboxes
     id: claude-code-checklist
     attributes:
-      label: Claude Code Refactoring Checklist
-      description: Ensure effective refactoring with Claude Code
+      label: Claude Code リファクタリングチェックリスト
+      description: Claude Codeでの効果的なリファクタリングを確実にする
       options:
-        - label: I have clearly defined the refactoring scope
-        - label: I have identified specific files that need changes
-        - label: I have provided clear guidelines and constraints
-        - label: I understand the risk level and have a rollback plan
-        - label: I am available to test the refactored code
-        - label: I can provide clarification on requirements during refactoring
-        - label: I have considered the impact on other team members
+        - label: リファクタリングの範囲を明確に定義しました
+        - label: 変更が必要な具体的なファイルを特定しました
+        - label: 明確なガイドラインと制約を提供しました
+        - label: リスクレベルを理解し、ロールバック計画があります
+        - label: リファクタリング後のコードをテストできます
+        - label: リファクタリング中に要件の明確化を提供できます
+        - label: 他のチームメンバーへの影響を考慮しました

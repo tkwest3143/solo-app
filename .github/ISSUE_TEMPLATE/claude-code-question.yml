@@ -1,66 +1,66 @@
-name: ❓ Question/Help (Claude Code Optimized)
-description: Ask questions about code architecture, implementation, or best practices
-title: "[Question]: "
+name: ❓ 質問/ヘルプ (Claude Code対応)
+description: コードアーキテクチャ、実装、ベストプラクティスについての質問
+title: "[質問]: "
 labels: ["question", "claude-code", "help-wanted"]
 body:
   - type: markdown
     attributes:
       value: |
-        ## Claude Code Question Template
+        ## Claude Code 質問テンプレート
         
-        This template helps you get better answers from Claude Code by providing sufficient context
-        about your codebase and specific questions.
+        このテンプレートは、コードベースに関する十分な情報を提供することで、
+        Claude Codeからより良い回答を得るのに役立ちます。
 
   - type: textarea
     id: question
     attributes:
-      label: Main Question
-      description: What specific question do you have?
-      placeholder: "How should I implement real-time collaboration for the todo list feature?"
+      label: 主な質問
+      description: どのような具体的な質問がありますか？
+      placeholder: "Todoリスト機能にリアルタイムコラボレーションを実装するにはどうすべきでしょうか？"
     validations:
       required: true
 
   - type: dropdown
     id: question-type
     attributes:
-      label: Question Type
-      description: What category does your question fall into?
+      label: 質問の種類
+      description: あなたの質問はどのカテゴリに該当しますか？
       options:
-        - Architecture/Design
-        - Implementation Approach
-        - Best Practices
-        - Code Review/Feedback
-        - Performance Optimization
-        - Testing Strategy
-        - Debugging Help
-        - Tool/Library Recommendation
-        - Other
+        - アーキテクチャ/設計
+        - 実装アプローチ
+        - ベストプラクティス
+        - コードレビュー/フィードバック
+        - パフォーマンス最適化
+        - テスト戦略
+        - デバッグヘルプ
+        - ツール/ライブラリ推奨
+        - その他
     validations:
       required: true
 
   - type: textarea
     id: context
     attributes:
-      label: Context & Background
-      description: Provide context about your situation
+      label: 背景と状況
+      description: あなたの状況について背景を提供してください
       placeholder: |
-        - What are you trying to achieve?
-        - What's the broader context of this question?
-        - What constraints do you have?
-        - What research have you already done?
+        - 何を達成しようとしていますか？
+        - この質問のより広い背景は何ですか？
+        - どのような制約がありますか？
+        - すでにどのような調査をしましたか？
     validations:
       required: true
 
   - type: textarea
     id: current-approach
     attributes:
-      label: Current Approach/Code
-      description: Show what you've tried or what you're considering
+      label: 現在のアプローチ/コード
+      description: 試したことや検討していることを示してください
       placeholder: |
         ```dart
-        // Current implementation or approach you're considering
+        // 現在の実装または検討しているアプローチ
         class TodoService {
-          // Relevant code here...
+          // 関連するコードをここに...
         }
         ```
       render: dart
@@ -68,8 +68,8 @@ body:
   - type: textarea
     id: relevant-files
     attributes:
-      label: Relevant Files/Components
-      description: List files or components related to your question
+      label: 関連ファイル/コンポーネント
+      description: あなたの質問に関連するファイルやコンポーネントをリストアップ
       placeholder: |
         - lib/services/todo_service.dart
         - lib/models/todo_model.dart
@@ -82,70 +82,70 @@ body:
   - type: textarea
     id: specific-challenges
     attributes:
-      label: Specific Challenges/Concerns
-      description: What specific problems or concerns do you have?
+      label: 具体的な課題/懸念事項
+      description: どのような具体的な問題や懸念がありますか？
       placeholder: |
-        - How to handle concurrent updates?
-        - Performance impact of real-time sync
-        - State management complexity
-        - Database schema considerations
+        - 同時更新をどう処理するか？
+        - リアルタイム同期のパフォーマンス影響
+        - 状態管理の複雑さ
+        - データベーススキーマの考慮事項
 
   - type: textarea
     id: requirements
     attributes:
-      label: Requirements & Constraints
-      description: What requirements or constraints should the solution meet?
+      label: 要件と制約
+      description: ソリューションが満たすべき要件や制約は何ですか？
       placeholder: |
-        - Must work offline
-        - Should follow CLAUDE.md guidelines
-        - Performance is critical
-        - Must integrate with existing authentication
-        - Budget/time constraints
+        - オフラインで動作する必要がある
+        - CLAUDE.mdガイドラインに従うべき
+        - パフォーマンスが重要
+        - 既存の認証と統合する必要がある
+        - 予算/時間の制約
 
   - type: textarea
     id: alternatives-considered
     attributes:
-      label: Alternatives Considered
-      description: What other approaches have you considered?
+      label: 検討した代替案
+      description: どのような他のアプローチを検討しましたか？
       placeholder: |
-        - WebSocket-based real-time updates
-        - Polling-based approach
-        - Using Firebase Firestore
-        - Custom WebRTC implementation
+        - WebSocketベースのリアルタイム更新
+        - ポーリングベースのアプローチ
+        - Firebase Firestoreの使用
+        - カスタムWebRTC実装
 
   - type: dropdown
     id: urgency
     attributes:
-      label: Urgency
-      description: How urgent is getting an answer to this question?
+      label: 緊急度
+      description: この質問への回答はどの程度緊急ですか？
       options:
-        - Critical (Blocking development)
-        - High (Needed soon for planning)
-        - Medium (Helpful for current work)
-        - Low (General knowledge/future planning)
+        - 致命的 (開発をブロック)
+        - 高 (計画のために近いうちに必要)
+        - 中 (現在の作業に役立つ)
+        - 低 (一般的な知識/将来の計画)
 
   - type: textarea
     id: expected-outcome
     attributes:
-      label: Expected Outcome
-      description: What kind of answer or help are you looking for?
+      label: 期待する回答
+      description: どのような種類の回答やヘルプを求めていますか？
       placeholder: |
-        - Detailed implementation guidance
-        - Architectural recommendations
-        - Code examples
-        - Best practice suggestions
-        - Tool/library recommendations
-        - Code review and feedback
+        - 詳細な実装ガイダンス
+        - アーキテクチャの推奨事項
+        - コード例
+        - ベストプラクティスの提案
+        - ツール/ライブラリの推奨
+        - コードレビューとフィードバック
 
   - type: checkboxes
     id: claude-code-checklist
     attributes:
-      label: Claude Code Assistance Checklist
-      description: Help Claude provide better answers
+      label: Claude Code サポートチェックリスト
+      description: Claude Codeがより良い回答を提供するためのチェックリスト
       options:
-        - label: I have checked CLAUDE.md for relevant guidelines
-        - label: I have searched existing issues for similar questions
-        - label: I have provided sufficient context about my codebase
-        - label: I have clearly stated my specific question
-        - label: I am open to different approaches and suggestions
-        - label: I can provide additional context if needed
+        - label: CLAUDE.mdの関連するガイドラインを確認しました
+        - label: 類似の質問について既存のissueを検索しました
+        - label: コードベースについて十分な情報を提供しました
+        - label: 具体的な質問を明確に述べました
+        - label: 異なるアプローチや提案に対してオープンです
+        - label: 必要に応じて追加の情報を提供できます
