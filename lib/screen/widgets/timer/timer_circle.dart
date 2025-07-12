@@ -20,77 +20,89 @@ class TimerCircle extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           // メインの円形タイマー
-          Container(
-            width: 340,
-            height: 340,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).shadowColor.withValues(alpha: 0.3),
-                  blurRadius: 24,
-                ),
-              ],
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
+          AspectRatio(
+            aspectRatio: 1.0,
+            child: Container(
+              width: 340,
+              height: 340,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).shadowColor.withValues(alpha: 0.3),
+                    blurRadius: 24,
+                  ),
+                ],
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
                 // Background circle with elegant gradient
-                Container(
-                  height: 380,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        Theme.of(context)
-                            .colorScheme
-                            .surface
-                            .withValues(alpha: 0.8),
-                        Theme.of(context)
-                            .colorScheme
-                            .surface
-                            .withValues(alpha: 0.4),
-                      ],
-                      stops: const [0.0, 1.0],
+                AspectRatio(
+                  aspectRatio: 1.0,
+                  child: Container(
+                    width: 350,
+                    height: 350,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withValues(alpha: 0.8),
+                          Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withValues(alpha: 0.4),
+                        ],
+                        stops: const [0.0, 1.0],
+                      ),
                     ),
                   ),
                 ),
 
                 // Inner circle for better depth
-                Container(
-                  width: 340,
-                  height: 340,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surface
-                        .withValues(alpha: 0.3),
+                AspectRatio(
+                  aspectRatio: 1.0,
+                  child: Container(
+                    width: 340,
+                    height: 340,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surface
+                          .withValues(alpha: 0.3),
+                    ),
                   ),
                 ),
 
                 // Progress indicator
-                SizedBox(
-                  width: 360,
-                  height: 360,
-                  child: CircularProgressIndicator(
-                    value: timerSession.mode == TimerMode.pomodoro
-                        ? timerSession.progress
-                        : 0, // カウントアップは常に完全な円
-                    strokeWidth: 16,
-                    strokeCap: StrokeCap.round,
-                    backgroundColor: Theme.of(context)
-                        .colorScheme
-                        .surface
-                        .withValues(alpha: 0.1),
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      timerSession.mode == TimerMode.pomodoro
-                          ? (timerSession.isWorkPhase
-                              ? Theme.of(context).colorScheme.accentColor
-                              : Theme.of(context).colorScheme.infoColor)
-                          : Theme.of(context)
-                              .colorScheme
-                              .accentColor, // カウントアップもポモドーロと同じ色
+                AspectRatio(
+                  aspectRatio: 1.0, // 1:1の比率を強制して完全な円を保証
+                  child: SizedBox(
+                    width: 340,
+                    height: 340,
+                    child: CircularProgressIndicator(
+                      value: timerSession.mode == TimerMode.pomodoro
+                          ? timerSession.progress
+                          : 0, // カウントアップは常に完全な円
+                      strokeWidth: 8,
+                      strokeCap: StrokeCap.round,
+                      backgroundColor: Theme.of(context)
+                          .colorScheme
+                          .surface
+                          .withValues(alpha: 0.1),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        timerSession.mode == TimerMode.pomodoro
+                            ? (timerSession.isWorkPhase
+                                ? Theme.of(context).colorScheme.accentColor
+                                : Theme.of(context).colorScheme.infoColor)
+                            : Theme.of(context)
+                                .colorScheme
+                                .accentColor, // カウントアップもポモドーロと同じ色
+                      ),
                     ),
                   ),
                 ),
@@ -245,7 +257,8 @@ class TimerCircle extends StatelessWidget {
                       ),
                     ),
                   ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
