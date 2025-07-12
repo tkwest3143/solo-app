@@ -1050,7 +1050,7 @@ class TodoService {
 
   /// 繰り返しTodoの表示フィルタリング（新しい実装）
   /// - 今日以前かつ未完了のものは全て表示
-  /// - 明日以降のものは現在日付に最も近いもの1件のみ表示（DBに存在しなければ作成）
+  /// - 明日以降のものは既存インスタンスがあればそれを表示、なければ最も近い日付の1件のみ作成して表示
   Future<List<TodoModel>> getFilteredTodosWithRecurringDisplay({
     required DateTime currentDate,
     required List<TodoModel> todos,
@@ -1058,6 +1058,9 @@ class TodoService {
     final result = <TodoModel>[];
     final today =
         DateTime(currentDate.year, currentDate.month, currentDate.day);
+
+    // 全てのTodoを取得（子インスタンス含む）
+    final allTodos = await _todoTableRepository.findAll();
 
     // 繰り返しTodoと通常Todoを分別
     final recurringParentTodos = <TodoModel>[];
@@ -1079,12 +1082,14 @@ class TodoService {
 
     // 繰り返しTodoを処理
     for (final parentTodo in recurringParentTodos) {
-      final allTodos = await _todoTableRepository.findAll();
+      // この親Todoに関連する全ての子インスタンスを取得
+      final allChildInstances = allTodos
+          .where((todo) => todo.parentTodoId == parentTodo.id)
+          .toList();
 
-      // 今日以前の未完了インスタンスを検索・追加（今日は含まない）
-      final pastInstances = allTodos
+      // 今日以前の未完了インスタンスを追加
+      final pastInstances = allChildInstances
           .where((todo) =>
-              todo.parentTodoId == parentTodo.id &&
               !todo.isCompleted &&
               DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day)
                   .isBefore(today))
@@ -1120,15 +1125,54 @@ class TodoService {
         ));
       }
 
-      // 今日以降の最も近い日付を取得（今日も含む）
-      final nextDate = getNextRecurringDateFromToday(parentTodo, today);
-      if (nextDate != null) {
-        // 既存のインスタンスを検索、存在しない場合は新規作成
-        final existingInstance =
-            await findRecurringInstance(parentTodo.id, nextDate) ??
-                await createRecurringInstance(parentTodo, nextDate);
+      // 今日以降の既存インスタンスを取得
+      final futureInstances = allChildInstances
+          .where((todo) =>
+              DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day)
+                  .isAtSameMomentAs(today) ||
+              DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day)
+                  .isAfter(today))
+          .toList();
 
-        result.add(existingInstance);
+      if (futureInstances.isNotEmpty) {
+        // 既存の未来インスタンスがある場合、最も近い日付のもの1件のみを追加
+        futureInstances.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+        final nearestInstance = futureInstances.first;
+        
+        result.add(TodoModel(
+          id: nearestInstance.id,
+          dueDate: nearestInstance.dueDate,
+          title: nearestInstance.title,
+          isCompleted: nearestInstance.isCompleted,
+          description: nearestInstance.description,
+          color: nearestInstance.color,
+          categoryId: nearestInstance.categoryId,
+          icon: nearestInstance.icon,
+          createdAt: nearestInstance.createdAt,
+          updatedAt: nearestInstance.updatedAt,
+          isRecurring: nearestInstance.isRecurring,
+          recurringType: RecurringType.fromString(
+                  nearestInstance.recurringType ?? RecurringType.daily.name) ??
+              RecurringType.daily,
+          recurringEndDate: nearestInstance.recurringEndDate,
+          recurringDayOfWeek: nearestInstance.recurringDayOfWeek,
+          recurringDayOfMonth: nearestInstance.recurringDayOfMonth,
+          parentTodoId: parentTodo.id,
+          timerType: TimerTypeExtension.fromString(nearestInstance.timerType),
+          countupElapsedSeconds: nearestInstance.countupElapsedSeconds,
+          pomodoroWorkMinutes: nearestInstance.pomodoroWorkMinutes,
+          pomodoroShortBreakMinutes: nearestInstance.pomodoroShortBreakMinutes,
+          pomodoroLongBreakMinutes: nearestInstance.pomodoroLongBreakMinutes,
+          pomodoroCycle: nearestInstance.pomodoroCycle,
+          pomodoroCompletedCycle: nearestInstance.pomodoroCompletedCycle,
+        ));
+      } else {
+        // 既存の未来インスタンスがない場合のみ、新しいインスタンスを作成
+        final nextDate = getNextRecurringDateFromToday(parentTodo, today);
+        if (nextDate != null) {
+          final newInstance = await createRecurringInstance(parentTodo, nextDate);
+          result.add(newInstance);
+        }
       }
     }
 
