@@ -13,6 +13,7 @@ import 'package:solo/utilities/date.dart';
 import 'package:solo/enums/todo_color.dart';
 import 'package:solo/enums/recurring_type.dart';
 import 'package:solo/enums/timer_type.dart';
+import 'package:solo/screen/states/notification_state.dart';
 import 'package:flutter/cupertino.dart';
 
 enum ManageType { normal, pomodoro, countup, checklist }
@@ -1105,6 +1106,10 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                             order: i,
                           );
                         }
+                        
+                        // スケジュール通知を設定
+                        await ref.read(notificationStateProvider.notifier)
+                            .handleTodoCreated(newTodo);
                       }
                       if (context.mounted) {
                         Navigator.of(context).pop();

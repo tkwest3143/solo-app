@@ -9,9 +9,11 @@ import 'package:solo/utilities/date.dart';
 import 'package:solo/enums/todo_color.dart';
 import 'package:solo/enums/recurring_type.dart';
 import 'package:solo/enums/timer_type.dart';
+import 'package:solo/screen/states/notification_state.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class TodoCard extends StatelessWidget {
+class TodoCard extends ConsumerWidget {
   final TodoModel todo;
   final VoidCallback? onToggleComplete;
   final VoidCallback? onEdit;
@@ -28,7 +30,7 @@ class TodoCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isTodayTag = isToday(todo.dueDate);
     final isOverdue =
         todo.dueDate.isBefore(DateTime.now()) && !todo.isCompleted;
@@ -73,7 +75,12 @@ class TodoCard extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: () async {
-                    await TodoService().toggleTodoComplete(todo.id);
+                    final updatedTodo = await TodoService().toggleTodoComplete(todo.id);
+                    if (updatedTodo != null) {
+                      // 通知管理を更新
+                      await ref.read(notificationStateProvider.notifier)
+                          .handleTodoCompletionChange(updatedTodo);
+                    }
                     onRefresh?.call();
                   },
                   child: Container(
