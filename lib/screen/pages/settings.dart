@@ -155,30 +155,6 @@ class SettingsPage extends HookConsumerWidget {
 
                       const SizedBox(height: 20),
 
-                      // Notification Preference Settings Section
-                      _SettingsSection(
-                        title: 'お知らせ受け取り設定',
-                        icon: Icons.mail_rounded,
-                        children: [
-                          _SwitchSettingItem(
-                            title: 'Todo期限日のお知らせ',
-                            subtitle: 'タスクの期限日をお知らせ',
-                            value: settings.todoDeadlineRemindersEnabled,
-                            onChanged:
-                                settingsController.toggleTodoDeadlineReminders,
-                          ),
-                          _SwitchSettingItem(
-                            title: 'アプリからのお知らせ',
-                            subtitle: 'アップデート内容などのお知らせ',
-                            value: settings.appUpdateNotificationsEnabled,
-                            onChanged:
-                                settingsController.toggleAppUpdateNotifications,
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 32),
-
                       // Reset button
                       SizedBox(
                         width: double.infinity,
@@ -542,14 +518,14 @@ class _SettingItem extends HookWidget {
 
   void _showValueDialog(BuildContext context) {
     final controller = TextEditingController(text: value.toString());
-    
+
     void submitValue(String inputValue) {
       final intValue = int.tryParse(inputValue);
       if (intValue != null && intValue >= min && intValue <= max) {
         onChanged(intValue);
       }
     }
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

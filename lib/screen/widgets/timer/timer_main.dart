@@ -81,14 +81,14 @@ class TimerMainWidget extends HookConsumerWidget {
       return null;
     }, [timerSession.selectedTodoId]);
 
-    // Show completion dialog when count-up timer reaches target
+    // Show completion dialog when count-up timer reaches target and stops
     useEffect(() {
       void checkTargetReached() async {
         if (timerSession.mode == TimerMode.countUp &&
             selectedTodo.value != null &&
             selectedTodo.value!.countupElapsedSeconds != null &&
             timerSession.elapsedSeconds >= selectedTodo.value!.countupElapsedSeconds! &&
-            timerSession.state == TimerStatus.running &&
+            timerSession.state == TimerStatus.idle &&
             !hasShownTargetDialog.value) {
           
           hasShownTargetDialog.value = true;

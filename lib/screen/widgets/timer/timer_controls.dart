@@ -47,7 +47,9 @@ class TimerControls extends ConsumerWidget {
                     timerSession.state == TimerStatus.paused)) ||
             (timerSession.mode == TimerMode.countUp &&
                 timerSession.elapsedSeconds > 0 &&
-                timerSession.state == TimerStatus.idle));
+                (timerSession.state == TimerStatus.idle ||
+                    timerSession.state == TimerStatus.paused ||
+                    timerSession.state == TimerStatus.running)));
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
