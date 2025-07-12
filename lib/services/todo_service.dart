@@ -206,6 +206,40 @@ class TodoService {
     return TodoModel.fromTodo(updatedTodo);
   }
 
+  Future<TodoModel?> completeTodoById(int id) async {
+    final todos = await _todoTableRepository.findAll();
+    try {
+      todos.firstWhere((t) => t.id == id);
+    } catch (e) {
+      return null;
+    }
+    final companion = TodosCompanion(
+      isCompleted: const Value(true),
+      updatedAt: Value(DateTime.now()),
+    );
+    final success = await _todoTableRepository.update(id, companion);
+    if (!success) return null;
+    final updatedTodos = await _todoTableRepository.findAll();
+    Todo? updatedTodo;
+    try {
+      updatedTodo = updatedTodos.firstWhere((t) => t.id == id);
+    } catch (e) {
+      return null;
+    }
+    return TodoModel.fromTodo(updatedTodo);
+  }
+
+  Future<List<TodoModel>> getTodosForTimer() async {
+    final todos = await _todoTableRepository.findAll();
+    return todos
+        .where((todo) => 
+            !todo.isCompleted && 
+            (todo.timerType == TimerType.pomodoro.name || 
+             todo.timerType == TimerType.countup.name))
+        .map((todo) => TodoModel.fromTodo(todo))
+        .toList();
+  }
+
   Future<bool> checkAndUpdateTodoCompletionByChecklist(int todoId) async {
     final checklistService = TodoCheckListItemService();
     final allItemsCompleted =

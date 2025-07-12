@@ -375,9 +375,39 @@ class TimerState extends _$TimerState {
   }
 
   void _handleCountUpTick() {
+    final newElapsedSeconds = state.elapsedSeconds + 1;
     state = state.copyWith(
-      elapsedSeconds: state.elapsedSeconds + 1,
+      elapsedSeconds: newElapsedSeconds,
     );
+    
+    // 目標時間に達した場合の処理
+    _checkCountUpTargetReached(newElapsedSeconds);
+  }
+  
+  Future<void> _checkCountUpTargetReached(int elapsedSeconds) async {
+    if (state.selectedTodoId != null && state.state == TimerStatus.running) {
+      try {
+        final todos = await TodoService().getTodo();
+        final todo = todos.firstWhere(
+          (t) => t.id == state.selectedTodoId,
+          orElse: () => throw Exception('Todo not found'),
+        );
+        
+        if (todo.timerType == TimerType.countup && 
+            todo.countupElapsedSeconds != null &&
+            elapsedSeconds >= todo.countupElapsedSeconds!) {
+          // 目標時間達成時にタイマーを停止
+          _stopTimer();
+          state = state.copyWith(state: TimerStatus.idle);
+        }
+      } catch (e) {
+        // エラーハンドリング - デバッグ時のみログ出力
+        assert(() {
+          print('Failed to check target time: $e');
+          return true;
+        }());
+      }
+    }
   }
 
   void _handlePomodoroTick() {
@@ -438,13 +468,22 @@ class TimerState extends _$TimerState {
   }
 
   Future<void> _completeTodoIfSelected() async {
-    // if (state.selectedTodoId != null) {
-    //   try {
-    //     await TodoService().toggleTodoComplete(state.selectedTodoId!);
-    //   } catch (e) {
-    //     // エラーハンドリング - ログ出力など
-    //     print('Failed to complete todo: $e');
-    //   }
-    // }
+    if (state.selectedTodoId != null) {
+      try {
+        await TodoService().completeTodoById(state.selectedTodoId!);
+        // Todoを完了したらタイマーの選択をクリア
+        await selectTodo(null);
+      } catch (e) {
+        // エラーハンドリング - デバッグ時のみログ出力
+        assert(() {
+          print('Failed to complete todo: $e');
+          return true;
+        }());
+      }
+    }
+  }
+
+  Future<void> completeTodoIfSelected() async {
+    await _completeTodoIfSelected();
   }
 }
