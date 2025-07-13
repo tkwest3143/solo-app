@@ -18,13 +18,13 @@ class MenuPage extends HookConsumerWidget {
         ),
       ),
       child: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header Section
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Center(
                 child: Column(
                   children: [
@@ -78,10 +78,8 @@ class MenuPage extends HookConsumerWidget {
               const SizedBox(height: 35),
 
               // Main Navigation Cards
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
+              Column(
+                children: [
                       // Primary Features (Todo & Timer) - Highlighted
                       Row(
                         children: [
@@ -239,15 +237,13 @@ class MenuPage extends HookConsumerWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ],
         ),
       ),
+    ),
     );
   }
 }

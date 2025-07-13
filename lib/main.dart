@@ -6,6 +6,7 @@ import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/router.dart';
 import 'package:solo/screen/states/settings_state.dart';
 import 'package:solo/screen/states/settings_integration.dart';
+import 'package:solo/screen/states/notification_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,12 @@ class MyApp extends HookConsumerWidget {
         // Initialize timer system with loaded settings
         ref.read(settingsIntegrationProvider);
         ref.read(settingsIntegrationProvider.notifier).initializeTimerWithSettings();
+        
+        // Initialize notification system
+        await ref.read(notificationStateProvider.notifier).initialize();
+        
+        // Schedule notifications for today's todos
+        await ref.read(notificationStateProvider.notifier).scheduleTodayNotifications();
       });
       return null;
     }, []);
