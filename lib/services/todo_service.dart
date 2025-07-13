@@ -232,10 +232,10 @@ class TodoService {
   Future<List<TodoModel>> getTodosForTimer() async {
     final todos = await _todoTableRepository.findAll();
     return todos
-        .where((todo) => 
-            !todo.isCompleted && 
-            (todo.timerType == TimerType.pomodoro.name || 
-             todo.timerType == TimerType.countup.name))
+        .where((todo) =>
+            !todo.isCompleted &&
+            (todo.timerType == TimerType.pomodoro.name ||
+                todo.timerType == TimerType.countup.name))
         .map((todo) => TodoModel.fromTodo(todo))
         .toList();
   }
@@ -710,10 +710,8 @@ class TodoService {
 
     final id = await _todoTableRepository.insert(companion);
 
-    return TodoModel(
+    return parentTodo.copyWith(
       id: id,
-      title: parentTodo.title,
-      description: parentTodo.description,
       dueDate: DateTime(
         targetDate.year,
         targetDate.month,
@@ -721,25 +719,10 @@ class TodoService {
         parentTodo.dueDate.hour,
         parentTodo.dueDate.minute,
       ),
-      isCompleted: false,
-      color: parentTodo.color,
-      icon: parentTodo.icon,
-      categoryId: parentTodo.categoryId,
       createdAt: now,
       updatedAt: now,
-      isRecurring: parentTodo.isRecurring ?? false,
-      recurringType: parentTodo.recurringType,
-      recurringEndDate: parentTodo.recurringEndDate,
-      recurringDayOfWeek: parentTodo.recurringDayOfWeek,
-      recurringDayOfMonth: parentTodo.recurringDayOfMonth,
-      parentTodoId: parentTodo.id,
-      timerType: parentTodo.timerType,
-      countupElapsedSeconds: parentTodo.countupElapsedSeconds,
-      pomodoroWorkMinutes: parentTodo.pomodoroWorkMinutes,
-      pomodoroShortBreakMinutes: parentTodo.pomodoroShortBreakMinutes,
-      pomodoroLongBreakMinutes: parentTodo.pomodoroLongBreakMinutes,
-      pomodoroCycle: parentTodo.pomodoroCycle,
-      pomodoroCompletedCycle: parentTodo.pomodoroCompletedCycle,
+      isCompleted: false,
+      parentTodoId: parentTodo.id, // 親TodoのIDを設定
     );
   }
 

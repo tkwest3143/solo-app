@@ -19,10 +19,10 @@ class NotificationService {
 
     // Initialize timezone
     tz.initializeTimeZones();
-    
+
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-    
+
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
       requestSoundPermission: false,
@@ -65,10 +65,7 @@ class NotificationService {
   }
 
   /// 通知タップ時の処理
-  void _onDidReceiveNotificationResponse(NotificationResponse response) {
-    // TODO: 通知タップ時の処理を実装
-    // 例: 該当するTodoの詳細画面に遷移
-  }
+  void _onDidReceiveNotificationResponse(NotificationResponse response) {}
 
   /// TodoのID用の通知IDを生成（重複を避けるため1000番台を使用）
   int _generateNotificationId(int todoId) {
@@ -84,7 +81,7 @@ class NotificationService {
 
     // 期限の1時間前を計算
     final notificationTime = todo.dueDate.subtract(const Duration(hours: 1));
-    
+
     // 過去の時間の場合は通知しない
     if (notificationTime.isBefore(DateTime.now())) {
       return;
@@ -128,7 +125,8 @@ class NotificationService {
 
   /// 指定したTodoの通知をキャンセルする
   Future<void> cancelTodoNotification(int todoId) async {
-    await _flutterLocalNotificationsPlugin.cancel(_generateNotificationId(todoId));
+    await _flutterLocalNotificationsPlugin
+        .cancel(_generateNotificationId(todoId));
   }
 
   /// すべての通知をキャンセルする
@@ -137,11 +135,12 @@ class NotificationService {
   }
 
   /// 今日のTodoに対して通知をスケジュールする
-  Future<void> scheduleTodayTodoNotifications(List<TodoModel> todayTodos) async {
+  Future<void> scheduleTodayTodoNotifications(
+      List<TodoModel> todayTodos) async {
     // 今日のTodoのうち、未完了で期限が1時間以上先のものに対して通知をスケジュール
     final notifiableTodos = todayTodos.where((todo) {
       if (todo.isCompleted) return false;
-      
+
       final notificationTime = todo.dueDate.subtract(const Duration(hours: 1));
       return notificationTime.isAfter(DateTime.now());
     }).toList();

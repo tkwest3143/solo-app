@@ -30,6 +30,7 @@ dependencies:
   shared_preferences: ^2.3.2
   flutter_local_notifications: ^19.3.0
   timezone: ^0.10.1
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -43,5 +44,11 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/icons/
+
+flutter_icons:
+  ios: true
+  image_path: "assets/icon/launcher/icon_ios.png"
+  remove_alpha_ios: true
+  android: true
+  adaptive_icon_background: "assets/icon/launcher/icon_adaptive_background.png"
+  adaptive_icon_foreground: "assets/icon/launcher/icon_adaptive_foreground.png"
