@@ -46,6 +46,8 @@ sealed class TimerSession with _$TimerSession {
     @Default(0) int completedCycles,
     required TimerSettings settings,
     int? selectedTodoId,
+    DateTime? backgroundTime, // バックグラウンドに入った時刻
+    bool? isInBackground, // バックグラウンド状態
   }) = _TimerSession;
 
   factory TimerSession.fromJson(Map<String, dynamic> json) =>

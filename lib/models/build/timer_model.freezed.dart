@@ -400,6 +400,8 @@ mixin _$TimerSession {
   int get completedCycles;
   TimerSettings get settings;
   int? get selectedTodoId;
+  DateTime? get backgroundTime; // バックグラウンドに入った時刻
+  bool? get isInBackground;
 
   /// Create a copy of TimerSession
   /// with the given fields replaced by the non-null parameter values.
@@ -432,7 +434,11 @@ mixin _$TimerSession {
             (identical(other.settings, settings) ||
                 other.settings == settings) &&
             (identical(other.selectedTodoId, selectedTodoId) ||
-                other.selectedTodoId == selectedTodoId));
+                other.selectedTodoId == selectedTodoId) &&
+            (identical(other.backgroundTime, backgroundTime) ||
+                other.backgroundTime == backgroundTime) &&
+            (identical(other.isInBackground, isInBackground) ||
+                other.isInBackground == isInBackground));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -447,11 +453,13 @@ mixin _$TimerSession {
       currentCycle,
       completedCycles,
       settings,
-      selectedTodoId);
+      selectedTodoId,
+      backgroundTime,
+      isInBackground);
 
   @override
   String toString() {
-    return 'TimerSession(mode: $mode, state: $state, currentPhase: $currentPhase, remainingSeconds: $remainingSeconds, elapsedSeconds: $elapsedSeconds, currentCycle: $currentCycle, completedCycles: $completedCycles, settings: $settings, selectedTodoId: $selectedTodoId)';
+    return 'TimerSession(mode: $mode, state: $state, currentPhase: $currentPhase, remainingSeconds: $remainingSeconds, elapsedSeconds: $elapsedSeconds, currentCycle: $currentCycle, completedCycles: $completedCycles, settings: $settings, selectedTodoId: $selectedTodoId, backgroundTime: $backgroundTime, isInBackground: $isInBackground)';
   }
 }
 
@@ -470,7 +478,9 @@ abstract mixin class $TimerSessionCopyWith<$Res> {
       int currentCycle,
       int completedCycles,
       TimerSettings settings,
-      int? selectedTodoId});
+      int? selectedTodoId,
+      DateTime? backgroundTime,
+      bool? isInBackground});
 
   $TimerSettingsCopyWith<$Res> get settings;
 }
@@ -496,6 +506,8 @@ class _$TimerSessionCopyWithImpl<$Res> implements $TimerSessionCopyWith<$Res> {
     Object? completedCycles = null,
     Object? settings = null,
     Object? selectedTodoId = freezed,
+    Object? backgroundTime = freezed,
+    Object? isInBackground = freezed,
   }) {
     return _then(_self.copyWith(
       mode: null == mode
@@ -534,6 +546,14 @@ class _$TimerSessionCopyWithImpl<$Res> implements $TimerSessionCopyWith<$Res> {
           ? _self.selectedTodoId
           : selectedTodoId // ignore: cast_nullable_to_non_nullable
               as int?,
+      backgroundTime: freezed == backgroundTime
+          ? _self.backgroundTime
+          : backgroundTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      isInBackground: freezed == isInBackground
+          ? _self.isInBackground
+          : isInBackground // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ));
   }
 
@@ -648,7 +668,9 @@ extension TimerSessionPatterns on TimerSession {
             int currentCycle,
             int completedCycles,
             TimerSettings settings,
-            int? selectedTodoId)?
+            int? selectedTodoId,
+            DateTime? backgroundTime,
+            bool? isInBackground)?
         $default, {
     required TResult orElse(),
   }) {
@@ -664,7 +686,9 @@ extension TimerSessionPatterns on TimerSession {
             _that.currentCycle,
             _that.completedCycles,
             _that.settings,
-            _that.selectedTodoId);
+            _that.selectedTodoId,
+            _that.backgroundTime,
+            _that.isInBackground);
       case _:
         return orElse();
     }
@@ -694,7 +718,9 @@ extension TimerSessionPatterns on TimerSession {
             int currentCycle,
             int completedCycles,
             TimerSettings settings,
-            int? selectedTodoId)
+            int? selectedTodoId,
+            DateTime? backgroundTime,
+            bool? isInBackground)
         $default,
   ) {
     final _that = this;
@@ -709,7 +735,9 @@ extension TimerSessionPatterns on TimerSession {
             _that.currentCycle,
             _that.completedCycles,
             _that.settings,
-            _that.selectedTodoId);
+            _that.selectedTodoId,
+            _that.backgroundTime,
+            _that.isInBackground);
     }
   }
 
@@ -736,7 +764,9 @@ extension TimerSessionPatterns on TimerSession {
             int currentCycle,
             int completedCycles,
             TimerSettings settings,
-            int? selectedTodoId)?
+            int? selectedTodoId,
+            DateTime? backgroundTime,
+            bool? isInBackground)?
         $default,
   ) {
     final _that = this;
@@ -751,7 +781,9 @@ extension TimerSessionPatterns on TimerSession {
             _that.currentCycle,
             _that.completedCycles,
             _that.settings,
-            _that.selectedTodoId);
+            _that.selectedTodoId,
+            _that.backgroundTime,
+            _that.isInBackground);
       case _:
         return null;
     }
@@ -770,7 +802,9 @@ class _TimerSession implements TimerSession {
       this.currentCycle = 0,
       this.completedCycles = 0,
       required this.settings,
-      this.selectedTodoId});
+      this.selectedTodoId,
+      this.backgroundTime,
+      this.isInBackground});
   factory _TimerSession.fromJson(Map<String, dynamic> json) =>
       _$TimerSessionFromJson(json);
 
@@ -799,6 +833,11 @@ class _TimerSession implements TimerSession {
   final TimerSettings settings;
   @override
   final int? selectedTodoId;
+  @override
+  final DateTime? backgroundTime;
+// バックグラウンドに入った時刻
+  @override
+  final bool? isInBackground;
 
   /// Create a copy of TimerSession
   /// with the given fields replaced by the non-null parameter values.
@@ -835,7 +874,11 @@ class _TimerSession implements TimerSession {
             (identical(other.settings, settings) ||
                 other.settings == settings) &&
             (identical(other.selectedTodoId, selectedTodoId) ||
-                other.selectedTodoId == selectedTodoId));
+                other.selectedTodoId == selectedTodoId) &&
+            (identical(other.backgroundTime, backgroundTime) ||
+                other.backgroundTime == backgroundTime) &&
+            (identical(other.isInBackground, isInBackground) ||
+                other.isInBackground == isInBackground));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -850,11 +893,13 @@ class _TimerSession implements TimerSession {
       currentCycle,
       completedCycles,
       settings,
-      selectedTodoId);
+      selectedTodoId,
+      backgroundTime,
+      isInBackground);
 
   @override
   String toString() {
-    return 'TimerSession(mode: $mode, state: $state, currentPhase: $currentPhase, remainingSeconds: $remainingSeconds, elapsedSeconds: $elapsedSeconds, currentCycle: $currentCycle, completedCycles: $completedCycles, settings: $settings, selectedTodoId: $selectedTodoId)';
+    return 'TimerSession(mode: $mode, state: $state, currentPhase: $currentPhase, remainingSeconds: $remainingSeconds, elapsedSeconds: $elapsedSeconds, currentCycle: $currentCycle, completedCycles: $completedCycles, settings: $settings, selectedTodoId: $selectedTodoId, backgroundTime: $backgroundTime, isInBackground: $isInBackground)';
   }
 }
 
@@ -875,7 +920,9 @@ abstract mixin class _$TimerSessionCopyWith<$Res>
       int currentCycle,
       int completedCycles,
       TimerSettings settings,
-      int? selectedTodoId});
+      int? selectedTodoId,
+      DateTime? backgroundTime,
+      bool? isInBackground});
 
   @override
   $TimerSettingsCopyWith<$Res> get settings;
@@ -903,6 +950,8 @@ class __$TimerSessionCopyWithImpl<$Res>
     Object? completedCycles = null,
     Object? settings = null,
     Object? selectedTodoId = freezed,
+    Object? backgroundTime = freezed,
+    Object? isInBackground = freezed,
   }) {
     return _then(_TimerSession(
       mode: null == mode
@@ -941,6 +990,14 @@ class __$TimerSessionCopyWithImpl<$Res>
           ? _self.selectedTodoId
           : selectedTodoId // ignore: cast_nullable_to_non_nullable
               as int?,
+      backgroundTime: freezed == backgroundTime
+          ? _self.backgroundTime
+          : backgroundTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      isInBackground: freezed == isInBackground
+          ? _self.isInBackground
+          : isInBackground // ignore: cast_nullable_to_non_nullable
+              as bool?,
     ));
   }
 

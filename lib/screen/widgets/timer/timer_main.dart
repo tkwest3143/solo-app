@@ -30,7 +30,7 @@ class TimerMainWidget extends HookConsumerWidget {
     final hasShownTargetDialog = useState<bool>(false);
 
     void applyTodoSettingsToTimer(TodoModel todo) {
-      if (todo.timerType == TimerType.pomodoro && 
+      if (todo.timerType == TimerType.pomodoro &&
           todo.pomodoroWorkMinutes != null &&
           todo.pomodoroShortBreakMinutes != null &&
           todo.pomodoroLongBreakMinutes != null &&
@@ -46,7 +46,6 @@ class TimerMainWidget extends HookConsumerWidget {
       // カウントアップの場合は特に設定適用の必要なし（目標時間は表示のみ）
     }
 
-    // Load selected todo when selectedTodoId changes
     useEffect(() {
       void loadSelectedTodo() async {
         if (timerSession.selectedTodoId != null) {
@@ -64,7 +63,7 @@ class TimerMainWidget extends HookConsumerWidget {
               isRecurring: false,
             ),
           );
-          
+
           if (foundTodo.id == -1) {
             selectedTodo.value = null;
           } else {
@@ -76,7 +75,7 @@ class TimerMainWidget extends HookConsumerWidget {
           selectedTodo.value = null;
         }
       }
-      
+
       loadSelectedTodo();
       return null;
     }, [timerSession.selectedTodoId]);
@@ -87,18 +86,19 @@ class TimerMainWidget extends HookConsumerWidget {
         if (timerSession.mode == TimerMode.countUp &&
             selectedTodo.value != null &&
             selectedTodo.value!.countupElapsedSeconds != null &&
-            timerSession.elapsedSeconds >= selectedTodo.value!.countupElapsedSeconds! &&
+            timerSession.elapsedSeconds >=
+                selectedTodo.value!.countupElapsedSeconds! &&
             timerSession.state == TimerStatus.idle &&
             !hasShownTargetDialog.value) {
-          
           hasShownTargetDialog.value = true;
-          
+
           // Show completion dialog
           final confirmed = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
               title: const Text('目標時間達成！'),
-              content: Text('${selectedTodo.value!.title} の目標時間に達しました。\nタスクを完了済みにしますか？'),
+              content: Text(
+                  '${selectedTodo.value!.title} の目標時間に達しました。\nタスクを完了済みにしますか？'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
@@ -117,12 +117,11 @@ class TimerMainWidget extends HookConsumerWidget {
           }
         }
       }
-      
+
       checkTargetReached();
       return null;
     }, [timerSession.elapsedSeconds, timerSession.state, selectedTodo.value]);
 
-    // Reset dialog flag when timer is reset or todo is changed
     useEffect(() {
       hasShownTargetDialog.value = false;
       return null;
@@ -134,7 +133,7 @@ class TimerMainWidget extends HookConsumerWidget {
         currentTodoId: timerSession.selectedTodoId,
         currentTimerMode: timerSession.mode,
       );
-      
+
       if (selectedId != timerSession.selectedTodoId) {
         await timerController.selectTodo(selectedId);
       }
@@ -142,13 +141,10 @@ class TimerMainWidget extends HookConsumerWidget {
 
     return Column(
       children: [
-        // Mode switch
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8), // マージンを減らす
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           child: const TimerModeSwitch(),
         ),
-
-        // Todo selection button
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: GestureDetector(
@@ -159,14 +155,23 @@ class TimerMainWidget extends HookConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
                 gradient: LinearGradient(
                   colors: [
-                    Theme.of(context).colorScheme.surface.withValues(alpha: 0.1),
-                    Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
+                    Theme.of(context)
+                        .colorScheme
+                        .surface
+                        .withValues(alpha: 0.1),
+                    Theme.of(context)
+                        .colorScheme
+                        .surface
+                        .withValues(alpha: 0.05),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .outline
+                      .withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
@@ -182,25 +187,31 @@ class TimerMainWidget extends HookConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          selectedTodo.value != null ? selectedTodo.value!.title : 'タスクを選択',
+                          selectedTodo.value != null
+                              ? selectedTodo.value!.title
+                              : 'タスクを選択',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: selectedTodo.value != null 
+                            color: selectedTodo.value != null
                                 ? Theme.of(context).colorScheme.onSurface
-                                : Theme.of(context).colorScheme.secondaryTextColor,
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .secondaryTextColor,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          selectedTodo.value != null 
+                          selectedTodo.value != null
                               ? 'タイマー完了時に自動でタスクを完了にします'
                               : 'タスクを選択してタイマーを開始',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Theme.of(context).colorScheme.secondaryTextColor,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondaryTextColor,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -218,6 +229,7 @@ class TimerMainWidget extends HookConsumerWidget {
             ),
           ),
         ),
+        const SizedBox(height: 16),
 
         // Timer display
         Expanded(
@@ -245,9 +257,15 @@ class TimerMainWidget extends HookConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.1),
+                color: Theme.of(context)
+                    .colorScheme
+                    .surface
+                    .withValues(alpha: 0.1),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .outline
+                      .withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
@@ -261,7 +279,10 @@ class TimerMainWidget extends HookConsumerWidget {
                   Container(
                     height: 20,
                     width: 1,
-                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outline
+                        .withValues(alpha: 0.3),
                   ),
                   _buildCompactCycleInfo(
                     context,
@@ -272,7 +293,7 @@ class TimerMainWidget extends HookConsumerWidget {
               ),
             ),
           ),
-        
+
         // Count-up target time (カウントアップ目標時間)
         if (timerSession.mode == TimerMode.countUp)
           Padding(
@@ -281,9 +302,15 @@ class TimerMainWidget extends HookConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.1),
+                color: Theme.of(context)
+                    .colorScheme
+                    .surface
+                    .withValues(alpha: 0.1),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .outline
+                      .withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
@@ -292,16 +319,19 @@ class TimerMainWidget extends HookConsumerWidget {
                   _buildCompactCycleInfo(
                     context,
                     Icons.flag_outlined,
-                    selectedTodo.value != null && selectedTodo.value!.countupElapsedSeconds != null
+                    selectedTodo.value != null &&
+                            selectedTodo.value!.countupElapsedSeconds != null
                         ? '目標時間: ${(selectedTodo.value!.countupElapsedSeconds! / 60).round()}分'
                         : '目標時間: 未設定',
                   ),
-                  if (selectedTodo.value != null && 
+                  if (selectedTodo.value != null &&
                       selectedTodo.value!.countupElapsedSeconds != null &&
-                      timerSession.elapsedSeconds >= selectedTodo.value!.countupElapsedSeconds!) ...[
+                      timerSession.elapsedSeconds >=
+                          selectedTodo.value!.countupElapsedSeconds!) ...[
                     const SizedBox(width: 12),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         color: Theme.of(context).colorScheme.successColor,

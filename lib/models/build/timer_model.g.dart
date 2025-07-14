@@ -39,6 +39,10 @@ _TimerSession _$TimerSessionFromJson(Map<String, dynamic> json) =>
       settings:
           TimerSettings.fromJson(json['settings'] as Map<String, dynamic>),
       selectedTodoId: (json['selectedTodoId'] as num?)?.toInt(),
+      backgroundTime: json['backgroundTime'] == null
+          ? null
+          : DateTime.parse(json['backgroundTime'] as String),
+      isInBackground: json['isInBackground'] as bool?,
     );
 
 Map<String, dynamic> _$TimerSessionToJson(_TimerSession instance) =>
@@ -52,6 +56,8 @@ Map<String, dynamic> _$TimerSessionToJson(_TimerSession instance) =>
       'completedCycles': instance.completedCycles,
       'settings': instance.settings,
       'selectedTodoId': instance.selectedTodoId,
+      'backgroundTime': instance.backgroundTime?.toIso8601String(),
+      'isInBackground': instance.isInBackground,
     };
 
 const _$TimerModeEnumMap = {

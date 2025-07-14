@@ -7,11 +7,15 @@ import 'package:solo/screen/router.dart';
 import 'package:solo/screen/states/settings_state.dart';
 import 'package:solo/screen/states/settings_integration.dart';
 import 'package:solo/screen/states/notification_state.dart';
+import 'package:solo/services/background_timer_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting("ja-JP", null);
-  
+
+  // アラームマネージャーを初期化
+  await BackgroundTimerService.initialize();
+
   runApp(
     ProviderScope(
       child: MyApp(),
@@ -26,26 +30,30 @@ class MyApp extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouter);
     final settings = ref.watch(settingsStateProvider);
-    
+
     // Initialize settings and timer integration on app startup
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         // Load settings from storage
         await ref.read(settingsStateProvider.notifier).initialize();
-        
+
         // Initialize timer system with loaded settings
         ref.read(settingsIntegrationProvider);
-        ref.read(settingsIntegrationProvider.notifier).initializeTimerWithSettings();
-        
+        ref
+            .read(settingsIntegrationProvider.notifier)
+            .initializeTimerWithSettings();
+
         // Initialize notification system
         await ref.read(notificationStateProvider.notifier).initialize();
-        
+
         // Schedule notifications for today's todos
-        await ref.read(notificationStateProvider.notifier).scheduleTodayNotifications();
+        await ref
+            .read(notificationStateProvider.notifier)
+            .scheduleTodayNotifications();
       });
       return null;
     }, []);
-    
+
     return PopScope(
         canPop: false,
         child: MaterialApp.router(

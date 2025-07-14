@@ -31,6 +31,8 @@ dependencies:
   flutter_local_notifications: ^19.3.0
   timezone: ^0.10.1
   flutter_launcher_icons: ^0.14.4
+  android_alarm_manager_plus: ^4.0.4
+  audioplayers: ^6.5.0
 
 dev_dependencies:
   flutter_test:
@@ -44,6 +46,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/sounds/
 
 flutter_icons:
   ios: true
