@@ -5,6 +5,7 @@ import 'package:solo/screen/router.dart';
 import 'package:solo/screen/widgets/todo/add_todo_dialog.dart';
 import 'package:solo/screen/widgets/todo/todo_card.dart';
 import 'package:solo/screen/widgets/todo/todo_filter_dialog.dart';
+import 'package:solo/screen/widgets/todo/date_list_widget.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/services/todo_service.dart';
@@ -22,9 +23,21 @@ class CalendarPage extends HookConsumerWidget {
     final selectedStatus = useState<String?>(null);
     final todoService = useMemoized(() => TodoService());
     final refreshKey = useState<int>(0);
+    
+    // 新しいUI状態管理
+    final isDateListView = useState<bool>(false); // false: カレンダー表示, true: 日付リスト表示
 
     void refreshTodos() {
       refreshKey.value++;
+    }
+    
+    void toggleToDateListView(DateTime selectedDate) {
+      selectedDay.value = selectedDate;
+      isDateListView.value = true;
+    }
+    
+    void toggleToCalendarView() {
+      isDateListView.value = false;
     }
 
     return Container(
@@ -138,35 +151,51 @@ class CalendarPage extends HookConsumerWidget {
               ),
             ),
 
-            // Calendar
+            // Calendar or Date List View
             Expanded(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 2),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Theme.of(context).colorScheme.surface,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.lightShadowColor,
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      // Calendar widget
-                      ValueListenableBuilder<int>(
-                        valueListenable: refreshKey,
-                        builder: (context, _, __) =>
-                            FutureBuilder<Map<DateTime, List<TodoModel>>>(
-                          future:
-                              todoService.getTodosForMonth(focusedDay.value),
-                          builder: (context, snapshot) {
-                            final todosByDate = snapshot.data ?? {};
+              child: isDateListView.value 
+                  ? _buildDateListView(
+                      context,
+                      selectedDay.value,
+                      focusedDay.value,
+                      selectedCategory.value,
+                      selectedStatus.value,
+                      refreshTodos,
+                      toggleToCalendarView,
+                      (date) {
+                        selectedDay.value = date;
+                        // 選択された日付の月をfocusedDayに設定
+                        focusedDay.value = DateTime(date.year, date.month, 1);
+                        refreshTodos();
+                      },
+                    )
+                  : Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Theme.of(context).colorScheme.surface,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context).colorScheme.lightShadowColor,
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            // Calendar widget
+                            ValueListenableBuilder<int>(
+                              valueListenable: refreshKey,
+                              builder: (context, _, __) =>
+                                  FutureBuilder<Map<DateTime, List<TodoModel>>>(
+                                future:
+                                    todoService.getTodosForMonth(focusedDay.value),
+                                builder: (context, snapshot) {
+                                  final todosByDate = snapshot.data ?? {};
 
-                            return TableCalendar<TodoModel>(
+                                  return TableCalendar<TodoModel>(
                               locale: 'ja',
                               firstDay: DateTime.utc(2020, 1, 1),
                               lastDay: DateTime.utc(2030, 12, 31),
@@ -478,50 +507,8 @@ class CalendarPage extends HookConsumerWidget {
                                 },
                               ),
                               onDaySelected: (selected, focused) {
-                                selectedDay.value = selected;
+                                toggleToDateListView(selected);
                                 focusedDay.value = focused;
-                                // 日付タップ時にその日のTodoリストをBottomSheetで表示（高さ: 画面1/3、内部スクロール）
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  builder: (context) {
-                                    final height =
-                                        MediaQuery.of(context).size.height *
-                                            0.4;
-                                    return Container(
-                                      height: height,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .surface,
-                                        borderRadius:
-                                            const BorderRadius.vertical(
-                                                top: Radius.circular(28)),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .mediumShadowColor,
-                                            blurRadius: 24,
-                                            offset: const Offset(0, -8),
-                                          ),
-                                        ],
-                                      ),
-                                      padding: const EdgeInsets.only(
-                                          top: 4, left: 0, right: 0, bottom: 4),
-                                      child: SafeArea(
-                                        child: _buildSelectedDayTodosSheet(
-                                          context,
-                                          selected,
-                                          selectedCategory.value,
-                                          selectedStatus.value,
-                                          refreshTodos,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
                               },
                               onPageChanged: (focused) {
                                 focusedDay.value = focused;
@@ -529,12 +516,12 @@ class CalendarPage extends HookConsumerWidget {
                             );
                           },
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ),
             const SizedBox(height: 20),
           ],
         ),
@@ -542,145 +529,160 @@ class CalendarPage extends HookConsumerWidget {
     );
   }
 
-  Color? _getMarkerColor(BuildContext context, List<TodoModel> todos) {
-    if (todos.isEmpty) return null;
-    final hasIncomplete = todos.any((todo) => !todo.isCompleted);
-    final allCompleted =
-        todos.isNotEmpty && todos.every((todo) => todo.isCompleted);
-    if (hasIncomplete) {
-      return Theme.of(context).colorScheme.primary;
-    } else if (allCompleted) {
-      return Colors.grey;
-    }
-    return null;
-  }
-
-  Widget _buildSelectedDayTodosSheet(BuildContext context, DateTime selectedDay,
-      int? categoryFilter, String? statusFilter, VoidCallback onRefresh) {
-    return FutureBuilder<List<TodoModel>>(
-      future: TodoService().getTodosForDate(selectedDay),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        var todos = snapshot.data ?? [];
-        if (categoryFilter != null) {
-          todos =
-              todos.where((todo) => todo.categoryId == categoryFilter).toList();
-        }
-        if (statusFilter != null) {
-          if (statusFilter == 'completed') {
-            todos = todos.where((todo) => todo.isCompleted == true).toList();
-          } else if (statusFilter == 'incomplete') {
-            todos = todos.where((todo) => todo.isCompleted != true).toList();
-          }
-        }
-        if (todos.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 24),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.event_available,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.mutedTextColor,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${formatDate(selectedDay, format: 'M月d日(EEE)')}のTodoはありません',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.mutedTextColor,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      await AddTodoDialog.show(context,
-                          initialDate: selectedDay, onSaved: onRefresh);
-                    },
-                    icon: Icon(Icons.add_circle_rounded,
-                        color: Theme.of(context).colorScheme.primary, size: 28),
-                    label: const Text('追加する',
+  /// 日付リスト表示のビューを構築
+  Widget _buildDateListView(
+    BuildContext context,
+    DateTime selectedDate,
+    DateTime focusedMonth,
+    int? categoryFilter,
+    String? statusFilter,
+    VoidCallback onRefresh,
+    VoidCallback onBackToCalendar,
+    Function(DateTime) onDateSelected,
+  ) {
+    return Column(
+      children: [
+        // 日付リスト
+        DateListWidget(
+          focusedMonth: focusedMonth,
+          selectedDate: selectedDate,
+          onDateSelected: onDateSelected,
+          onBackToCalendar: onBackToCalendar,
+        ),
+        
+        // Todo一覧
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Theme.of(context).colorScheme.surface,
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.lightShadowColor,
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                // ヘッダー
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Text(
+                        '${formatDate(selectedDate, format: 'M月d日(EEE)')}のTodo',
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      foregroundColor:
-                          Theme.of(context).colorScheme.primaryTextColor,
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(32),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primaryTextColor,
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 16),
-                    ),
+                      const Spacer(),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          await AddTodoDialog.show(
+                            context,
+                            initialDate: selectedDate,
+                            onSaved: onRefresh,
+                          );
+                        },
+                        icon: Icon(
+                          Icons.add_circle_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 20,
+                        ),
+                        label: const Text(
+                          '追加',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.surface,
+                          foregroundColor: Theme.of(context).colorScheme.primaryTextColor,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Row(
-                children: [
-                  Text(
-                    '${formatDate(selectedDay, format: 'M月d日(EEE)')}のTodo (${todos.length}件)',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primaryTextColor,
-                    ),
-                  ),
-                  const Spacer(),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      await AddTodoDialog.show(context,
-                          initialDate: selectedDay, onSaved: onRefresh);
+                ),
+                const Divider(height: 1),
+                
+                // Todo一覧
+                Expanded(
+                  child: FutureBuilder<List<TodoModel>>(
+                    key: ValueKey('todo-list-${selectedDate.year}-${selectedDate.month}-${selectedDate.day}'), // キーを追加
+                    future: TodoService().getTodosForDate(selectedDate),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      
+                      var todos = snapshot.data ?? [];
+                      
+                      // フィルター適用
+                      if (categoryFilter != null) {
+                        todos = todos.where((todo) => todo.categoryId == categoryFilter).toList();
+                      }
+                      if (statusFilter != null) {
+                        if (statusFilter == 'completed') {
+                          todos = todos.where((todo) => todo.isCompleted == true).toList();
+                        } else if (statusFilter == 'incomplete') {
+                          todos = todos.where((todo) => todo.isCompleted != true).toList();
+                        }
+                      }
+                      
+                      if (todos.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.event_available,
+                                size: 48,
+                                color: Theme.of(context).colorScheme.mutedTextColor,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'この日のTodoはありません',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.mutedTextColor,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      
+                      return ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: todos.length,
+                        itemBuilder: (context, index) {
+                          final todo = todos[index];
+                          return TodoCard(
+                            todo: todo,
+                            onRefresh: onRefresh,
+                          );
+                        },
+                      );
                     },
-                    icon: Icon(Icons.add_circle_rounded,
-                        color: Theme.of(context).colorScheme.primary, size: 20),
-                    label: const Text('追加',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      foregroundColor:
-                          Theme.of(context).colorScheme.primaryTextColor,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const Divider(height: 1),
-            SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: todos.length,
-                itemBuilder: (context, index) {
-                  final todo = todos[index];
-                  return TodoCard(
-                    todo: todo,
-                    onRefresh: onRefresh,
-                  );
-                },
-              ),
-            ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
+
 }
