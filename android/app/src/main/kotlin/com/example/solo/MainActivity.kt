@@ -1,4 +1,4 @@
-package com.example.solo
+package tech.tkwork.solo
 
 import io.flutter.embedding.android.FlutterActivity
 

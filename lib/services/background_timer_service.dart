@@ -1,9 +1,11 @@
 import 'dart:isolate';
 import 'dart:ui';
+import 'dart:io';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solo/models/timer_model.dart';
 import 'package:solo/services/notification_service.dart';
+import 'package:flutter/services.dart';
 
 class BackgroundTimerService {
   static const String _timerDataKey = 'background_timer_data';
@@ -15,7 +17,7 @@ class BackgroundTimerService {
     try {
       // タイマーデータを永続化
       await _saveTimerData(timerSession);
-      
+
       // 1秒ごとにアラームを設定
       return await AndroidAlarmManager.periodic(
         const Duration(seconds: 1),
@@ -26,6 +28,25 @@ class BackgroundTimerService {
         rescheduleOnReboot: true,
       );
     } catch (e) {
+      // 正確なアラームの許可がない場合のエラーハンドリング
+      if (e.toString().contains('exact_alarms_not_permitted')) {
+        print('Exact alarms not permitted. Trying with approximate alarm.');
+        try {
+          // exactをfalseにしてリトライ
+          return await AndroidAlarmManager.periodic(
+            const Duration(seconds: 1),
+            _alarmId,
+            _backgroundTimerCallback,
+            exact: false,
+            wakeup: true,
+            rescheduleOnReboot: true,
+          );
+        } catch (retryError) {
+          print('Failed to start background timer with approximate alarm: $retryError');
+          return false;
+        }
+      }
+      
       print('Failed to start background timer: $e');
       return false;
     }
@@ -66,7 +87,7 @@ class BackgroundTimerService {
 
       // タイマー状態を更新
       final updatedTimer = _updateTimerState(timerData);
-      
+
       // 更新されたデータを保存
       await _saveTimerData(updatedTimer);
 
@@ -75,7 +96,6 @@ class BackgroundTimerService {
 
       // UIに状態変更を通知
       await _notifyTimerUpdate(updatedTimer);
-      
     } catch (e) {
       print('Background timer callback error: $e');
     }
@@ -153,8 +173,10 @@ class BackgroundTimerService {
   }
 
   /// 次のフェーズに移行
-  static TimerSession _transitionToNextPhase(TimerSession session, PomodoroPhase nextPhase) {
-    final nextRemainingSeconds = _getSecondsForPhase(nextPhase, session.settings);
+  static TimerSession _transitionToNextPhase(
+      TimerSession session, PomodoroPhase nextPhase) {
+    final nextRemainingSeconds =
+        _getSecondsForPhase(nextPhase, session.settings);
     int newCompletedCycles = session.completedCycles;
     int newCurrentCycle = session.currentCycle;
 
@@ -217,7 +239,7 @@ class BackgroundTimerService {
         'cyclesUntilLongBreak': session.settings.cyclesUntilLongBreak,
       },
     };
-    
+
     await prefs.setString(_timerDataKey, data.toString());
   }
 

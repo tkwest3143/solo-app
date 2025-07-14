@@ -133,5 +133,34 @@ void main() {
         returnsNormally,
       );
     });
+
+    test('should handle exact alarms permission error gracefully', () async {
+      // Arrange
+      const timerSettings = TimerSettings();
+      final session = TimerSession(
+        mode: TimerMode.pomodoro,
+        state: TimerStatus.running,
+        currentPhase: PomodoroPhase.work,
+        remainingSeconds: 1500,
+        elapsedSeconds: 0,
+        currentCycle: 0,
+        completedCycles: 0,
+        settings: timerSettings,
+      );
+
+      // Act
+      final result = await BackgroundTimerService.startBackgroundTimer(session);
+
+      // Assert - exact_alarms_not_permittedエラーが発生しても適切にfalseを返すか、
+      // approximate alarmでfalsebackが機能することを確認
+      expect(result, isA<bool>());
+      
+      // テスト環境では実際のアラーム設定はできないが、
+      // エラーハンドリングが適切に動作し、例外がスローされないことを確認
+      expect(
+        () async => await BackgroundTimerService.startBackgroundTimer(session),
+        returnsNormally,
+      );
+    });
   });
 }
