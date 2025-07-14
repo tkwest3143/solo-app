@@ -164,6 +164,8 @@ class CalendarPage extends HookConsumerWidget {
                       toggleToCalendarView,
                       (date) {
                         selectedDay.value = date;
+                        // 選択された日付の月をfocusedDayに設定
+                        focusedDay.value = DateTime(date.year, date.month, 1);
                         refreshTodos();
                       },
                     )
@@ -545,6 +547,7 @@ class CalendarPage extends HookConsumerWidget {
           focusedMonth: focusedMonth,
           selectedDate: selectedDate,
           onDateSelected: onDateSelected,
+          onBackToCalendar: onBackToCalendar,
         ),
         
         // Todo一覧
@@ -564,23 +567,11 @@ class CalendarPage extends HookConsumerWidget {
             ),
             child: Column(
               children: [
-                // ヘッダー（カレンダー切り替えボタン付き）
+                // ヘッダー
                 Container(
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      IconButton(
-                        onPressed: onBackToCalendar,
-                        icon: Icon(
-                          Icons.calendar_month,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.surface,
-                          padding: const EdgeInsets.all(8),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
                       Text(
                         '${formatDate(selectedDate, format: 'M月d日(EEE)')}のTodo',
                         style: TextStyle(
@@ -628,6 +619,7 @@ class CalendarPage extends HookConsumerWidget {
                 // Todo一覧
                 Expanded(
                   child: FutureBuilder<List<TodoModel>>(
+                    key: ValueKey('todo-list-${selectedDate.year}-${selectedDate.month}-${selectedDate.day}'), // キーを追加
                     future: TodoService().getTodosForDate(selectedDate),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
