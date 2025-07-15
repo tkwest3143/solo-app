@@ -174,6 +174,53 @@ class AboutPage extends HookConsumerWidget {
                           ],
                         ),
                       ),
+
+                      const SizedBox(height: 24),
+
+                      // License button
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () {
+                            showLicensePage(
+                              context: context,
+                              applicationName: 'Solo',
+                              applicationVersion: '1.0.0',
+                              applicationIcon: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  gradient: LinearGradient(
+                                    colors: Theme.of(context).colorScheme.primaryGradient,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.timer_rounded,
+                                  color: Theme.of(context).colorScheme.surface,
+                                  size: 32,
+                                ),
+                              ),
+                            );
+                          },
+                          icon: Icon(
+                            Icons.description_outlined,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.secondaryTextColor,
+                          ),
+                          label: Text(
+                            'ライセンス情報',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Theme.of(context).colorScheme.secondaryTextColor,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -231,4 +278,5 @@ class AboutPage extends HookConsumerWidget {
       ),
     );
   }
+
 }

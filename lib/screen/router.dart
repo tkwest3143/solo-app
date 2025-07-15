@@ -32,11 +32,11 @@ class RouterDefinition {
       path: '/timer',
       name: '/timer',
       builder: (context, state) => BulderWidget(
-        child: TimerPage(
-          todoId: state.uri.queryParameters['todoId'],
-          mode: state.uri.queryParameters['mode'],
-        ),
-      ));
+            child: TimerPage(
+              todoId: state.uri.queryParameters['todoId'],
+              mode: state.uri.queryParameters['mode'],
+            ),
+          ));
 
   static Route menu = Route(
       path: '/menu',
