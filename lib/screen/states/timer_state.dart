@@ -109,12 +109,13 @@ class TimerState extends _$TimerState {
           await _ensureDefaultSettingsForPomodoro();
         }
 
-        // Todo固有の設定を適用
+        // Todo固有の設定を適用（サイクル数はデフォルト設定を使用）
+        final appSettings = await SettingsService.loadSettings();
         applyTodoSettings(
           workMinutes: todo.pomodoroWorkMinutes!,
           shortBreakMinutes: todo.pomodoroShortBreakMinutes!,
           longBreakMinutes: todo.pomodoroLongBreakMinutes!,
-          cyclesUntilLongBreak: todo.pomodoroCycle!,
+          cyclesUntilLongBreak: appSettings.defaultCyclesUntilLongBreak,
         );
 
         // ポモドーロタイマーを初期状態にリセット

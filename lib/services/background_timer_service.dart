@@ -1,11 +1,9 @@
 import 'dart:isolate';
 import 'dart:ui';
-import 'dart:io';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solo/models/timer_model.dart';
 import 'package:solo/services/notification_service.dart';
-import 'package:flutter/services.dart';
 
 class BackgroundTimerService {
   static const String _timerDataKey = 'background_timer_data';
@@ -42,11 +40,12 @@ class BackgroundTimerService {
             rescheduleOnReboot: true,
           );
         } catch (retryError) {
-          print('Failed to start background timer with approximate alarm: $retryError');
+          print(
+              'Failed to start background timer with approximate alarm: $retryError');
           return false;
         }
       }
-      
+
       print('Failed to start background timer: $e');
       return false;
     }

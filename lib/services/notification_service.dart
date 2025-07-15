@@ -355,8 +355,8 @@ class NotificationService {
       );
 
       String body = todoTitle != null
-          ? '「$todoTitle」: ${totalMinutes}分経過しました'
-          : '${totalMinutes}分経過しました';
+          ? '「$todoTitle」: $totalMinutes分経過しました'
+          : '$totalMinutes分経過しました';
 
       await _flutterLocalNotificationsPlugin.zonedSchedule(
         _generateBackgroundTimerNotificationId(i),
