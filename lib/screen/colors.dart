@@ -74,12 +74,12 @@ extension AppColorScheme on ColorScheme {
       ? const Color(0xFF525C6B) // さらに濃いグレー
       : const Color(0xFFCBD5E0);
 
-  Color get successColor => const Color.fromARGB(255, 0, 241, 177);
+  Color get successColor => const Color.fromARGB(255, 1, 255, 187);
   Color get successBackgroundColor => brightness == Brightness.light
       ? const Color.fromARGB(255, 218, 247, 238)
       : const Color(0xFF4A5D56);
 
-  Color get warningColor => const Color(0xFFFFD89B);
+  Color get warningColor => const Color.fromARGB(255, 255, 177, 53);
   Color get warningBackgroundColor => brightness == Brightness.light
       ? const Color(0xFFFFF9E6)
       : const Color(0xFF5D5349);
@@ -89,17 +89,17 @@ extension AppColorScheme on ColorScheme {
       ? const Color(0xFFFFF5F5)
       : const Color(0xFF5D4A4A);
 
-  Color get infoColor => const Color.fromARGB(255, 80, 172, 252);
+  Color get infoColor => const Color.fromARGB(255, 50, 159, 255);
   Color get infoBackgroundColor => brightness == Brightness.light
       ? const Color.fromARGB(255, 202, 221, 241) // 濃いめブルー背景
       : const Color(0xFF4A5A5D);
 
-  Color get accentColor => const Color.fromARGB(255, 247, 105, 200);
+  Color get accentColor => const Color.fromARGB(255, 245, 72, 187);
   Color get accentBackgroundColor => brightness == Brightness.light
       ? const Color.fromARGB(255, 242, 214, 234) // 濃いめピンク背景
       : const Color(0xFF5D4A59);
 
-  Color get purpleColor => const Color(0xFFD1B3FF);
+  Color get purpleColor => const Color.fromARGB(255, 183, 139, 249);
   Color get purpleBackgroundColor => brightness == Brightness.light
       ? const Color.fromARGB(255, 222, 207, 241) // 濃いめパープル背景
       : const Color(0xFF524A5D);

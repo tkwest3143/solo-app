@@ -14,7 +14,6 @@ import 'package:solo/enums/todo_color.dart';
 import 'package:solo/enums/recurring_type.dart';
 import 'package:solo/enums/timer_type.dart';
 import 'package:solo/screen/states/notification_state.dart';
-import 'package:flutter/cupertino.dart';
 
 enum ManageType { normal, pomodoro, countup, checklist }
 
@@ -176,32 +175,42 @@ class _AddTodoDialogContent extends HookConsumerWidget {
     }, [initialTodo?.id]);
 
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        top: 32,
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(28),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.mediumShadowColor,
-              blurRadius: 24,
-              offset: const Offset(0, -8),
-            ),
-          ],
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          top: 32,
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-        child: SingleChildScrollView(
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(28),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.mediumShadowColor,
+                blurRadius: 24,
+                offset: const Offset(0, -8),
+              ),
+            ],
+          ),
           child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ヘッダー
-                Row(
+            children: [
+              // 固定ヘッダー
+              Container(
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .outline
+                          .withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                  ),
+                ),
+                child: Row(
                   children: [
                     Icon(
                       initialTodo != null
@@ -226,1003 +235,1071 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                _SectionCard(
-                  child: Column(
-                    children: [
-                      TextField(
-                        controller: titleController,
-                        autofocus: true,
-                        decoration: InputDecoration(
-                          labelText: 'タイトル',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          filled: true,
-                          fillColor: Theme.of(context)
-                              .colorScheme
-                              .surface
-                              .withValues(alpha: 0.05),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 期限
-                _buildSectionTitle(context, '期限'),
-                _SectionCard(
-                  child: Column(
-                    children: [
-                      Row(
+              ),
+              // スクロール可能なコンテンツとボタン
+              Expanded(
+                child: Column(children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.calendar_today,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '期限: ${formatDate(selectedDate.value, format: 'yyyy/MM/dd (EEE)')}',
-                            style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .secondaryTextColor,
-                            ),
-                          ),
-                          const Spacer(),
-                          ElevatedButton(
-                            onPressed: () async {
-                              final pickedDate = await showDatePicker(
-                                context: context,
-                                initialDate: selectedDate.value,
-                                firstDate: DateTime(2020),
-                                lastDate: DateTime(2030),
-                              );
-                              if (pickedDate != null) {
-                                selectedDate.value = pickedDate;
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.surface,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              elevation: 0,
-                            ),
-                            child: const Text('日付を選択'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.schedule_rounded,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '時間: ${selectedTime.value.format(context)}',
-                            style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .secondaryTextColor,
-                            ),
-                          ),
-                          const Spacer(),
-                          ElevatedButton(
-                            onPressed: () async {
-                              final pickedTime = await showTimePicker(
-                                context: context,
-                                initialTime: selectedTime.value,
-                              );
-                              if (pickedTime != null) {
-                                selectedTime.value = pickedTime;
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.surface,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              elevation: 0,
-                            ),
-                            child: const Text('時間を選択'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 繰り返し
-                _buildSectionTitle(context, '繰り返し'),
-                _SectionCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.repeat,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '繰り返し',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryTextColor,
-                            ),
-                          ),
-                          const Spacer(),
-                          Switch(
-                            value: isRecurring.value,
-                            onChanged: (value) => isRecurring.value = value,
-                            activeColor: Theme.of(context).colorScheme.primary,
-                          ),
-                        ],
-                      ),
-                      if (isRecurring.value) ...[
-                        const SizedBox(height: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '繰り返しタイプ',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .secondaryTextColor,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 4),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .outline
-                                      .withValues(alpha: 0.3),
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<RecurringType?>(
-                                  value: recurringType.value,
-                                  isExpanded: true,
-                                  hint: const Text('タイプを選択'),
-                                  items:
-                                      RecurringType.values.map((recurringType) {
-                                    return DropdownMenuItem<RecurringType>(
-                                      value: recurringType,
-                                      child: Text(recurringType.label),
-                                    );
-                                  }).toList(),
-                                  onChanged: (value) {
-                                    recurringType.value = value;
-                                    // Reset specific day/month when type changes
-                                    if (value == RecurringType.monthly) {
-                                      recurringDayOfMonth.value =
-                                          selectedDate.value.day;
-                                    }
-                                    // weeklyの場合は曜日選択不要なので何もしない
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.event_busy,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              recurringEndDate.value != null
-                                  ? '終了日: ${formatDate(recurringEndDate.value!, format: 'yyyy/MM/dd')}'
-                                  : '終了日: 未設定',
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .secondaryTextColor,
-                              ),
-                            ),
-                            const Spacer(),
-                            ElevatedButton(
-                              onPressed: () async {
-                                final pickedDate = await showDatePicker(
-                                  context: context,
-                                  initialDate: recurringEndDate.value ??
-                                      DateTime.now()
-                                          .add(const Duration(days: 30)),
-                                  firstDate: selectedDate.value,
-                                  lastDate: DateTime(2030),
-                                );
-                                recurringEndDate.value = pickedDate;
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.surface,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                elevation: 0,
-                              ),
-                              child: Text(
-                                  recurringEndDate.value != null ? '変更' : '設定'),
-                            ),
-                          ],
-                        ),
-                        if (recurringType.value == RecurringType.monthly)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 12.0),
+                          _SectionCard(
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  '日付',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context)
+                                TextField(
+                                  controller: titleController,
+                                  autofocus: true,
+                                  decoration: InputDecoration(
+                                    labelText: 'タイトル *',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    filled: true,
+                                    fillColor: Theme.of(context)
                                         .colorScheme
-                                        .secondaryTextColor,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .outline
-                                          .withValues(alpha: 0.3),
-                                    ),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<int>(
-                                      value: recurringDayOfMonth.value ?? 1,
-                                      isExpanded: true,
-                                      items: List.generate(31, (index) {
-                                        final day = index + 1;
-                                        return DropdownMenuItem(
-                                          value: day,
-                                          child: Text('$day日'),
-                                        );
-                                      }),
-                                      onChanged: (value) =>
-                                          recurringDayOfMonth.value = value,
-                                    ),
+                                        .surface
+                                        .withValues(alpha: 0.05),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
+                          const SizedBox(height: 16),
 
-                // 管理方法セクション
-                _buildSectionTitle(context, '管理方法'),
-                _SectionCard(
-                  padding: 8,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 0),
-                    child: CupertinoSegmentedControl<ManageType>(
-                      groupValue: manageType.value,
-                      onValueChanged: (ManageType val) {
-                        manageType.value = val;
-                      },
-                      children: {
-                        ManageType.normal: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 6, horizontal: 4),
-                          child: Text('通常',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                  color: manageType.value == ManageType.normal
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .secondaryTextColor)),
-                        ),
-                        ManageType.pomodoro: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 6, horizontal: 4),
-                          child: Text('ポモドーロ',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 11,
-                                  color: manageType.value == ManageType.pomodoro
-                                      ? Theme.of(context)
-                                          .colorScheme
-                                          .accentColor
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .secondaryTextColor)),
-                        ),
-                        ManageType.countup: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 6, horizontal: 4),
-                          child: Text('カウントアップ',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 10,
-                                  color: manageType.value == ManageType.countup
-                                      ? Theme.of(context)
-                                          .colorScheme
-                                          .warningColor
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .secondaryTextColor)),
-                        ),
-                        ManageType.checklist: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 6, horizontal: 4),
-                          child: Text('チェックリスト',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 11,
-                                  color:
-                                      manageType.value == ManageType.checklist
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .successColor
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .secondaryTextColor)),
-                        ),
-                      },
-                      borderColor: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withValues(alpha: 0.3),
-                      selectedColor: Theme.of(context).colorScheme.surface,
-                      unselectedColor: Theme.of(context)
-                          .colorScheme
-                          .surface
-                          .withValues(alpha: 0.7),
-                      pressedColor: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withValues(alpha: 0.08),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 0, horizontal: 0),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // ポモドーロタイマーUI
-                if (manageType.value == ManageType.pomodoro) ...[
-                  _buildSectionTitle(context, 'ポモドーロタイマー'),
-                  _SectionCard(
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.timer,
-                                color:
-                                    Theme.of(context).colorScheme.accentColor,
-                                size: 20),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'ポモドーロタイマーで管理します',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryTextColor,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        // 詳細設定
-                        _buildPomodoroSetting(
-                          context,
-                          '作業時間(min)',
-                          pomodoroWorkMinutes,
-                          Icons.work_rounded,
-                          Theme.of(context).colorScheme.accentColor,
-                          '',
-                          1,
-                          60,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildPomodoroSetting(
-                          context,
-                          '短い休憩(min)',
-                          pomodoroShortBreakMinutes,
-                          Icons.coffee_rounded,
-                          Theme.of(context).colorScheme.infoColor,
-                          '',
-                          1,
-                          30,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildPomodoroSetting(
-                          context,
-                          '長い休憩(min)',
-                          pomodoroLongBreakMinutes,
-                          Icons.spa_rounded,
-                          Theme.of(context).colorScheme.purpleColor,
-                          '',
-                          1,
-                          60,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildPomodoroSetting(
-                          context,
-                          '長い休憩までのサイクル',
-                          pomodoroCycle,
-                          Icons.repeat_rounded,
-                          Theme.of(context).colorScheme.successColor,
-                          '',
-                          2,
-                          10,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildPomodoroSetting(
-                          context,
-                          '完了セット数',
-                          pomodoroCompletionCycles,
-                          Icons.flag_rounded,
-                          Theme.of(context).colorScheme.primary,
-                          '',
-                          1,
-                          20,
-                        ),
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .accentColor
-                                .withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.info_outline,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .accentColor,
-                                      size: 16),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      '設定したセット数に達するとタスクが自動完了になります',
+                          // 期限
+                          _buildSectionTitle(
+                              context, isRecurring.value ? '開始日' : '期限'),
+                          _SectionCard(
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '${isRecurring.value ? '開始日' : '期限'}: ${formatDate(selectedDate.value, format: 'yyyy/MM/dd (EEE)')}',
                                       style: TextStyle(
-                                        fontSize: 12,
                                         color: Theme.of(context)
                                             .colorScheme
                                             .secondaryTextColor,
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-
-                // カウントアップタイマーUI
-                if (manageType.value == ManageType.countup) ...[
-                  _buildSectionTitle(context, 'カウントアップタイマー'),
-                  _SectionCard(
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.timer_outlined,
-                                color:
-                                    Theme.of(context).colorScheme.warningColor,
-                                size: 20),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'カウントアップタイマーで管理します',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryTextColor,
+                                    const Spacer(),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        final pickedDate = await showDatePicker(
+                                          context: context,
+                                          initialDate: selectedDate.value,
+                                          firstDate: DateTime(2020),
+                                          lastDate: DateTime(2030),
+                                        );
+                                        if (pickedDate != null) {
+                                          selectedDate.value = pickedDate;
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        foregroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .surface,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
+                                        elevation: 0,
+                                      ),
+                                      child: const Text('日付を選択'),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        // 目標時間設定
-                        _buildCountupSetting(
-                          context,
-                          '目標時間（任意）',
-                          countupTargetMinutes,
-                          Icons.flag_rounded,
-                          Theme.of(context).colorScheme.warningColor,
-                        ),
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .warningColor
-                                .withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.info_outline,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .warningColor,
-                                      size: 16),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      '開始から経過時間を計測します\nタイマー停止時に自動でタスクが完了になります',
+                                const SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.schedule_rounded,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '時間: ${selectedTime.value.format(context)}',
                                       style: TextStyle(
-                                        fontSize: 12,
                                         color: Theme.of(context)
                                             .colorScheme
                                             .secondaryTextColor,
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                // チェックリストUI
-                if (manageType.value == ManageType.checklist) ...[
-                  _buildSectionTitle(context, 'チェックリスト'),
-                  _SectionCard(
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.checklist,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              'チェックリスト',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryTextColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: checklistInputController,
-                                decoration: const InputDecoration(
-                                  hintText: '項目を追加',
-                                ),
-                                onSubmitted: (value) {
-                                  if (value.trim().isNotEmpty) {
-                                    checklistItems.value = [
-                                      ...checklistItems.value,
-                                      TodoCheckListItemModel(
-                                        id: DateTime.now()
-                                            .millisecondsSinceEpoch,
-                                        todoId: initialTodo?.id ?? -1,
-                                        title: value.trim(),
-                                        isCompleted: false,
-                                        order: checklistItems.value.length,
+                                    const Spacer(),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        final pickedTime = await showTimePicker(
+                                          context: context,
+                                          initialTime: selectedTime.value,
+                                        );
+                                        if (pickedTime != null) {
+                                          selectedTime.value = pickedTime;
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        foregroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .surface,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 8),
+                                        elevation: 0,
                                       ),
-                                    ];
-                                    checklistInputController.clear();
-                                  }
-                                },
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.add_circle_outline),
-                              onPressed: () {
-                                final value =
-                                    checklistInputController.text.trim();
-                                if (value.isNotEmpty) {
-                                  checklistItems.value = [
-                                    ...checklistItems.value,
-                                    TodoCheckListItemModel(
-                                      id: DateTime.now().millisecondsSinceEpoch,
-                                      todoId: initialTodo?.id ?? -1,
-                                      title: value,
-                                      isCompleted: false,
-                                      order: checklistItems.value.length,
+                                      child: const Text('時間を選択'),
                                     ),
-                                  ];
-                                  checklistInputController.clear();
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        ...checklistItems.value.map((item) => ListTile(
-                              title: Text(item.title),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.delete_outline),
-                                onPressed: () {
-                                  checklistItems.value = checklistItems.value
-                                      .where((e) => e.id != item.id)
-                                      .toList();
-                                },
-                              ),
-                            )),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-
-                // カテゴリ
-                _buildSectionTitle(context, 'カテゴリ'),
-                _SectionCard(
-                  child: GestureDetector(
-                    onTap: () async {
-                      final result = await CategorySelectionDialog.show(
-                        context,
-                        initialCategory: selectedCategory.value,
-                      );
-                      if (result != null) {
-                        selectedCategory.value = result;
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: selectedCategory.value != null
-                                  ? TodoColor.getColorFromString(
-                                      selectedCategory.value!.color)
-                                  : Theme.of(context).colorScheme.outline,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Icon(
-                              Icons.category,
-                              color: Colors.white,
-                              size: 16,
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
+                          const SizedBox(height: 16),
+
+                          // 繰り返し
+                          _buildSectionTitle(context, '繰り返し'),
+                          _SectionCard(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  selectedCategory.value?.title ?? 'カテゴリを選択',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: selectedCategory.value != null
-                                        ? Theme.of(context)
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.repeat,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '繰り返し',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context)
                                             .colorScheme
-                                            .primaryTextColor
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .secondaryTextColor,
-                                  ),
+                                            .primaryTextColor,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    Switch(
+                                      value: isRecurring.value,
+                                      onChanged: (value) =>
+                                          isRecurring.value = value,
+                                      activeColor:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ],
                                 ),
-                                if (selectedCategory.value?.description !=
-                                        null &&
-                                    selectedCategory
-                                        .value!.description!.isNotEmpty)
-                                  Text(
-                                    selectedCategory.value!.description!,
-                                    style: TextStyle(
-                                      fontSize: 14,
+                                if (isRecurring.value) ...[
+                                  const SizedBox(height: 12),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '繰り返しタイプ',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondaryTextColor,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .outline
+                                                .withValues(alpha: 0.3),
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton<RecurringType?>(
+                                            value: recurringType.value,
+                                            isExpanded: true,
+                                            hint: const Text('タイプを選択'),
+                                            items: RecurringType.values
+                                                .map((recurringType) {
+                                              return DropdownMenuItem<
+                                                  RecurringType>(
+                                                value: recurringType,
+                                                child:
+                                                    Text(recurringType.label),
+                                              );
+                                            }).toList(),
+                                            onChanged: (value) {
+                                              recurringType.value = value;
+                                              // Reset specific day/month when type changes
+                                              if (value ==
+                                                  RecurringType.monthly) {
+                                                recurringDayOfMonth.value =
+                                                    selectedDate.value.day;
+                                              }
+                                              // weeklyの場合は曜日選択不要なので何もしない
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.event_busy,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        size: 16,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        recurringEndDate.value != null
+                                            ? '終了日: ${formatDate(recurringEndDate.value!, format: 'yyyy/MM/dd')}'
+                                            : '終了日: 未設定',
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondaryTextColor,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          final pickedDate =
+                                              await showDatePicker(
+                                            context: context,
+                                            initialDate: recurringEndDate
+                                                    .value ??
+                                                DateTime.now().add(
+                                                    const Duration(days: 30)),
+                                            firstDate: selectedDate.value,
+                                            lastDate: DateTime(2030),
+                                          );
+                                          recurringEndDate.value = pickedDate;
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          foregroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .surface,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 6),
+                                          elevation: 0,
+                                        ),
+                                        child: Text(
+                                            recurringEndDate.value != null
+                                                ? '変更'
+                                                : '設定'),
+                                      ),
+                                    ],
+                                  ),
+                                  if (recurringType.value ==
+                                      RecurringType.monthly)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 12.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '日付',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondaryTextColor,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 12, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .outline
+                                                    .withValues(alpha: 0.3),
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: DropdownButtonHideUnderline(
+                                              child: DropdownButton<int>(
+                                                value:
+                                                    recurringDayOfMonth.value ??
+                                                        1,
+                                                isExpanded: true,
+                                                items:
+                                                    List.generate(31, (index) {
+                                                  final day = index + 1;
+                                                  return DropdownMenuItem(
+                                                    value: day,
+                                                    child: Text('$day日'),
+                                                  );
+                                                }),
+                                                onChanged: (value) =>
+                                                    recurringDayOfMonth.value =
+                                                        value,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // 管理方法セクション
+                          _buildSectionTitle(context, '管理方法'),
+                          _SectionCard(
+                            padding: 16,
+                            child: SizedBox(
+                              height: 120,
+                              child: GridView.count(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 8,
+                                mainAxisSpacing: 4,
+                                childAspectRatio: 2.5,
+                                physics: const NeverScrollableScrollPhysics(),
+                                children: [
+                                  _buildManageTypeCard(
+                                    context,
+                                    ManageType.normal,
+                                    '通常',
+                                    Icons.task_alt,
+                                    Theme.of(context).colorScheme.primary,
+                                    manageType.value,
+                                    (type) => manageType.value = type,
+                                  ),
+                                  _buildManageTypeCard(
+                                    context,
+                                    ManageType.pomodoro,
+                                    'ポモドーロ',
+                                    Icons.timer,
+                                    Theme.of(context).colorScheme.accentColor,
+                                    manageType.value,
+                                    (type) => manageType.value = type,
+                                  ),
+                                  _buildManageTypeCard(
+                                    context,
+                                    ManageType.countup,
+                                    'カウントアップ',
+                                    Icons.timer_outlined,
+                                    Theme.of(context).colorScheme.warningColor,
+                                    manageType.value,
+                                    (type) => manageType.value = type,
+                                  ),
+                                  _buildManageTypeCard(
+                                    context,
+                                    ManageType.checklist,
+                                    'チェックリスト',
+                                    Icons.checklist,
+                                    Theme.of(context).colorScheme.successColor,
+                                    manageType.value,
+                                    (type) => manageType.value = type,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          // ポモドーロタイマーUI
+                          if (manageType.value == ManageType.pomodoro) ...[
+                            _buildSectionTitle(context, 'ポモドーロタイマー'),
+                            _SectionCard(
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.timer,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .accentColor,
+                                          size: 20),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'ポモドーロタイマーで管理します',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primaryTextColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  // 詳細設定
+                                  _buildPomodoroSetting(
+                                    context,
+                                    '作業時間(min)',
+                                    pomodoroWorkMinutes,
+                                    Icons.work_rounded,
+                                    Theme.of(context).colorScheme.accentColor,
+                                    '',
+                                    1,
+                                    60,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  _buildPomodoroSetting(
+                                    context,
+                                    '短い休憩(min)',
+                                    pomodoroShortBreakMinutes,
+                                    Icons.coffee_rounded,
+                                    Theme.of(context).colorScheme.infoColor,
+                                    '',
+                                    1,
+                                    30,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  _buildPomodoroSetting(
+                                    context,
+                                    '長い休憩(min)',
+                                    pomodoroLongBreakMinutes,
+                                    Icons.spa_rounded,
+                                    Theme.of(context).colorScheme.purpleColor,
+                                    '',
+                                    1,
+                                    60,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  _buildPomodoroSetting(
+                                    context,
+                                    '長い休憩までのサイクル',
+                                    pomodoroCycle,
+                                    Icons.repeat_rounded,
+                                    Theme.of(context).colorScheme.successColor,
+                                    '',
+                                    2,
+                                    10,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  _buildPomodoroSetting(
+                                    context,
+                                    '完了セット数',
+                                    pomodoroCompletionCycles,
+                                    Icons.flag_rounded,
+                                    Theme.of(context).colorScheme.primary,
+                                    '',
+                                    1,
+                                    20,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .accentColor
+                                          .withValues(alpha: 0.05),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(Icons.info_outline,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .accentColor,
+                                                size: 16),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                '設定したセット数に達するとタスクが自動完了になります',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondaryTextColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+
+                          // カウントアップタイマーUI
+                          if (manageType.value == ManageType.countup) ...[
+                            _buildSectionTitle(context, 'カウントアップタイマー'),
+                            _SectionCard(
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.timer_outlined,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .warningColor,
+                                          size: 20),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'カウントアップタイマーで管理します',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primaryTextColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  // 目標時間設定
+                                  _buildCountupSetting(
+                                    context,
+                                    '目標時間（任意）',
+                                    countupTargetMinutes,
+                                    Icons.flag_rounded,
+                                    Theme.of(context).colorScheme.warningColor,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .warningColor
+                                          .withValues(alpha: 0.05),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(Icons.info_outline,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .warningColor,
+                                                size: 16),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                '開始から経過時間を計測します\nタイマー停止時に自動でタスクが完了になります',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondaryTextColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                          // チェックリストUI
+                          if (manageType.value == ManageType.checklist) ...[
+                            _buildSectionTitle(context, 'チェックリスト'),
+                            _SectionCard(
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.checklist,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          size: 20),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'チェックリスト',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primaryTextColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                          controller: checklistInputController,
+                                          decoration: const InputDecoration(
+                                            hintText: '項目を追加',
+                                          ),
+                                          onSubmitted: (value) {
+                                            if (value.trim().isNotEmpty) {
+                                              checklistItems.value = [
+                                                ...checklistItems.value,
+                                                TodoCheckListItemModel(
+                                                  id: DateTime.now()
+                                                      .millisecondsSinceEpoch,
+                                                  todoId: initialTodo?.id ?? -1,
+                                                  title: value.trim(),
+                                                  isCompleted: false,
+                                                  order: checklistItems
+                                                      .value.length,
+                                                ),
+                                              ];
+                                              checklistInputController.clear();
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                            Icons.add_circle_outline),
+                                        onPressed: () {
+                                          final value = checklistInputController
+                                              .text
+                                              .trim();
+                                          if (value.isNotEmpty) {
+                                            checklistItems.value = [
+                                              ...checklistItems.value,
+                                              TodoCheckListItemModel(
+                                                id: DateTime.now()
+                                                    .millisecondsSinceEpoch,
+                                                todoId: initialTodo?.id ?? -1,
+                                                title: value,
+                                                isCompleted: false,
+                                                order:
+                                                    checklistItems.value.length,
+                                              ),
+                                            ];
+                                            checklistInputController.clear();
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  ...checklistItems.value.map((item) =>
+                                      ListTile(
+                                        title: Text(item.title),
+                                        trailing: IconButton(
+                                          icon:
+                                              const Icon(Icons.delete_outline),
+                                          onPressed: () {
+                                            checklistItems.value =
+                                                checklistItems.value
+                                                    .where(
+                                                        (e) => e.id != item.id)
+                                                    .toList();
+                                          },
+                                        ),
+                                      )),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+
+                          // カテゴリ
+                          _buildSectionTitle(context, 'カテゴリ'),
+                          _SectionCard(
+                            child: GestureDetector(
+                              onTap: () async {
+                                final result =
+                                    await CategorySelectionDialog.show(
+                                  context,
+                                  initialCategory: selectedCategory.value,
+                                );
+                                if (result != null) {
+                                  selectedCategory.value = result;
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color:
+                                        Theme.of(context).colorScheme.outline,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 32,
+                                      height: 32,
+                                      decoration: BoxDecoration(
+                                        color: selectedCategory.value != null
+                                            ? TodoColor.getColorFromString(
+                                                selectedCategory.value!.color)
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .outline,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Icon(
+                                        Icons.category,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            selectedCategory.value?.title ??
+                                                'カテゴリを選択',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color:
+                                                  selectedCategory.value != null
+                                                      ? Theme.of(context)
+                                                          .colorScheme
+                                                          .primaryTextColor
+                                                      : Theme.of(context)
+                                                          .colorScheme
+                                                          .secondaryTextColor,
+                                            ),
+                                          ),
+                                          if (selectedCategory
+                                                      .value?.description !=
+                                                  null &&
+                                              selectedCategory.value!
+                                                  .description!.isNotEmpty)
+                                            Text(
+                                              selectedCategory
+                                                  .value!.description!,
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondaryTextColor,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 16,
                                       color: Theme.of(context)
                                           .colorScheme
                                           .secondaryTextColor,
                                     ),
-                                  ),
-                              ],
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondaryTextColor,
+                          const SizedBox(height: 16),
+                          _SectionCard(
+                            child: TextField(
+                              controller: descriptionController,
+                              decoration: InputDecoration(
+                                labelText: '詳細（オプション）',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                filled: true,
+                                fillColor: Theme.of(context)
+                                    .colorScheme
+                                    .surface
+                                    .withValues(alpha: 0.05),
+                              ),
+                              maxLines: 3,
+                            ),
                           ),
+                          const SizedBox(height: 24),
                         ],
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                _SectionCard(
-                  child: TextField(
-                    controller: descriptionController,
-                    decoration: InputDecoration(
-                      labelText: '詳細（オプション）',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  // 固定ボタンエリア
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      border: Border(
+                        top: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withValues(alpha: 0.2),
+                          width: 1,
+                        ),
                       ),
-                      filled: true,
-                      fillColor: Theme.of(context)
-                          .colorScheme
-                          .surface
-                          .withValues(alpha: 0.05),
                     ),
-                    maxLines: 3,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // 追加・更新ボタン
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (titleController.text.trim().isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('タイトルを入力してください')),
-                        );
-                        return;
-                      }
-                      final dueDate = DateTime(
-                        selectedDate.value.year,
-                        selectedDate.value.month,
-                        selectedDate.value.day,
-                        selectedTime.value.hour,
-                        selectedTime.value.minute,
-                      );
-                      // タイマータイプを設定
-                      final TimerType selectedTimerType;
-                      if (manageType.value == ManageType.pomodoro) {
-                        selectedTimerType = TimerType.pomodoro;
-                      } else if (manageType.value == ManageType.countup) {
-                        selectedTimerType = TimerType.countup;
-                      } else {
-                        selectedTimerType = TimerType.none;
-                      }
-
-                      final descriptionText = descriptionController.text.trim();
-                      if (initialTodo != null) {
-                        // Update existing todo
-                        await TodoService().updateTodo(
-                          initialTodo!.id,
-                          title: titleController.text.trim(),
-                          description:
-                              descriptionText.isEmpty ? null : descriptionText,
-                          dueDate: dueDate,
-                          color: selectedCategory.value?.color ??
-                              selectedColor.value,
-                          categoryId: selectedCategory.value?.id,
-                          isRecurring: isRecurring.value,
-                          recurringType:
-                              isRecurring.value ? recurringType.value : null,
-                          recurringEndDate:
-                              isRecurring.value ? recurringEndDate.value : null,
-                          recurringDayOfWeek: isRecurring.value &&
-                                  recurringType.value == RecurringType.weekly
-                              ? selectedDate.value.weekday
-                              : null,
-                          recurringDayOfMonth: isRecurring.value &&
-                                  recurringType.value == RecurringType.monthly
-                              ? recurringDayOfMonth.value
-                              : null,
-                          timerType: selectedTimerType,
-                          // ポモドーロ設定を保存
-                          pomodoroWorkMinutes:
-                              selectedTimerType == TimerType.pomodoro
-                                  ? pomodoroWorkMinutes.value
-                                  : null,
-                          pomodoroShortBreakMinutes:
-                              selectedTimerType == TimerType.pomodoro
-                                  ? pomodoroShortBreakMinutes.value
-                                  : null,
-                          pomodoroLongBreakMinutes:
-                              selectedTimerType == TimerType.pomodoro
-                                  ? pomodoroLongBreakMinutes.value
-                                  : null,
-                          pomodoroCycle: selectedTimerType == TimerType.pomodoro
-                              ? pomodoroCycle.value
-                              : null,
-                          pomodoroCompletedCycle:
-                              selectedTimerType == TimerType.pomodoro
-                                  ? pomodoroCompletionCycles.value
-                                  : null,
-                          // カウントアップ設定を保存（目標時間を秒で保存）
-                          countupElapsedSeconds:
-                              selectedTimerType == TimerType.countup &&
-                                      countupTargetMinutes.value != null
-                                  ? countupTargetMinutes.value! * 60
-                                  : null,
-                        );
-                        // Update checklist items for existing todo
-                        final checklistService = TodoCheckListItemService();
-                        await checklistService
-                            .deleteAllCheckListItemsForTodo(initialTodo!.id);
-                        for (int i = 0; i < checklistItems.value.length; i++) {
-                          final item = checklistItems.value[i];
-                          await checklistService.createCheckListItem(
-                            todoId: initialTodo!.id,
-                            title: item.title,
-                            order: i,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (titleController.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('タイトルを入力してください')),
+                            );
+                            return;
+                          }
+                          final dueDate = DateTime(
+                            selectedDate.value.year,
+                            selectedDate.value.month,
+                            selectedDate.value.day,
+                            selectedTime.value.hour,
+                            selectedTime.value.minute,
                           );
-                        }
-                      } else {
-                        // Create new todo
-                        final newTodo = await TodoService().createTodo(
-                          title: titleController.text.trim(),
-                          description:
-                              descriptionText.isEmpty ? null : descriptionText,
-                          dueDate: dueDate,
-                          color: selectedCategory.value?.color ??
-                              selectedColor.value,
-                          categoryId: selectedCategory.value?.id,
-                          isRecurring: isRecurring.value,
-                          recurringType:
-                              isRecurring.value ? recurringType.value : null,
-                          recurringEndDate:
-                              isRecurring.value ? recurringEndDate.value : null,
-                          recurringDayOfWeek: isRecurring.value &&
-                                  recurringType.value == RecurringType.weekly
-                              ? selectedDate.value.weekday
-                              : null,
-                          recurringDayOfMonth: isRecurring.value &&
-                                  recurringType.value == RecurringType.monthly
-                              ? recurringDayOfMonth.value
-                              : null,
-                          timerType: selectedTimerType,
-                          // ポモドーロ設定を保存
-                          pomodoroWorkMinutes:
-                              selectedTimerType == TimerType.pomodoro
-                                  ? pomodoroWorkMinutes.value
-                                  : null,
-                          pomodoroShortBreakMinutes:
-                              selectedTimerType == TimerType.pomodoro
-                                  ? pomodoroShortBreakMinutes.value
-                                  : null,
-                          pomodoroLongBreakMinutes:
-                              selectedTimerType == TimerType.pomodoro
-                                  ? pomodoroLongBreakMinutes.value
-                                  : null,
-                          pomodoroCycle: selectedTimerType == TimerType.pomodoro
-                              ? pomodoroCycle.value
-                              : null,
-                          pomodoroCompletedCycle:
-                              selectedTimerType == TimerType.pomodoro
-                                  ? pomodoroCompletionCycles.value
-                                  : null,
-                          // カウントアップ設定を保存（目標時間を秒で保存）
-                          countupElapsedSeconds:
-                              selectedTimerType == TimerType.countup &&
-                                      countupTargetMinutes.value != null
-                                  ? countupTargetMinutes.value! * 60
-                                  : null,
-                        );
-                        // Create checklist items for new todo
-                        final checklistService = TodoCheckListItemService();
-                        for (int i = 0; i < checklistItems.value.length; i++) {
-                          final item = checklistItems.value[i];
-                          await checklistService.createCheckListItem(
-                            todoId: newTodo.id,
-                            title: item.title,
-                            order: i,
-                          );
-                        }
+                          // タイマータイプを設定
+                          final TimerType selectedTimerType;
+                          if (manageType.value == ManageType.pomodoro) {
+                            selectedTimerType = TimerType.pomodoro;
+                          } else if (manageType.value == ManageType.countup) {
+                            selectedTimerType = TimerType.countup;
+                          } else {
+                            selectedTimerType = TimerType.none;
+                          }
 
-                        // スケジュール通知を設定
-                        await ref
-                            .read(notificationStateProvider.notifier)
-                            .handleTodoCreated(newTodo);
-                      }
-                      if (context.mounted) {
-                        Navigator.of(context).pop();
-                        onSaved?.call();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              initialTodo != null
-                                  ? 'Todoを更新しました'
-                                  : 'Todoを追加しました',
-                            ),
+                          final descriptionText =
+                              descriptionController.text.trim();
+                          if (initialTodo != null) {
+                            // Update existing todo
+                            await TodoService().updateTodo(
+                              initialTodo!.id,
+                              title: titleController.text.trim(),
+                              description: descriptionText.isEmpty
+                                  ? null
+                                  : descriptionText,
+                              dueDate: dueDate,
+                              color: selectedCategory.value?.color ??
+                                  selectedColor.value,
+                              categoryId: selectedCategory.value?.id,
+                              isRecurring: isRecurring.value,
+                              recurringType: isRecurring.value
+                                  ? recurringType.value
+                                  : null,
+                              recurringEndDate: isRecurring.value
+                                  ? recurringEndDate.value
+                                  : null,
+                              recurringDayOfWeek: isRecurring.value &&
+                                      recurringType.value ==
+                                          RecurringType.weekly
+                                  ? selectedDate.value.weekday
+                                  : null,
+                              recurringDayOfMonth: isRecurring.value &&
+                                      recurringType.value ==
+                                          RecurringType.monthly
+                                  ? recurringDayOfMonth.value
+                                  : null,
+                              timerType: selectedTimerType,
+                              // ポモドーロ設定を保存
+                              pomodoroWorkMinutes:
+                                  selectedTimerType == TimerType.pomodoro
+                                      ? pomodoroWorkMinutes.value
+                                      : null,
+                              pomodoroShortBreakMinutes:
+                                  selectedTimerType == TimerType.pomodoro
+                                      ? pomodoroShortBreakMinutes.value
+                                      : null,
+                              pomodoroLongBreakMinutes:
+                                  selectedTimerType == TimerType.pomodoro
+                                      ? pomodoroLongBreakMinutes.value
+                                      : null,
+                              pomodoroCycle:
+                                  selectedTimerType == TimerType.pomodoro
+                                      ? pomodoroCycle.value
+                                      : null,
+                              pomodoroCompletedCycle:
+                                  selectedTimerType == TimerType.pomodoro
+                                      ? pomodoroCompletionCycles.value
+                                      : null,
+                              // カウントアップ設定を保存（目標時間を秒で保存）
+                              countupElapsedSeconds:
+                                  selectedTimerType == TimerType.countup &&
+                                          countupTargetMinutes.value != null
+                                      ? countupTargetMinutes.value! * 60
+                                      : null,
+                            );
+                            // Update checklist items for existing todo
+                            final checklistService = TodoCheckListItemService();
+                            await checklistService
+                                .deleteAllCheckListItemsForTodo(
+                                    initialTodo!.id);
+                            for (int i = 0;
+                                i < checklistItems.value.length;
+                                i++) {
+                              final item = checklistItems.value[i];
+                              await checklistService.createCheckListItem(
+                                todoId: initialTodo!.id,
+                                title: item.title,
+                                order: i,
+                              );
+                            }
+                          } else {
+                            // Create new todo
+                            final newTodo = await TodoService().createTodo(
+                              title: titleController.text.trim(),
+                              description: descriptionText.isEmpty
+                                  ? null
+                                  : descriptionText,
+                              dueDate: dueDate,
+                              color: selectedCategory.value?.color ??
+                                  selectedColor.value,
+                              categoryId: selectedCategory.value?.id,
+                              isRecurring: isRecurring.value,
+                              recurringType: isRecurring.value
+                                  ? recurringType.value
+                                  : null,
+                              recurringEndDate: isRecurring.value
+                                  ? recurringEndDate.value
+                                  : null,
+                              recurringDayOfWeek: isRecurring.value &&
+                                      recurringType.value ==
+                                          RecurringType.weekly
+                                  ? selectedDate.value.weekday
+                                  : null,
+                              recurringDayOfMonth: isRecurring.value &&
+                                      recurringType.value ==
+                                          RecurringType.monthly
+                                  ? recurringDayOfMonth.value
+                                  : null,
+                              timerType: selectedTimerType,
+                              // ポモドーロ設定を保存
+                              pomodoroWorkMinutes:
+                                  selectedTimerType == TimerType.pomodoro
+                                      ? pomodoroWorkMinutes.value
+                                      : null,
+                              pomodoroShortBreakMinutes:
+                                  selectedTimerType == TimerType.pomodoro
+                                      ? pomodoroShortBreakMinutes.value
+                                      : null,
+                              pomodoroLongBreakMinutes:
+                                  selectedTimerType == TimerType.pomodoro
+                                      ? pomodoroLongBreakMinutes.value
+                                      : null,
+                              pomodoroCycle:
+                                  selectedTimerType == TimerType.pomodoro
+                                      ? pomodoroCycle.value
+                                      : null,
+                              pomodoroCompletedCycle:
+                                  selectedTimerType == TimerType.pomodoro
+                                      ? pomodoroCompletionCycles.value
+                                      : null,
+                              // カウントアップ設定を保存（目標時間を秒で保存）
+                              countupElapsedSeconds:
+                                  selectedTimerType == TimerType.countup &&
+                                          countupTargetMinutes.value != null
+                                      ? countupTargetMinutes.value! * 60
+                                      : null,
+                            );
+                            // Create checklist items for new todo
+                            final checklistService = TodoCheckListItemService();
+                            for (int i = 0;
+                                i < checklistItems.value.length;
+                                i++) {
+                              final item = checklistItems.value[i];
+                              await checklistService.createCheckListItem(
+                                todoId: newTodo.id,
+                                title: item.title,
+                                order: i,
+                              );
+                            }
+
+                            // スケジュール通知を設定
+                            await ref
+                                .read(notificationStateProvider.notifier)
+                                .handleTodoCreated(newTodo);
+                          }
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                            onSaved?.call();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  initialTodo != null
+                                      ? 'Todoを更新しました'
+                                      : 'Todoを追加しました',
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.surface,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.surface,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      initialTodo != null ? '更新' : '追加',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          initialTodo != null ? '更新' : '追加',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ]),
-        ),
-      ),
-    );
+                ]),
+              ),
+            ],
+          ),
+        ));
   }
 }
 
@@ -1446,6 +1523,67 @@ Widget _buildCounterButton(
         icon,
         color: enabled ? color : Colors.grey,
         size: 16,
+      ),
+    ),
+  );
+}
+
+Widget _buildManageTypeCard(
+  BuildContext context,
+  ManageType type,
+  String title,
+  IconData icon,
+  Color color,
+  ManageType selectedType,
+  Function(ManageType) onTap,
+) {
+  final isSelected = selectedType == type;
+  return GestureDetector(
+    onTap: () => onTap(type),
+    child: Container(
+      decoration: BoxDecoration(
+        color: isSelected
+            ? color.withValues(alpha: 0.1)
+            : Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isSelected
+              ? color
+              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+          width: isSelected ? 2 : 1,
+        ),
+        boxShadow: isSelected
+            ? [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : [],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            color: isSelected
+                ? color
+                : Theme.of(context).colorScheme.secondaryTextColor,
+            size: 20,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected
+                  ? color
+                  : Theme.of(context).colorScheme.secondaryTextColor,
+            ),
+          ),
+        ],
       ),
     ),
   );
