@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:solo/services/notification_service.dart';
 import 'package:solo/services/todo_service.dart';
@@ -34,7 +35,9 @@ class NotificationState extends _$NotificationState {
       await _notificationService.scheduleTodayTodoNotifications(todayTodos);
     } catch (e) {
       // エラーハンドリング（ログ出力等）
-      print('通知スケジュール中にエラーが発生しました: $e');
+      if (kDebugMode) {
+        print('通知スケジュール中にエラーが発生しました: $e');
+      }
     }
   }
 
@@ -47,7 +50,9 @@ class NotificationState extends _$NotificationState {
     try {
       await _notificationService.scheduleTodoDeadlineNotification(todo);
     } catch (e) {
-      print('Todo通知スケジュール中にエラーが発生しました: $e');
+      if (kDebugMode) {
+        print('Todo通知スケジュール中にエラーが発生しました: $e');
+      }
     }
   }
 
@@ -60,7 +65,9 @@ class NotificationState extends _$NotificationState {
     try {
       await _notificationService.cancelTodoNotification(todoId);
     } catch (e) {
-      print('Todo通知キャンセル中にエラーが発生しました: $e');
+      if (kDebugMode) {
+        print('Todo通知キャンセル中にエラーが発生しました: $e');
+      }
     }
   }
 
@@ -73,7 +80,9 @@ class NotificationState extends _$NotificationState {
     try {
       await _notificationService.cancelAllNotifications();
     } catch (e) {
-      print('すべての通知キャンセル中にエラーが発生しました: $e');
+      if (kDebugMode) {
+        print('すべての通知キャンセル中にエラーが発生しました: $e');
+      }
     }
   }
 

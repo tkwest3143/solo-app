@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:solo/models/timer_model.dart';
 import 'package:solo/enums/timer_type.dart';
@@ -148,7 +149,9 @@ class TimerState extends _$TimerState {
     } catch (e) {
       // エラーハンドリング - デバッグ時のみログ出力
       assert(() {
-        print('Failed to load todo settings: $e');
+        if (kDebugMode) {
+          print('Failed to load todo settings: $e');
+        }
         return true;
       }());
     }
@@ -244,7 +247,9 @@ class TimerState extends _$TimerState {
     } catch (e) {
       // エラーハンドリング
       assert(() {
-        print('Failed to update todo settings: $e');
+        if (kDebugMode) {
+          print('Failed to update todo settings: $e');
+        }
         return true;
       }());
     }
@@ -262,7 +267,9 @@ class TimerState extends _$TimerState {
     } catch (e) {
       // エラーハンドリング
       assert(() {
-        print('Failed to update app default settings: $e');
+        if (kDebugMode) {
+          print('Failed to update app default settings: $e');
+        }
         return true;
       }());
     }
@@ -429,7 +436,9 @@ class TimerState extends _$TimerState {
       } catch (e) {
         // エラーハンドリング - デバッグ時のみログ出力
         assert(() {
-          print('Failed to check target time: $e');
+          if (kDebugMode) {
+            print('Failed to check target time: $e');
+          }
           return true;
         }());
       }
@@ -562,7 +571,9 @@ class TimerState extends _$TimerState {
       } catch (e) {
         // エラーハンドリング - デバッグ時のみログ出力
         assert(() {
-          print('Failed to complete todo: $e');
+          if (kDebugMode) {
+            print('Failed to complete todo: $e');
+          }
           return true;
         }());
       }
@@ -604,7 +615,9 @@ class TimerState extends _$TimerState {
 
       // デバッグ用ログ
       assert(() {
-        print('[Timer] App moved to background at ${state.backgroundTime}');
+        if (kDebugMode) {
+          print('[Timer] App moved to background at ${state.backgroundTime}');
+        }
         return true;
       }());
     }
@@ -630,8 +643,10 @@ class TimerState extends _$TimerState {
 
       // デバッグ用ログ
       assert(() {
-        print(
-            '[Timer] App moved to foreground. Background duration: ${elapsedSeconds}s');
+        if (kDebugMode) {
+          print(
+              '[Timer] App moved to foreground. Background duration: ${elapsedSeconds}s');
+        }
         return true;
       }());
 
@@ -812,13 +827,17 @@ class TimerState extends _$TimerState {
 
       // デバッグ用ログ
       assert(() {
-        print('[Timer] Playing timer completion sound');
+        if (kDebugMode) {
+          print('[Timer] Playing timer completion sound');
+        }
         return true;
       }());
     } catch (e) {
       // 音声再生に失敗した場合はログを出力して続行
       assert(() {
-        print('[Timer] Failed to play timer sound: $e');
+        if (kDebugMode) {
+          print('[Timer] Failed to play timer sound: $e');
+        }
         return true;
       }());
     }
@@ -856,7 +875,9 @@ class TimerState extends _$TimerState {
     } catch (e) {
       // エラーの場合は何もしない
       assert(() {
-        print('Failed to check todo completion: $e');
+        if (kDebugMode) {
+          print('Failed to check todo completion: $e');
+        }
         return true;
       }());
     }
@@ -894,7 +915,9 @@ class _AppLifecycleObserver extends WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // デバッグ用ログ
     assert(() {
-      print('[Timer] AppLifecycleState changed to: $state');
+      if (kDebugMode) {
+        print('[Timer] AppLifecycleState changed to: $state');
+      }
       return true;
     }());
 

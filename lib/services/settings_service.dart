@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solo/models/settings_model.dart';
 
@@ -18,7 +19,9 @@ class SettingsService {
       }
     } catch (e) {
       // If there's any error loading settings, fall back to defaults
-      print('Error loading settings: $e');
+      if (kDebugMode) {
+        print('Error loading settings: $e');
+      }
     }
     
     // Return default settings if no saved settings or error occurred
@@ -32,7 +35,9 @@ class SettingsService {
       final settingsJson = json.encode(settings.toJson());
       return await prefs.setString(_settingsKey, settingsJson);
     } catch (e) {
-      print('Error saving settings: $e');
+      if (kDebugMode) {
+        print('Error saving settings: $e');
+      }
       return false;
     }
   }
@@ -43,7 +48,9 @@ class SettingsService {
       final prefs = await SharedPreferences.getInstance();
       return await prefs.remove(_settingsKey);
     } catch (e) {
-      print('Error clearing settings: $e');
+      if (kDebugMode) {
+        print('Error clearing settings: $e');
+      }
       return false;
     }
   }
@@ -65,7 +72,9 @@ class SettingsService {
       );
       return await saveSettings(updatedSettings);
     } catch (e) {
-      print('Error updating default pomodoro settings: $e');
+      if (kDebugMode) {
+        print('Error updating default pomodoro settings: $e');
+      }
       return false;
     }
   }

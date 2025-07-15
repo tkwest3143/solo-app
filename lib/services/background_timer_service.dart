@@ -1,6 +1,7 @@
 import 'dart:isolate';
 import 'dart:ui';
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solo/models/timer_model.dart';
 import 'package:solo/services/notification_service.dart';
@@ -28,7 +29,9 @@ class BackgroundTimerService {
     } catch (e) {
       // 正確なアラームの許可がない場合のエラーハンドリング
       if (e.toString().contains('exact_alarms_not_permitted')) {
-        print('Exact alarms not permitted. Trying with approximate alarm.');
+        if (kDebugMode) {
+          print('Exact alarms not permitted. Trying with approximate alarm.');
+        }
         try {
           // exactをfalseにしてリトライ
           return await AndroidAlarmManager.periodic(
@@ -40,13 +43,17 @@ class BackgroundTimerService {
             rescheduleOnReboot: true,
           );
         } catch (retryError) {
-          print(
-              'Failed to start background timer with approximate alarm: $retryError');
+          if (kDebugMode) {
+            print(
+                'Failed to start background timer with approximate alarm: $retryError');
+          }
           return false;
         }
       }
 
-      print('Failed to start background timer: $e');
+      if (kDebugMode) {
+        print('Failed to start background timer: $e');
+      }
       return false;
     }
   }
@@ -58,7 +65,9 @@ class BackgroundTimerService {
       await _clearTimerData();
       return true;
     } catch (e) {
-      print('Failed to stop background timer: $e');
+      if (kDebugMode) {
+        print('Failed to stop background timer: $e');
+      }
       return false;
     }
   }
@@ -68,7 +77,9 @@ class BackgroundTimerService {
     try {
       return await AndroidAlarmManager.initialize();
     } catch (e) {
-      print('Failed to initialize alarm manager: $e');
+      if (kDebugMode) {
+        print('Failed to initialize alarm manager: $e');
+      }
       return false;
     }
   }
@@ -96,7 +107,9 @@ class BackgroundTimerService {
       // UIに状態変更を通知
       await _notifyTimerUpdate(updatedTimer);
     } catch (e) {
-      print('Background timer callback error: $e');
+      if (kDebugMode) {
+        print('Background timer callback error: $e');
+      }
     }
   }
 
@@ -151,7 +164,9 @@ class BackgroundTimerService {
         await stopBackgroundTimer();
       }
     } catch (e) {
-      print('Failed to handle phase complete: $e');
+      if (kDebugMode) {
+        print('Failed to handle phase complete: $e');
+      }
     }
   }
 
@@ -253,7 +268,9 @@ class BackgroundTimerService {
       // ここでは基本的な構造のみ実装
       return null; // 実装が複雑なため、一旦nullを返す
     } catch (e) {
-      print('Failed to load timer data: $e');
+      if (kDebugMode) {
+        print('Failed to load timer data: $e');
+      }
       return null;
     }
   }
