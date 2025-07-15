@@ -79,19 +79,20 @@ class _AddTodoDialogContent extends HookConsumerWidget {
 
     // Pomodoro state
     final isPomodoro = useState<bool>(false);
-    
+
     // ポモドーロタイマー設定
     final pomodoroWorkMinutes = useState<int>(25);
     final pomodoroShortBreakMinutes = useState<int>(5);
     final pomodoroLongBreakMinutes = useState<int>(15);
     final pomodoroCycle = useState<int>(4);
-    
+    final pomodoroCompletionCycles = useState<int>(2); // Todo完了に必要なセット数
+
     // カウントアップタイマー設定
     final countupTargetMinutes = useState<int?>(null);
 
     // 管理方法の選択肢
     final manageType = useState<ManageType>(ManageType.normal);
-    
+
     // 既存のTodoの場合、タイマータイプから管理方法を初期化
     useEffect(() {
       if (initialTodo != null) {
@@ -102,19 +103,28 @@ class _AddTodoDialogContent extends HookConsumerWidget {
             pomodoroWorkMinutes.value = initialTodo!.pomodoroWorkMinutes!;
           }
           if (initialTodo!.pomodoroShortBreakMinutes != null) {
-            pomodoroShortBreakMinutes.value = initialTodo!.pomodoroShortBreakMinutes!;
+            pomodoroShortBreakMinutes.value =
+                initialTodo!.pomodoroShortBreakMinutes!;
           }
           if (initialTodo!.pomodoroLongBreakMinutes != null) {
-            pomodoroLongBreakMinutes.value = initialTodo!.pomodoroLongBreakMinutes!;
+            pomodoroLongBreakMinutes.value =
+                initialTodo!.pomodoroLongBreakMinutes!;
           }
           if (initialTodo!.pomodoroCycle != null) {
             pomodoroCycle.value = initialTodo!.pomodoroCycle!;
           }
+          // 完了セット数も読み込み（現在はpomodoroCycleと同じ値を使用）
+          if (initialTodo!.pomodoroCompletedCycle != null) {
+            pomodoroCompletionCycles.value =
+                initialTodo!.pomodoroCompletedCycle!;
+          }
         } else if (initialTodo!.timerType == TimerType.countup) {
           manageType.value = ManageType.countup;
           // カウントアップ設定を読み込み（仮想的な目標時間として経過時間を使用）
-          if (initialTodo!.countupElapsedSeconds != null && initialTodo!.countupElapsedSeconds! > 0) {
-            countupTargetMinutes.value = (initialTodo!.countupElapsedSeconds! / 60).round();
+          if (initialTodo!.countupElapsedSeconds != null &&
+              initialTodo!.countupElapsedSeconds! > 0) {
+            countupTargetMinutes.value =
+                (initialTodo!.countupElapsedSeconds! / 60).round();
           }
         }
       }
@@ -241,7 +251,7 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                 const SizedBox(height: 16),
 
                 // 期限
-                _buildSectionTitle('期限'),
+                _buildSectionTitle(context, '期限'),
                 _SectionCard(
                   child: Column(
                     children: [
@@ -340,7 +350,7 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                 const SizedBox(height: 16),
 
                 // 繰り返し
-                _buildSectionTitle('繰り返し'),
+                _buildSectionTitle(context, '繰り返し'),
                 _SectionCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -528,7 +538,7 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                 const SizedBox(height: 16),
 
                 // 管理方法セクション
-                _buildSectionTitle('管理方法'),
+                _buildSectionTitle(context, '管理方法'),
                 _SectionCard(
                   padding: 8,
                   child: Padding(
@@ -620,14 +630,15 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                 const SizedBox(height: 16),
                 // ポモドーロタイマーUI
                 if (manageType.value == ManageType.pomodoro) ...[
-                  _buildSectionTitle('ポモドーロタイマー'),
+                  _buildSectionTitle(context, 'ポモドーロタイマー'),
                   _SectionCard(
                     child: Column(
                       children: [
                         Row(
                           children: [
                             Icon(Icons.timer,
-                                color: Theme.of(context).colorScheme.accentColor,
+                                color:
+                                    Theme.of(context).colorScheme.accentColor,
                                 size: 20),
                             const SizedBox(width: 8),
                             Expanded(
@@ -636,7 +647,9 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.primaryTextColor,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryTextColor,
                                 ),
                               ),
                             ),
@@ -646,33 +659,33 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                         // 詳細設定
                         _buildPomodoroSetting(
                           context,
-                          '作業時間',
+                          '作業時間(min)',
                           pomodoroWorkMinutes,
                           Icons.work_rounded,
                           Theme.of(context).colorScheme.accentColor,
-                          'min',
+                          '',
                           1,
                           60,
                         ),
                         const SizedBox(height: 12),
                         _buildPomodoroSetting(
                           context,
-                          '短い休憩',
+                          '短い休憩(min)',
                           pomodoroShortBreakMinutes,
                           Icons.coffee_rounded,
                           Theme.of(context).colorScheme.infoColor,
-                          'min',
+                          '',
                           1,
                           30,
                         ),
                         const SizedBox(height: 12),
                         _buildPomodoroSetting(
                           context,
-                          '長い休憩',
+                          '長い休憩(min)',
                           pomodoroLongBreakMinutes,
                           Icons.spa_rounded,
                           Theme.of(context).colorScheme.purpleColor,
-                          'min',
+                          '',
                           1,
                           60,
                         ),
@@ -683,15 +696,29 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                           pomodoroCycle,
                           Icons.repeat_rounded,
                           Theme.of(context).colorScheme.successColor,
-                          'サイクル',
+                          '',
                           2,
                           10,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildPomodoroSetting(
+                          context,
+                          '完了セット数',
+                          pomodoroCompletionCycles,
+                          Icons.flag_rounded,
+                          Theme.of(context).colorScheme.primary,
+                          '',
+                          1,
+                          20,
                         ),
                         const SizedBox(height: 16),
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.05),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .accentColor
+                                .withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Column(
@@ -699,15 +726,19 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                               Row(
                                 children: [
                                   Icon(Icons.info_outline,
-                                      color: Theme.of(context).colorScheme.accentColor,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .accentColor,
                                       size: 16),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
-                                      'タイマー完了時に自動でタスクが完了になります',
+                                      '設定したセット数に達するとタスクが自動完了になります',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Theme.of(context).colorScheme.secondaryTextColor,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondaryTextColor,
                                       ),
                                     ),
                                   ),
@@ -721,17 +752,18 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                 ],
-                
+
                 // カウントアップタイマーUI
                 if (manageType.value == ManageType.countup) ...[
-                  _buildSectionTitle('カウントアップタイマー'),
+                  _buildSectionTitle(context, 'カウントアップタイマー'),
                   _SectionCard(
                     child: Column(
                       children: [
                         Row(
                           children: [
                             Icon(Icons.timer_outlined,
-                                color: Theme.of(context).colorScheme.warningColor,
+                                color:
+                                    Theme.of(context).colorScheme.warningColor,
                                 size: 20),
                             const SizedBox(width: 8),
                             Expanded(
@@ -740,7 +772,9 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.primaryTextColor,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryTextColor,
                                 ),
                               ),
                             ),
@@ -759,7 +793,10 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.warningColor.withValues(alpha: 0.05),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .warningColor
+                                .withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Column(
@@ -767,7 +804,9 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                               Row(
                                 children: [
                                   Icon(Icons.info_outline,
-                                      color: Theme.of(context).colorScheme.warningColor,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .warningColor,
                                       size: 16),
                                   const SizedBox(width: 8),
                                   Expanded(
@@ -775,7 +814,9 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                       '開始から経過時間を計測します\nタイマー停止時に自動でタスクが完了になります',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Theme.of(context).colorScheme.secondaryTextColor,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondaryTextColor,
                                       ),
                                     ),
                                   ),
@@ -791,7 +832,7 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                 ],
                 // チェックリストUI
                 if (manageType.value == ManageType.checklist) ...[
-                  _buildSectionTitle('チェックリスト'),
+                  _buildSectionTitle(context, 'チェックリスト'),
                   _SectionCard(
                     child: Column(
                       children: [
@@ -881,7 +922,7 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                 ],
 
                 // カテゴリ
-                _buildSectionTitle('カテゴリ'),
+                _buildSectionTitle(context, 'カテゴリ'),
                 _SectionCard(
                   child: GestureDetector(
                     onTap: () async {
@@ -1013,7 +1054,7 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                       } else {
                         selectedTimerType = TimerType.none;
                       }
-                      
+
                       final descriptionText = descriptionController.text.trim();
                       if (initialTodo != null) {
                         // Update existing todo
@@ -1041,14 +1082,31 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                               : null,
                           timerType: selectedTimerType,
                           // ポモドーロ設定を保存
-                          pomodoroWorkMinutes: selectedTimerType == TimerType.pomodoro ? pomodoroWorkMinutes.value : null,
-                          pomodoroShortBreakMinutes: selectedTimerType == TimerType.pomodoro ? pomodoroShortBreakMinutes.value : null,
-                          pomodoroLongBreakMinutes: selectedTimerType == TimerType.pomodoro ? pomodoroLongBreakMinutes.value : null,
-                          pomodoroCycle: selectedTimerType == TimerType.pomodoro ? pomodoroCycle.value : null,
-                          // カウントアップ設定を保存（目標時間を秒で保存）
-                          countupElapsedSeconds: selectedTimerType == TimerType.countup && countupTargetMinutes.value != null 
-                              ? countupTargetMinutes.value! * 60 
+                          pomodoroWorkMinutes:
+                              selectedTimerType == TimerType.pomodoro
+                                  ? pomodoroWorkMinutes.value
+                                  : null,
+                          pomodoroShortBreakMinutes:
+                              selectedTimerType == TimerType.pomodoro
+                                  ? pomodoroShortBreakMinutes.value
+                                  : null,
+                          pomodoroLongBreakMinutes:
+                              selectedTimerType == TimerType.pomodoro
+                                  ? pomodoroLongBreakMinutes.value
+                                  : null,
+                          pomodoroCycle: selectedTimerType == TimerType.pomodoro
+                              ? pomodoroCycle.value
                               : null,
+                          pomodoroCompletedCycle:
+                              selectedTimerType == TimerType.pomodoro
+                                  ? pomodoroCompletionCycles.value
+                                  : null,
+                          // カウントアップ設定を保存（目標時間を秒で保存）
+                          countupElapsedSeconds:
+                              selectedTimerType == TimerType.countup &&
+                                      countupTargetMinutes.value != null
+                                  ? countupTargetMinutes.value! * 60
+                                  : null,
                         );
                         // Update checklist items for existing todo
                         final checklistService = TodoCheckListItemService();
@@ -1087,14 +1145,31 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                               : null,
                           timerType: selectedTimerType,
                           // ポモドーロ設定を保存
-                          pomodoroWorkMinutes: selectedTimerType == TimerType.pomodoro ? pomodoroWorkMinutes.value : null,
-                          pomodoroShortBreakMinutes: selectedTimerType == TimerType.pomodoro ? pomodoroShortBreakMinutes.value : null,
-                          pomodoroLongBreakMinutes: selectedTimerType == TimerType.pomodoro ? pomodoroLongBreakMinutes.value : null,
-                          pomodoroCycle: selectedTimerType == TimerType.pomodoro ? pomodoroCycle.value : null,
-                          // カウントアップ設定を保存（目標時間を秒で保存）
-                          countupElapsedSeconds: selectedTimerType == TimerType.countup && countupTargetMinutes.value != null 
-                              ? countupTargetMinutes.value! * 60 
+                          pomodoroWorkMinutes:
+                              selectedTimerType == TimerType.pomodoro
+                                  ? pomodoroWorkMinutes.value
+                                  : null,
+                          pomodoroShortBreakMinutes:
+                              selectedTimerType == TimerType.pomodoro
+                                  ? pomodoroShortBreakMinutes.value
+                                  : null,
+                          pomodoroLongBreakMinutes:
+                              selectedTimerType == TimerType.pomodoro
+                                  ? pomodoroLongBreakMinutes.value
+                                  : null,
+                          pomodoroCycle: selectedTimerType == TimerType.pomodoro
+                              ? pomodoroCycle.value
                               : null,
+                          pomodoroCompletedCycle:
+                              selectedTimerType == TimerType.pomodoro
+                                  ? pomodoroCompletionCycles.value
+                                  : null,
+                          // カウントアップ設定を保存（目標時間を秒で保存）
+                          countupElapsedSeconds:
+                              selectedTimerType == TimerType.countup &&
+                                      countupTargetMinutes.value != null
+                                  ? countupTargetMinutes.value! * 60
+                                  : null,
                         );
                         // Create checklist items for new todo
                         final checklistService = TodoCheckListItemService();
@@ -1106,9 +1181,10 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                             order: i,
                           );
                         }
-                        
+
                         // スケジュール通知を設定
-                        await ref.read(notificationStateProvider.notifier)
+                        await ref
+                            .read(notificationStateProvider.notifier)
                             .handleTodoCreated(newTodo);
                       }
                       if (context.mounted) {
@@ -1195,7 +1271,8 @@ Widget _buildPomodoroSetting(
               Icons.remove,
               () {
                 if (valueNotifier.value > min) {
-                  valueNotifier.value = valueNotifier.value - (unit == 'min' ? 5 : 1);
+                  valueNotifier.value =
+                      valueNotifier.value - (title.contains('min') ? 5 : 1);
                   if (valueNotifier.value < min) valueNotifier.value = min;
                 }
               },
@@ -1206,7 +1283,7 @@ Widget _buildPomodoroSetting(
               width: 60,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: Text(
-                '${valueNotifier.value}$unit',
+                '${valueNotifier.value}',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -1220,7 +1297,8 @@ Widget _buildPomodoroSetting(
               Icons.add,
               () {
                 if (valueNotifier.value < max) {
-                  valueNotifier.value = valueNotifier.value + (unit == 'min' ? 5 : 1);
+                  valueNotifier.value =
+                      valueNotifier.value + (title.contains('min') ? 5 : 1);
                   if (valueNotifier.value > max) valueNotifier.value = max;
                 }
               },
@@ -1306,7 +1384,8 @@ Widget _buildCountupSetting(
                     ),
                     Container(
                       width: 80,
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       child: Text(
                         '${valueNotifier.value}分',
                         style: TextStyle(
@@ -1350,10 +1429,14 @@ Widget _buildCounterButton(
     width: 32,
     height: 32,
     decoration: BoxDecoration(
-      color: enabled ? color.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
+      color: enabled
+          ? color.withValues(alpha: 0.1)
+          : Colors.grey.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(6),
       border: Border.all(
-        color: enabled ? color.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.3),
+        color: enabled
+            ? color.withValues(alpha: 0.3)
+            : Colors.grey.withValues(alpha: 0.3),
       ),
     ),
     child: IconButton(
@@ -1368,14 +1451,14 @@ Widget _buildCounterButton(
   );
 }
 
-Widget _buildSectionTitle(String title) => Padding(
+Widget _buildSectionTitle(BuildContext context, String title) => Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 6),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.bold,
-          color: Colors.black87,
+          color: Theme.of(context).colorScheme.onSurface,
           letterSpacing: 0.5,
         ),
       ),

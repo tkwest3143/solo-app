@@ -109,12 +109,13 @@ class TimerState extends _$TimerState {
           await _ensureDefaultSettingsForPomodoro();
         }
 
-        // Todo固有の設定を適用
+        // Todo固有の設定を適用（サイクル数はデフォルト設定を使用）
+        final appSettings = await SettingsService.loadSettings();
         applyTodoSettings(
           workMinutes: todo.pomodoroWorkMinutes!,
           shortBreakMinutes: todo.pomodoroShortBreakMinutes!,
           longBreakMinutes: todo.pomodoroLongBreakMinutes!,
-          cyclesUntilLongBreak: todo.pomodoroCycle!,
+          cyclesUntilLongBreak: appSettings.defaultCyclesUntilLongBreak,
         );
 
         // ポモドーロタイマーを初期状態にリセット
@@ -309,12 +310,12 @@ class TimerState extends _$TimerState {
 
   void _goToNextPhase({bool forceSkip = false}) {
     _stopTimer();
-    
+
     // フェーズ完了時に音を再生（スキップでない場合のみ）
     if (!forceSkip) {
       _playTimerSound();
     }
-    
+
     final nextPhase = _getNextPhase();
     final nextRemainingSeconds = _getSecondsForPhase(nextPhase);
     if (nextPhase == null) {
@@ -331,25 +332,27 @@ class TimerState extends _$TimerState {
     int newCompletedCycles = state.completedCycles;
     int newCurrentCycle = state.currentCycle;
     // 作業→休憩に進む場合
-    if (state.currentPhase == PomodoroPhase.work) {
-      if (!forceSkip) {
-        newCurrentCycle = state.currentCycle + 1;
-        if (nextPhase == PomodoroPhase.longBreak) {
-          newCompletedCycles = state.completedCycles + 1;
-          newCurrentCycle = 0;
-        }
-      }
-    }
+    if (state.currentPhase == PomodoroPhase.work) {}
     // 休憩→作業に進む場合（スキップ含む）
-    if (state.currentPhase == PomodoroPhase.shortBreak ||
-        state.currentPhase == PomodoroPhase.longBreak) {
+    if (state.currentPhase == PomodoroPhase.shortBreak) {
       newCurrentCycle = state.currentCycle + 1;
-      // 長い休憩後はサイクルリセット＆完了サイクル+1
-      if (state.currentPhase == PomodoroPhase.longBreak) {
-        newCompletedCycles = state.completedCycles + 1;
-        newCurrentCycle = 0;
+    }
+    if (state.currentPhase == PomodoroPhase.longBreak) {
+      newCompletedCycles = state.completedCycles + 1;
+      newCurrentCycle = 0;
+      // Todo選択されている場合、Todoのサイクル完了をチェック
+      if (state.selectedTodoId != null) {
+        _checkTodoCompletionAfterWork(newCompletedCycles);
+        return; // 非同期処理のため早期リターン
       }
     }
+
+    _continueToNextPhase(
+        nextPhase, nextRemainingSeconds, newCurrentCycle, newCompletedCycles);
+  }
+
+  void _continueToNextPhase(PomodoroPhase nextPhase, int nextRemainingSeconds,
+      int newCurrentCycle, int newCompletedCycles) {
     state = state.copyWith(
       currentPhase: nextPhase,
       remainingSeconds: nextRemainingSeconds,
@@ -363,7 +366,6 @@ class TimerState extends _$TimerState {
 
     // フォアグラウンド時は通知なし（音のみで通知）
   }
-
 
   void _initializeSession() {
     if (state.mode == TimerMode.pomodoro) {
@@ -463,6 +465,64 @@ class TimerState extends _$TimerState {
     }
   }
 
+  /// 作業フェーズ完了後にTodoのサイクル完了をチェック
+  Future<void> _checkTodoCompletionAfterWork(int newCompletedCycles) async {
+    if (state.selectedTodoId == null) return;
+
+    try {
+      final todos = await TodoService().getTodo();
+      final todo = todos.firstWhere(
+        (t) => t.id == state.selectedTodoId,
+        orElse: () => throw Exception('Todo not found'),
+      );
+
+      // ポモドーロタイマーの場合のみサイクル完了判定
+      if (todo.timerType == TimerType.pomodoro && todo.pomodoroCycle != null) {
+        // Todoで設定されたサイクル数に達した場合
+        if (newCompletedCycles >= todo.pomodoroCycle!) {
+          // タイマー完了
+          state = state.copyWith(
+            state: TimerStatus.completed,
+            remainingSeconds: 0,
+            completedCycles: newCompletedCycles,
+          );
+          // Todoを完了にする
+          await _completeTodoIfSelected();
+          return;
+        }
+      }
+
+      // Todoサイクル完了していない場合、通常の次フェーズに進む
+      final nextPhase = _getNextPhase();
+      final nextRemainingSeconds = _getSecondsForPhase(nextPhase);
+
+      if (nextPhase != null) {
+        int newCurrentCycle = state.currentCycle + 1;
+        if (nextPhase == PomodoroPhase.longBreak) {
+          newCurrentCycle = 0;
+        }
+
+        _continueToNextPhase(nextPhase, nextRemainingSeconds, newCurrentCycle,
+            newCompletedCycles);
+      }
+    } catch (e) {
+      // エラーの場合、通常の次フェーズに進む
+      final nextPhase = _getNextPhase();
+      final nextRemainingSeconds = _getSecondsForPhase(nextPhase);
+
+      if (nextPhase != null) {
+        int newCurrentCycle = state.currentCycle + 1;
+        int finalCompletedCycles = newCompletedCycles;
+        if (nextPhase == PomodoroPhase.longBreak) {
+          newCurrentCycle = 0;
+        }
+
+        _continueToNextPhase(nextPhase, nextRemainingSeconds, newCurrentCycle,
+            finalCompletedCycles);
+      }
+    }
+  }
+
   int _getSecondsForPhase(PomodoroPhase? phase) {
     if (phase == null) return 0;
     switch (phase) {
@@ -537,10 +597,10 @@ class TimerState extends _$TimerState {
         isInBackground: true,
         backgroundTime: DateTime.now(),
       );
-      
+
       // バックグラウンドになった際、残り時間/経過時間から通知を登録
       _scheduleBackgroundNotifications();
-      
+
       // デバッグ用ログ
       assert(() {
         print('[Timer] App moved to background at ${state.backgroundTime}');
@@ -569,7 +629,8 @@ class TimerState extends _$TimerState {
 
       // デバッグ用ログ
       assert(() {
-        print('[Timer] App moved to foreground. Background duration: ${elapsedSeconds}s');
+        print(
+            '[Timer] App moved to foreground. Background duration: ${elapsedSeconds}s');
         return true;
       }());
 
@@ -636,7 +697,7 @@ class TimerState extends _$TimerState {
 
     // stateを更新
     state = currentState;
-    
+
     // バックグラウンド復帰時は音なし（通知のみ）
   }
 
@@ -662,6 +723,9 @@ class TimerState extends _$TimerState {
         newCompletedCycles = currentState.completedCycles + 1;
         newCurrentCycle = 0;
       }
+
+      // NOTE: バックグラウンド処理では非同期のTodo取得ができないため、
+      // Todo完了判定はフォアグラウンド復帰時に別途実装する必要がある
     }
 
     if (currentState.currentPhase == PomodoroPhase.shortBreak ||
@@ -681,7 +745,6 @@ class TimerState extends _$TimerState {
       state: TimerStatus.running,
     );
   }
-
 
   /// タイマー完了時の通知
   Future<void> _showTimerCompletionNotification() async {
@@ -714,13 +777,13 @@ class TimerState extends _$TimerState {
         // Todo取得に失敗した場合はnullのまま
       }
     }
-    
+
     await _notificationService.scheduleBackgroundTimerNotifications(
       timerSession: state,
       todoTitle: todoTitle,
     );
   }
-  
+
   /// バックグラウンド通知をキャンセル
   Future<void> _cancelBackgroundNotifications() async {
     await _notificationService.cancelBackgroundTimerNotifications();
@@ -732,7 +795,7 @@ class TimerState extends _$TimerState {
       // システムのデフォルト音を使用（カスタム音声ファイルがない場合）
       // 将来的にカスタム音声ファイルに変更可能
       await _audioPlayer.play(AssetSource('sounds/timer_complete.mp3'));
-      
+
       // デバッグ用ログ
       assert(() {
         print('[Timer] Playing timer completion sound');
@@ -752,7 +815,7 @@ class TimerState extends _$TimerState {
     _audioPlayer.dispose();
     _lifecycleSubscription?.cancel();
     _lastLifecycleChange = null;
-    
+
     // クリーンアップ時に通知もキャンセル
     _cancelBackgroundNotifications();
 
@@ -780,7 +843,7 @@ class _AppLifecycleObserver extends WidgetsBindingObserver {
       print('[Timer] AppLifecycleState changed to: $state');
       return true;
     }());
-    
+
     switch (state) {
       case AppLifecycleState.paused:
         // アプリが一時停止された時のみバックグラウンドとして扱う
