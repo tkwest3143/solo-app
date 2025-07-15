@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/router.dart';
+import 'package:solo/utilities/ad_mob_constant.dart';
 
 class BulderWidget extends StatelessWidget {
   const BulderWidget({super.key, required this.child});
@@ -34,7 +36,7 @@ class UserSelectedWidget extends ConsumerWidget {
   }
 }
 
-class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
+class AppHeader extends HookConsumerWidget implements PreferredSizeWidget {
   final VoidCallback onSettingsPressed;
 
   const AppHeader({
@@ -44,51 +46,75 @@ class AppHeader extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.headerFooterColor,
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.mediumShadowColor,
-            blurRadius: 8,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: false,
-        title: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: Text(
-            "Solo",
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.headerFooterTextColor,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
-          ),
+    final bannerAd = useState<BannerAd?>(null);
+    final isAdLoaded = useState(false);
+
+    useEffect(() {
+      final ad = BannerAd(
+        adUnitId: AdMobConstant.bannerAdUnitId,
+        size: AdSize.banner,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (_) {
+            isAdLoaded.value = true;
+          },
+          onAdFailedToLoad: (ad, error) {
+            ad.dispose();
+            debugPrint('バナー広告の読み込みに失敗しました: $error');
+          },
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Theme.of(context)
-                  .colorScheme
-                  .headerFooterIconColor
-                  .withValues(alpha: 0.2),
+      );
+      ad.load();
+      bannerAd.value = ad;
+
+      return () {
+        ad.dispose();
+      };
+    }, []);
+
+    return Container(
+      height: kToolbarHeight,
+      child: isAdLoaded.value && bannerAd.value != null
+          ? Container(
+              alignment: Alignment.center,
+              width: bannerAd.value!.size.width.toDouble(),
+              height: bannerAd.value!.size.height.toDouble(),
+              child: AdWidget(ad: bannerAd.value!),
+            )
+          : AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: false,
+              title: Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: Text(
+                  "Solo",
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.headerFooterTextColor,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                ),
+              ),
+              actions: [
+                Container(
+                  margin: const EdgeInsets.only(right: 16),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .headerFooterIconColor
+                        .withValues(alpha: 0.2),
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.settings_rounded,
+                        color: Theme.of(context).colorScheme.headerFooterIconColor),
+                    onPressed: onSettingsPressed,
+                  ),
+                ),
+              ],
+              automaticallyImplyLeading: false,
             ),
-            child: IconButton(
-              icon: Icon(Icons.settings_rounded,
-                  color: Theme.of(context).colorScheme.headerFooterIconColor),
-              onPressed: onSettingsPressed,
-            ),
-          ),
-        ],
-        automaticallyImplyLeading: false,
-      ),
     );
   }
 
@@ -104,11 +130,17 @@ class GlobalLayout extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppHeader(onSettingsPressed: () {
-        nextRouting(context, RouterDefinition.settings);
-      }),
+      body: SafeArea(
+        child: Column(
+          children: [
+            AppHeader(onSettingsPressed: () {
+              nextRouting(context, RouterDefinition.settings);
+            }),
+            Expanded(child: child),
+          ],
+        ),
+      ),
       bottomNavigationBar: FooterMenu(),
-      body: child,
     );
   }
 }

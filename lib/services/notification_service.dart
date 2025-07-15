@@ -166,13 +166,11 @@ class NotificationService {
 
     String title;
     String body;
-    
+
     switch (timerSession.currentPhase) {
       case PomodoroPhase.work:
         title = '作業開始';
-        body = todoTitle != null 
-            ? '「$todoTitle」の作業を開始しましょう'
-            : '作業を開始しましょう';
+        body = todoTitle != null ? '「$todoTitle」の作業を開始しましょう' : '作業を開始しましょう';
         break;
       case PomodoroPhase.shortBreak:
         title = '短い休憩';
@@ -263,7 +261,8 @@ class NotificationService {
 
   /// タイマー通知をキャンセル
   Future<void> cancelTimerNotification() async {
-    await _flutterLocalNotificationsPlugin.cancel(_generateTimerNotificationId());
+    await _flutterLocalNotificationsPlugin
+        .cancel(_generateTimerNotificationId());
   }
 
   /// バックグラウンドタイマー通知用のIDを生成（3000番台を使用）
@@ -274,7 +273,7 @@ class NotificationService {
   /// バックグラウンドでタイマー通知をスケジュール
   Future<void> scheduleBackgroundTimerNotifications({
     required TimerSession timerSession,
-    String? todoTitle,
+    TodoModel? todo, // Todoタイトルはオプション
   }) async {
     // 初期化されていない場合は早期リターン
     if (!_isInitialized) {
@@ -288,13 +287,13 @@ class NotificationService {
       // ポモドーロモードの場合、残り時間で通知をスケジュール
       await _schedulePomodoroBackgroundNotification(
         timerSession: timerSession,
-        todoTitle: todoTitle,
+        todo: todo,
       );
     } else if (timerSession.mode == TimerMode.countUp) {
       // カウントアップモードの場合、定期的な通知をスケジュール
       await _scheduleCountUpBackgroundNotifications(
         timerSession: timerSession,
-        todoTitle: todoTitle,
+        todoTitle: todo?.title,
       );
     }
   }
@@ -302,21 +301,125 @@ class NotificationService {
   /// ポモドーロモードのバックグラウンド通知をスケジュール
   Future<void> _schedulePomodoroBackgroundNotification({
     required TimerSession timerSession,
-    String? todoTitle,
+    TodoModel? todo,
   }) async {
     if (timerSession.remainingSeconds <= 0) return;
 
-    final notificationTime = DateTime.now().add(
-      Duration(seconds: timerSession.remainingSeconds),
-    );
+    // 現在の状態をベースに通知をスケジュール
+    await _scheduleAllPhaseNotifications(
+        timerSession: timerSession, todo: todo);
+  }
 
-    String title = '${timerSession.currentPhaseDisplayName}終了';
-    String body = todoTitle != null
-        ? '「$todoTitle」の${timerSession.currentPhaseDisplayName}が終了しました'
-        : '${timerSession.currentPhaseDisplayName}が終了しました';
+  /// 全フェーズの通知をスケジュール
+  Future<void> _scheduleAllPhaseNotifications(
+      {required TimerSession timerSession, TodoModel? todo}) async {
+    int notificationIndex = 0;
+    DateTime currentTime = DateTime.now();
+
+    // 現在のフェーズの残り時間から開始
+    int remainingSeconds = timerSession.remainingSeconds;
+    PomodoroPhase currentPhase = timerSession.currentPhase;
+    int currentCycle = timerSession.currentCycle;
+    int completedCycles = timerSession.completedCycles;
+
+    // 最大100個の通知を制限として設定
+    const maxNotifications = 100;
+    
+    // Todo完了サイクル数を取得
+    final targetCompletedCycles = todo?.pomodoroCycle;
+
+    while (notificationIndex < maxNotifications) {
+      // 現在のフェーズの通知をスケジュール
+      final phaseEndTime = currentTime.add(Duration(seconds: remainingSeconds));
+      
+      // 通常のフェーズ通知をスケジュール
+      await _schedulePhaseNotification(
+        notificationIndex: notificationIndex,
+        notificationTime: phaseEndTime,
+        phase: currentPhase,
+        cycleInfo: _getCycleInfo(currentCycle, completedCycles),
+        todo: todo,
+      );
+      
+      notificationIndex++;
+
+      // 次のフェーズを計算
+      final nextPhaseInfo = _getNextPhaseInfo(
+        currentPhase: currentPhase,
+        currentCycle: currentCycle,
+        completedCycles: completedCycles,
+        settings: timerSession.settings,
+      );
+
+      if (nextPhaseInfo == null) {
+        // セッション完了
+        break;
+      }
+
+      // 作業フェーズ→休憩フェーズの遷移時に、Todo完了サイクル数に達するかチェック
+      if (currentPhase == PomodoroPhase.work && 
+          targetCompletedCycles != null) {
+        // 作業フェーズ終了後の完了サイクル数を計算
+        final nextCycle = currentCycle + 1;
+        final willCompleteCycle = nextCycle >= timerSession.settings.cyclesUntilLongBreak;
+        final newCompletedCycles = willCompleteCycle ? completedCycles + 1 : completedCycles;
+        
+        if (newCompletedCycles >= targetCompletedCycles) {
+          // 休憩フェーズの通知もスケジュールしてから、タイマー完了通知をスケジュール
+          final breakPhaseEndTime = phaseEndTime.add(Duration(seconds: _getSecondsForPhase(nextPhaseInfo.phase, timerSession.settings)));
+          
+          // 休憩フェーズの通知をスケジュール
+          await _schedulePhaseNotification(
+            notificationIndex: notificationIndex,
+            notificationTime: breakPhaseEndTime,
+            phase: nextPhaseInfo.phase,
+            cycleInfo: _getCycleInfo(nextPhaseInfo.currentCycle, nextPhaseInfo.completedCycles),
+            todo: todo,
+          );
+          
+          notificationIndex++;
+          
+          // タイマー完了通知をスケジュール（休憩終了時）
+          await _scheduleTimerCompletionNotification(
+            notificationIndex: notificationIndex,
+            notificationTime: breakPhaseEndTime,
+            todo: todo,
+            completedCycles: targetCompletedCycles,
+          );
+          
+          break; // タイマー完了時は以降の通知は不要
+        }
+      }
+
+      // Todo完了サイクル数に達した場合は終了
+      if (targetCompletedCycles != null &&
+          nextPhaseInfo.completedCycles >= targetCompletedCycles) {
+        break;
+      }
+
+      // 次のフェーズに移行
+      currentTime = phaseEndTime;
+      currentPhase = nextPhaseInfo.phase;
+      currentCycle = nextPhaseInfo.currentCycle;
+      completedCycles = nextPhaseInfo.completedCycles;
+      remainingSeconds =
+          _getSecondsForPhase(currentPhase, timerSession.settings);
+    }
+  }
+
+  /// 個別のフェーズ通知をスケジュール
+  Future<void> _schedulePhaseNotification({
+    required int notificationIndex,
+    required DateTime notificationTime,
+    required PomodoroPhase phase,
+    required String cycleInfo,
+    TodoModel? todo,
+  }) async {
+    String title = _getPhaseEndTitle(phase);
+    String body = _getPhaseEndBody(phase, cycleInfo, todo);
 
     await _flutterLocalNotificationsPlugin.zonedSchedule(
-      _generateBackgroundTimerNotificationId(0),
+      _generateBackgroundTimerNotificationId(notificationIndex),
       title,
       body,
       tz.TZDateTime.from(notificationTime, tz.local),
@@ -335,8 +438,143 @@ class NotificationService {
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      payload: 'background_timer_pomodoro',
+      payload: 'background_timer_${phase.name}_$notificationIndex',
     );
+  }
+
+  /// タイマー完了通知をスケジュール
+  Future<void> _scheduleTimerCompletionNotification({
+    required int notificationIndex,
+    required DateTime notificationTime,
+    TodoModel? todo,
+    int? completedCycles,
+  }) async {
+    String title = 'ポモドーロタイマー完了';
+    String body = todo != null 
+        ? '「${todo.title}」のタイマーが完了しました！'
+        : 'ポモドーロタイマーが完了しました！';
+    
+    if (completedCycles != null) {
+      body += '\n完了サイクル: $completedCycles';
+    }
+
+    await _flutterLocalNotificationsPlugin.zonedSchedule(
+      _generateBackgroundTimerNotificationId(notificationIndex),
+      title,
+      body,
+      tz.TZDateTime.from(notificationTime, tz.local),
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'background_timer_channel',
+          'バックグラウンドタイマー',
+          channelDescription: 'バックグラウンドでのタイマー通知',
+          importance: Importance.max,
+          priority: Priority.max,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      payload: 'background_timer_completion_$notificationIndex',
+    );
+  }
+
+  /// 次のフェーズ情報を取得
+  _NextPhaseInfo? _getNextPhaseInfo({
+    required PomodoroPhase currentPhase,
+    required int currentCycle,
+    required int completedCycles,
+    required TimerSettings settings,
+  }) {
+    PomodoroPhase? nextPhase;
+    int newCurrentCycle = currentCycle;
+    int newCompletedCycles = completedCycles;
+
+    switch (currentPhase) {
+      case PomodoroPhase.work:
+        // 作業フェーズから休憩フェーズへ
+        final nextCycle = currentCycle + 1;
+        if (nextCycle >= settings.cyclesUntilLongBreak) {
+          nextPhase = PomodoroPhase.longBreak;
+        } else {
+          nextPhase = PomodoroPhase.shortBreak;
+        }
+        break;
+      case PomodoroPhase.shortBreak:
+        // 短い休憩から作業フェーズへ
+        nextPhase = PomodoroPhase.work;
+        newCurrentCycle = currentCycle + 1;
+        break;
+      case PomodoroPhase.longBreak:
+        // 長い休憩から作業フェーズへ
+        nextPhase = PomodoroPhase.work;
+        newCompletedCycles = completedCycles + 1;
+        newCurrentCycle = 0;
+        break;
+    }
+
+    return _NextPhaseInfo(
+      phase: nextPhase,
+      currentCycle: newCurrentCycle,
+      completedCycles: newCompletedCycles,
+    );
+  }
+
+  /// フェーズの秒数を取得
+  int _getSecondsForPhase(PomodoroPhase phase, TimerSettings settings) {
+    switch (phase) {
+      case PomodoroPhase.work:
+        return settings.workMinutes * 60;
+      case PomodoroPhase.shortBreak:
+        return settings.shortBreakMinutes * 60;
+      case PomodoroPhase.longBreak:
+        return settings.longBreakMinutes * 60;
+    }
+  }
+
+  /// フェーズ終了タイトルを取得
+  String _getPhaseEndTitle(PomodoroPhase phase) {
+    switch (phase) {
+      case PomodoroPhase.work:
+        return '作業終了';
+      case PomodoroPhase.shortBreak:
+        return '短い休憩終了';
+      case PomodoroPhase.longBreak:
+        return '長い休憩終了';
+    }
+  }
+
+  /// フェーズ終了メッセージを取得
+  String _getPhaseEndBody(
+      PomodoroPhase phase, String cycleInfo, TodoModel? todo) {
+    String baseMessage;
+    switch (phase) {
+      case PomodoroPhase.work:
+        baseMessage = '作業が終了しました。休憩を取りましょう';
+        break;
+      case PomodoroPhase.shortBreak:
+        baseMessage = '短い休憩が終了しました。作業を再開しましょう';
+        break;
+      case PomodoroPhase.longBreak:
+        baseMessage = '長い休憩が終了しました。作業を再開しましょう';
+        break;
+    }
+
+    String message =
+        todo != null ? '「${todo.title}」: $baseMessage' : baseMessage;
+    return '$message\n$cycleInfo';
+  }
+
+  /// サイクル情報を取得
+  String _getCycleInfo(int currentCycle, int completedCycles) {
+    if (completedCycles > 0) {
+      return '完了サイクル: $completedCycles, 現在: ${currentCycle + 1}サイクル目';
+    } else {
+      return '現在: ${currentCycle + 1}サイクル目';
+    }
   }
 
   /// カウントアップモードのバックグラウンド通知をスケジュール
@@ -349,7 +587,8 @@ class NotificationService {
 
     // 最大5つまで通知をスケジュール（2.5時間分）
     for (int i = 1; i <= 5; i++) {
-      final totalMinutes = (timerSession.elapsedSeconds ~/ 60) + (notificationIntervalMinutes * i);
+      final totalMinutes = (timerSession.elapsedSeconds ~/ 60) +
+          (notificationIntervalMinutes * i);
       final notificationTime = DateTime.now().add(
         Duration(minutes: notificationIntervalMinutes * i),
       );
@@ -385,12 +624,24 @@ class NotificationService {
 
   /// バックグラウンドタイマー通知をキャンセル
   Future<void> cancelBackgroundTimerNotifications() async {
-    // 3000-3005の範囲の通知をキャンセル
-    for (int i = 0; i <= 5; i++) {
+    // 3000-3100の範囲の通知をキャンセル（最大100個の通知に対応）
+    for (int i = 0; i <= 100; i++) {
       await _flutterLocalNotificationsPlugin.cancel(
         _generateBackgroundTimerNotificationId(i),
       );
     }
   }
+}
 
+/// 次のフェーズ情報を保持するクラス
+class _NextPhaseInfo {
+  final PomodoroPhase phase;
+  final int currentCycle;
+  final int completedCycles;
+
+  _NextPhaseInfo({
+    required this.phase,
+    required this.currentCycle,
+    required this.completedCycles,
+  });
 }

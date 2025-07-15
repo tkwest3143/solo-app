@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:solo/models/timer_model.dart';
 import 'package:solo/enums/timer_type.dart';
+import 'package:solo/models/todo_model.dart';
 import 'package:solo/services/settings_service.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/services/notification_service.dart';
@@ -667,7 +668,7 @@ class TimerState extends _$TimerState {
   }
 
   /// ポモドーロタイマーのバックグラウンド後同期
-  void _syncPomodoroAfterBackground(int elapsedSeconds) {
+  void _syncPomodoroAfterBackground(int elapsedSeconds) async {
     int remainingElapsed = elapsedSeconds;
     var currentState = state;
 
@@ -677,6 +678,19 @@ class TimerState extends _$TimerState {
       if (remainingElapsed >= phaseRemaining) {
         // 次のフェーズに進む
         remainingElapsed -= phaseRemaining;
+        
+        // 作業フェーズ終了時にTodo完了サイクル数をチェック
+        if (currentState.currentPhase == PomodoroPhase.work) {
+          final todoCompletionResult = await _checkTodoCompletionAfterBackgroundWork(currentState);
+          if (todoCompletionResult != null) {
+            // Todo完了サイクル数に達した場合、タイマーを完了状態にする
+            state = todoCompletionResult;
+            _completeTodoIfSelected();
+            _showTimerCompletionNotification();
+            return; // 早期リターン
+          }
+        }
+        
         currentState = _getNextPhaseState(currentState);
 
         if (currentState.state == TimerStatus.completed) {
@@ -767,12 +781,12 @@ class TimerState extends _$TimerState {
 
   /// バックグラウンド通知をスケジュール
   Future<void> _scheduleBackgroundNotifications() async {
-    String? todoTitle;
+    TodoModel? todoModel;
     if (state.selectedTodoId != null) {
       try {
         final todos = await TodoService().getTodo();
         final todo = todos.firstWhere((t) => t.id == state.selectedTodoId);
-        todoTitle = todo.title;
+        todoModel = todo;
       } catch (e) {
         // Todo取得に失敗した場合はnullのまま
       }
@@ -780,7 +794,7 @@ class TimerState extends _$TimerState {
 
     await _notificationService.scheduleBackgroundTimerNotifications(
       timerSession: state,
-      todoTitle: todoTitle,
+      todo: todoModel,
     );
   }
 
@@ -808,6 +822,46 @@ class TimerState extends _$TimerState {
         return true;
       }());
     }
+  }
+
+  /// バックグラウンド中の作業フェーズ終了時にTodo完了サイクル数をチェック
+  Future<TimerSession?> _checkTodoCompletionAfterBackgroundWork(TimerSession currentState) async {
+    if (state.selectedTodoId == null) return null;
+
+    try {
+      final todos = await TodoService().getTodo();
+      final todo = todos.firstWhere(
+        (t) => t.id == state.selectedTodoId,
+        orElse: () => throw Exception('Todo not found'),
+      );
+
+      // ポモドーロタイマーの場合のみサイクル完了判定
+      if (todo.timerType == TimerType.pomodoro && todo.pomodoroCycle != null) {
+        // 作業フェーズ終了後の完了サイクル数を計算
+        final nextCycle = currentState.currentCycle + 1;
+        final willCompleteCycle = nextCycle >= currentState.settings.cyclesUntilLongBreak;
+        final newCompletedCycles = willCompleteCycle ? currentState.completedCycles + 1 : currentState.completedCycles;
+        
+        // Todoで設定されたサイクル数に達した場合
+        if (newCompletedCycles >= todo.pomodoroCycle!) {
+          // タイマー完了状態を返す
+          return currentState.copyWith(
+            state: TimerStatus.completed,
+            remainingSeconds: 0,
+            completedCycles: newCompletedCycles,
+            currentCycle: willCompleteCycle ? 0 : nextCycle,
+          );
+        }
+      }
+    } catch (e) {
+      // エラーの場合は何もしない
+      assert(() {
+        print('Failed to check todo completion: $e');
+        return true;
+      }());
+    }
+
+    return null; // 完了しない場合はnullを返す
   }
 
   void cleanup() {

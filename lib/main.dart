@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:solo/screen/colors.dart';
@@ -15,6 +16,9 @@ void main() async {
 
   // アラームマネージャーを初期化
   await BackgroundTimerService.initialize();
+
+  // Google Mobile Ads SDKの初期化
+  await MobileAds.instance.initialize();
 
   runApp(
     ProviderScope(
