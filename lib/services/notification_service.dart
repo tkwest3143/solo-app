@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:solo/models/todo_model.dart';
 import 'package:solo/models/timer_model.dart';
+import 'package:solo/models/settings_model.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -79,7 +80,12 @@ class NotificationService {
   }
 
   /// Todoの期限1時間前に通知をスケジュールする
-  Future<void> scheduleTodoDeadlineNotification(TodoModel todo) async {
+  Future<void> scheduleTodoDeadlineNotification(TodoModel todo, {AppSettings? settings}) async {
+    // 設定で期限日通知が無効な場合は通知しない
+    if (settings != null && !settings.todoDueDateNotificationsEnabled) {
+      return;
+    }
+
     // 完了済みのTodoは通知しない
     if (todo.isCompleted) {
       return;
@@ -123,9 +129,9 @@ class NotificationService {
   }
 
   /// 複数のTodoに対して一括で通知をスケジュールする
-  Future<void> scheduleAllTodoNotifications(List<TodoModel> todos) async {
+  Future<void> scheduleAllTodoNotifications(List<TodoModel> todos, {AppSettings? settings}) async {
     for (final todo in todos) {
-      await scheduleTodoDeadlineNotification(todo);
+      await scheduleTodoDeadlineNotification(todo, settings: settings);
     }
   }
 
@@ -142,7 +148,7 @@ class NotificationService {
 
   /// 今日のTodoに対して通知をスケジュールする
   Future<void> scheduleTodayTodoNotifications(
-      List<TodoModel> todayTodos) async {
+      List<TodoModel> todayTodos, {AppSettings? settings}) async {
     // 今日のTodoのうち、未完了で期限が1時間以上先のものに対して通知をスケジュール
     final notifiableTodos = todayTodos.where((todo) {
       if (todo.isCompleted) return false;
@@ -151,14 +157,20 @@ class NotificationService {
       return notificationTime.isAfter(DateTime.now());
     }).toList();
 
-    await scheduleAllTodoNotifications(notifiableTodos);
+    await scheduleAllTodoNotifications(notifiableTodos, settings: settings);
   }
 
   /// ポモドーロタイマーの状態変更通知を表示
   Future<void> showTimerPhaseNotification({
     required TimerSession timerSession,
     String? todoTitle,
+    AppSettings? settings,
   }) async {
+    // 設定でポモドーロ完了通知が無効な場合は通知しない
+    if (settings != null && !settings.pomodoroCompletionNotificationsEnabled) {
+      return;
+    }
+
     // 初期化されていない場合は早期リターン
     if (!_isInitialized) {
       return;
@@ -213,7 +225,20 @@ class NotificationService {
   Future<void> showTimerCompletionNotification({
     required TimerSession timerSession,
     String? todoTitle,
+    AppSettings? settings,
   }) async {
+    // 設定に基づいて通知を制御
+    if (settings != null) {
+      if (timerSession.mode == TimerMode.pomodoro && 
+          !settings.pomodoroCompletionNotificationsEnabled) {
+        return;
+      }
+      if (timerSession.mode == TimerMode.countUp && 
+          !settings.countUpTimerNotificationsEnabled) {
+        return;
+      }
+    }
+
     // 初期化されていない場合は早期リターン
     if (!_isInitialized) {
       return;
@@ -274,7 +299,20 @@ class NotificationService {
   Future<void> scheduleBackgroundTimerNotifications({
     required TimerSession timerSession,
     TodoModel? todo, // Todoタイトルはオプション
+    AppSettings? settings,
   }) async {
+    // 設定に基づいて通知を制御
+    if (settings != null) {
+      if (timerSession.mode == TimerMode.pomodoro && 
+          !settings.pomodoroCompletionNotificationsEnabled) {
+        return;
+      }
+      if (timerSession.mode == TimerMode.countUp && 
+          !settings.countUpTimerNotificationsEnabled) {
+        return;
+      }
+    }
+
     // 初期化されていない場合は早期リターン
     if (!_isInitialized) {
       return;
@@ -288,12 +326,14 @@ class NotificationService {
       await _schedulePomodoroBackgroundNotification(
         timerSession: timerSession,
         todo: todo,
+        settings: settings,
       );
     } else if (timerSession.mode == TimerMode.countUp) {
       // カウントアップモードの場合、定期的な通知をスケジュール
       await _scheduleCountUpBackgroundNotifications(
         timerSession: timerSession,
         todoTitle: todo?.title,
+        settings: settings,
       );
     }
   }
@@ -302,17 +342,18 @@ class NotificationService {
   Future<void> _schedulePomodoroBackgroundNotification({
     required TimerSession timerSession,
     TodoModel? todo,
+    AppSettings? settings,
   }) async {
     if (timerSession.remainingSeconds <= 0) return;
 
     // 現在の状態をベースに通知をスケジュール
     await _scheduleAllPhaseNotifications(
-        timerSession: timerSession, todo: todo);
+        timerSession: timerSession, todo: todo, settings: settings);
   }
 
   /// 全フェーズの通知をスケジュール
   Future<void> _scheduleAllPhaseNotifications(
-      {required TimerSession timerSession, TodoModel? todo}) async {
+      {required TimerSession timerSession, TodoModel? todo, AppSettings? settings}) async {
     int notificationIndex = 0;
     DateTime currentTime = DateTime.now();
 
@@ -581,11 +622,12 @@ class NotificationService {
   Future<void> _scheduleCountUpBackgroundNotifications({
     required TimerSession timerSession,
     String? todoTitle,
+    AppSettings? settings,
   }) async {
-    // 設定から通知間隔を取得（将来的に設定可能にする場合）
-    const notificationIntervalMinutes = 30; // 30分ごと
+    // 設定から通知間隔を取得
+    final notificationIntervalMinutes = settings?.countUpNotificationMinutes ?? 60;
 
-    // 最大5つまで通知をスケジュール（2.5時間分）
+    // 最大5つまで通知をスケジュール
     for (int i = 1; i <= 5; i++) {
       final totalMinutes = (timerSession.elapsedSeconds ~/ 60) +
           (notificationIntervalMinutes * i);

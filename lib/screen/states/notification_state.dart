@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:solo/services/notification_service.dart';
 import 'package:solo/services/todo_service.dart';
+import 'package:solo/services/settings_service.dart';
 import 'package:solo/models/todo_model.dart';
 
 part 'build/notification_state.g.dart';
@@ -32,7 +33,8 @@ class NotificationState extends _$NotificationState {
     
     try {
       final todayTodos = await todoService.getTodayTodos();
-      await _notificationService.scheduleTodayTodoNotifications(todayTodos);
+      final settings = await SettingsService.loadSettings();
+      await _notificationService.scheduleTodayTodoNotifications(todayTodos, settings: settings);
     } catch (e) {
       // エラーハンドリング（ログ出力等）
       if (kDebugMode) {
@@ -48,7 +50,8 @@ class NotificationState extends _$NotificationState {
     }
     
     try {
-      await _notificationService.scheduleTodoDeadlineNotification(todo);
+      final settings = await SettingsService.loadSettings();
+      await _notificationService.scheduleTodoDeadlineNotification(todo, settings: settings);
     } catch (e) {
       if (kDebugMode) {
         print('Todo通知スケジュール中にエラーが発生しました: $e');

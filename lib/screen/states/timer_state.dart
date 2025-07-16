@@ -788,10 +788,18 @@ class TimerState extends _$TimerState {
       }
     }
 
-    await _notificationService.showTimerCompletionNotification(
-      timerSession: state,
-      todoTitle: todoTitle,
-    );
+    try {
+      final settings = await SettingsService.loadSettings();
+      await _notificationService.showTimerCompletionNotification(
+        timerSession: state,
+        todoTitle: todoTitle,
+        settings: settings,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('タイマー完了通知の表示に失敗しました: $e');
+      }
+    }
   }
 
   /// バックグラウンド通知をスケジュール
@@ -807,10 +815,18 @@ class TimerState extends _$TimerState {
       }
     }
 
-    await _notificationService.scheduleBackgroundTimerNotifications(
-      timerSession: state,
-      todo: todoModel,
-    );
+    try {
+      final settings = await SettingsService.loadSettings();
+      await _notificationService.scheduleBackgroundTimerNotifications(
+        timerSession: state,
+        todo: todoModel,
+        settings: settings,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('バックグラウンド通知のスケジュールに失敗しました: $e');
+      }
+    }
   }
 
   /// バックグラウンド通知をキャンセル
