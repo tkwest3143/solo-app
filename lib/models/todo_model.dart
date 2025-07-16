@@ -24,8 +24,6 @@ sealed class TodoModel with _$TodoModel {
     bool? isRecurring,
     @Default(RecurringType.daily) RecurringType recurringType,
     DateTime? recurringEndDate,
-    int? recurringDayOfWeek, // 1-7 for weekly (Monday = 1)
-    int? recurringDayOfMonth, // 1-31 for monthly
     int? parentTodoId,
     @Default([])
     List<TodoCheckListItemModel> checklistItem, // Optional checklist item
@@ -61,8 +59,6 @@ sealed class TodoModel with _$TodoModel {
               todo.recurringType ?? RecurringType.daily.name) ??
           RecurringType.daily),
       recurringEndDate: todo.recurringEndDate,
-      recurringDayOfWeek: todo.recurringDayOfWeek,
-      recurringDayOfMonth: todo.recurringDayOfMonth,
       parentTodoId: todo.parentTodoId,
       timerType: TimerTypeExtension.fromString(todo.timerType),
       countupElapsedSeconds: todo.countupElapsedSeconds,

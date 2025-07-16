@@ -52,7 +52,6 @@ void main() {
           isCompleted: false,
           isRecurring: true,
           recurringType: RecurringType.weekly,
-          recurringDayOfWeek: 3, // 水曜日
           description: '',
           color: 'blue',
           createdAt: DateTime(2024, 1, 10),
@@ -82,7 +81,6 @@ void main() {
           isCompleted: false,
           isRecurring: true,
           recurringType: RecurringType.monthly,
-          recurringDayOfMonth: 20,
           description: '',
           color: 'blue',
           createdAt: DateTime(2023, 12, 20),
@@ -219,7 +217,6 @@ void main() {
           isCompleted: false,
           isRecurring: true,
           recurringType: RecurringType.weekly,
-          recurringDayOfWeek: 3, // 水曜日
           description: '',
           color: 'blue',
           createdAt: DateTime(2024, 1, 3),

@@ -66,8 +66,6 @@ class _TodoDetailContent extends HookConsumerWidget {
               isRecurring: todo.isRecurring,
               recurringType: todo.recurringType,
               recurringEndDate: todo.recurringEndDate,
-              recurringDayOfWeek: todo.recurringDayOfWeek,
-              recurringDayOfMonth: todo.recurringDayOfMonth,
               // タイマー設定を引き継ぎ
               timerType: todo.timerType,
               countupElapsedSeconds: todo.countupElapsedSeconds,

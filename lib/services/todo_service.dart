@@ -24,8 +24,6 @@ class TodoService {
     bool? isRecurring,
     RecurringType? recurringType,
     DateTime? recurringEndDate,
-    int? recurringDayOfWeek,
-    int? recurringDayOfMonth,
     TimerType? timerType,
     int? countupElapsedSeconds,
     int? pomodoroWorkMinutes,
@@ -47,8 +45,6 @@ class TodoService {
         isRecurring: Value(isRecurring ?? false),
         recurringType: Value(recurringType?.value ?? RecurringType.daily.value),
         recurringEndDate: Value(recurringEndDate),
-        recurringDayOfWeek: Value(recurringDayOfWeek),
-        recurringDayOfMonth: Value(recurringDayOfMonth),
         timerType: Value(timerType?.name ?? TimerType.none.name),
         countupElapsedSeconds: Value(countupElapsedSeconds),
         pomodoroWorkMinutes: Value(pomodoroWorkMinutes),
@@ -71,8 +67,6 @@ class TodoService {
       recurringType:
           RecurringType.fromString(recurringType?.name) ?? RecurringType.daily,
       recurringEndDate: recurringEndDate,
-      recurringDayOfWeek: recurringDayOfWeek,
-      recurringDayOfMonth: recurringDayOfMonth,
       timerType:
           TimerTypeExtension.fromString(timerType?.name ?? TimerType.none.name),
       pomodoroCompletedCycle: pomodoroCompletedCycle,
@@ -94,8 +88,6 @@ class TodoService {
       bool? isRecurring,
       RecurringType? recurringType,
       DateTime? recurringEndDate,
-      int? recurringDayOfWeek,
-      int? recurringDayOfMonth,
       TimerType? timerType,
       int? countupElapsedSeconds,
       int? pomodoroWorkMinutes,
@@ -121,12 +113,6 @@ class TodoService {
           : const Value.absent(),
       recurringEndDate: recurringEndDate != null
           ? Value(recurringEndDate)
-          : const Value.absent(),
-      recurringDayOfWeek: recurringDayOfWeek != null
-          ? Value(recurringDayOfWeek)
-          : const Value.absent(),
-      recurringDayOfMonth: recurringDayOfMonth != null
-          ? Value(recurringDayOfMonth)
           : const Value.absent(),
       timerType:
           timerType != null ? Value(timerType.name) : const Value.absent(),
@@ -403,10 +389,10 @@ class TodoService {
         return !day.isBefore(todo.dueDate);
       case RecurringType.weekly:
         return !day.isBefore(todo.dueDate) &&
-            day.weekday == (todo.recurringDayOfWeek ?? todo.dueDate.weekday);
+            day.weekday == todo.dueDate.weekday;
       case RecurringType.monthly:
         return !day.isBefore(todo.dueDate) &&
-            day.day == (todo.recurringDayOfMonth ?? todo.dueDate.day);
+            day.day == todo.dueDate.day;
       case RecurringType.monthlyLast:
         final lastDay = DateTime(day.year, day.month + 1, 0).day;
         return !day.isBefore(todo.dueDate) && day.day == lastDay;
@@ -441,25 +427,22 @@ class TodoService {
         );
 
       case RecurringType.monthly:
-        if (todo.recurringDayOfMonth != null) {
-          final nextMonth = currentDate.month == 12
-              ? DateTime(currentDate.year + 1, 1, 1)
-              : DateTime(currentDate.year, currentDate.month + 1, 1);
-          final targetDay = todo.recurringDayOfMonth!;
-          final lastDayOfMonth =
-              DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
-          final actualDay =
-              targetDay > lastDayOfMonth ? lastDayOfMonth : targetDay;
+        final nextMonth = currentDate.month == 12
+            ? DateTime(currentDate.year + 1, 1, 1)
+            : DateTime(currentDate.year, currentDate.month + 1, 1);
+        final targetDay = currentDate.day;
+        final lastDayOfMonth =
+            DateTime(nextMonth.year, nextMonth.month + 1, 0).day;
+        final actualDay =
+            targetDay > lastDayOfMonth ? lastDayOfMonth : targetDay;
 
-          return DateTime(
-            nextMonth.year,
-            nextMonth.month,
-            actualDay,
-            currentDate.hour,
-            currentDate.minute,
-          );
-        }
-        break;
+        return DateTime(
+          nextMonth.year,
+          nextMonth.month,
+          actualDay,
+          currentDate.hour,
+          currentDate.minute,
+        );
 
       case RecurringType.monthlyLast:
         final nextMonth = currentDate.month == 12
@@ -476,8 +459,6 @@ class TodoService {
           currentDate.minute,
         );
     }
-
-    return null;
   }
 
   /// Generate the next instance of a recurring todo
@@ -512,8 +493,6 @@ class TodoService {
             : (originalTodo.recurringType).value,
       ),
       recurringEndDate: Value(originalTodo.recurringEndDate),
-      recurringDayOfWeek: Value(originalTodo.recurringDayOfWeek),
-      recurringDayOfMonth: Value(originalTodo.recurringDayOfMonth),
       timerType: Value(originalTodo.timerType.name),
       countupElapsedSeconds: Value(originalTodo.countupElapsedSeconds),
       pomodoroWorkMinutes: Value(originalTodo.pomodoroWorkMinutes),
@@ -578,8 +557,6 @@ class TodoService {
                     : (todo.recurringType).value,
               ),
               recurringEndDate: Value(todo.recurringEndDate),
-              recurringDayOfWeek: Value(todo.recurringDayOfWeek),
-              recurringDayOfMonth: Value(todo.recurringDayOfMonth),
               // タイマー設定をコピー
               timerType: Value(todo.timerType.name),
               countupElapsedSeconds: Value(todo.countupElapsedSeconds),
@@ -694,8 +671,6 @@ class TodoService {
       isRecurring: Value(parentTodo.isRecurring ?? false),
       recurringType: Value(parentTodo.recurringType.value),
       recurringEndDate: Value(parentTodo.recurringEndDate),
-      recurringDayOfWeek: Value(parentTodo.recurringDayOfWeek),
-      recurringDayOfMonth: Value(parentTodo.recurringDayOfMonth),
       parentTodoId: Value(parentTodo.id),
       timerType: Value(parentTodo.timerType.name),
       countupElapsedSeconds: Value(parentTodo.countupElapsedSeconds),

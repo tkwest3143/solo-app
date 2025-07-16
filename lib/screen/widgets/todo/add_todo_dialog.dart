@@ -68,8 +68,6 @@ class _AddTodoDialogContent extends HookConsumerWidget {
     final isRecurring = useState<bool>(initialTodo?.isRecurring ?? false);
     final recurringType = useState<RecurringType?>(initialTodo?.recurringType);
     final recurringEndDate = useState<DateTime?>(initialTodo?.recurringEndDate);
-    final recurringDayOfMonth =
-        useState<int?>(initialTodo?.recurringDayOfMonth);
 
     // Checklist state
     final checklistItems = useState<List<TodoCheckListItemModel>>([]);
@@ -303,8 +301,13 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                           lastDate: DateTime(2030),
                                           selectableDayPredicate: (date) {
                                             // 毎月最終日の場合は月末のみ選択可能
-                                            if (recurringType.value == RecurringType.monthlyLast) {
-                                              final lastDay = DateTime(date.year, date.month + 1, 0).day;
+                                            if (recurringType.value ==
+                                                RecurringType.monthlyLast) {
+                                              final lastDay = DateTime(
+                                                      date.year,
+                                                      date.month + 1,
+                                                      0)
+                                                  .day;
                                               return date.day == lastDay;
                                             }
                                             return true;
@@ -470,12 +473,16 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                               // Reset specific day/month when type changes
                                               if (value ==
                                                   RecurringType.monthly) {
-                                                recurringDayOfMonth.value =
-                                                    selectedDate.value.day;
-                                              } else if (value == RecurringType.monthlyLast) {
+                                                // 毎月の場合、開始日の日付を使用
+                                              } else if (value ==
+                                                  RecurringType.monthlyLast) {
                                                 // 毎月最終日の場合、現在の月の最終日に自動設定
-                                                final currentDate = selectedDate.value;
-                                                final lastDay = DateTime(currentDate.year, currentDate.month + 1, 0);
+                                                final currentDate =
+                                                    selectedDate.value;
+                                                final lastDay = DateTime(
+                                                    currentDate.year,
+                                                    currentDate.month + 1,
+                                                    0);
                                                 selectedDate.value = DateTime(
                                                   lastDay.year,
                                                   lastDay.month,
@@ -491,124 +498,71 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                       ),
                                     ],
                                   ),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.event_busy,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        recurringEndDate.value != null
-                                            ? '終了日: ${formatDate(recurringEndDate.value!, format: 'yyyy/MM/dd')}'
-                                            : '終了日: 未設定',
-                                        style: TextStyle(
+                                  if (recurringType.value !=
+                                      RecurringType.monthly) ...[
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.event_busy,
                                           color: Theme.of(context)
                                               .colorScheme
-                                              .secondaryTextColor,
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          final pickedDate =
-                                              await showDatePicker(
-                                            context: context,
-                                            initialDate: recurringEndDate
-                                                    .value ??
-                                                DateTime.now().add(
-                                                    const Duration(days: 30)),
-                                            firstDate: selectedDate.value,
-                                            lastDate: DateTime(2030),
-                                          );
-                                          recurringEndDate.value = pickedDate;
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Theme.of(context)
-                                              .colorScheme
                                               .primary,
-                                          foregroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .surface,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 6),
-                                          elevation: 0,
+                                          size: 16,
                                         ),
-                                        child: Text(
-                                            recurringEndDate.value != null
-                                                ? '変更'
-                                                : '設定'),
-                                      ),
-                                    ],
-                                  ),
-                                  if (recurringType.value ==
-                                      RecurringType.monthly)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 12.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            '日付',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .secondaryTextColor,
-                                            ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          recurringEndDate.value != null
+                                              ? '終了日: ${formatDate(recurringEndDate.value!, format: 'yyyy/MM/dd')}'
+                                              : '終了日: 未設定',
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondaryTextColor,
                                           ),
-                                          const SizedBox(height: 8),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 12, vertical: 4),
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .outline
-                                                    .withValues(alpha: 0.3),
-                                              ),
+                                        ),
+                                        const Spacer(),
+                                        ElevatedButton(
+                                          onPressed: () async {
+                                            final pickedDate =
+                                                await showDatePicker(
+                                              context: context,
+                                              initialDate: recurringEndDate
+                                                      .value ??
+                                                  DateTime.now().add(
+                                                      const Duration(days: 30)),
+                                              firstDate: selectedDate.value,
+                                              lastDate: DateTime(2030),
+                                            );
+                                            recurringEndDate.value = pickedDate;
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            foregroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .surface,
+                                            shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                             ),
-                                            child: DropdownButtonHideUnderline(
-                                              child: DropdownButton<int>(
-                                                value:
-                                                    recurringDayOfMonth.value ??
-                                                        1,
-                                                isExpanded: true,
-                                                items:
-                                                    List.generate(31, (index) {
-                                                  final day = index + 1;
-                                                  return DropdownMenuItem(
-                                                    value: day,
-                                                    child: Text('$day日'),
-                                                  );
-                                                }),
-                                                onChanged: (value) =>
-                                                    recurringDayOfMonth.value =
-                                                        value,
-                                              ),
-                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 12, vertical: 6),
+                                            elevation: 0,
                                           ),
-                                        ],
-                                      ),
+                                          child: Text(
+                                              recurringEndDate.value != null
+                                                  ? '変更'
+                                                  : '設定'),
+                                        ),
+                                      ],
                                     ),
+                                  ],
                                 ],
                               ],
                             ),
                           ),
                           const SizedBox(height: 16),
-
                           // 管理方法セクション
                           _buildSectionTitle(context, '管理方法'),
                           _SectionCard(
@@ -1150,16 +1104,6 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                               recurringEndDate: isRecurring.value
                                   ? recurringEndDate.value
                                   : null,
-                              recurringDayOfWeek: isRecurring.value &&
-                                      recurringType.value ==
-                                          RecurringType.weekly
-                                  ? selectedDate.value.weekday
-                                  : null,
-                              recurringDayOfMonth: isRecurring.value &&
-                                      recurringType.value ==
-                                          RecurringType.monthly
-                                  ? recurringDayOfMonth.value
-                                  : null,
                               timerType: selectedTimerType,
                               // ポモドーロ設定を保存
                               pomodoroWorkMinutes:
@@ -1221,16 +1165,6 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                   : null,
                               recurringEndDate: isRecurring.value
                                   ? recurringEndDate.value
-                                  : null,
-                              recurringDayOfWeek: isRecurring.value &&
-                                      recurringType.value ==
-                                          RecurringType.weekly
-                                  ? selectedDate.value.weekday
-                                  : null,
-                              recurringDayOfMonth: isRecurring.value &&
-                                      recurringType.value ==
-                                          RecurringType.monthly
-                                  ? recurringDayOfMonth.value
                                   : null,
                               timerType: selectedTimerType,
                               // ポモドーロ設定を保存

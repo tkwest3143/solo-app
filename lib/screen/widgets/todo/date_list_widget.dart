@@ -24,7 +24,7 @@ class DateListWidget extends HookConsumerWidget {
 
   /// 日付選択時のコールバック
   final Function(DateTime) onDateSelected;
-  
+
   /// カレンダー表示に戻るコールバック
   final VoidCallback onBackToCalendar;
 
@@ -34,11 +34,12 @@ class DateListWidget extends HookConsumerWidget {
     final todoService = useMemoized(() => TodoService());
 
     // 前月、当月、次月の日付リストを作成
-    final dateList = useMemoized(() => _createDateList(focusedMonth), [focusedMonth]);
+    final dateList =
+        useMemoized(() => _createDateList(focusedMonth), [focusedMonth]);
 
     // 中央に表示されている日付を監視
     final centerDate = useState<DateTime>(selectedDate);
-    
+
     // focusedMonthが変更された時にcenterDateを更新
     useEffect(() {
       centerDate.value = selectedDate;
@@ -64,7 +65,7 @@ class DateListWidget extends HookConsumerWidget {
           final itemWidth = 60.0; // 各日付アイテムの幅
           final itemMargin = 8.0; // 左右のマージン（4 * 2）
           final totalItemWidth = itemWidth + itemMargin;
-          
+
           // 実際の中央位置を計算（パディングを考慮）
           final centerOffset = scrollController.offset + (viewportWidth / 2);
           final adjustedCenterOffset = centerOffset - 8.0; // パディングを調整
@@ -73,10 +74,11 @@ class DateListWidget extends HookConsumerWidget {
           // インデックスが有効範囲内で、実際に画面に表示されている場合のみ更新
           if (centerIndex >= 0 && centerIndex < dateList.length) {
             // 現在の中央に表示されているアイテムの位置を計算
-            final itemPosition = centerIndex * totalItemWidth + (totalItemWidth / 2);
+            final itemPosition =
+                centerIndex * totalItemWidth + (totalItemWidth / 2);
             final leftBound = scrollController.offset;
             final rightBound = scrollController.offset + viewportWidth;
-            
+
             // アイテムが実際に画面に表示されているか確認
             if (itemPosition >= leftBound && itemPosition <= rightBound) {
               final newCenterDate = dateList[centerIndex];
@@ -123,7 +125,7 @@ class DateListWidget extends HookConsumerWidget {
                   minimumSize: const Size(32, 32),
                 ),
               ),
-              
+
               // 月表示（中央寄せ）
               Expanded(
                 child: Text(
@@ -136,7 +138,7 @@ class DateListWidget extends HookConsumerWidget {
                   ),
                 ),
               ),
-              
+
               // 右側のスペース（バランス調整用）
               const SizedBox(width: 40),
             ],
@@ -157,7 +159,8 @@ class DateListWidget extends HookConsumerWidget {
             ],
           ),
           child: FutureBuilder<Map<DateTime, List<TodoModel>>>(
-            key: ValueKey('todos-${focusedMonth.year}-${focusedMonth.month}'), // キーを追加してリビルドを強制
+            key: ValueKey(
+                'todos-${focusedMonth.year}-${focusedMonth.month}'), // キーを追加してリビルドを強制
             future: _getTodosForDateRange(todoService, dateList),
             builder: (context, snapshot) {
               final todosByDate = snapshot.data ?? {};
@@ -386,7 +389,8 @@ class DateListWidget extends HookConsumerWidget {
       BuildContext context, List<TodoModel> todos, bool isSelected) {
     // 未完了と完了のTodoを分ける
     final hasIncomplete = todos.any((todo) => !todo.isCompleted);
-    final hasCompleted = todos.any((todo) => todo.isCompleted);
+    final hasCompleted =
+        todos.isNotEmpty && todos.every((todo) => todo.isCompleted);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

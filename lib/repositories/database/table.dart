@@ -26,8 +26,6 @@ class Todos extends DefaultTableColumns {
   BoolColumn get isRecurring => boolean().withDefault(const Constant(false))();
   TextColumn get recurringType => text().nullable()();
   DateTimeColumn get recurringEndDate => dateTime().nullable()();
-  IntColumn get recurringDayOfWeek => integer().nullable()();
-  IntColumn get recurringDayOfMonth => integer().nullable()();
   IntColumn get parentTodoId => integer().nullable().references(Todos, #id)();
 
   // --- Timer fields ---
