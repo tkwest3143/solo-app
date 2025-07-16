@@ -1,6 +1,5 @@
 import 'dart:isolate';
 import 'dart:ui';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solo/models/timer_model.dart';
@@ -9,80 +8,6 @@ import 'package:solo/services/notification_service.dart';
 class BackgroundTimerService {
   static const String _timerDataKey = 'background_timer_data';
   static const String _isolatePortName = 'timer_isolate_port';
-  static const int _alarmId = 1000;
-
-  /// バックグラウンドタイマーを開始
-  static Future<bool> startBackgroundTimer(TimerSession timerSession) async {
-    try {
-      // タイマーデータを永続化
-      await _saveTimerData(timerSession);
-
-      // 1秒ごとにアラームを設定
-      return await AndroidAlarmManager.periodic(
-        const Duration(seconds: 1),
-        _alarmId,
-        _backgroundTimerCallback,
-        exact: true,
-        wakeup: true,
-        rescheduleOnReboot: true,
-      );
-    } catch (e) {
-      // 正確なアラームの許可がない場合のエラーハンドリング
-      if (e.toString().contains('exact_alarms_not_permitted')) {
-        if (kDebugMode) {
-          print('Exact alarms not permitted. Trying with approximate alarm.');
-        }
-        try {
-          // exactをfalseにしてリトライ
-          return await AndroidAlarmManager.periodic(
-            const Duration(seconds: 1),
-            _alarmId,
-            _backgroundTimerCallback,
-            exact: false,
-            wakeup: true,
-            rescheduleOnReboot: true,
-          );
-        } catch (retryError) {
-          if (kDebugMode) {
-            print(
-                'Failed to start background timer with approximate alarm: $retryError');
-          }
-          return false;
-        }
-      }
-
-      if (kDebugMode) {
-        print('Failed to start background timer: $e');
-      }
-      return false;
-    }
-  }
-
-  /// バックグラウンドタイマーを停止
-  static Future<bool> stopBackgroundTimer() async {
-    try {
-      await AndroidAlarmManager.cancel(_alarmId);
-      await _clearTimerData();
-      return true;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Failed to stop background timer: $e');
-      }
-      return false;
-    }
-  }
-
-  /// アラームマネージャーの初期化
-  static Future<bool> initialize() async {
-    try {
-      return await AndroidAlarmManager.initialize();
-    } catch (e) {
-      if (kDebugMode) {
-        print('Failed to initialize alarm manager: $e');
-      }
-      return false;
-    }
-  }
 
   /// バックグラウンドタイマーのコールバック（Isolateで実行）
   @pragma('vm:entry-point')
@@ -91,10 +16,9 @@ class BackgroundTimerService {
       // タイマーデータを読み込み
       final timerData = await _loadTimerData();
       if (timerData == null) {
-        await stopBackgroundTimer();
+        // データがない場合は終了
         return;
       }
-
       // タイマー状態を更新
       final updatedTimer = _updateTimerState(timerData);
 
@@ -161,7 +85,6 @@ class BackgroundTimerService {
           timerSession: session,
           todoTitle: null,
         );
-        await stopBackgroundTimer();
       }
     } catch (e) {
       if (kDebugMode) {

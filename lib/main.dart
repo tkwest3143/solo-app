@@ -8,14 +8,10 @@ import 'package:solo/screen/router.dart';
 import 'package:solo/screen/states/settings_state.dart';
 import 'package:solo/screen/states/settings_integration.dart';
 import 'package:solo/screen/states/notification_state.dart';
-import 'package:solo/services/background_timer_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting("ja-JP", null);
-
-  // アラームマネージャーを初期化
-  await BackgroundTimerService.initialize();
 
   // Google Mobile Ads SDKの初期化
   await MobileAds.instance.initialize();

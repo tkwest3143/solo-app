@@ -23,19 +23,20 @@ class CalendarPage extends HookConsumerWidget {
     final selectedStatus = useState<String?>(null);
     final todoService = useMemoized(() => TodoService());
     final refreshKey = useState<int>(0);
-    
+
     // 新しいUI状態管理
-    final isDateListView = useState<bool>(false); // false: カレンダー表示, true: 日付リスト表示
+    final isDateListView =
+        useState<bool>(false); // false: カレンダー表示, true: 日付リスト表示
 
     void refreshTodos() {
       refreshKey.value++;
     }
-    
+
     void toggleToDateListView(DateTime selectedDate) {
       selectedDay.value = selectedDate;
       isDateListView.value = true;
     }
-    
+
     void toggleToCalendarView() {
       isDateListView.value = false;
     }
@@ -129,22 +130,6 @@ class CalendarPage extends HookConsumerWidget {
                       ),
 
                       const Spacer(),
-                      IconButton(
-                        onPressed: () {
-                          nextRouting(context, RouterDefinition.todoList);
-                        },
-                        icon: Icon(
-                          Icons.list_alt_rounded,
-                          color: Theme.of(context).colorScheme.primaryTextColor,
-                        ),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Theme.of(context)
-                              .colorScheme
-                              .surface
-                              .withValues(alpha: 0.2),
-                          padding: const EdgeInsets.all(12),
-                        ),
-                      ),
                     ],
                   ),
                 ],
@@ -153,7 +138,7 @@ class CalendarPage extends HookConsumerWidget {
 
             // Calendar or Date List View
             Expanded(
-              child: isDateListView.value 
+              child: isDateListView.value
                   ? _buildDateListView(
                       context,
                       selectedDay.value,
@@ -176,7 +161,8 @@ class CalendarPage extends HookConsumerWidget {
                         color: Theme.of(context).colorScheme.surface,
                         boxShadow: [
                           BoxShadow(
-                            color: Theme.of(context).colorScheme.lightShadowColor,
+                            color:
+                                Theme.of(context).colorScheme.lightShadowColor,
                             blurRadius: 15,
                             offset: const Offset(0, 5),
                           ),
@@ -190,338 +176,355 @@ class CalendarPage extends HookConsumerWidget {
                               valueListenable: refreshKey,
                               builder: (context, _, __) =>
                                   FutureBuilder<Map<DateTime, List<TodoModel>>>(
-                                future:
-                                    todoService.getTodosForMonth(focusedDay.value),
+                                future: todoService
+                                    .getTodosForMonth(focusedDay.value),
                                 builder: (context, snapshot) {
                                   final todosByDate = snapshot.data ?? {};
 
                                   return TableCalendar<TodoModel>(
-                              locale: 'ja',
-                              firstDay: DateTime.utc(2020, 1, 1),
-                              lastDay: DateTime.utc(2030, 12, 31),
-                              focusedDay: focusedDay.value,
-                              selectedDayPredicate: (day) =>
-                                  isSameDay(selectedDay.value, day),
-                              eventLoader: (day) {
-                                final dateKey =
-                                    DateTime(day.year, day.month, day.day);
-                                List<TodoModel> events =
-                                    todosByDate[dateKey] ?? [];
-                                // カレンダーのフィルター条件をここでも適用
-                                if (selectedCategory.value != null) {
-                                  events = events
-                                      .where((todo) =>
-                                          todo.categoryId ==
-                                          selectedCategory.value)
-                                      .toList();
-                                }
-                                if (selectedStatus.value != null) {
-                                  if (selectedStatus.value == 'completed') {
-                                    events = events
-                                        .where(
-                                            (todo) => todo.isCompleted == true)
-                                        .toList();
-                                  } else if (selectedStatus.value ==
-                                      'incomplete') {
-                                    events = events
-                                        .where(
-                                            (todo) => todo.isCompleted != true)
-                                        .toList();
-                                  }
-                                }
-                                return events;
-                              },
-                              calendarStyle: CalendarStyle(
-                                defaultDecoration: BoxDecoration(
-                                  color: Colors.transparent,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                weekendDecoration: BoxDecoration(
-                                  color: Colors.transparent,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                todayDecoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withValues(alpha: 0.7),
-                                      Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withValues(alpha: 0.4),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withValues(alpha: 0.18),
-                                      blurRadius: 12,
-                                      offset: Offset(0, 4),
-                                    ),
-                                  ],
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                selectedDecoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withValues(alpha: 0.18),
-                                      blurRadius: 16,
-                                      offset: Offset(0, 4),
-                                    ),
-                                  ],
-                                  border: Border.all(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    width: 2,
-                                  ),
-                                ),
-                                selectedTextStyle: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                                todayTextStyle: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryTextColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                                weekendTextStyle: TextStyle(
-                                  color: Colors.blueAccent,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                outsideDaysVisible: false,
-                                markerDecoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withValues(alpha: 0.18),
-                                      blurRadius: 6,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                markersMaxCount: 2,
-                                markerMargin: const EdgeInsets.only(bottom: 4),
-                              ),
-                              daysOfWeekStyle: DaysOfWeekStyle(
-                                weekdayStyle: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .secondaryTextColor,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                ),
-                                weekendStyle: TextStyle(
-                                  color: Colors.blueAccent,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13,
-                                ),
-                                dowTextFormatter: (date, locale) {
-                                  switch (date.weekday) {
-                                    case DateTime.sunday:
-                                      return '日';
-                                    case DateTime.monday:
-                                      return '月';
-                                    case DateTime.tuesday:
-                                      return '火';
-                                    case DateTime.wednesday:
-                                      return '水';
-                                    case DateTime.thursday:
-                                      return '木';
-                                    case DateTime.friday:
-                                      return '金';
-                                    case DateTime.saturday:
-                                      return '土';
-                                    default:
-                                      return '';
-                                  }
-                                },
-                              ),
-                              headerStyle: HeaderStyle(
-                                formatButtonVisible: false,
-                                titleCentered: true,
-                                titleTextStyle: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryTextColor,
-                                  letterSpacing: 1.2,
-                                ),
-                                leftChevronIcon: Container(
-                                  decoration: BoxDecoration(
-                                    color:
-                                        Theme.of(context).colorScheme.surface,
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary
-                                            .withValues(alpha: 0.08),
-                                        blurRadius: 8,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Icon(
-                                    Icons.chevron_left,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    size: 28,
-                                  ),
-                                ),
-                                rightChevronIcon: Container(
-                                  decoration: BoxDecoration(
-                                    color:
-                                        Theme.of(context).colorScheme.surface,
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary
-                                            .withValues(alpha: 0.08),
-                                        blurRadius: 8,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Icon(
-                                    Icons.chevron_right,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    size: 28,
-                                  ),
-                                ),
-                              ),
-                              calendarBuilders: CalendarBuilders(
-                                markerBuilder: (context, day, events) {
-                                  final now = DateTime.now();
-                                  final isSelected =
-                                      isSameDay(selectedDay.value, day);
-                                  final isToday = day.year == now.year &&
-                                      day.month == now.month &&
-                                      day.day == now.day;
-                                  final isFiltered =
-                                      selectedCategory.value != null ||
-                                          selectedStatus.value != null;
-                                  List<TodoModel> filteredEvents =
-                                      events.cast<TodoModel>();
-                                  if (isFiltered) {
-                                    if (selectedCategory.value != null) {
-                                      filteredEvents = filteredEvents
-                                          .where((todo) =>
-                                              todo.categoryId ==
-                                              selectedCategory.value)
-                                          .toList();
-                                    }
-                                    if (selectedStatus.value != null) {
-                                      if (selectedStatus.value == 'completed') {
-                                        filteredEvents = filteredEvents
+                                    locale: 'ja',
+                                    firstDay: DateTime.utc(2020, 1, 1),
+                                    lastDay: DateTime.utc(2030, 12, 31),
+                                    focusedDay: focusedDay.value,
+                                    selectedDayPredicate: (day) =>
+                                        isSameDay(selectedDay.value, day),
+                                    eventLoader: (day) {
+                                      final dateKey = DateTime(
+                                          day.year, day.month, day.day);
+                                      List<TodoModel> events =
+                                          todosByDate[dateKey] ?? [];
+                                      // カレンダーのフィルター条件をここでも適用
+                                      if (selectedCategory.value != null) {
+                                        events = events
                                             .where((todo) =>
-                                                todo.isCompleted == true)
-                                            .toList();
-                                      } else if (selectedStatus.value ==
-                                          'incomplete') {
-                                        filteredEvents = filteredEvents
-                                            .where((todo) =>
-                                                todo.isCompleted != true)
+                                                todo.categoryId ==
+                                                selectedCategory.value)
                                             .toList();
                                       }
-                                    }
-                                  }
-                                  if (isSelected || isToday) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  if (filteredEvents.isEmpty) {
-                                    return null;
-                                  }
-                                  // 未完了はprimary、完了はグレーで複数マーカー
-                                  final hasIncomplete = filteredEvents
-                                      .any((todo) => !todo.isCompleted);
-                                  final hasCompleted = filteredEvents
-                                      .any((todo) => todo.isCompleted);
-                                  return Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      if (hasIncomplete)
-                                        Container(
-                                          width: 9,
-                                          height: 9,
-                                          margin: const EdgeInsets.symmetric(
-                                              horizontal: 1),
-                                          decoration: BoxDecoration(
+                                      if (selectedStatus.value != null) {
+                                        if (selectedStatus.value ==
+                                            'completed') {
+                                          events = events
+                                              .where((todo) =>
+                                                  todo.isCompleted == true)
+                                              .toList();
+                                        } else if (selectedStatus.value ==
+                                            'incomplete') {
+                                          events = events
+                                              .where((todo) =>
+                                                  todo.isCompleted != true)
+                                              .toList();
+                                        }
+                                      }
+                                      return events;
+                                    },
+                                    calendarStyle: CalendarStyle(
+                                      defaultDecoration: BoxDecoration(
+                                        color: Colors.transparent,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      weekendDecoration: BoxDecoration(
+                                        color: Colors.transparent,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      todayDecoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withValues(alpha: 0.7),
+                                            Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withValues(alpha: 0.4),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
                                             color: Theme.of(context)
                                                 .colorScheme
-                                                .primary,
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary
-                                                    .withValues(alpha: 0.18),
-                                                blurRadius: 4,
-                                                offset: Offset(0, 1),
-                                              ),
-                                            ],
+                                                .primary
+                                                .withValues(alpha: 0.18),
+                                            blurRadius: 12,
+                                            offset: Offset(0, 4),
                                           ),
-                                        ),
-                                      if (hasCompleted)
-                                        Container(
-                                          width: 9,
-                                          height: 9,
-                                          margin: const EdgeInsets.symmetric(
-                                              horizontal: 1),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey,
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.grey
-                                                    .withValues(alpha: 0.18),
-                                                blurRadius: 4,
-                                                offset: Offset(0, 1),
-                                              ),
-                                            ],
+                                        ],
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      selectedDecoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withValues(alpha: 0.18),
+                                            blurRadius: 16,
+                                            offset: Offset(0, 4),
                                           ),
+                                        ],
+                                        border: Border.all(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          width: 2,
                                         ),
-                                    ],
+                                      ),
+                                      selectedTextStyle: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                      todayTextStyle: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primaryTextColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                      weekendTextStyle: TextStyle(
+                                        color: Colors.blueAccent,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      outsideDaysVisible: false,
+                                      markerDecoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withValues(alpha: 0.18),
+                                            blurRadius: 6,
+                                            offset: Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      markersMaxCount: 2,
+                                      markerMargin:
+                                          const EdgeInsets.only(bottom: 4),
+                                    ),
+                                    daysOfWeekStyle: DaysOfWeekStyle(
+                                      weekdayStyle: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondaryTextColor,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                      weekendStyle: TextStyle(
+                                        color: Colors.blueAccent,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 13,
+                                      ),
+                                      dowTextFormatter: (date, locale) {
+                                        switch (date.weekday) {
+                                          case DateTime.sunday:
+                                            return '日';
+                                          case DateTime.monday:
+                                            return '月';
+                                          case DateTime.tuesday:
+                                            return '火';
+                                          case DateTime.wednesday:
+                                            return '水';
+                                          case DateTime.thursday:
+                                            return '木';
+                                          case DateTime.friday:
+                                            return '金';
+                                          case DateTime.saturday:
+                                            return '土';
+                                          default:
+                                            return '';
+                                        }
+                                      },
+                                    ),
+                                    headerStyle: HeaderStyle(
+                                      formatButtonVisible: false,
+                                      titleCentered: true,
+                                      titleTextStyle: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primaryTextColor,
+                                        letterSpacing: 1.2,
+                                      ),
+                                      leftChevronIcon: Container(
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surface,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary
+                                                  .withValues(alpha: 0.08),
+                                              blurRadius: 8,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Icon(
+                                          Icons.chevron_left,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          size: 28,
+                                        ),
+                                      ),
+                                      rightChevronIcon: Container(
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surface,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary
+                                                  .withValues(alpha: 0.08),
+                                              blurRadius: 8,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Icon(
+                                          Icons.chevron_right,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          size: 28,
+                                        ),
+                                      ),
+                                    ),
+                                    calendarBuilders: CalendarBuilders(
+                                      markerBuilder: (context, day, events) {
+                                        final now = DateTime.now();
+                                        final isSelected =
+                                            isSameDay(selectedDay.value, day);
+                                        final isToday = day.year == now.year &&
+                                            day.month == now.month &&
+                                            day.day == now.day;
+                                        final isFiltered =
+                                            selectedCategory.value != null ||
+                                                selectedStatus.value != null;
+                                        List<TodoModel> filteredEvents =
+                                            events.cast<TodoModel>();
+                                        if (isFiltered) {
+                                          if (selectedCategory.value != null) {
+                                            filteredEvents = filteredEvents
+                                                .where((todo) =>
+                                                    todo.categoryId ==
+                                                    selectedCategory.value)
+                                                .toList();
+                                          }
+                                          if (selectedStatus.value != null) {
+                                            if (selectedStatus.value ==
+                                                'completed') {
+                                              filteredEvents = filteredEvents
+                                                  .where((todo) =>
+                                                      todo.isCompleted == true)
+                                                  .toList();
+                                            } else if (selectedStatus.value ==
+                                                'incomplete') {
+                                              filteredEvents = filteredEvents
+                                                  .where((todo) =>
+                                                      todo.isCompleted != true)
+                                                  .toList();
+                                            }
+                                          }
+                                        }
+                                        if (isSelected || isToday) {
+                                          return const SizedBox.shrink();
+                                        }
+                                        if (filteredEvents.isEmpty) {
+                                          return null;
+                                        }
+                                        // 未完了はprimary、完了はグレーで複数マーカー
+                                        final hasIncomplete = filteredEvents
+                                            .any((todo) => !todo.isCompleted);
+                                        final hasCompleted = filteredEvents
+                                            .any((todo) => todo.isCompleted);
+                                        return Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            if (hasIncomplete)
+                                              Container(
+                                                width: 9,
+                                                height: 9,
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 1),
+                                                decoration: BoxDecoration(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  shape: BoxShape.circle,
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .primary
+                                                          .withValues(
+                                                              alpha: 0.18),
+                                                      blurRadius: 4,
+                                                      offset: Offset(0, 1),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            if (hasCompleted)
+                                              Container(
+                                                width: 9,
+                                                height: 9,
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 1),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey,
+                                                  shape: BoxShape.circle,
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.grey
+                                                          .withValues(
+                                                              alpha: 0.18),
+                                                      blurRadius: 4,
+                                                      offset: Offset(0, 1),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                    onDaySelected: (selected, focused) {
+                                      toggleToDateListView(selected);
+                                      focusedDay.value = focused;
+                                    },
+                                    onPageChanged: (focused) {
+                                      focusedDay.value = focused;
+                                    },
                                   );
                                 },
                               ),
-                              onDaySelected: (selected, focused) {
-                                toggleToDateListView(selected);
-                                focusedDay.value = focused;
-                              },
-                              onPageChanged: (focused) {
-                                focusedDay.value = focused;
-                              },
-                            );
-                          },
-                        ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
                             ),
+                          ],
+                        ),
+                      ),
+                    ),
+            ),
             const SizedBox(height: 20),
           ],
         ),
@@ -549,7 +552,7 @@ class CalendarPage extends HookConsumerWidget {
           onDateSelected: onDateSelected,
           onBackToCalendar: onBackToCalendar,
         ),
-        
+
         // Todo一覧
         Expanded(
           child: Container(
@@ -599,8 +602,10 @@ class CalendarPage extends HookConsumerWidget {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.surface,
-                          foregroundColor: Theme.of(context).colorScheme.primaryTextColor,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.surface,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.primaryTextColor,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -615,31 +620,38 @@ class CalendarPage extends HookConsumerWidget {
                   ),
                 ),
                 const Divider(height: 1),
-                
+
                 // Todo一覧
                 Expanded(
                   child: FutureBuilder<List<TodoModel>>(
-                    key: ValueKey('todo-list-${selectedDate.year}-${selectedDate.month}-${selectedDate.day}'), // キーを追加
+                    key: ValueKey(
+                        'todo-list-${selectedDate.year}-${selectedDate.month}-${selectedDate.day}'), // キーを追加
                     future: TodoService().getTodosForDate(selectedDate),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       }
-                      
+
                       var todos = snapshot.data ?? [];
-                      
+
                       // フィルター適用
                       if (categoryFilter != null) {
-                        todos = todos.where((todo) => todo.categoryId == categoryFilter).toList();
+                        todos = todos
+                            .where((todo) => todo.categoryId == categoryFilter)
+                            .toList();
                       }
                       if (statusFilter != null) {
                         if (statusFilter == 'completed') {
-                          todos = todos.where((todo) => todo.isCompleted == true).toList();
+                          todos = todos
+                              .where((todo) => todo.isCompleted == true)
+                              .toList();
                         } else if (statusFilter == 'incomplete') {
-                          todos = todos.where((todo) => todo.isCompleted != true).toList();
+                          todos = todos
+                              .where((todo) => todo.isCompleted != true)
+                              .toList();
                         }
                       }
-                      
+
                       if (todos.isEmpty) {
                         return Center(
                           child: Column(
@@ -648,13 +660,17 @@ class CalendarPage extends HookConsumerWidget {
                               Icon(
                                 Icons.event_available,
                                 size: 48,
-                                color: Theme.of(context).colorScheme.mutedTextColor,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .mutedTextColor,
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 'この日のTodoはありません',
                                 style: TextStyle(
-                                  color: Theme.of(context).colorScheme.mutedTextColor,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .mutedTextColor,
                                   fontSize: 16,
                                 ),
                               ),
@@ -662,7 +678,7 @@ class CalendarPage extends HookConsumerWidget {
                           ),
                         );
                       }
-                      
+
                       return ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: todos.length,
@@ -684,5 +700,4 @@ class CalendarPage extends HookConsumerWidget {
       ],
     );
   }
-
 }

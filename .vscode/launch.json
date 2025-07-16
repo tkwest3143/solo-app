@@ -13,7 +13,8 @@
     {
       "name": "solo-app",
       "request": "launch",
-      "type": "dart"
+      "type": "dart",
+      "flutterMode": "debug"
     },
     {
       "name": "solo-app (profile mode)",
