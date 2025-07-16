@@ -45,7 +45,7 @@ class TodoService {
         createdAt: Value(now),
         updatedAt: Value(now),
         isRecurring: Value(isRecurring ?? false),
-        recurringType: Value(recurringType?.name ?? RecurringType.daily.name),
+        recurringType: Value(recurringType?.value ?? RecurringType.daily.value),
         recurringEndDate: Value(recurringEndDate),
         recurringDayOfWeek: Value(recurringDayOfWeek),
         recurringDayOfMonth: Value(recurringDayOfMonth),
@@ -68,9 +68,8 @@ class TodoService {
       createdAt: now,
       updatedAt: now,
       isRecurring: isRecurring ?? false,
-      recurringType: RecurringType.fromString(
-              recurringType?.name ?? RecurringType.daily.name) ??
-          RecurringType.daily,
+      recurringType:
+          RecurringType.fromString(recurringType?.name) ?? RecurringType.daily,
       recurringEndDate: recurringEndDate,
       recurringDayOfWeek: recurringDayOfWeek,
       recurringDayOfMonth: recurringDayOfMonth,
@@ -414,7 +413,6 @@ class TodoService {
     }
   }
 
-  /// Calculate the next due date for a recurring todo
   DateTime? calculateNextRecurringDate(TodoModel todo) {
     if (todo.isRecurring != true) {
       return null;
@@ -511,7 +509,7 @@ class TodoService {
       recurringType: Value(
         (originalTodo.recurringType is String)
             ? originalTodo.recurringType as String
-            : (originalTodo.recurringType).name,
+            : (originalTodo.recurringType).value,
       ),
       recurringEndDate: Value(originalTodo.recurringEndDate),
       recurringDayOfWeek: Value(originalTodo.recurringDayOfWeek),
@@ -577,7 +575,7 @@ class TodoService {
               recurringType: Value(
                 (todo.recurringType is String)
                     ? todo.recurringType as String
-                    : (todo.recurringType).name,
+                    : (todo.recurringType).value,
               ),
               recurringEndDate: Value(todo.recurringEndDate),
               recurringDayOfWeek: Value(todo.recurringDayOfWeek),
@@ -694,7 +692,7 @@ class TodoService {
       createdAt: Value(now),
       updatedAt: Value(now),
       isRecurring: Value(parentTodo.isRecurring ?? false),
-      recurringType: Value(parentTodo.recurringType.name),
+      recurringType: Value(parentTodo.recurringType.value),
       recurringEndDate: Value(parentTodo.recurringEndDate),
       recurringDayOfWeek: Value(parentTodo.recurringDayOfWeek),
       recurringDayOfMonth: Value(parentTodo.recurringDayOfMonth),

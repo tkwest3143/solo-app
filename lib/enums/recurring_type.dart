@@ -12,7 +12,8 @@ enum RecurringType {
   static RecurringType? fromString(String? value) {
     if (value == null) return null;
     for (final type in RecurringType.values) {
-      if (type.value == value) return type;
+      // valueまたはnameのどちらでもマッチするようにする
+      if (type.value == value || type.name == value) return type;
     }
     return RecurringType.daily;
   }

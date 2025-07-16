@@ -301,6 +301,14 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                           initialDate: selectedDate.value,
                                           firstDate: DateTime(2020),
                                           lastDate: DateTime(2030),
+                                          selectableDayPredicate: (date) {
+                                            // 毎月最終日の場合は月末のみ選択可能
+                                            if (recurringType.value == RecurringType.monthlyLast) {
+                                              final lastDay = DateTime(date.year, date.month + 1, 0).day;
+                                              return date.day == lastDay;
+                                            }
+                                            return true;
+                                          },
                                         );
                                         if (pickedDate != null) {
                                           selectedDate.value = pickedDate;
@@ -464,6 +472,17 @@ class _AddTodoDialogContent extends HookConsumerWidget {
                                                   RecurringType.monthly) {
                                                 recurringDayOfMonth.value =
                                                     selectedDate.value.day;
+                                              } else if (value == RecurringType.monthlyLast) {
+                                                // 毎月最終日の場合、現在の月の最終日に自動設定
+                                                final currentDate = selectedDate.value;
+                                                final lastDay = DateTime(currentDate.year, currentDate.month + 1, 0);
+                                                selectedDate.value = DateTime(
+                                                  lastDay.year,
+                                                  lastDay.month,
+                                                  lastDay.day,
+                                                  currentDate.hour,
+                                                  currentDate.minute,
+                                                );
                                               }
                                               // weeklyの場合は曜日選択不要なので何もしない
                                             },
