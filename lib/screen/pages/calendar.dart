@@ -61,6 +61,7 @@ class CalendarPage extends HookConsumerWidget {
                   // 1行目：リストに戻るボタンとTodo追加ボタン
                   Row(
                     children: [
+                      const Spacer(),
                       // 2行目：絞り込み
                       GestureDetector(
                         onTap: () async {
@@ -128,8 +129,6 @@ class CalendarPage extends HookConsumerWidget {
                           ),
                         ),
                       ),
-
-                      const Spacer(),
                     ],
                   ),
                 ],
@@ -289,7 +288,8 @@ class CalendarPage extends HookConsumerWidget {
                                         fontSize: 16,
                                       ),
                                       weekendTextStyle: const TextStyle(
-                                        color: Colors.blueAccent,
+                                        color: Colors
+                                            .black, // デフォルトは黒（calendarBuildersで個別設定）
                                         fontWeight: FontWeight.w600,
                                       ),
                                       outsideDaysVisible: false,
@@ -322,7 +322,8 @@ class CalendarPage extends HookConsumerWidget {
                                         fontSize: 13,
                                       ),
                                       weekendStyle: const TextStyle(
-                                        color: Colors.blueAccent,
+                                        color: Colors
+                                            .black, // デフォルトは黒（dowBuilderで個別設定）
                                         fontWeight: FontWeight.w700,
                                         fontSize: 13,
                                       ),
@@ -408,6 +409,79 @@ class CalendarPage extends HookConsumerWidget {
                                       ),
                                     ),
                                     calendarBuilders: CalendarBuilders(
+                                      // 曜日の表示をカスタマイズ
+                                      dowBuilder: (context, day) {
+                                        final text = () {
+                                          switch (day.weekday) {
+                                            case DateTime.sunday:
+                                              return '日';
+                                            case DateTime.monday:
+                                              return '月';
+                                            case DateTime.tuesday:
+                                              return '火';
+                                            case DateTime.wednesday:
+                                              return '水';
+                                            case DateTime.thursday:
+                                              return '木';
+                                            case DateTime.friday:
+                                              return '金';
+                                            case DateTime.saturday:
+                                              return '土';
+                                            default:
+                                              return '';
+                                          }
+                                        }();
+
+                                        final color = () {
+                                          switch (day.weekday) {
+                                            case DateTime.sunday:
+                                              return Colors.red;
+                                            case DateTime.saturday:
+                                              return Colors.blueAccent;
+                                            default:
+                                              return Theme.of(context)
+                                                  .colorScheme
+                                                  .secondaryTextColor;
+                                          }
+                                        }();
+
+                                        return Center(
+                                          child: Text(
+                                            text,
+                                            style: TextStyle(
+                                              color: color,
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      // 日付の表示をカスタマイズ
+                                      defaultBuilder:
+                                          (context, day, focusedDay) {
+                                        final color = () {
+                                          switch (day.weekday) {
+                                            case DateTime.sunday:
+                                              return Colors.red;
+                                            case DateTime.saturday:
+                                              return Colors.blueAccent;
+                                            default:
+                                              return Theme.of(context)
+                                                  .colorScheme
+                                                  .primaryTextColor;
+                                          }
+                                        }();
+
+                                        return Center(
+                                          child: Text(
+                                            day.day.toString(),
+                                            style: TextStyle(
+                                              color: color,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        );
+                                      },
                                       markerBuilder: (context, day, events) {
                                         final now = DateTime.now();
                                         final isSelected =
