@@ -5,3 +5,7 @@ build:
 
 pod-re:
 	cd ios && rm Podfile.lock && rm -rf Pods && pod repo remove trunk && pod setup && pod install --repo-update && cd ..
+
+gradle-re:
+	flutter pub get
+	cd android && ./gradlew clean && cd ..

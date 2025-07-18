@@ -17,7 +17,11 @@
       "Bash(flutter:*)",
       "Bash(fvm list:*)",
       "Bash(dart run build_runner:*)",
-      "Bash(fvm dart run build_runner build:*)"
+      "Bash(fvm dart run build_runner build:*)",
+      "Bash(/Users/takanorinishi/fvm/versions/3.32.6/bin/flutter clean)",
+      "Bash(/Users/takanorinishi/fvm/versions/3.32.6/bin/flutter build appbundle)",
+      "Bash(/Users/takanorinishi/fvm/versions/3.32.6/bin/flutter build appbundle --verbose)",
+      "Bash(keytool:*)"
     ],
     "deny": []
   }

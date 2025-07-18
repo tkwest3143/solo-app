@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:solo/screen/router.dart';
 import 'package:solo/screen/widgets/todo/add_todo_dialog.dart';
 import 'package:solo/screen/widgets/todo/todo_card.dart';
 import 'package:solo/screen/widgets/todo/todo_filter_dialog.dart';
@@ -249,7 +249,7 @@ class CalendarPage extends HookConsumerWidget {
                                                 .primary
                                                 .withValues(alpha: 0.18),
                                             blurRadius: 12,
-                                            offset: Offset(0, 4),
+                                            offset: const Offset(0, 4),
                                           ),
                                         ],
                                         borderRadius: BorderRadius.circular(16),
@@ -266,7 +266,7 @@ class CalendarPage extends HookConsumerWidget {
                                                 .primary
                                                 .withValues(alpha: 0.18),
                                             blurRadius: 16,
-                                            offset: Offset(0, 4),
+                                            offset: const Offset(0, 4),
                                           ),
                                         ],
                                         border: Border.all(
@@ -276,7 +276,7 @@ class CalendarPage extends HookConsumerWidget {
                                           width: 2,
                                         ),
                                       ),
-                                      selectedTextStyle: TextStyle(
+                                      selectedTextStyle: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
@@ -288,7 +288,7 @@ class CalendarPage extends HookConsumerWidget {
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                       ),
-                                      weekendTextStyle: TextStyle(
+                                      weekendTextStyle: const TextStyle(
                                         color: Colors.blueAccent,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -305,7 +305,7 @@ class CalendarPage extends HookConsumerWidget {
                                                 .primary
                                                 .withValues(alpha: 0.18),
                                             blurRadius: 6,
-                                            offset: Offset(0, 2),
+                                            offset: const Offset(0, 2),
                                           ),
                                         ],
                                       ),
@@ -321,7 +321,7 @@ class CalendarPage extends HookConsumerWidget {
                                         fontWeight: FontWeight.w600,
                                         fontSize: 13,
                                       ),
-                                      weekendStyle: TextStyle(
+                                      weekendStyle: const TextStyle(
                                         color: Colors.blueAccent,
                                         fontWeight: FontWeight.w700,
                                         fontSize: 13,
@@ -479,7 +479,8 @@ class CalendarPage extends HookConsumerWidget {
                                                           .withValues(
                                                               alpha: 0.18),
                                                       blurRadius: 4,
-                                                      offset: Offset(0, 1),
+                                                      offset:
+                                                          const Offset(0, 1),
                                                     ),
                                                   ],
                                                 ),
@@ -500,7 +501,8 @@ class CalendarPage extends HookConsumerWidget {
                                                           .withValues(
                                                               alpha: 0.18),
                                                       blurRadius: 4,
-                                                      offset: Offset(0, 1),
+                                                      offset:
+                                                          const Offset(0, 1),
                                                     ),
                                                   ],
                                                 ),
@@ -520,6 +522,13 @@ class CalendarPage extends HookConsumerWidget {
                                 },
                               ),
                             ),
+                            const SizedBox(height: 20),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 16),
+                              child: _buildFancyAddTodoButton(
+                                  context, selectedDay.value, refreshTodos),
+                            ),
                           ],
                         ),
                       ),
@@ -529,6 +538,140 @@ class CalendarPage extends HookConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  /// おしゃれなTodo追加ボタン
+  Widget _buildFancyAddTodoButton(
+      BuildContext context, DateTime selectedDate, VoidCallback onRefresh) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.elasticOut,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: value,
+          child: Container(
+            height: 60,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.3),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                  spreadRadius: 0,
+                ),
+                BoxShadow(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.1),
+                  blurRadius: 40,
+                  offset: const Offset(0, 20),
+                  spreadRadius: 10,
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(30),
+                onTap: () async {
+                  // ボタンタップ時のアニメーション
+                  HapticFeedback.lightImpact();
+                  await AddTodoDialog.show(
+                    context,
+                    initialDate: selectedDate,
+                    onSaved: onRefresh,
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // プラスアイコンのアニメーション
+                      TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0.0, end: 1.0),
+                        duration: const Duration(milliseconds: 800),
+                        curve: Curves.easeOutBack,
+                        builder: (context, iconValue, _) {
+                          return Transform.rotate(
+                            angle: iconValue * 2 * 3.14159,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.add_rounded,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 16),
+                      // テキスト
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            formatDate(selectedDate, format: 'M月d日'),
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const Text(
+                            '新しいTodoを追加',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      // 矢印アイコン
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

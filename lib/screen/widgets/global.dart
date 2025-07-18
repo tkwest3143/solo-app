@@ -76,52 +76,15 @@ class AppHeader extends HookConsumerWidget implements PreferredSizeWidget {
     }, []);
 
     return SizedBox(
-      height: kToolbarHeight,
-      child: isAdLoaded.value && bannerAd.value != null
-          ? Container(
-              alignment: Alignment.center,
-              width: bannerAd.value!.size.width.toDouble(),
-              height: bannerAd.value!.size.height.toDouble(),
-              child: AdWidget(ad: bannerAd.value!),
-            )
-          : AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              centerTitle: false,
-              title: Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Text(
-                  "Solo",
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color:
-                            Theme.of(context).colorScheme.headerFooterTextColor,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                      ),
-                ),
-              ),
-              actions: [
-                Container(
-                  margin: const EdgeInsets.only(right: 16),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .headerFooterIconColor
-                        .withValues(alpha: 0.2),
-                  ),
-                  child: IconButton(
-                    icon: Icon(Icons.settings_rounded,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .headerFooterIconColor),
-                    onPressed: onSettingsPressed,
-                  ),
-                ),
-              ],
-              automaticallyImplyLeading: false,
-            ),
-    );
+        height: kToolbarHeight,
+        child: isAdLoaded.value && bannerAd.value != null
+            ? Container(
+                alignment: Alignment.center,
+                width: bannerAd.value!.size.width.toDouble(),
+                height: bannerAd.value!.size.height.toDouble(),
+                child: AdWidget(ad: bannerAd.value!),
+              )
+            : Container());
   }
 
   @override
@@ -146,7 +109,7 @@ class GlobalLayout extends HookWidget {
           ],
         ),
       ),
-      bottomNavigationBar: FooterMenu(),
+      bottomNavigationBar: const FooterMenu(),
     );
   }
 }
@@ -178,7 +141,7 @@ class FooterMenu extends HookWidget {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.headerFooterColor,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
@@ -186,7 +149,7 @@ class FooterMenu extends HookWidget {
           BoxShadow(
             color: Theme.of(context).colorScheme.mediumShadowColor,
             blurRadius: 10,
-            offset: Offset(0, -5),
+            offset: const Offset(0, -5),
           ),
         ],
       ),

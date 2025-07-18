@@ -4,5 +4,6 @@
   },
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
-  "dart.flutterSdkPath": ".fvm/versions/stable"
+  "dart.flutterSdkPath": ".fvm/versions/3.32.6",
+  "java.configuration.updateBuildConfiguration": "interactive"
 }
