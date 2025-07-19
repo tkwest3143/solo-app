@@ -596,13 +596,40 @@ class CalendarPage extends HookConsumerWidget {
                                 },
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 8),
+                            const Divider(height: 1),
+                            const SizedBox(height: 8),
+                            // Todo数表示ボタン
+                            Container(
+                              height: 100,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: FutureBuilder<List<TodoModel>>(
+                                future: todoService
+                                    .getTodosForDate(selectedDay.value),
+                                builder: (context, snapshot) {
+                                  final todos = snapshot.data ?? [];
+                                  return _buildTodoCountButton(
+                                    context,
+                                    selectedDay.value,
+                                    todos,
+                                    selectedCategory.value,
+                                    selectedStatus.value,
+                                    () =>
+                                        toggleToDateListView(selectedDay.value),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            // Todo追加ボタン
                             Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 16),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               child: _buildFancyAddTodoButton(
                                   context, selectedDay.value, refreshTodos),
                             ),
+                            const SizedBox(height: 16),
                           ],
                         ),
                       ),
@@ -612,6 +639,220 @@ class CalendarPage extends HookConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  /// Todo数表示ボタン
+  Widget _buildTodoCountButton(
+    BuildContext context,
+    DateTime selectedDate,
+    List<TodoModel> todos,
+    int? categoryFilter,
+    String? statusFilter,
+    VoidCallback onTap,
+  ) {
+    // フィルター適用
+    var filteredTodos = todos;
+    if (categoryFilter != null) {
+      filteredTodos = filteredTodos
+          .where((todo) => todo.categoryId == categoryFilter)
+          .toList();
+    }
+    if (statusFilter != null) {
+      if (statusFilter == 'completed') {
+        filteredTodos =
+            filteredTodos.where((todo) => todo.isCompleted == true).toList();
+      } else if (statusFilter == 'incomplete') {
+        filteredTodos =
+            filteredTodos.where((todo) => todo.isCompleted != true).toList();
+      }
+    }
+
+    final incompleteTodos =
+        filteredTodos.where((todo) => !todo.isCompleted).length;
+    final completedTodos =
+        filteredTodos.where((todo) => todo.isCompleted).length;
+    final totalTodos = filteredTodos.length;
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: 0.95 + (0.05 * value),
+          child: Opacity(
+            opacity: value,
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                color: Theme.of(context).colorScheme.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(24),
+                  onTap: onTap,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 16),
+                    child: Row(
+                      children: [
+                        // 日付表示
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withValues(alpha: 0.1),
+                                Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withValues(alpha: 0.05),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                selectedDate.day.toString(),
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              Text(
+                                formatDate(selectedDate, format: 'EEE'),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        // Todo情報
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                totalTodos == 0
+                                    ? 'Todoはありません'
+                                    : 'Todo $totalTodos件',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryTextColor,
+                                ),
+                              ),
+                              if (totalTodos > 0) ...[
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    if (incompleteTodos > 0) ...[
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          '未完了 $incompleteTodos',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                    ],
+                                    if (completedTodos > 0)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey
+                                              .withValues(alpha: 0.2),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          '完了 $completedTodos',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        // 矢印アイコン
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.arrow_forward_rounded,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

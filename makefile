@@ -9,3 +9,6 @@ pod-re:
 gradle-re:
 	flutter pub get
 	cd android && ./gradlew clean && cd ..
+
+dg-build:
+	flutter build appbundle --debug && flutter build ios --debug

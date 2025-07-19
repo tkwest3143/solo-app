@@ -21,7 +21,8 @@
       "Bash(/Users/takanorinishi/fvm/versions/3.32.6/bin/flutter clean)",
       "Bash(/Users/takanorinishi/fvm/versions/3.32.6/bin/flutter build appbundle)",
       "Bash(/Users/takanorinishi/fvm/versions/3.32.6/bin/flutter build appbundle --verbose)",
-      "Bash(keytool:*)"
+      "Bash(keytool:*)",
+      "Bash(dart format:*)"
     ],
     "deny": []
   }
