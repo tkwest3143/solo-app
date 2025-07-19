@@ -15,9 +15,9 @@ ThemeData lightTheme = ThemeData(
     tertiary: Color.fromARGB(255, 255, 151, 220), // パステルローズピンク
     onTertiary: Color(0xFF2D3748), // より濃いテキスト色
   ),
-  cardColor: Color(0xFFFFFEFF),
+  cardColor: const Color(0xFFFFFEFF),
   shadowColor: Colors.black12,
-  dividerColor: Color(0xFFE6FFFA),
+  dividerColor: const Color(0xFFE6FFFA),
 );
 
 // Dark theme definition - 可読性重視のパステル調ダークテーマ
@@ -35,9 +35,9 @@ ThemeData darkTheme = ThemeData(
     tertiary: Color(0xFFD9A3CC), // ダークテーマ用パステルピンク
     onTertiary: Color(0xFFF7FAFC), // より明るい白色
   ),
-  cardColor: Color(0xFF4A5568),
+  cardColor: const Color(0xFF4A5568),
   shadowColor: Colors.black38,
-  dividerColor: Color(0xFF5A6C7D),
+  dividerColor: const Color(0xFF5A6C7D),
 );
 
 // Custom color scheme extension

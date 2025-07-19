@@ -11,4 +11,4 @@ gradle-re:
 	cd android && ./gradlew clean && cd ..
 
 dg-build:
-	flutter build appbundle --debug && flutter build ios --debug
+	flutter build appbundle --debug && flutter build ipa --debug
