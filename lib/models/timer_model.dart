@@ -101,4 +101,10 @@ extension TimerSessionExtension on TimerSession {
   bool get isBreakPhase =>
       currentPhase == PomodoroPhase.shortBreak ||
       currentPhase == PomodoroPhase.longBreak;
+  
+  /// タイマーが実行中または進行中（一時停止を含む）かどうか
+  bool get isActiveOrHasProgress => 
+      state == TimerStatus.running || 
+      state == TimerStatus.paused || 
+      (mode == TimerMode.countUp && elapsedSeconds > 0);
 }

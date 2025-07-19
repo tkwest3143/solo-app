@@ -7,6 +7,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/router.dart';
 import 'package:solo/utilities/ad_mob_constant.dart';
+import 'package:solo/screen/states/timer_state.dart';
+import 'package:solo/models/timer_model.dart';
 
 class BulderWidget extends StatelessWidget {
   const BulderWidget({super.key, required this.child});
@@ -91,19 +93,33 @@ class AppHeader extends HookConsumerWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class GlobalLayout extends HookWidget {
+class GlobalLayout extends HookConsumerWidget {
   final Widget child;
 
   const GlobalLayout({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final timerSession = ref.watch(timerStateProvider);
+    
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            AppHeader(onSettingsPressed: () {
-              nextRouting(context, RouterDefinition.settings);
+            AppHeader(onSettingsPressed: () async {
+              // タイマー画面からの遷移でタイマーが実行中の場合警告を表示
+              final location = GoRouterState.of(context).uri.path;
+              final isTimerActive = timerSession.isActiveOrHasProgress;
+              final isLeavingTimerPage = location == '/timer';
+              
+              if (isLeavingTimerPage && isTimerActive) {
+                final shouldLeave = await _showTimerWarningDialog(context, timerMode: timerSession.mode);
+                if (!shouldLeave || !context.mounted) return;
+              }
+              
+              if (context.mounted) {
+                nextRouting(context, RouterDefinition.settings);
+              }
             }),
             Expanded(child: child),
           ],
@@ -114,12 +130,13 @@ class GlobalLayout extends HookWidget {
   }
 }
 
-class FooterMenu extends HookWidget {
+class FooterMenu extends HookConsumerWidget {
   const FooterMenu({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = useState(0);
+    final timerSession = ref.watch(timerStateProvider);
 
     // Get current route to set correct tab index
     final location = GoRouterState.of(context).uri.path;
@@ -187,7 +204,19 @@ class FooterMenu extends HookWidget {
           ),
         ],
         currentIndex: selectedIndex.value,
-        onTap: (index) {
+        onTap: (index) async {
+          // 現在の画面がタイマー画面で、タイマーが実行中の場合警告を表示
+          final currentIndex = selectedIndex.value;
+          final isTimerActive = timerSession.isActiveOrHasProgress;
+          final isLeavingTimerPage = currentIndex == 2 && index != 2;
+          
+          if (isLeavingTimerPage && isTimerActive) {
+            final shouldLeave = await _showTimerWarningDialog(context, timerMode: timerSession.mode);
+            if (!shouldLeave || !context.mounted) return;
+          }
+          
+          if (!context.mounted) return;
+          
           switch (index) {
             case 0:
               nextRouting(context, RouterDefinition.root);
@@ -206,6 +235,61 @@ class FooterMenu extends HookWidget {
       ),
     );
   }
+}
+
+/// タイマー実行中の画面遷移警告ダイアログ
+Future<bool> _showTimerWarningDialog(BuildContext context, {TimerMode? timerMode}) async {
+  final timerModeDisplayName = timerMode == TimerMode.pomodoro ? 'ポモドーロタイマー' : 'カウントアップタイマー';
+  
+  return await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      title: Row(
+        children: [
+          Icon(
+            Icons.warning_amber_rounded,
+            color: Theme.of(context).colorScheme.error,
+            size: 28,
+          ),
+          const SizedBox(width: 8),
+          const Text('タイマー実行中'),
+        ],
+      ),
+      content: Text(
+        '$timerModeDisplayNameが実行中です。\n他の画面に移動すると、タイマーの進行状況がリセットされます。\n\n本当に移動しますか？',
+        style: const TextStyle(fontSize: 16),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(
+            'キャンセル',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          style: TextButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+          ),
+          child: Text(
+            '移動する',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.error,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    ),
+  ) ?? false;
 }
 
 class TimeInputForm extends StatelessWidget {

@@ -40,18 +40,96 @@ class TimerModeSwitch extends ConsumerWidget {
           _ModeButton(
             title: 'ポモドーロ',
             isSelected: timerSession.mode == TimerMode.pomodoro,
-            onTap: () async => await timerController.switchMode(TimerMode.pomodoro),
+            onTap: () async {
+              // 既に選択されている場合は何もしない
+              if (timerSession.mode == TimerMode.pomodoro) return;
+              
+              // タイマーが実行中または進行中の場合は警告を表示
+              if (timerSession.isActiveOrHasProgress) {
+                final shouldSwitch = await _showModeChangeWarningDialog(context, TimerMode.pomodoro, timerSession.mode);
+                if (!shouldSwitch || !context.mounted) return;
+              }
+              
+              await timerController.switchMode(TimerMode.pomodoro);
+            },
           ),
           const SizedBox(width: 6),
           _ModeButton(
             title: 'カウントアップ',
             isSelected: timerSession.mode == TimerMode.countUp,
-            onTap: () async => await timerController.switchMode(TimerMode.countUp),
+            onTap: () async {
+              // 既に選択されている場合は何もしない
+              if (timerSession.mode == TimerMode.countUp) return;
+              
+              // タイマーが実行中または進行中の場合は警告を表示
+              if (timerSession.isActiveOrHasProgress) {
+                final shouldSwitch = await _showModeChangeWarningDialog(context, TimerMode.countUp, timerSession.mode);
+                if (!shouldSwitch || !context.mounted) return;
+              }
+              
+              await timerController.switchMode(TimerMode.countUp);
+            },
           ),
         ],
       ),
     );
   }
+}
+
+/// タイマーモード変更時の警告ダイアログ
+Future<bool> _showModeChangeWarningDialog(BuildContext context, TimerMode newMode, TimerMode currentMode) async {
+  final currentModeDisplayName = currentMode == TimerMode.pomodoro ? 'ポモドーロタイマー' : 'カウントアップタイマー';
+  final newModeDisplayName = newMode == TimerMode.pomodoro ? 'ポモドーロタイマー' : 'カウントアップタイマー';
+  
+  return await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      title: Row(
+        children: [
+          Icon(
+            Icons.warning_amber_rounded,
+            color: Theme.of(context).colorScheme.error,
+            size: 28,
+          ),
+          const SizedBox(width: 8),
+          const Text('タイマー実行中'),
+        ],
+      ),
+      content: Text(
+        '$currentModeDisplayNameが実行中です。\n$newModeDisplayNameに切り替えると、現在の進行状況がリセットされます。\n\n本当に切り替えますか？',
+        style: const TextStyle(fontSize: 16),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(
+            'キャンセル',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          style: TextButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+          ),
+          child: Text(
+            '切り替える',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.error,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    ),
+  ) ?? false;
 }
 
 class _ModeButton extends StatelessWidget {
