@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/utilities/date.dart';
 import 'package:solo/services/todo_service.dart';
@@ -134,65 +135,67 @@ class TodayTodosWidget extends HookConsumerWidget {
           );
         }
 
-        return Container(
-          padding: const EdgeInsets.all(20),
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            color: Theme.of(context).colorScheme.surface,
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).colorScheme.lightShadowColor,
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color:
-                          Theme.of(context).colorScheme.warningBackgroundColor,
-                    ),
-                    child: Icon(
-                      Icons.today,
-                      color: Theme.of(context).colorScheme.warningColor,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    '今日のタスク (${incompleteTodos.length}件)',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primaryTextColor,
-                    ),
-                  ),
-                ],
-              ),
-              if (incompleteTodos.length == 1) ...[
-                const SizedBox(height: 12),
-                Text(
-                  incompleteTodos.first.title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).colorScheme.secondaryTextColor,
-                  ),
+        return GestureDetector(
+          onTap: () {
+            final today = DateTime.now();
+            final todayIso = today.toIso8601String().split('T').first;
+            GoRouter.of(context).go('/todo-list?date=$todayIso');
+          },
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              color: Theme.of(context).colorScheme.surface,
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.lightShadowColor,
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
                 ),
-              ] else ...[
-                const SizedBox(height: 12),
-                GestureDetector(
-                  onTap: () {
-                    nextRouting(context, RouterDefinition.todoList);
-                  },
-                  child: Container(
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color:
+                            Theme.of(context).colorScheme.warningBackgroundColor,
+                      ),
+                      child: Icon(
+                        Icons.today,
+                        color: Theme.of(context).colorScheme.warningColor,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Text(
+                      '今日のタスク (${incompleteTodos.length}件)',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primaryTextColor,
+                      ),
+                    ),
+                  ],
+                ),
+                if (incompleteTodos.length == 1) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    incompleteTodos.first.title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.secondaryTextColor,
+                    ),
+                  ),
+                ] else if (incompleteTodos.length > 1) ...[
+                  const SizedBox(height: 12),
+                  Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
@@ -209,9 +212,9 @@ class TodayTodosWidget extends HookConsumerWidget {
                       ),
                     ),
                   ),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
         );
       },

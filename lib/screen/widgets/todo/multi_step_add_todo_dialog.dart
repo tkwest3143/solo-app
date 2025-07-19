@@ -415,7 +415,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                       ),
                       if (isRecurring.value) ...[
                         const SizedBox(height: 16),
-                        _buildRecurringTypeSelector(context, recurringType),
+                        _buildRecurringTypeSelector(context, recurringType, selectedDate),
                       ],
                     ],
                   ),
@@ -428,7 +428,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                   child: Column(
                     children: [
                       _buildDateSelector(
-                          context, selectedDate, isRecurring.value),
+                          context, selectedDate, isRecurring.value, recurringType),
                       const SizedBox(height: 12),
                       _buildTimeSelector(context, selectedTime),
                     ],
@@ -1066,7 +1066,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
 
   // Implementation for helper widgets
   Widget _buildRecurringTypeSelector(
-      BuildContext context, ValueNotifier<RecurringType?> recurringType) {
+      BuildContext context, ValueNotifier<RecurringType?> recurringType, ValueNotifier<DateTime> selectedDate) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1101,6 +1101,14 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
               }).toList(),
               onChanged: (value) {
                 recurringType.value = value;
+                
+                // 「毎月最終日」が選択された場合、現在の日付を最終日に変更
+                if (value == RecurringType.monthlyLast) {
+                  final currentDate = selectedDate.value;
+                  // 翌月の1日から1日引いて最終日を取得
+                  final lastDayOfMonth = DateTime(currentDate.year, currentDate.month + 1, 0);
+                  selectedDate.value = lastDayOfMonth;
+                }
               },
             ),
           ),
@@ -1110,7 +1118,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
   }
 
   Widget _buildDateSelector(BuildContext context,
-      ValueNotifier<DateTime> selectedDate, bool isRecurring) {
+      ValueNotifier<DateTime> selectedDate, bool isRecurring, ValueNotifier<RecurringType?> recurringType) {
     return Row(
       children: [
         Icon(
@@ -1133,6 +1141,13 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
               initialDate: selectedDate.value,
               firstDate: DateTime(2020),
               lastDate: DateTime(2030),
+              selectableDayPredicate: recurringType.value == RecurringType.monthlyLast
+                  ? (DateTime date) {
+                      // 翌日の月が異なる場合、その日は月末日
+                      final nextDay = date.add(const Duration(days: 1));
+                      return date.month != nextDay.month;
+                    }
+                  : null,
             );
             if (pickedDate != null) {
               selectedDate.value = pickedDate;

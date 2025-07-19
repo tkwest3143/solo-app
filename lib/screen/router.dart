@@ -40,7 +40,13 @@ class RouterDefinition {
   static Route todoList = Route(
       path: '/todo-list',
       name: '/todo-list',
-      builder: (context, state) => BulderWidget(child: const CalendarPage()));
+      builder: (context, state) => BulderWidget(
+            child: CalendarPage(
+              initialDate: state.uri.queryParameters['date'] != null
+                  ? DateTime.tryParse(state.uri.queryParameters['date']!)
+                  : null,
+            ),
+          ));
 
   static Route settings = Route(
       path: '/settings',

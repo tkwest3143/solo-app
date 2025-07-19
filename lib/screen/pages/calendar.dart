@@ -13,12 +13,14 @@ import 'package:solo/models/todo_model.dart';
 import 'package:solo/utilities/date.dart';
 
 class CalendarPage extends HookConsumerWidget {
-  const CalendarPage({super.key});
+  final DateTime? initialDate;
+
+  const CalendarPage({super.key, this.initialDate});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedDay = useState<DateTime>(DateTime.now());
-    final focusedDay = useState<DateTime>(DateTime.now());
+    final selectedDay = useState<DateTime>(initialDate ?? DateTime.now());
+    final focusedDay = useState<DateTime>(initialDate ?? DateTime.now());
     final selectedCategory = useState<int?>(null);
     final selectedStatus = useState<String?>(null);
     final todoService = useMemoized(() => TodoService());
@@ -26,7 +28,7 @@ class CalendarPage extends HookConsumerWidget {
 
     // 新しいUI状態管理
     final isDateListView =
-        useState<bool>(false); // false: カレンダー表示, true: 日付リスト表示
+        useState<bool>(initialDate != null); // initialDateがある場合は日付リスト表示
 
     void refreshTodos() {
       refreshKey.value++;
@@ -1014,7 +1016,7 @@ class CalendarPage extends HookConsumerWidget {
         // Todo一覧
         Expanded(
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 2),
+            margin: const EdgeInsets.only(top: 8, left: 2, right: 1),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               color: Theme.of(context).colorScheme.surface,
@@ -1078,6 +1080,7 @@ class CalendarPage extends HookConsumerWidget {
                   ),
                 ),
                 const Divider(height: 1),
+                const SizedBox(height: 12),
 
                 // Todo一覧
                 Expanded(
