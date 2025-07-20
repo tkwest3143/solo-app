@@ -7,7 +7,6 @@ import 'package:solo/screen/colors.dart';
 import 'package:solo/utilities/date.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/models/todo_model.dart';
-import 'package:solo/screen/router.dart';
 
 class CurrentDateTime extends HookConsumerWidget {
   const CurrentDateTime({super.key});
@@ -164,8 +163,9 @@ class TodayTodosWidget extends HookConsumerWidget {
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color:
-                            Theme.of(context).colorScheme.warningBackgroundColor,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .warningBackgroundColor,
                       ),
                       child: Icon(
                         Icons.today,

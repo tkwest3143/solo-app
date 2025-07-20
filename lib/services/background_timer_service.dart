@@ -198,12 +198,6 @@ class BackgroundTimerService {
     }
   }
 
-  /// タイマーデータをクリア
-  static Future<void> _clearTimerData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_timerDataKey);
-  }
-
   /// UIにタイマー更新を通知
   static Future<void> _notifyTimerUpdate(TimerSession session) async {
     final sendPort = IsolateNameServer.lookupPortByName(_isolatePortName);

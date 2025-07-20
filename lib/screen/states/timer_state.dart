@@ -319,8 +319,8 @@ class TimerState extends _$TimerState {
   void _goToNextPhase({bool forceSkip = false}) {
     _stopTimer();
 
-    // フェーズ完了時に音を再生（スキップでない場合のみ）
-    if (!forceSkip) {
+    // フェーズ完了時に音を再生（スキップでない場合、かつフォアグラウンドの場合のみ）
+    if (!forceSkip && state.isInBackground != true) {
       _playTimerSound();
     }
 
@@ -334,7 +334,10 @@ class TimerState extends _$TimerState {
       );
       // 選択されたTodoを完了にする
       _completeTodoIfSelected();
-      // フォアグラウンド時は通知なし（音のみ）
+      // バックグラウンド時は通知を表示
+      if (state.isInBackground == true) {
+        _showTimerCompletionNotification();
+      }
       return;
     }
     int newCompletedCycles = state.completedCycles;
@@ -347,7 +350,7 @@ class TimerState extends _$TimerState {
     }
     if (state.currentPhase == PomodoroPhase.longBreak) {
       newCompletedCycles = state.completedCycles + 1;
-      newCurrentCycle = 0;
+      newCurrentCycle = 1;
       // Todo選択されている場合、Todoのサイクル完了をチェック
       if (state.selectedTodoId != null) {
         _checkTodoCompletionAfterWork(newCompletedCycles);
@@ -372,7 +375,10 @@ class TimerState extends _$TimerState {
     // タイマーを再開
     _startTicking();
 
-    // フォアグラウンド時は通知なし（音のみで通知）
+    // バックグラウンド時は通知を表示（フェーズ切り替え通知）
+    if (state.isInBackground == true) {
+      _showPhaseChangeNotification();
+    }
   }
 
   void _initializeSession() {
@@ -726,8 +732,6 @@ class TimerState extends _$TimerState {
 
     // stateを更新
     state = currentState;
-
-    // バックグラウンド復帰時は音なし（通知のみ）
   }
 
   /// 次のフェーズ状態を取得（通知やタイマー処理なし）
@@ -762,7 +766,7 @@ class TimerState extends _$TimerState {
       newCurrentCycle = currentState.currentCycle + 1;
       if (currentState.currentPhase == PomodoroPhase.longBreak) {
         newCompletedCycles = currentState.completedCycles + 1;
-        newCurrentCycle = 0;
+        newCurrentCycle = 1;
       }
     }
 
@@ -773,6 +777,33 @@ class TimerState extends _$TimerState {
       completedCycles: newCompletedCycles,
       state: TimerStatus.running,
     );
+  }
+
+  /// フェーズ変更時の通知
+  Future<void> _showPhaseChangeNotification() async {
+    String? todoTitle;
+    if (state.selectedTodoId != null) {
+      try {
+        final todos = await TodoService().getTodo();
+        final todo = todos.firstWhere((t) => t.id == state.selectedTodoId);
+        todoTitle = todo.title;
+      } catch (e) {
+        // Todo取得に失敗した場合はnullのまま
+      }
+    }
+
+    try {
+      final settings = await SettingsService.loadSettings();
+      await _notificationService.showTimerPhaseNotification(
+        timerSession: state,
+        todoTitle: todoTitle,
+        settings: settings,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('フェーズ変更通知の表示に失敗しました: $e');
+      }
+    }
   }
 
   /// タイマー完了時の通知
@@ -884,7 +915,7 @@ class TimerState extends _$TimerState {
             state: TimerStatus.completed,
             remainingSeconds: 0,
             completedCycles: newCompletedCycles,
-            currentCycle: willCompleteCycle ? 0 : nextCycle,
+            currentCycle: willCompleteCycle ? 1 : nextCycle,
           );
         }
       }
