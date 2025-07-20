@@ -15,7 +15,7 @@ class AppDatabase extends _$AppDatabase {
   static AppDatabase? _instance;
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -27,6 +27,10 @@ class AppDatabase extends _$AppDatabase {
         if (from < 2) {
           // Add parentTodoId column to todos table
           await m.addColumn(todos, todos.parentTodoId);
+        }
+        if (from < 3) {
+          // Add isDeleted column to todos table for soft delete
+          await m.addColumn(todos, todos.isDeleted);
         }
       },
     );

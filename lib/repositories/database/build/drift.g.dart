@@ -438,18 +438,6 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
   late final GeneratedColumn<DateTime> recurringEndDate =
       GeneratedColumn<DateTime>('recurring_end_date', aliasedName, true,
           type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _recurringDayOfWeekMeta =
-      const VerificationMeta('recurringDayOfWeek');
-  @override
-  late final GeneratedColumn<int> recurringDayOfWeek = GeneratedColumn<int>(
-      'recurring_day_of_week', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _recurringDayOfMonthMeta =
-      const VerificationMeta('recurringDayOfMonth');
-  @override
-  late final GeneratedColumn<int> recurringDayOfMonth = GeneratedColumn<int>(
-      'recurring_day_of_month', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _parentTodoIdMeta =
       const VerificationMeta('parentTodoId');
   @override
@@ -503,6 +491,16 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
   late final GeneratedColumn<int> pomodoroCompletedCycle = GeneratedColumn<int>(
       'pomodoro_completed_cycle', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _isDeletedMeta =
+      const VerificationMeta('isDeleted');
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -518,8 +516,6 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
         isRecurring,
         recurringType,
         recurringEndDate,
-        recurringDayOfWeek,
-        recurringDayOfMonth,
         parentTodoId,
         timerType,
         countupElapsedSeconds,
@@ -527,7 +523,8 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
         pomodoroShortBreakMinutes,
         pomodoroLongBreakMinutes,
         pomodoroCycle,
-        pomodoroCompletedCycle
+        pomodoroCompletedCycle,
+        isDeleted
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -606,18 +603,6 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
           recurringEndDate.isAcceptableOrUnknown(
               data['recurring_end_date']!, _recurringEndDateMeta));
     }
-    if (data.containsKey('recurring_day_of_week')) {
-      context.handle(
-          _recurringDayOfWeekMeta,
-          recurringDayOfWeek.isAcceptableOrUnknown(
-              data['recurring_day_of_week']!, _recurringDayOfWeekMeta));
-    }
-    if (data.containsKey('recurring_day_of_month')) {
-      context.handle(
-          _recurringDayOfMonthMeta,
-          recurringDayOfMonth.isAcceptableOrUnknown(
-              data['recurring_day_of_month']!, _recurringDayOfMonthMeta));
-    }
     if (data.containsKey('parent_todo_id')) {
       context.handle(
           _parentTodoIdMeta,
@@ -666,6 +651,10 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
           pomodoroCompletedCycle.isAcceptableOrUnknown(
               data['pomodoro_completed_cycle']!, _pomodoroCompletedCycleMeta));
     }
+    if (data.containsKey('is_deleted')) {
+      context.handle(_isDeletedMeta,
+          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
+    }
     return context;
   }
 
@@ -701,10 +690,6 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
           .read(DriftSqlType.string, data['${effectivePrefix}recurring_type']),
       recurringEndDate: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}recurring_end_date']),
-      recurringDayOfWeek: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}recurring_day_of_week']),
-      recurringDayOfMonth: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}recurring_day_of_month']),
       parentTodoId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}parent_todo_id']),
       timerType: attachedDatabase.typeMapping
@@ -723,6 +708,8 @@ class $TodosTable extends Todos with TableInfo<$TodosTable, Todo> {
           .read(DriftSqlType.int, data['${effectivePrefix}pomodoro_cycle']),
       pomodoroCompletedCycle: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}pomodoro_completed_cycle']),
+      isDeleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
     );
   }
 
@@ -746,8 +733,6 @@ class Todo extends DataClass implements Insertable<Todo> {
   final bool isRecurring;
   final String? recurringType;
   final DateTime? recurringEndDate;
-  final int? recurringDayOfWeek;
-  final int? recurringDayOfMonth;
   final int? parentTodoId;
   final String timerType;
   final int? countupElapsedSeconds;
@@ -756,6 +741,7 @@ class Todo extends DataClass implements Insertable<Todo> {
   final int? pomodoroLongBreakMinutes;
   final int? pomodoroCycle;
   final int? pomodoroCompletedCycle;
+  final bool isDeleted;
   const Todo(
       {required this.id,
       this.createdAt,
@@ -770,8 +756,6 @@ class Todo extends DataClass implements Insertable<Todo> {
       required this.isRecurring,
       this.recurringType,
       this.recurringEndDate,
-      this.recurringDayOfWeek,
-      this.recurringDayOfMonth,
       this.parentTodoId,
       required this.timerType,
       this.countupElapsedSeconds,
@@ -779,7 +763,8 @@ class Todo extends DataClass implements Insertable<Todo> {
       this.pomodoroShortBreakMinutes,
       this.pomodoroLongBreakMinutes,
       this.pomodoroCycle,
-      this.pomodoroCompletedCycle});
+      this.pomodoroCompletedCycle,
+      required this.isDeleted});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -812,12 +797,6 @@ class Todo extends DataClass implements Insertable<Todo> {
     if (!nullToAbsent || recurringEndDate != null) {
       map['recurring_end_date'] = Variable<DateTime>(recurringEndDate);
     }
-    if (!nullToAbsent || recurringDayOfWeek != null) {
-      map['recurring_day_of_week'] = Variable<int>(recurringDayOfWeek);
-    }
-    if (!nullToAbsent || recurringDayOfMonth != null) {
-      map['recurring_day_of_month'] = Variable<int>(recurringDayOfMonth);
-    }
     if (!nullToAbsent || parentTodoId != null) {
       map['parent_todo_id'] = Variable<int>(parentTodoId);
     }
@@ -842,6 +821,7 @@ class Todo extends DataClass implements Insertable<Todo> {
     if (!nullToAbsent || pomodoroCompletedCycle != null) {
       map['pomodoro_completed_cycle'] = Variable<int>(pomodoroCompletedCycle);
     }
+    map['is_deleted'] = Variable<bool>(isDeleted);
     return map;
   }
 
@@ -873,12 +853,6 @@ class Todo extends DataClass implements Insertable<Todo> {
       recurringEndDate: recurringEndDate == null && nullToAbsent
           ? const Value.absent()
           : Value(recurringEndDate),
-      recurringDayOfWeek: recurringDayOfWeek == null && nullToAbsent
-          ? const Value.absent()
-          : Value(recurringDayOfWeek),
-      recurringDayOfMonth: recurringDayOfMonth == null && nullToAbsent
-          ? const Value.absent()
-          : Value(recurringDayOfMonth),
       parentTodoId: parentTodoId == null && nullToAbsent
           ? const Value.absent()
           : Value(parentTodoId),
@@ -902,6 +876,7 @@ class Todo extends DataClass implements Insertable<Todo> {
       pomodoroCompletedCycle: pomodoroCompletedCycle == null && nullToAbsent
           ? const Value.absent()
           : Value(pomodoroCompletedCycle),
+      isDeleted: Value(isDeleted),
     );
   }
 
@@ -923,9 +898,6 @@ class Todo extends DataClass implements Insertable<Todo> {
       recurringType: serializer.fromJson<String?>(json['recurringType']),
       recurringEndDate:
           serializer.fromJson<DateTime?>(json['recurringEndDate']),
-      recurringDayOfWeek: serializer.fromJson<int?>(json['recurringDayOfWeek']),
-      recurringDayOfMonth:
-          serializer.fromJson<int?>(json['recurringDayOfMonth']),
       parentTodoId: serializer.fromJson<int?>(json['parentTodoId']),
       timerType: serializer.fromJson<String>(json['timerType']),
       countupElapsedSeconds:
@@ -939,6 +911,7 @@ class Todo extends DataClass implements Insertable<Todo> {
       pomodoroCycle: serializer.fromJson<int?>(json['pomodoroCycle']),
       pomodoroCompletedCycle:
           serializer.fromJson<int?>(json['pomodoroCompletedCycle']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
     );
   }
   @override
@@ -958,8 +931,6 @@ class Todo extends DataClass implements Insertable<Todo> {
       'isRecurring': serializer.toJson<bool>(isRecurring),
       'recurringType': serializer.toJson<String?>(recurringType),
       'recurringEndDate': serializer.toJson<DateTime?>(recurringEndDate),
-      'recurringDayOfWeek': serializer.toJson<int?>(recurringDayOfWeek),
-      'recurringDayOfMonth': serializer.toJson<int?>(recurringDayOfMonth),
       'parentTodoId': serializer.toJson<int?>(parentTodoId),
       'timerType': serializer.toJson<String>(timerType),
       'countupElapsedSeconds': serializer.toJson<int?>(countupElapsedSeconds),
@@ -970,6 +941,7 @@ class Todo extends DataClass implements Insertable<Todo> {
           serializer.toJson<int?>(pomodoroLongBreakMinutes),
       'pomodoroCycle': serializer.toJson<int?>(pomodoroCycle),
       'pomodoroCompletedCycle': serializer.toJson<int?>(pomodoroCompletedCycle),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
     };
   }
 
@@ -987,8 +959,6 @@ class Todo extends DataClass implements Insertable<Todo> {
           bool? isRecurring,
           Value<String?> recurringType = const Value.absent(),
           Value<DateTime?> recurringEndDate = const Value.absent(),
-          Value<int?> recurringDayOfWeek = const Value.absent(),
-          Value<int?> recurringDayOfMonth = const Value.absent(),
           Value<int?> parentTodoId = const Value.absent(),
           String? timerType,
           Value<int?> countupElapsedSeconds = const Value.absent(),
@@ -996,7 +966,8 @@ class Todo extends DataClass implements Insertable<Todo> {
           Value<int?> pomodoroShortBreakMinutes = const Value.absent(),
           Value<int?> pomodoroLongBreakMinutes = const Value.absent(),
           Value<int?> pomodoroCycle = const Value.absent(),
-          Value<int?> pomodoroCompletedCycle = const Value.absent()}) =>
+          Value<int?> pomodoroCompletedCycle = const Value.absent(),
+          bool? isDeleted}) =>
       Todo(
         id: id ?? this.id,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
@@ -1014,12 +985,6 @@ class Todo extends DataClass implements Insertable<Todo> {
         recurringEndDate: recurringEndDate.present
             ? recurringEndDate.value
             : this.recurringEndDate,
-        recurringDayOfWeek: recurringDayOfWeek.present
-            ? recurringDayOfWeek.value
-            : this.recurringDayOfWeek,
-        recurringDayOfMonth: recurringDayOfMonth.present
-            ? recurringDayOfMonth.value
-            : this.recurringDayOfMonth,
         parentTodoId:
             parentTodoId.present ? parentTodoId.value : this.parentTodoId,
         timerType: timerType ?? this.timerType,
@@ -1040,6 +1005,7 @@ class Todo extends DataClass implements Insertable<Todo> {
         pomodoroCompletedCycle: pomodoroCompletedCycle.present
             ? pomodoroCompletedCycle.value
             : this.pomodoroCompletedCycle,
+        isDeleted: isDeleted ?? this.isDeleted,
       );
   Todo copyWithCompanion(TodosCompanion data) {
     return Todo(
@@ -1064,12 +1030,6 @@ class Todo extends DataClass implements Insertable<Todo> {
       recurringEndDate: data.recurringEndDate.present
           ? data.recurringEndDate.value
           : this.recurringEndDate,
-      recurringDayOfWeek: data.recurringDayOfWeek.present
-          ? data.recurringDayOfWeek.value
-          : this.recurringDayOfWeek,
-      recurringDayOfMonth: data.recurringDayOfMonth.present
-          ? data.recurringDayOfMonth.value
-          : this.recurringDayOfMonth,
       parentTodoId: data.parentTodoId.present
           ? data.parentTodoId.value
           : this.parentTodoId,
@@ -1092,6 +1052,7 @@ class Todo extends DataClass implements Insertable<Todo> {
       pomodoroCompletedCycle: data.pomodoroCompletedCycle.present
           ? data.pomodoroCompletedCycle.value
           : this.pomodoroCompletedCycle,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
     );
   }
 
@@ -1111,8 +1072,6 @@ class Todo extends DataClass implements Insertable<Todo> {
           ..write('isRecurring: $isRecurring, ')
           ..write('recurringType: $recurringType, ')
           ..write('recurringEndDate: $recurringEndDate, ')
-          ..write('recurringDayOfWeek: $recurringDayOfWeek, ')
-          ..write('recurringDayOfMonth: $recurringDayOfMonth, ')
           ..write('parentTodoId: $parentTodoId, ')
           ..write('timerType: $timerType, ')
           ..write('countupElapsedSeconds: $countupElapsedSeconds, ')
@@ -1120,7 +1079,8 @@ class Todo extends DataClass implements Insertable<Todo> {
           ..write('pomodoroShortBreakMinutes: $pomodoroShortBreakMinutes, ')
           ..write('pomodoroLongBreakMinutes: $pomodoroLongBreakMinutes, ')
           ..write('pomodoroCycle: $pomodoroCycle, ')
-          ..write('pomodoroCompletedCycle: $pomodoroCompletedCycle')
+          ..write('pomodoroCompletedCycle: $pomodoroCompletedCycle, ')
+          ..write('isDeleted: $isDeleted')
           ..write(')'))
         .toString();
   }
@@ -1140,8 +1100,6 @@ class Todo extends DataClass implements Insertable<Todo> {
         isRecurring,
         recurringType,
         recurringEndDate,
-        recurringDayOfWeek,
-        recurringDayOfMonth,
         parentTodoId,
         timerType,
         countupElapsedSeconds,
@@ -1149,7 +1107,8 @@ class Todo extends DataClass implements Insertable<Todo> {
         pomodoroShortBreakMinutes,
         pomodoroLongBreakMinutes,
         pomodoroCycle,
-        pomodoroCompletedCycle
+        pomodoroCompletedCycle,
+        isDeleted
       ]);
   @override
   bool operator ==(Object other) =>
@@ -1168,8 +1127,6 @@ class Todo extends DataClass implements Insertable<Todo> {
           other.isRecurring == this.isRecurring &&
           other.recurringType == this.recurringType &&
           other.recurringEndDate == this.recurringEndDate &&
-          other.recurringDayOfWeek == this.recurringDayOfWeek &&
-          other.recurringDayOfMonth == this.recurringDayOfMonth &&
           other.parentTodoId == this.parentTodoId &&
           other.timerType == this.timerType &&
           other.countupElapsedSeconds == this.countupElapsedSeconds &&
@@ -1177,7 +1134,8 @@ class Todo extends DataClass implements Insertable<Todo> {
           other.pomodoroShortBreakMinutes == this.pomodoroShortBreakMinutes &&
           other.pomodoroLongBreakMinutes == this.pomodoroLongBreakMinutes &&
           other.pomodoroCycle == this.pomodoroCycle &&
-          other.pomodoroCompletedCycle == this.pomodoroCompletedCycle);
+          other.pomodoroCompletedCycle == this.pomodoroCompletedCycle &&
+          other.isDeleted == this.isDeleted);
 }
 
 class TodosCompanion extends UpdateCompanion<Todo> {
@@ -1194,8 +1152,6 @@ class TodosCompanion extends UpdateCompanion<Todo> {
   final Value<bool> isRecurring;
   final Value<String?> recurringType;
   final Value<DateTime?> recurringEndDate;
-  final Value<int?> recurringDayOfWeek;
-  final Value<int?> recurringDayOfMonth;
   final Value<int?> parentTodoId;
   final Value<String> timerType;
   final Value<int?> countupElapsedSeconds;
@@ -1204,6 +1160,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
   final Value<int?> pomodoroLongBreakMinutes;
   final Value<int?> pomodoroCycle;
   final Value<int?> pomodoroCompletedCycle;
+  final Value<bool> isDeleted;
   const TodosCompanion({
     this.id = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1218,8 +1175,6 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     this.isRecurring = const Value.absent(),
     this.recurringType = const Value.absent(),
     this.recurringEndDate = const Value.absent(),
-    this.recurringDayOfWeek = const Value.absent(),
-    this.recurringDayOfMonth = const Value.absent(),
     this.parentTodoId = const Value.absent(),
     this.timerType = const Value.absent(),
     this.countupElapsedSeconds = const Value.absent(),
@@ -1228,6 +1183,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     this.pomodoroLongBreakMinutes = const Value.absent(),
     this.pomodoroCycle = const Value.absent(),
     this.pomodoroCompletedCycle = const Value.absent(),
+    this.isDeleted = const Value.absent(),
   });
   TodosCompanion.insert({
     this.id = const Value.absent(),
@@ -1243,8 +1199,6 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     this.isRecurring = const Value.absent(),
     this.recurringType = const Value.absent(),
     this.recurringEndDate = const Value.absent(),
-    this.recurringDayOfWeek = const Value.absent(),
-    this.recurringDayOfMonth = const Value.absent(),
     this.parentTodoId = const Value.absent(),
     this.timerType = const Value.absent(),
     this.countupElapsedSeconds = const Value.absent(),
@@ -1253,6 +1207,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     this.pomodoroLongBreakMinutes = const Value.absent(),
     this.pomodoroCycle = const Value.absent(),
     this.pomodoroCompletedCycle = const Value.absent(),
+    this.isDeleted = const Value.absent(),
   })  : title = Value(title),
         dueDate = Value(dueDate);
   static Insertable<Todo> custom({
@@ -1269,8 +1224,6 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     Expression<bool>? isRecurring,
     Expression<String>? recurringType,
     Expression<DateTime>? recurringEndDate,
-    Expression<int>? recurringDayOfWeek,
-    Expression<int>? recurringDayOfMonth,
     Expression<int>? parentTodoId,
     Expression<String>? timerType,
     Expression<int>? countupElapsedSeconds,
@@ -1279,6 +1232,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     Expression<int>? pomodoroLongBreakMinutes,
     Expression<int>? pomodoroCycle,
     Expression<int>? pomodoroCompletedCycle,
+    Expression<bool>? isDeleted,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1294,10 +1248,6 @@ class TodosCompanion extends UpdateCompanion<Todo> {
       if (isRecurring != null) 'is_recurring': isRecurring,
       if (recurringType != null) 'recurring_type': recurringType,
       if (recurringEndDate != null) 'recurring_end_date': recurringEndDate,
-      if (recurringDayOfWeek != null)
-        'recurring_day_of_week': recurringDayOfWeek,
-      if (recurringDayOfMonth != null)
-        'recurring_day_of_month': recurringDayOfMonth,
       if (parentTodoId != null) 'parent_todo_id': parentTodoId,
       if (timerType != null) 'timer_type': timerType,
       if (countupElapsedSeconds != null)
@@ -1311,6 +1261,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
       if (pomodoroCycle != null) 'pomodoro_cycle': pomodoroCycle,
       if (pomodoroCompletedCycle != null)
         'pomodoro_completed_cycle': pomodoroCompletedCycle,
+      if (isDeleted != null) 'is_deleted': isDeleted,
     });
   }
 
@@ -1328,8 +1279,6 @@ class TodosCompanion extends UpdateCompanion<Todo> {
       Value<bool>? isRecurring,
       Value<String?>? recurringType,
       Value<DateTime?>? recurringEndDate,
-      Value<int?>? recurringDayOfWeek,
-      Value<int?>? recurringDayOfMonth,
       Value<int?>? parentTodoId,
       Value<String>? timerType,
       Value<int?>? countupElapsedSeconds,
@@ -1337,7 +1286,8 @@ class TodosCompanion extends UpdateCompanion<Todo> {
       Value<int?>? pomodoroShortBreakMinutes,
       Value<int?>? pomodoroLongBreakMinutes,
       Value<int?>? pomodoroCycle,
-      Value<int?>? pomodoroCompletedCycle}) {
+      Value<int?>? pomodoroCompletedCycle,
+      Value<bool>? isDeleted}) {
     return TodosCompanion(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
@@ -1352,8 +1302,6 @@ class TodosCompanion extends UpdateCompanion<Todo> {
       isRecurring: isRecurring ?? this.isRecurring,
       recurringType: recurringType ?? this.recurringType,
       recurringEndDate: recurringEndDate ?? this.recurringEndDate,
-      recurringDayOfWeek: recurringDayOfWeek ?? this.recurringDayOfWeek,
-      recurringDayOfMonth: recurringDayOfMonth ?? this.recurringDayOfMonth,
       parentTodoId: parentTodoId ?? this.parentTodoId,
       timerType: timerType ?? this.timerType,
       countupElapsedSeconds:
@@ -1366,6 +1314,7 @@ class TodosCompanion extends UpdateCompanion<Todo> {
       pomodoroCycle: pomodoroCycle ?? this.pomodoroCycle,
       pomodoroCompletedCycle:
           pomodoroCompletedCycle ?? this.pomodoroCompletedCycle,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
@@ -1411,12 +1360,6 @@ class TodosCompanion extends UpdateCompanion<Todo> {
     if (recurringEndDate.present) {
       map['recurring_end_date'] = Variable<DateTime>(recurringEndDate.value);
     }
-    if (recurringDayOfWeek.present) {
-      map['recurring_day_of_week'] = Variable<int>(recurringDayOfWeek.value);
-    }
-    if (recurringDayOfMonth.present) {
-      map['recurring_day_of_month'] = Variable<int>(recurringDayOfMonth.value);
-    }
     if (parentTodoId.present) {
       map['parent_todo_id'] = Variable<int>(parentTodoId.value);
     }
@@ -1445,6 +1388,9 @@ class TodosCompanion extends UpdateCompanion<Todo> {
       map['pomodoro_completed_cycle'] =
           Variable<int>(pomodoroCompletedCycle.value);
     }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
     return map;
   }
 
@@ -1464,8 +1410,6 @@ class TodosCompanion extends UpdateCompanion<Todo> {
           ..write('isRecurring: $isRecurring, ')
           ..write('recurringType: $recurringType, ')
           ..write('recurringEndDate: $recurringEndDate, ')
-          ..write('recurringDayOfWeek: $recurringDayOfWeek, ')
-          ..write('recurringDayOfMonth: $recurringDayOfMonth, ')
           ..write('parentTodoId: $parentTodoId, ')
           ..write('timerType: $timerType, ')
           ..write('countupElapsedSeconds: $countupElapsedSeconds, ')
@@ -1473,7 +1417,8 @@ class TodosCompanion extends UpdateCompanion<Todo> {
           ..write('pomodoroShortBreakMinutes: $pomodoroShortBreakMinutes, ')
           ..write('pomodoroLongBreakMinutes: $pomodoroLongBreakMinutes, ')
           ..write('pomodoroCycle: $pomodoroCycle, ')
-          ..write('pomodoroCompletedCycle: $pomodoroCompletedCycle')
+          ..write('pomodoroCompletedCycle: $pomodoroCompletedCycle, ')
+          ..write('isDeleted: $isDeleted')
           ..write(')'))
         .toString();
   }
@@ -2162,8 +2107,6 @@ typedef $$TodosTableCreateCompanionBuilder = TodosCompanion Function({
   Value<bool> isRecurring,
   Value<String?> recurringType,
   Value<DateTime?> recurringEndDate,
-  Value<int?> recurringDayOfWeek,
-  Value<int?> recurringDayOfMonth,
   Value<int?> parentTodoId,
   Value<String> timerType,
   Value<int?> countupElapsedSeconds,
@@ -2172,6 +2115,7 @@ typedef $$TodosTableCreateCompanionBuilder = TodosCompanion Function({
   Value<int?> pomodoroLongBreakMinutes,
   Value<int?> pomodoroCycle,
   Value<int?> pomodoroCompletedCycle,
+  Value<bool> isDeleted,
 });
 typedef $$TodosTableUpdateCompanionBuilder = TodosCompanion Function({
   Value<int> id,
@@ -2187,8 +2131,6 @@ typedef $$TodosTableUpdateCompanionBuilder = TodosCompanion Function({
   Value<bool> isRecurring,
   Value<String?> recurringType,
   Value<DateTime?> recurringEndDate,
-  Value<int?> recurringDayOfWeek,
-  Value<int?> recurringDayOfMonth,
   Value<int?> parentTodoId,
   Value<String> timerType,
   Value<int?> countupElapsedSeconds,
@@ -2197,6 +2139,7 @@ typedef $$TodosTableUpdateCompanionBuilder = TodosCompanion Function({
   Value<int?> pomodoroLongBreakMinutes,
   Value<int?> pomodoroCycle,
   Value<int?> pomodoroCompletedCycle,
+  Value<bool> isDeleted,
 });
 
 final class $$TodosTableReferences
@@ -2294,14 +2237,6 @@ class $$TodosTableFilterComposer extends Composer<_$AppDatabase, $TodosTable> {
       column: $table.recurringEndDate,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get recurringDayOfWeek => $composableBuilder(
-      column: $table.recurringDayOfWeek,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get recurringDayOfMonth => $composableBuilder(
-      column: $table.recurringDayOfMonth,
-      builder: (column) => ColumnFilters(column));
-
   ColumnFilters<String> get timerType => $composableBuilder(
       column: $table.timerType, builder: (column) => ColumnFilters(column));
 
@@ -2327,6 +2262,9 @@ class $$TodosTableFilterComposer extends Composer<_$AppDatabase, $TodosTable> {
   ColumnFilters<int> get pomodoroCompletedCycle => $composableBuilder(
       column: $table.pomodoroCompletedCycle,
       builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnFilters(column));
 
   $$CategoriesTableFilterComposer get categoryId {
     final $$CategoriesTableFilterComposer composer = $composerBuilder(
@@ -2437,14 +2375,6 @@ class $$TodosTableOrderingComposer
       column: $table.recurringEndDate,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get recurringDayOfWeek => $composableBuilder(
-      column: $table.recurringDayOfWeek,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get recurringDayOfMonth => $composableBuilder(
-      column: $table.recurringDayOfMonth,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get timerType => $composableBuilder(
       column: $table.timerType, builder: (column) => ColumnOrderings(column));
 
@@ -2471,6 +2401,9 @@ class $$TodosTableOrderingComposer
   ColumnOrderings<int> get pomodoroCompletedCycle => $composableBuilder(
       column: $table.pomodoroCompletedCycle,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnOrderings(column));
 
   $$CategoriesTableOrderingComposer get categoryId {
     final $$CategoriesTableOrderingComposer composer = $composerBuilder(
@@ -2558,12 +2491,6 @@ class $$TodosTableAnnotationComposer
   GeneratedColumn<DateTime> get recurringEndDate => $composableBuilder(
       column: $table.recurringEndDate, builder: (column) => column);
 
-  GeneratedColumn<int> get recurringDayOfWeek => $composableBuilder(
-      column: $table.recurringDayOfWeek, builder: (column) => column);
-
-  GeneratedColumn<int> get recurringDayOfMonth => $composableBuilder(
-      column: $table.recurringDayOfMonth, builder: (column) => column);
-
   GeneratedColumn<String> get timerType =>
       $composableBuilder(column: $table.timerType, builder: (column) => column);
 
@@ -2584,6 +2511,9 @@ class $$TodosTableAnnotationComposer
 
   GeneratedColumn<int> get pomodoroCompletedCycle => $composableBuilder(
       column: $table.pomodoroCompletedCycle, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
   $$CategoriesTableAnnotationComposer get categoryId {
     final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
@@ -2685,8 +2615,6 @@ class $$TodosTableTableManager extends RootTableManager<
             Value<bool> isRecurring = const Value.absent(),
             Value<String?> recurringType = const Value.absent(),
             Value<DateTime?> recurringEndDate = const Value.absent(),
-            Value<int?> recurringDayOfWeek = const Value.absent(),
-            Value<int?> recurringDayOfMonth = const Value.absent(),
             Value<int?> parentTodoId = const Value.absent(),
             Value<String> timerType = const Value.absent(),
             Value<int?> countupElapsedSeconds = const Value.absent(),
@@ -2695,6 +2623,7 @@ class $$TodosTableTableManager extends RootTableManager<
             Value<int?> pomodoroLongBreakMinutes = const Value.absent(),
             Value<int?> pomodoroCycle = const Value.absent(),
             Value<int?> pomodoroCompletedCycle = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
           }) =>
               TodosCompanion(
             id: id,
@@ -2710,8 +2639,6 @@ class $$TodosTableTableManager extends RootTableManager<
             isRecurring: isRecurring,
             recurringType: recurringType,
             recurringEndDate: recurringEndDate,
-            recurringDayOfWeek: recurringDayOfWeek,
-            recurringDayOfMonth: recurringDayOfMonth,
             parentTodoId: parentTodoId,
             timerType: timerType,
             countupElapsedSeconds: countupElapsedSeconds,
@@ -2720,6 +2647,7 @@ class $$TodosTableTableManager extends RootTableManager<
             pomodoroLongBreakMinutes: pomodoroLongBreakMinutes,
             pomodoroCycle: pomodoroCycle,
             pomodoroCompletedCycle: pomodoroCompletedCycle,
+            isDeleted: isDeleted,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -2735,8 +2663,6 @@ class $$TodosTableTableManager extends RootTableManager<
             Value<bool> isRecurring = const Value.absent(),
             Value<String?> recurringType = const Value.absent(),
             Value<DateTime?> recurringEndDate = const Value.absent(),
-            Value<int?> recurringDayOfWeek = const Value.absent(),
-            Value<int?> recurringDayOfMonth = const Value.absent(),
             Value<int?> parentTodoId = const Value.absent(),
             Value<String> timerType = const Value.absent(),
             Value<int?> countupElapsedSeconds = const Value.absent(),
@@ -2745,6 +2671,7 @@ class $$TodosTableTableManager extends RootTableManager<
             Value<int?> pomodoroLongBreakMinutes = const Value.absent(),
             Value<int?> pomodoroCycle = const Value.absent(),
             Value<int?> pomodoroCompletedCycle = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
           }) =>
               TodosCompanion.insert(
             id: id,
@@ -2760,8 +2687,6 @@ class $$TodosTableTableManager extends RootTableManager<
             isRecurring: isRecurring,
             recurringType: recurringType,
             recurringEndDate: recurringEndDate,
-            recurringDayOfWeek: recurringDayOfWeek,
-            recurringDayOfMonth: recurringDayOfMonth,
             parentTodoId: parentTodoId,
             timerType: timerType,
             countupElapsedSeconds: countupElapsedSeconds,
@@ -2770,6 +2695,7 @@ class $$TodosTableTableManager extends RootTableManager<
             pomodoroLongBreakMinutes: pomodoroLongBreakMinutes,
             pomodoroCycle: pomodoroCycle,
             pomodoroCompletedCycle: pomodoroCompletedCycle,
+            isDeleted: isDeleted,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) =>

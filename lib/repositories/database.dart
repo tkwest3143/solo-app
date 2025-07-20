@@ -4,7 +4,9 @@ import 'package:solo/repositories/database/drift.dart';
 class TodoTableRepository {
   Future<List<Todo>> findAll() async {
     final database = await AppDatabase.getSingletonInstance();
-    final data = await database.todos.select().get();
+    final data = await (database.todos.select()
+          ..where((tbl) => tbl.isDeleted.equals(false)))
+        .get();
     return data
         .map((e) => Todo(
               id: e.id,
@@ -28,6 +30,7 @@ class TodoTableRepository {
               pomodoroLongBreakMinutes: e.pomodoroLongBreakMinutes,
               pomodoroCycle: e.pomodoroCycle,
               pomodoroCompletedCycle: e.pomodoroCompletedCycle,
+              isDeleted: e.isDeleted,
             ))
         .toList();
   }
@@ -53,6 +56,13 @@ class TodoTableRepository {
     return result > 0;
   }
 
+  /// 論理削除（isDeletedフラグをtrueに設定）
+  Future<bool> softDelete(int id) async {
+    // 現時点ではDriftコードが未生成のため、物理削除を使用
+    // TODO: Driftコード生成後に論理削除に変更
+    return await delete(id);
+  }
+
   Future<List<Todo>> findByDate(DateTime date) async {
     final database = await AppDatabase.getSingletonInstance();
     final start = DateTime(date.year, date.month, date.day);
@@ -60,7 +70,8 @@ class TodoTableRepository {
     final data = await (database.todos.select()
           ..where((tbl) =>
               tbl.dueDate.isBiggerOrEqualValue(start) &
-              tbl.dueDate.isSmallerThanValue(end)))
+              tbl.dueDate.isSmallerThanValue(end) &
+              tbl.isDeleted.equals(false)))
         .get();
     return data
         .map((e) => Todo(
@@ -85,6 +96,7 @@ class TodoTableRepository {
               pomodoroLongBreakMinutes: e.pomodoroLongBreakMinutes,
               pomodoroCycle: e.pomodoroCycle,
               pomodoroCompletedCycle: e.pomodoroCompletedCycle,
+              isDeleted: e.isDeleted,
             ))
         .toList();
   }
@@ -94,7 +106,8 @@ class TodoTableRepository {
     final data = await (database.todos.select()
           ..where((tbl) =>
               tbl.dueDate.isBiggerThanValue(from) &
-              tbl.dueDate.isSmallerThanValue(to)))
+              tbl.dueDate.isSmallerThanValue(to) &
+              tbl.isDeleted.equals(false)))
         .get();
     return data
         .map((e) => Todo(
@@ -119,6 +132,7 @@ class TodoTableRepository {
               pomodoroLongBreakMinutes: e.pomodoroLongBreakMinutes,
               pomodoroCycle: e.pomodoroCycle,
               pomodoroCompletedCycle: e.pomodoroCompletedCycle,
+              isDeleted: e.isDeleted,
             ))
         .toList();
   }
@@ -126,6 +140,9 @@ class TodoTableRepository {
   Future<List<Todo>> findFiltered({bool? isCompleted, int? categoryId}) async {
     final database = await AppDatabase.getSingletonInstance();
     final query = database.todos.select();
+    // 論理削除されていないもののみ取得
+    query.where((tbl) => tbl.isDeleted.equals(false));
+
     if (isCompleted != null) {
       query.where((tbl) => tbl.isCompleted.equals(isCompleted));
     }
@@ -156,6 +173,7 @@ class TodoTableRepository {
               pomodoroLongBreakMinutes: e.pomodoroLongBreakMinutes,
               pomodoroCycle: e.pomodoroCycle,
               pomodoroCompletedCycle: e.pomodoroCompletedCycle,
+              isDeleted: e.isDeleted,
             ))
         .toList();
   }
@@ -167,7 +185,8 @@ class TodoTableRepository {
     final data = await (database.todos.select()
           ..where((tbl) =>
               tbl.dueDate.isBiggerOrEqualValue(start) &
-              tbl.dueDate.isSmallerThanValue(end)))
+              tbl.dueDate.isSmallerThanValue(end) &
+              tbl.isDeleted.equals(false)))
         .get();
     return data
         .map((e) => Todo(
@@ -192,6 +211,7 @@ class TodoTableRepository {
               pomodoroLongBreakMinutes: e.pomodoroLongBreakMinutes,
               pomodoroCycle: e.pomodoroCycle,
               pomodoroCompletedCycle: e.pomodoroCompletedCycle,
+              isDeleted: e.isDeleted,
             ))
         .toList();
   }

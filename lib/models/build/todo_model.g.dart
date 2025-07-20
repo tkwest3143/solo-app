@@ -28,8 +28,6 @@ _TodoModel _$TodoModelFromJson(Map<String, dynamic> json) => _TodoModel(
       recurringEndDate: json['recurringEndDate'] == null
           ? null
           : DateTime.parse(json['recurringEndDate'] as String),
-      recurringDayOfWeek: (json['recurringDayOfWeek'] as num?)?.toInt(),
-      recurringDayOfMonth: (json['recurringDayOfMonth'] as num?)?.toInt(),
       parentTodoId: (json['parentTodoId'] as num?)?.toInt(),
       checklistItem: (json['checklistItem'] as List<dynamic>?)
               ?.map((e) =>
@@ -46,6 +44,7 @@ _TodoModel _$TodoModelFromJson(Map<String, dynamic> json) => _TodoModel(
           (json['pomodoroLongBreakMinutes'] as num?)?.toInt(),
       pomodoroCycle: (json['pomodoroCycle'] as num?)?.toInt(),
       pomodoroCompletedCycle: (json['pomodoroCompletedCycle'] as num?)?.toInt(),
+      isDeleted: json['isDeleted'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$TodoModelToJson(_TodoModel instance) =>
@@ -63,8 +62,6 @@ Map<String, dynamic> _$TodoModelToJson(_TodoModel instance) =>
       'isRecurring': instance.isRecurring,
       'recurringType': _$RecurringTypeEnumMap[instance.recurringType]!,
       'recurringEndDate': instance.recurringEndDate?.toIso8601String(),
-      'recurringDayOfWeek': instance.recurringDayOfWeek,
-      'recurringDayOfMonth': instance.recurringDayOfMonth,
       'parentTodoId': instance.parentTodoId,
       'checklistItem': instance.checklistItem,
       'timerType': _$TimerTypeEnumMap[instance.timerType]!,
@@ -74,6 +71,7 @@ Map<String, dynamic> _$TodoModelToJson(_TodoModel instance) =>
       'pomodoroLongBreakMinutes': instance.pomodoroLongBreakMinutes,
       'pomodoroCycle': instance.pomodoroCycle,
       'pomodoroCompletedCycle': instance.pomodoroCompletedCycle,
+      'isDeleted': instance.isDeleted,
     };
 
 const _$RecurringTypeEnumMap = {
