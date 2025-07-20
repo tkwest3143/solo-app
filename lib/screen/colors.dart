@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 ThemeData lightTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.light,
+  fontFamily: 'NotoSansJP',
   colorScheme: const ColorScheme.light(
     primary: Color.fromARGB(255, 71, 161, 250), // 濃いめのブルー（可読性重視）
     secondary: Color.fromARGB(255, 208, 251, 243), // 薄ミントグリーン
@@ -24,6 +25,7 @@ ThemeData lightTheme = ThemeData(
 ThemeData darkTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
+  fontFamily: 'NotoSansJP',
   colorScheme: const ColorScheme.dark(
     primary: Color(0xFF8BB6D9), // ダークテーマ用パステルブルー
     secondary: Color.fromARGB(255, 120, 210, 190), // ダークでも見やすいミントグリーン
