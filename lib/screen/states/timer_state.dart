@@ -481,6 +481,21 @@ class TimerState extends _$TimerState {
     }
   }
 
+  PomodoroPhase? _getNextPhaseForState(TimerSession currentState) {
+    switch (currentState.currentPhase) {
+      case PomodoroPhase.work:
+        final nextCycle = currentState.currentCycle + 1;
+        if (nextCycle >= currentState.settings.cyclesUntilLongBreak) {
+          return PomodoroPhase.longBreak;
+        } else {
+          return PomodoroPhase.shortBreak;
+        }
+      case PomodoroPhase.shortBreak:
+      case PomodoroPhase.longBreak:
+        return PomodoroPhase.work;
+    }
+  }
+
   /// 作業フェーズ完了後にTodoのサイクル完了をチェック
   Future<void> _checkTodoCompletionAfterWork(int newCompletedCycles) async {
     if (state.selectedTodoId == null) return;
@@ -513,7 +528,8 @@ class TimerState extends _$TimerState {
       final nextRemainingSeconds = _getSecondsForPhase(nextPhase);
 
       if (nextPhase != null) {
-        int newCurrentCycle = state.currentCycle + 1;
+        int newCurrentCycle = state.currentCycle;
+        // 長い休憩へ向かう場合はサイクルを0にリセット
         if (nextPhase == PomodoroPhase.longBreak) {
           newCurrentCycle = 0;
         }
@@ -527,8 +543,9 @@ class TimerState extends _$TimerState {
       final nextRemainingSeconds = _getSecondsForPhase(nextPhase);
 
       if (nextPhase != null) {
-        int newCurrentCycle = state.currentCycle + 1;
+        int newCurrentCycle = state.currentCycle;
         int finalCompletedCycles = newCompletedCycles;
+        // 長い休憩へ向かう場合はサイクルを0にリセット
         if (nextPhase == PomodoroPhase.longBreak) {
           newCurrentCycle = 0;
         }
@@ -707,7 +724,8 @@ class TimerState extends _$TimerState {
             // Todo完了サイクル数に達した場合、タイマーを完了状態にする
             state = todoCompletionResult;
             _completeTodoIfSelected();
-            _showTimerCompletionNotification();
+            // フォアグラウンドに復帰済みなので通知は不要、音のみ再生
+            _playTimerSound();
             return; // 早期リターン
           }
         }
@@ -718,7 +736,8 @@ class TimerState extends _$TimerState {
           // セッション完了
           state = currentState; // 先にstateを更新
           _completeTodoIfSelected();
-          _showTimerCompletionNotification(); // バックグラウンド復帰時は通知表示のみ
+          // フォアグラウンドに復帰済みなので通知は不要、音のみ再生
+          _playTimerSound();
           return; // 早期リターン
         }
       } else {
@@ -736,7 +755,7 @@ class TimerState extends _$TimerState {
 
   /// 次のフェーズ状態を取得（通知やタイマー処理なし）
   TimerSession _getNextPhaseState(TimerSession currentState) {
-    final nextPhase = _getNextPhase();
+    final nextPhase = _getNextPhaseForState(currentState);
     if (nextPhase == null) {
       // セッション完了
       return currentState.copyWith(
@@ -751,23 +770,19 @@ class TimerState extends _$TimerState {
 
     // サイクル計算ロジック（_goToNextPhaseと同じ）
     if (currentState.currentPhase == PomodoroPhase.work) {
-      newCurrentCycle = currentState.currentCycle + 1;
-      if (nextPhase == PomodoroPhase.longBreak) {
-        newCompletedCycles = currentState.completedCycles + 1;
-        newCurrentCycle = 0;
-      }
-
-      // NOTE: バックグラウンド処理では非同期のTodo取得ができないため、
-      // Todo完了判定はフォアグラウンド復帰時に別途実装する必要がある
+      // 作業フェーズから休憩フェーズへの遷移時はカウントを増やさない
+      // （作業が完了しただけで、サイクルはまだ完了していない）
     }
 
-    if (currentState.currentPhase == PomodoroPhase.shortBreak ||
-        currentState.currentPhase == PomodoroPhase.longBreak) {
+    if (currentState.currentPhase == PomodoroPhase.shortBreak) {
+      // 短い休憩から作業に戻る時にサイクルを増やす
       newCurrentCycle = currentState.currentCycle + 1;
-      if (currentState.currentPhase == PomodoroPhase.longBreak) {
-        newCompletedCycles = currentState.completedCycles + 1;
-        newCurrentCycle = 1;
-      }
+    }
+    
+    if (currentState.currentPhase == PomodoroPhase.longBreak) {
+      // 長い休憩から作業に戻る時
+      newCompletedCycles = currentState.completedCycles + 1;
+      newCurrentCycle = 1;
     }
 
     return currentState.copyWith(
