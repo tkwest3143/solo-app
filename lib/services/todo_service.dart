@@ -384,18 +384,23 @@ class TodoService {
     if (todo.recurringEndDate != null && day.isAfter(todo.recurringEndDate!)) {
       return false;
     }
+    
+    // 日付のみで比較するため、時刻を0:00:00にする
+    final dayOnly = DateTime(day.year, day.month, day.day);
+    final dueDateOnly = DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day);
+    
     switch (todo.recurringType) {
       case RecurringType.daily:
-        return !day.isBefore(todo.dueDate);
+        return !dayOnly.isBefore(dueDateOnly);
       case RecurringType.weekly:
-        return !day.isBefore(todo.dueDate) &&
+        return !dayOnly.isBefore(dueDateOnly) &&
             day.weekday == todo.dueDate.weekday;
       case RecurringType.monthly:
-        return !day.isBefore(todo.dueDate) &&
+        return !dayOnly.isBefore(dueDateOnly) &&
             day.day == todo.dueDate.day;
       case RecurringType.monthlyLast:
         final lastDay = DateTime(day.year, day.month + 1, 0).day;
-        return !day.isBefore(todo.dueDate) && day.day == lastDay;
+        return !dayOnly.isBefore(dueDateOnly) && day.day == lastDay;
     }
   }
 
@@ -604,15 +609,17 @@ class TodoService {
           return null;
         }
 
-        // 元のdue dateよりも前の日付はスキップ
-        if (currentCheck.isBefore(DateTime(recurringTodo.dueDate.year,
-            recurringTodo.dueDate.month, recurringTodo.dueDate.day))) {
+        // 元のdue dateよりも前の日付はスキップ（日付のみで比較）
+        final currentCheckDateOnly = DateTime(currentCheck.year, currentCheck.month, currentCheck.day);
+        final dueDateOnly = DateTime(recurringTodo.dueDate.year, recurringTodo.dueDate.month, recurringTodo.dueDate.day);
+        if (currentCheckDateOnly.isBefore(dueDateOnly)) {
           currentCheck = currentCheck.add(const Duration(days: 1));
           continue;
         }
 
-        // 今日以降の最初の該当日を返す
-        if (!currentCheck.isBefore(today)) {
+        // 今日以降の最初の該当日を返す（日付のみで比較）
+        final todayDateOnly = DateTime(today.year, today.month, today.day);
+        if (!currentCheckDateOnly.isBefore(todayDateOnly)) {
           return DateTime(
             currentCheck.year,
             currentCheck.month,
