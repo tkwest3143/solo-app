@@ -98,6 +98,30 @@ class TodoService {
       int? pomodoroLongBreakMinutes,
       int? pomodoroCycle,
       int? pomodoroCompletedCycle}) async {
+    // 既存のTodoを取得して編集制限をチェック
+    final todos = await _todoTableRepository.findAll();
+    Todo? existingTodo;
+    try {
+      existingTodo = todos.firstWhere((t) => t.id == id);
+    } catch (e) {
+      return null;
+    }
+
+    // 繰り返しTodoの編集制限をチェック
+    if (existingTodo.isRecurring == true) {
+      if (isRecurring != null && isRecurring != existingTodo.isRecurring) {
+        throw Exception('繰り返しTodoの編集時は繰り返し設定を変更できません');
+      }
+      if (recurringType != null && recurringType.value != existingTodo.recurringType) {
+        throw Exception('繰り返しTodoの編集時は繰り返しタイプを変更できません');
+      }
+      if (dueDate != null && 
+          (dueDate.year != existingTodo.dueDate.year || 
+           dueDate.month != existingTodo.dueDate.month || 
+           dueDate.day != existingTodo.dueDate.day)) {
+        throw Exception('繰り返しTodoの編集時は日付を変更できません');
+      }
+    }
     final now = DateTime.now();
     final companion = TodosCompanion(
       title: title != null ? Value(title) : const Value.absent(),
@@ -139,10 +163,10 @@ class TodoService {
     );
     final success = await _todoTableRepository.update(id, companion);
     if (!success) return null;
-    final todos = await _todoTableRepository.findAll();
+    final updatedTodos = await _todoTableRepository.findAll();
     Todo? todo;
     try {
-      todo = todos.firstWhere((t) => t.id == id);
+      todo = updatedTodos.firstWhere((t) => t.id == id);
     } catch (e) {
       return null;
     }
@@ -216,16 +240,13 @@ class TodoService {
       if (targetTodo.isRecurring) {
         // 親Todoの場合（parentTodoIdがnull）
         if (targetTodo.parentTodoId == null) {
-          // 自分を含む、parentTodoIdが自分のIDのTodoを全て削除
-          await _todoTableRepository.physicalDeleteByParentTodoId(todoId);
-          await _todoTableRepository.physicalDelete(todoId);
+          // トランザクション内で親と子Todoを一括削除
+          return await _todoTableRepository.physicalDeleteRecurringTodoWithChildren(todoId);
         } else {
           // 子Todoの場合、親IDを取得してその親と全ての子を削除
           final parentTodoId = targetTodo.parentTodoId!;
-          await _todoTableRepository.physicalDeleteByParentTodoId(parentTodoId);
-          await _todoTableRepository.physicalDelete(parentTodoId);
+          return await _todoTableRepository.physicalDeleteRecurringTodoWithChildren(parentTodoId);
         }
-        return true;
       } else {
         // 繰り返しTodoではない場合は通常の削除
         return await _todoTableRepository.physicalDelete(todoId);

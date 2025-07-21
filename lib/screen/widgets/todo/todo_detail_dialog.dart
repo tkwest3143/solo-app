@@ -6,6 +6,7 @@ import 'package:solo/models/todo_model.dart';
 import 'package:solo/models/category_model.dart';
 import 'package:solo/models/todo_checklist_item_model.dart';
 import 'package:solo/screen/widgets/todo/add_todo_dialog.dart';
+import 'package:solo/screen/widgets/common/confirmation_dialog.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/services/category_service.dart';
 import 'package:solo/services/todo_checklist_item_service.dart';
@@ -460,31 +461,12 @@ class _TodoDetailContent extends HookConsumerWidget {
                           ),
                           onPressed: () async {
                             // 確認ダイアログを表示
-                            final confirmed = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('確認'),
-                                content: Text(
-                                  '「${realTodo.value.title}」に関連する全ての繰り返しTodoを完全に削除しますか？\n\nこの操作は元に戻せません。',
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(false),
-                                    child: const Text('キャンセル'),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () => Navigator.of(context).pop(true),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Theme.of(context).colorScheme.errorColor,
-                                    ),
-                                    child: const Text('削除', style: TextStyle(color: Colors.white)),
-                                  ),
-                                ],
-                              ),
+                            final confirmed = await ConfirmationDialog.showDeleteAllRecurringConfirmation(
+                              context,
+                              todoTitle: realTodo.value.title,
                             );
 
-                            if (confirmed == true && context.mounted) {
+                            if (confirmed && context.mounted) {
                               Navigator.of(context).pop();
                               await TodoService().deleteAllRecurringTodos(realTodo.value.id);
                               onRefresh?.call();
