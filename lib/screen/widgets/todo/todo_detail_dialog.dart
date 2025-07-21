@@ -6,6 +6,7 @@ import 'package:solo/models/todo_model.dart';
 import 'package:solo/models/category_model.dart';
 import 'package:solo/models/todo_checklist_item_model.dart';
 import 'package:solo/screen/widgets/todo/add_todo_dialog.dart';
+import 'package:solo/screen/widgets/common/confirmation_dialog.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/services/category_service.dart';
 import 'package:solo/services/todo_checklist_item_service.dart';
@@ -425,6 +426,60 @@ class _TodoDetailContent extends HookConsumerWidget {
                                     : 'countup';
                             context.go(
                                 '/timer?todoId=${realTodo.value.id}&mode=$timerMode');
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // 繰り返しTodo全削除ボタン（繰り返しTodoの場合のみ表示）
+                    if (realTodo.value.isRecurring == true) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          icon: Icon(
+                            Icons.delete_forever,
+                            color: Theme.of(context).colorScheme.surface,
+                            size: 24,
+                          ),
+                          label: const Text(
+                            '全ての繰り返しTodoを削除',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.visible,
+                            softWrap: true,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.errorColor,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.surface,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                          ),
+                          onPressed: () async {
+                            // 確認ダイアログを表示
+                            final confirmed = await ConfirmationDialog.showDeleteAllRecurringConfirmation(
+                              context,
+                              todoTitle: realTodo.value.title,
+                            );
+
+                            if (confirmed && context.mounted) {
+                              Navigator.of(context).pop();
+                              await TodoService().deleteAllRecurringTodos(realTodo.value.id);
+                              onRefresh?.call();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          '「${realTodo.value.title}」に関連する全ての繰り返しTodoを削除しました',
+                                          overflow: TextOverflow.visible,
+                                          softWrap: true,)),
+                                );
+                              }
+                            }
                           },
                         ),
                       ),

@@ -504,7 +504,9 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                           const Spacer(),
                           Switch(
                             value: isRecurring.value,
-                            onChanged: (value) => isRecurring.value = value,
+                            onChanged: (initialTodo != null && initialTodo!.isRecurring == true) 
+                                ? null // 繰り返しTodoの編集時は無効化
+                                : (value) => isRecurring.value = value,
                             activeColor: Theme.of(context).colorScheme.primary,
                           ),
                         ],
@@ -512,7 +514,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                       if (isRecurring.value) ...[
                         const SizedBox(height: 16),
                         _buildRecurringTypeSelector(
-                            context, recurringType, selectedDate),
+                            context, recurringType, selectedDate,
+                            isEditMode: initialTodo != null),
                       ],
                     ],
                   ),
@@ -525,7 +528,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                   child: Column(
                     children: [
                       _buildDateSelector(context, selectedDate,
-                          isRecurring.value, recurringType),
+                          isRecurring.value, recurringType, 
+                          isEditMode: initialTodo != null),
                       const SizedBox(height: 12),
                       _buildTimeSelector(context, selectedTime),
                     ],
@@ -1202,7 +1206,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
   Widget _buildRecurringTypeSelector(
       BuildContext context,
       ValueNotifier<RecurringType?> recurringType,
-      ValueNotifier<DateTime> selectedDate) {
+      ValueNotifier<DateTime> selectedDate,
+      {bool isEditMode = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1235,7 +1240,9 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                   child: Text(type.label),
                 );
               }).toList(),
-              onChanged: (value) {
+              onChanged: isEditMode 
+                  ? null // 繰り返しTodoの編集時は繰り返しタイプ変更を無効化
+                  : (value) {
                 recurringType.value = value;
 
                 // 「毎月最終日」が選択された場合、現在の日付を最終日に変更
@@ -1258,7 +1265,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
       BuildContext context,
       ValueNotifier<DateTime> selectedDate,
       bool isRecurring,
-      ValueNotifier<RecurringType?> recurringType) {
+      ValueNotifier<RecurringType?> recurringType,
+      {bool isEditMode = false}) {
     return Row(
       children: [
         Icon(
@@ -1275,7 +1283,9 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
         ),
         const Spacer(),
         ElevatedButton(
-          onPressed: () async {
+          onPressed: (isEditMode && isRecurring) 
+              ? null // 繰り返しTodoの編集時は日付変更を無効化
+              : () async {
             final pickedDate = await showDatePicker(
               context: context,
               initialDate: selectedDate.value,
