@@ -57,19 +57,26 @@ class _AddCategoryDialogContent extends HookWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: titleController,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'カテゴリ名',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: TextField(
+                controller: titleController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'カテゴリ名',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context)
+                      .colorScheme
+                      .surface
+                      .withValues(alpha: 0.05),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 18, // より大きい縦方向パディングでラベルとの衝突を防ぐ
+                  ),
                 ),
-                filled: true,
-                fillColor: Theme.of(context)
-                    .colorScheme
-                    .surface
-                    .withValues(alpha: 0.05),
               ),
             ),
             const SizedBox(height: 16),
@@ -85,6 +92,10 @@ class _AddCategoryDialogContent extends HookWidget {
                     .colorScheme
                     .surface
                     .withValues(alpha: 0.05),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 18, // 一貫性のあるパディング
+                ),
               ),
               maxLines: 2,
             ),
