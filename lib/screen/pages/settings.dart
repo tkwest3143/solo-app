@@ -162,8 +162,10 @@ class SettingsPage extends HookConsumerWidget {
                           onPressed: () =>
                               _showResetDialog(context, settingsController),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.secondary,
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withValues(alpha: 0.8), // 半透明にして視認性UP
                             foregroundColor:
                                 Theme.of(context).colorScheme.primaryTextColor,
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -175,7 +177,8 @@ class SettingsPage extends HookConsumerWidget {
                             '設定をリセット',
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ),
@@ -200,12 +203,19 @@ class SettingsPage extends HookConsumerWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        title: const Text('設定をリセット'),
+        title: const Text('設定をリセット',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         content: const Text('すべての設定を初期値に戻しますか？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('キャンセル'),
+            child: Text('キャンセル',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.secondaryTextColor,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                )),
           ),
           ElevatedButton(
             onPressed: () {
@@ -213,10 +223,18 @@ class SettingsPage extends HookConsumerWidget {
               Navigator.of(context).pop();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              foregroundColor: Theme.of(context).colorScheme.surface,
+              backgroundColor: Theme.of(context)
+                  .colorScheme
+                  .secondary
+                  .withValues(alpha: 0.8),
+              foregroundColor: Theme.of(context).colorScheme.primaryTextColor,
             ),
-            child: const Text('リセット'),
+            child: const Text('リセット',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                )),
           ),
         ],
       ),
