@@ -21,7 +21,7 @@ void main() {
         final notificationService = NotificationService();
         final completedTodo = TodoModel(
           id: 2,
-          title: '完了済みタスク',
+          title: '完了済みTodo',
           dueDate: DateTime.now().add(const Duration(hours: 2)),
           isCompleted: true,
         );
@@ -39,7 +39,7 @@ void main() {
         final notificationService = NotificationService();
         final pastTodo = TodoModel(
           id: 3,
-          title: '過去のタスク',
+          title: '過去のTodo',
           dueDate: DateTime.now().subtract(const Duration(hours: 2)),
           isCompleted: false,
         );
@@ -70,19 +70,19 @@ void main() {
         final todos = [
           TodoModel(
             id: 1,
-            title: 'タスク1',
+            title: 'Todo1',
             dueDate: DateTime.now().add(const Duration(hours: 2)),
             isCompleted: false,
           ),
           TodoModel(
             id: 2,
-            title: 'タスク2',
+            title: 'Todo2',
             dueDate: DateTime.now().subtract(const Duration(minutes: 30)),
             isCompleted: false,
           ),
           TodoModel(
             id: 3,
-            title: '完了済みタスク',
+            title: '完了済みTodo',
             dueDate: DateTime.now().add(const Duration(hours: 4)),
             isCompleted: true,
           ),
@@ -123,7 +123,7 @@ void main() {
         expect(
           () => notificationService.showTimerPhaseNotification(
             timerSession: timerSession,
-            todoTitle: 'テストタスク',
+            todoTitle: 'テストTodo',
           ),
           returnsNormally,
         );
@@ -161,7 +161,7 @@ void main() {
         expect(
           () => notificationService.showTimerCompletionNotification(
             timerSession: pomodoroSession,
-            todoTitle: 'ポモドーロタスク',
+            todoTitle: 'ポモドーロTodo',
           ),
           returnsNormally,
         );
@@ -169,7 +169,7 @@ void main() {
         expect(
           () => notificationService.showTimerCompletionNotification(
             timerSession: countUpSession,
-            todoTitle: 'カウントアップタスク',
+            todoTitle: 'カウントアップTodo',
           ),
           returnsNormally,
         );

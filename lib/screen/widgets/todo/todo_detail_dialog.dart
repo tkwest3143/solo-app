@@ -384,7 +384,7 @@ class _TodoDetailContent extends HookConsumerWidget {
                     ),
                     const SizedBox(height: 24),
 
-                    // タイマー関連のタスクの場合、タイマーへのボタンを表示
+                    // タイマー関連のTodoの場合、タイマーへのボタンを表示
                     if (realTodo.value.timerType != TimerType.none &&
                         !realTodo.value.isCompleted) ...[
                       SizedBox(
@@ -461,22 +461,25 @@ class _TodoDetailContent extends HookConsumerWidget {
                           ),
                           onPressed: () async {
                             // 確認ダイアログを表示
-                            final confirmed = await ConfirmationDialog.showDeleteAllRecurringConfirmation(
+                            final confirmed = await ConfirmationDialog
+                                .showDeleteAllRecurringConfirmation(
                               context,
                               todoTitle: realTodo.value.title,
                             );
 
                             if (confirmed && context.mounted) {
                               Navigator.of(context).pop();
-                              await TodoService().deleteAllRecurringTodos(realTodo.value.id);
+                              await TodoService()
+                                  .deleteAllRecurringTodos(realTodo.value.id);
                               onRefresh?.call();
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content: Text(
-                                          '「${realTodo.value.title}」に関連する全ての繰り返しTodoを削除しました',
-                                          overflow: TextOverflow.visible,
-                                          softWrap: true,)),
+                                    '「${realTodo.value.title}」に関連する全ての繰り返しTodoを削除しました',
+                                    overflow: TextOverflow.visible,
+                                    softWrap: true,
+                                  )),
                                 );
                               }
                             }
@@ -520,9 +523,10 @@ class _TodoDetailContent extends HookConsumerWidget {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content: Text(
-                                            '${realTodo.value.title}を完了にしました',
-                                            overflow: TextOverflow.visible,
-                                            softWrap: true,)),
+                                      '${realTodo.value.title}を完了にしました',
+                                      overflow: TextOverflow.visible,
+                                      softWrap: true,
+                                    )),
                                   );
                                 }
                               },
@@ -586,9 +590,10 @@ class _TodoDetailContent extends HookConsumerWidget {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content: Text(
-                                          '${realTodo.value.title}を削除しました',
-                                          overflow: TextOverflow.visible,
-                                          softWrap: true,)),
+                                    '${realTodo.value.title}を削除しました',
+                                    overflow: TextOverflow.visible,
+                                    softWrap: true,
+                                  )),
                                 );
                               }
                             },
@@ -674,9 +679,12 @@ class _TodoDetailContent extends HookConsumerWidget {
 
             if (wasCompleted && context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${todo.title}を完了にしました',
-                    overflow: TextOverflow.visible,
-                    softWrap: true,)),
+                SnackBar(
+                    content: Text(
+                  '${todo.title}を完了にしました',
+                  overflow: TextOverflow.visible,
+                  softWrap: true,
+                )),
               );
             }
 

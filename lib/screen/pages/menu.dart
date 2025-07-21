@@ -86,7 +86,7 @@ class MenuPage extends HookConsumerWidget {
                       Expanded(
                         child: MenuNavigationCard(
                           title: 'Todo',
-                          subtitle: 'タスク管理\n今日の予定を確認',
+                          subtitle: 'Todo管理\n今日の予定を確認',
                           icon: Icons.checklist_rounded,
                           iconColor: Theme.of(context).colorScheme.surface,
                           gradientColors:

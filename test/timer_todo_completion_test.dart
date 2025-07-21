@@ -9,7 +9,7 @@ void main() {
         // Arrange & Act
         final pomodoroTodo = TodoModel(
           id: 1,
-          title: 'ポモドーロタスク',
+          title: 'ポモドーロTodo',
           dueDate: DateTime.now(),
           isCompleted: false,
           timerType: TimerType.pomodoro,
@@ -36,7 +36,7 @@ void main() {
         // Arrange & Act
         final countupTodo = TodoModel(
           id: 2,
-          title: 'カウントアップタスク',
+          title: 'カウントアップTodo',
           dueDate: DateTime.now(),
           isCompleted: false,
           timerType: TimerType.countup,
@@ -57,7 +57,7 @@ void main() {
         // Arrange
         final todo = TodoModel(
           id: 3,
-          title: 'テスト用タスク',
+          title: 'テスト用Todo',
           dueDate: DateTime.now(),
           isCompleted: false,
           timerType: TimerType.pomodoro,
@@ -81,7 +81,7 @@ void main() {
         // Arrange
         final pomodoroTodo = TodoModel(
           id: 4,
-          title: 'ポモドーロタスク',
+          title: 'ポモドーロTodo',
           dueDate: DateTime.now(),
           isCompleted: false,
           timerType: TimerType.pomodoro,
@@ -93,7 +93,7 @@ void main() {
 
         final countupTodo = TodoModel(
           id: 5,
-          title: 'カウントアップタスク',
+          title: 'カウントアップTodo',
           dueDate: DateTime.now(),
           isCompleted: false,
           timerType: TimerType.countup,
@@ -105,7 +105,7 @@ void main() {
 
         final normalTodo = TodoModel(
           id: 6,
-          title: '通常タスク',
+          title: '通常Todo',
           dueDate: DateTime.now(),
           isCompleted: false,
           timerType: TimerType.none,

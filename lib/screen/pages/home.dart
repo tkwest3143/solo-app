@@ -66,7 +66,7 @@ class HomePage extends HookConsumerWidget {
                     Expanded(
                       child: NavigationCard(
                         title: 'Todo管理',
-                        subtitle: 'タスク一覧',
+                        subtitle: 'Todo一覧',
                         icon: Icons.checklist_rounded,
                         iconColor: Theme.of(context).colorScheme.surface,
                         backgroundColor:
@@ -130,7 +130,7 @@ class HomePage extends HookConsumerWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'ポモドーロテクニックで集中し、タスクを効率よく完了させましょう。小さな目標から始めて、継続することが大切です。',
+                      'ポモドーロテクニックで集中し、Todoを効率よく完了させましょう。小さな目標から始めて、継続することが大切です。',
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(context).colorScheme.secondaryTextColor,

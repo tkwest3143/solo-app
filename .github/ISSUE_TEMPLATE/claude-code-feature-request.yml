@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         ## Claude Code 機能要求テンプレート
-        
+
         このテンプレートはClaude Codeでの効率的な機能開発に最適化されています。
         Claude Codeが機能を正しく実装できるよう、詳細な仕様を提供してください。
 
@@ -27,8 +27,8 @@ body:
       description: ユーザーの視点から機能を説明してください
       placeholder: |
         [ユーザータイプ]として、[アクション]を行いたい。なぜなら[利益/目標]のため。
-        
-        例：生産性を重視するユーザーとして、タスクの種類に応じて異なるポモドーロ間隔を設定したい。タスクの複雑さに基づいて集中時間を最適化できるため。
+
+        例：生産性を重視するユーザーとして、Todoの種類に応じて異なるポモドーロ間隔を設定したい。Todoの複雑さに基づいて集中時間を最適化できるため。
     validations:
       required: true
 
@@ -61,7 +61,7 @@ body:
         - [ ] 
         - [ ] 
         - [ ] 
-        - [ ] 
+        - [ ]
     validations:
       required: true
 
@@ -91,7 +91,7 @@ body:
         - 
         - 
         - 
-        - 
+        -
 
   - type: textarea
     id: technical-requirements
@@ -153,7 +153,7 @@ body:
         - 
         - 
         - 
-        - 
+        -
 
   - type: textarea
     id: alternative-solutions

@@ -121,7 +121,7 @@ class TodayTodosWidget extends HookConsumerWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    '今日のタスクはありません',
+                    '今日のTodoはありません',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -175,7 +175,7 @@ class TodayTodosWidget extends HookConsumerWidget {
                     ),
                     const SizedBox(width: 16),
                     Text(
-                      '今日のタスク (${incompleteTodos.length}件)',
+                      '今日のTodo (${incompleteTodos.length}件)',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -204,7 +204,7 @@ class TodayTodosWidget extends HookConsumerWidget {
                           Theme.of(context).colorScheme.todayTagBackgroundColor,
                     ),
                     child: Text(
-                      'すべてのタスクを見る →',
+                      'すべてのTodoを見る →',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,

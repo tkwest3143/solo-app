@@ -98,7 +98,7 @@ class TimerMainWidget extends HookConsumerWidget {
             builder: (context) => AlertDialog(
               title: const Text('目標時間達成！'),
               content: Text(
-                  '${selectedTodo.value!.title} の目標時間に達しました。\nタスクを完了済みにしますか？'),
+                  '${selectedTodo.value!.title} の目標時間に達しました。\nTodoを完了済みにしますか？'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
@@ -189,7 +189,7 @@ class TimerMainWidget extends HookConsumerWidget {
                         Text(
                           selectedTodo.value != null
                               ? selectedTodo.value!.title
-                              : 'タスクを選択',
+                              : 'Todoを選択',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
@@ -205,8 +205,8 @@ class TimerMainWidget extends HookConsumerWidget {
                         const SizedBox(height: 4),
                         Text(
                           selectedTodo.value != null
-                              ? 'タイマー完了時に自動でタスクを完了にします'
-                              : 'タスクを選択してタイマーを開始',
+                              ? 'タイマー完了時に自動でTodoを完了にします'
+                              : 'Todoを選択してタイマーを開始',
                           style: TextStyle(
                             fontSize: 12,
                             color: Theme.of(context)

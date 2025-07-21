@@ -100,7 +100,7 @@ class AboutPage extends HookConsumerWidget {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'タスク管理とタイマー機能を備えた\n生産性向上アプリです',
+                              'Todo管理とタイマー機能を備えた\n生産性向上アプリです',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Theme.of(context)
@@ -151,7 +151,7 @@ class AboutPage extends HookConsumerWidget {
                               context,
                               Icons.checklist_rounded,
                               'Todo管理',
-                              'タスクの作成、編集、完了管理',
+                              'Todoの作成、編集、完了管理',
                             ),
                             _buildFeatureItem(
                               context,
@@ -163,13 +163,13 @@ class AboutPage extends HookConsumerWidget {
                               context,
                               Icons.calendar_today_rounded,
                               'カレンダー表示',
-                              '日程とタスクの確認',
+                              '日程とTodoの確認',
                             ),
                             _buildFeatureItem(
                               context,
                               Icons.home_rounded,
                               'ダッシュボード',
-                              '今日のタスクと時間の概要',
+                              '今日のTodoと時間の概要',
                             ),
                           ],
                         ),
@@ -190,7 +190,9 @@ class AboutPage extends HookConsumerWidget {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(12),
                                   gradient: LinearGradient(
-                                    colors: Theme.of(context).colorScheme.primaryGradient,
+                                    colors: Theme.of(context)
+                                        .colorScheme
+                                        .primaryGradient,
                                   ),
                                 ),
                                 child: Icon(
@@ -204,13 +206,17 @@ class AboutPage extends HookConsumerWidget {
                           icon: Icon(
                             Icons.description_outlined,
                             size: 16,
-                            color: Theme.of(context).colorScheme.secondaryTextColor,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondaryTextColor,
                           ),
                           label: Text(
                             'ライセンス情報',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Theme.of(context).colorScheme.secondaryTextColor,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryTextColor,
                             ),
                           ),
                           style: TextButton.styleFrom(
@@ -278,5 +284,4 @@ class AboutPage extends HookConsumerWidget {
       ),
     );
   }
-
 }

@@ -419,7 +419,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
               children: [
                 const SizedBox(height: 32),
                 Text(
-                  'まずはタスクのタイトルを入力してください',
+                  'まずはTodoのタイトルを入力してください',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -596,7 +596,9 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  initialTodo != null ? 'タスクの詳細設定を変更できます' : 'タスクの管理方法を選択してください',
+                  initialTodo != null
+                      ? 'Todoの詳細設定を変更できます'
+                      : 'Todoの管理方法を選択してください',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,

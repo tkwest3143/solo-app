@@ -7,12 +7,13 @@ import 'package:solo/models/timer_model.dart';
 class TimerControls extends ConsumerWidget {
   const TimerControls({super.key});
 
-  Future<void> _showCompletionDialog(BuildContext context, WidgetRef ref) async {
+  Future<void> _showCompletionDialog(
+      BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('タスク完了'),
-        content: const Text('選択中のタスクを完了済みにしますか？'),
+        title: const Text('Todo完了'),
+        content: const Text('選択中のTodoを完了済みにしますか？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),

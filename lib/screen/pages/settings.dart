@@ -118,7 +118,7 @@ class SettingsPage extends HookConsumerWidget {
                         children: [
                           _SwitchSettingItem(
                             title: 'Todo期限日通知',
-                            subtitle: 'タスクの期限が近づいた時の通知',
+                            subtitle: 'Todoの期限が近づいた時の通知',
                             value: settings.todoDueDateNotificationsEnabled,
                             onChanged: settingsController
                                 .toggleTodoDueDateNotifications,

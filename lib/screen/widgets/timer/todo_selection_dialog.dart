@@ -14,7 +14,7 @@ import 'package:solo/screen/colors.dart';
 class TodoSelectionDialog extends HookConsumerWidget {
   final int? currentTodoId;
   final TimerMode currentTimerMode;
-  
+
   const TodoSelectionDialog({
     super.key,
     this.currentTodoId,
@@ -29,43 +29,43 @@ class TodoSelectionDialog extends HookConsumerWidget {
 
     Future<void> loadData() async {
       isLoading.value = true;
-      
+
       try {
         // Load todos
         final todoList = await TodoService().getTodo();
         // Filter todos based on current timer mode
-        final timerTodos = todoList
-            .where((todo) {
-              if (todo.isCompleted) return false;
-              
-              // ポモドーロモードの場合はポモドーロタイマーのTodoのみ表示
-              if (currentTimerMode == TimerMode.pomodoro) {
-                return todo.timerType == TimerType.pomodoro;
-              }
-              // カウントアップモードの場合はカウントアップタイマーのTodoのみ表示
-              else if (currentTimerMode == TimerMode.countUp) {
-                return todo.timerType == TimerType.countup;
-              }
-              
-              return false;
-            })
-            .toList();
-        
+        final timerTodos = todoList.where((todo) {
+          if (todo.isCompleted) return false;
+
+          // ポモドーロモードの場合はポモドーロタイマーのTodoのみ表示
+          if (currentTimerMode == TimerMode.pomodoro) {
+            return todo.timerType == TimerType.pomodoro;
+          }
+          // カウントアップモードの場合はカウントアップタイマーのTodoのみ表示
+          else if (currentTimerMode == TimerMode.countUp) {
+            return todo.timerType == TimerType.countup;
+          }
+
+          return false;
+        }).toList();
+
         // Sort by due date
         timerTodos.sort((a, b) => a.dueDate.compareTo(b.dueDate));
-        
+
         // Load categories for todos
         final categoryService = CategoryService();
         final categoryMap = <int, CategoryModel>{};
         for (final todo in timerTodos) {
-          if (todo.categoryId != null && !categoryMap.containsKey(todo.categoryId)) {
-            final category = await categoryService.getCategoryById(todo.categoryId!);
+          if (todo.categoryId != null &&
+              !categoryMap.containsKey(todo.categoryId)) {
+            final category =
+                await categoryService.getCategoryById(todo.categoryId!);
             if (category != null) {
               categoryMap[todo.categoryId!] = category;
             }
           }
         }
-        
+
         todos.value = timerTodos;
         categories.value = categoryMap;
         isLoading.value = false;
@@ -97,7 +97,7 @@ class TodoSelectionDialog extends HookConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 const Text(
-                  'タスクを選択',
+                  'Todoを選択',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -126,9 +126,10 @@ class TodoSelectionDialog extends HookConsumerWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'タイマー設定されたタスクがありません',
+                        'タイマー設定されたTodoがありません',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondaryTextColor,
+                          color:
+                              Theme.of(context).colorScheme.secondaryTextColor,
                         ),
                       ),
                     ],
@@ -149,7 +150,7 @@ class TodoSelectionDialog extends HookConsumerWidget {
                         isSelected: currentTodoId == null,
                       );
                     }
-                    
+
                     final todo = todos.value[index - 1];
                     final category = categories.value[todo.categoryId];
                     return _buildTodoItem(
@@ -177,7 +178,7 @@ class TodoSelectionDialog extends HookConsumerWidget {
       // 「選択しない」オプション
       return Card(
         margin: const EdgeInsets.only(bottom: 8),
-        color: isSelected 
+        color: isSelected
             ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
             : null,
         child: ListTile(
@@ -186,7 +187,7 @@ class TodoSelectionDialog extends HookConsumerWidget {
             Icons.clear,
             color: Theme.of(context).colorScheme.outline,
           ),
-          title: const Text('タスクを選択しない'),
+          title: const Text('Todoを選択しない'),
           subtitle: const Text('タイマーのみ使用'),
           trailing: isSelected
               ? Icon(
@@ -204,7 +205,7 @@ class TodoSelectionDialog extends HookConsumerWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
-      color: isSelected 
+      color: isSelected
           ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
           : null,
       child: ListTile(
@@ -217,8 +218,8 @@ class TodoSelectionDialog extends HookConsumerWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
-            todo.timerType == TimerType.pomodoro 
-                ? Icons.timer 
+            todo.timerType == TimerType.pomodoro
+                ? Icons.timer
                 : Icons.timer_outlined,
             color: color,
             size: 20,
@@ -242,7 +243,9 @@ class TodoSelectionDialog extends HookConsumerWidget {
                 ),
               ),
             Text(
-              todo.timerType == TimerType.pomodoro ? 'ポモドーロタイマー' : 'カウントアップタイマー',
+              todo.timerType == TimerType.pomodoro
+                  ? 'ポモドーロタイマー'
+                  : 'カウントアップタイマー',
               style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context).colorScheme.accentColor,

@@ -34,7 +34,7 @@ void main() {
         expect(find.text('新しいTodoを追加'), findsOneWidget);
         expect(find.byType(TextField), findsOneWidget);
         expect(find.text('次へ'), findsOneWidget);
-        
+
         // 他のステップの要素が表示されていないことを確認
         expect(find.text('繰り返し'), findsNothing);
         expect(find.text('管理方法'), findsNothing);
@@ -62,8 +62,8 @@ void main() {
         await tester.pumpAndSettle();
 
         // タイトルを入力
-        await tester.enterText(find.byType(TextField), 'テストタスク');
-        
+        await tester.enterText(find.byType(TextField), 'テストTodo');
+
         // 次へボタンをタップ
         await tester.tap(find.text('次へ'));
         await tester.pumpAndSettle();
@@ -79,8 +79,8 @@ void main() {
         await tester.pumpWidget(testWidget);
         await tester.tap(find.text('Open Dialog'));
         await tester.pumpAndSettle();
-        
-        await tester.enterText(find.byType(TextField), 'テストタスク');
+
+        await tester.enterText(find.byType(TextField), 'テストTodo');
         await tester.tap(find.text('次へ'));
         await tester.pumpAndSettle();
       }
@@ -152,11 +152,11 @@ void main() {
         await tester.pumpWidget(testWidget);
         await tester.tap(find.text('Open Dialog'));
         await tester.pumpAndSettle();
-        
-        await tester.enterText(find.byType(TextField), 'テストタスク');
+
+        await tester.enterText(find.byType(TextField), 'テストTodo');
         await tester.tap(find.text('次へ'));
         await tester.pumpAndSettle();
-        
+
         await tester.tap(find.text('次へ'));
         await tester.pumpAndSettle();
       }
@@ -205,14 +205,14 @@ void main() {
         await tester.pumpWidget(testWidget);
         await tester.tap(find.text('Open Dialog'));
         await tester.pumpAndSettle();
-        
-        await tester.enterText(find.byType(TextField), 'テストタスク');
+
+        await tester.enterText(find.byType(TextField), 'テストTodo');
         await tester.tap(find.text('次へ'));
         await tester.pumpAndSettle();
-        
+
         await tester.tap(find.text('次へ'));
         await tester.pumpAndSettle();
-        
+
         await tester.tap(find.text('カテゴリ、詳細の入力へ'));
         await tester.pumpAndSettle();
       }
@@ -254,7 +254,7 @@ void main() {
         expect(find.byIcon(Icons.close), findsOneWidget);
 
         // Step 2へ
-        await tester.enterText(find.byType(TextField), 'テストタスク');
+        await tester.enterText(find.byType(TextField), 'テストTodo');
         await tester.tap(find.text('次へ'));
         await tester.pumpAndSettle();
 
@@ -289,7 +289,7 @@ void main() {
 
         // モーダルボトムシートの基本要素が表示されることを確認
         expect(find.text('新しいTodoを追加'), findsOneWidget);
-        
+
         // 角丸のコンテナ
         final containers = find.byType(Container);
         expect(containers, findsWidgets);
