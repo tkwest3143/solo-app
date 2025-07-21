@@ -68,7 +68,7 @@ class SettingsPage extends HookConsumerWidget {
                             value: settings.defaultWorkMinutes,
                             unit: '分',
                             min: 1,
-                            max: 60,
+                            max: 90,
                             onChanged:
                                 settingsController.updateDefaultWorkMinutes,
                             color: Theme.of(context).colorScheme.accentColor,
@@ -100,7 +100,7 @@ class SettingsPage extends HookConsumerWidget {
                             subtitle: '何回で長い休憩に入るか',
                             value: settings.defaultCyclesUntilLongBreak,
                             unit: '回',
-                            min: 2,
+                            min: 1,
                             max: 10,
                             onChanged: settingsController
                                 .updateDefaultCyclesUntilLongBreak,
