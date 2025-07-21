@@ -107,7 +107,7 @@ extension AppColorScheme on ColorScheme {
       : const Color(0xFF524A5D);
 
   Color get todayTagColor => brightness == Brightness.light
-      ? const Color(0xFFB3D9FF)
+      ? const Color.fromARGB(255, 5, 127, 248)
       : const Color(0xFF8BB6D9);
 
   Color get todayTagBackgroundColor => brightness == Brightness.light

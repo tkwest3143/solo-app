@@ -95,6 +95,45 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
     // 管理方法の選択肢
     final manageType = useState<ManageType>(ManageType.normal);
 
+    // 初期値設定（編集モードの場合は既存のtimerTypeから設定）
+    useEffect(() {
+      if (initialTodo != null) {
+        // 編集モードの場合、既存のtimerTypeに基づいてmanageTypeを設定
+        switch (initialTodo?.timerType) {
+          case TimerType.none:
+            if (initialTodo?.checklistItem.isNotEmpty == true) {
+              manageType.value = ManageType.checklist;
+              checklistItems.value = initialTodo?.checklistItem ?? [];
+              checklistEnabled.value = true;
+            } else {
+              manageType.value = ManageType.normal;
+            }
+            break;
+          case TimerType.pomodoro:
+            manageType.value = ManageType.pomodoro;
+            isPomodoro.value = true;
+            // ポモドーロ設定を復元
+            pomodoroWorkMinutes.value = initialTodo?.pomodoroWorkMinutes ?? 25;
+            pomodoroShortBreakMinutes.value = initialTodo?.pomodoroShortBreakMinutes ?? 5;
+            pomodoroLongBreakMinutes.value = initialTodo?.pomodoroLongBreakMinutes ?? 15;
+            pomodoroCycle.value = initialTodo?.pomodoroCycle ?? 4;
+            pomodoroCompletionCycles.value = initialTodo?.pomodoroCompletedCycle ?? 2;
+            break;
+          case TimerType.countup:
+            manageType.value = ManageType.countup;
+            // カウントアップ設定を復元（秒を分に変換）
+            final countupTargetSeconds = initialTodo?.countupElapsedSeconds;
+            if (countupTargetSeconds != null) {
+              countupTargetMinutes.value = (countupTargetSeconds / 60).round();
+            }
+            break;
+          default:
+            manageType.value = ManageType.normal;
+        }
+      }
+      return null;
+    }, [initialTodo]);
+
     // 初期化と既存のuseEffectは省略...
 
     return Padding(
@@ -472,13 +511,25 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'タスクの管理方法を選択してください',
+                  initialTodo != null 
+                      ? 'タスクの詳細設定を変更できます'
+                      : 'タスクの管理方法を選択してください',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.primaryTextColor,
                   ),
                 ),
+                if (initialTodo != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    '※ 管理方法（通常、ポモドーロ、カウントアップ、チェックリスト）は編集時に変更できません',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.secondaryTextColor,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 24),
 
                 _buildSectionTitle(context, '管理方法'),
@@ -501,6 +552,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                           Theme.of(context).colorScheme.primary,
                           manageType.value,
                           (type) => manageType.value = type,
+                          isEditMode: initialTodo != null,
                         ),
                         _buildManageTypeCard(
                           context,
@@ -510,6 +562,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                           Theme.of(context).colorScheme.accentColor,
                           manageType.value,
                           (type) => manageType.value = type,
+                          isEditMode: initialTodo != null,
                         ),
                         _buildManageTypeCard(
                           context,
@@ -519,6 +572,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                           Theme.of(context).colorScheme.warningColor,
                           manageType.value,
                           (type) => manageType.value = type,
+                          isEditMode: initialTodo != null,
                         ),
                         _buildManageTypeCard(
                           context,
@@ -528,6 +582,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                           Theme.of(context).colorScheme.successColor,
                           manageType.value,
                           (type) => manageType.value = type,
+                          isEditMode: initialTodo != null,
                         ),
                       ],
                     ),
@@ -1552,21 +1607,28 @@ Widget _buildManageTypeCard(
   IconData icon,
   Color color,
   ManageType selectedType,
-  Function(ManageType) onTap,
-) {
+  Function(ManageType) onTap, {
+  bool isEditMode = false,
+}) {
   final isSelected = selectedType == type;
+  final isDisabled = isEditMode;
+  
   return GestureDetector(
-    onTap: () => onTap(type),
+    onTap: isDisabled ? null : () => onTap(type),
     child: Container(
       decoration: BoxDecoration(
         color: isSelected
             ? color.withValues(alpha: 0.1)
-            : Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+            : isDisabled
+                ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.3)
+                : Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSelected
               ? color
-              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+              : isDisabled
+                  ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.2)
+                  : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
           width: isSelected ? 2 : 1,
         ),
         boxShadow: isSelected
@@ -1586,7 +1648,9 @@ Widget _buildManageTypeCard(
             icon,
             color: isSelected
                 ? color
-                : Theme.of(context).colorScheme.secondaryTextColor,
+                : isDisabled
+                    ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)
+                    : Theme.of(context).colorScheme.secondaryTextColor,
             size: 20,
           ),
           const SizedBox(height: 4),
@@ -1597,7 +1661,9 @@ Widget _buildManageTypeCard(
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               color: isSelected
                   ? color
-                  : Theme.of(context).colorScheme.secondaryTextColor,
+                  : isDisabled
+                      ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)
+                      : Theme.of(context).colorScheme.secondaryTextColor,
             ),
           ),
         ],
