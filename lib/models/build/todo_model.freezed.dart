@@ -27,8 +27,6 @@ mixin _$TodoModel {
   bool? get isRecurring;
   RecurringType get recurringType;
   DateTime? get recurringEndDate;
-  int? get recurringDayOfWeek; // 1-7 for weekly (Monday = 1)
-  int? get recurringDayOfMonth; // 1-31 for monthly
   int? get parentTodoId;
   List<TodoCheckListItemModel> get checklistItem; // Optional checklist item
   TimerType get timerType; // 'none', 'pomodoro', 'countup'
@@ -37,7 +35,8 @@ mixin _$TodoModel {
   int? get pomodoroShortBreakMinutes; // For short break
   int? get pomodoroLongBreakMinutes; // For long break
   int? get pomodoroCycle; // Number of pomodoro cycles
-  int? get pomodoroCompletedCycle;
+  int? get pomodoroCompletedCycle; // Completed pomodoro cycles
+  bool get isDeleted;
 
   /// Create a copy of TodoModel
   /// with the given fields replaced by the non-null parameter values.
@@ -75,10 +74,6 @@ mixin _$TodoModel {
                 other.recurringType == recurringType) &&
             (identical(other.recurringEndDate, recurringEndDate) ||
                 other.recurringEndDate == recurringEndDate) &&
-            (identical(other.recurringDayOfWeek, recurringDayOfWeek) ||
-                other.recurringDayOfWeek == recurringDayOfWeek) &&
-            (identical(other.recurringDayOfMonth, recurringDayOfMonth) ||
-                other.recurringDayOfMonth == recurringDayOfMonth) &&
             (identical(other.parentTodoId, parentTodoId) ||
                 other.parentTodoId == parentTodoId) &&
             const DeepCollectionEquality()
@@ -98,7 +93,9 @@ mixin _$TodoModel {
             (identical(other.pomodoroCycle, pomodoroCycle) ||
                 other.pomodoroCycle == pomodoroCycle) &&
             (identical(other.pomodoroCompletedCycle, pomodoroCompletedCycle) ||
-                other.pomodoroCompletedCycle == pomodoroCompletedCycle));
+                other.pomodoroCompletedCycle == pomodoroCompletedCycle) &&
+            (identical(other.isDeleted, isDeleted) ||
+                other.isDeleted == isDeleted));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -118,8 +115,6 @@ mixin _$TodoModel {
         isRecurring,
         recurringType,
         recurringEndDate,
-        recurringDayOfWeek,
-        recurringDayOfMonth,
         parentTodoId,
         const DeepCollectionEquality().hash(checklistItem),
         timerType,
@@ -128,12 +123,13 @@ mixin _$TodoModel {
         pomodoroShortBreakMinutes,
         pomodoroLongBreakMinutes,
         pomodoroCycle,
-        pomodoroCompletedCycle
+        pomodoroCompletedCycle,
+        isDeleted
       ]);
 
   @override
   String toString() {
-    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, categoryId: $categoryId, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, recurringDayOfWeek: $recurringDayOfWeek, recurringDayOfMonth: $recurringDayOfMonth, parentTodoId: $parentTodoId, checklistItem: $checklistItem, timerType: $timerType, countupElapsedSeconds: $countupElapsedSeconds, pomodoroWorkMinutes: $pomodoroWorkMinutes, pomodoroShortBreakMinutes: $pomodoroShortBreakMinutes, pomodoroLongBreakMinutes: $pomodoroLongBreakMinutes, pomodoroCycle: $pomodoroCycle, pomodoroCompletedCycle: $pomodoroCompletedCycle)';
+    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, categoryId: $categoryId, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, parentTodoId: $parentTodoId, checklistItem: $checklistItem, timerType: $timerType, countupElapsedSeconds: $countupElapsedSeconds, pomodoroWorkMinutes: $pomodoroWorkMinutes, pomodoroShortBreakMinutes: $pomodoroShortBreakMinutes, pomodoroLongBreakMinutes: $pomodoroLongBreakMinutes, pomodoroCycle: $pomodoroCycle, pomodoroCompletedCycle: $pomodoroCompletedCycle, isDeleted: $isDeleted)';
   }
 }
 
@@ -156,8 +152,6 @@ abstract mixin class $TodoModelCopyWith<$Res> {
       bool? isRecurring,
       RecurringType recurringType,
       DateTime? recurringEndDate,
-      int? recurringDayOfWeek,
-      int? recurringDayOfMonth,
       int? parentTodoId,
       List<TodoCheckListItemModel> checklistItem,
       TimerType timerType,
@@ -166,7 +160,8 @@ abstract mixin class $TodoModelCopyWith<$Res> {
       int? pomodoroShortBreakMinutes,
       int? pomodoroLongBreakMinutes,
       int? pomodoroCycle,
-      int? pomodoroCompletedCycle});
+      int? pomodoroCompletedCycle,
+      bool isDeleted});
 }
 
 /// @nodoc
@@ -194,8 +189,6 @@ class _$TodoModelCopyWithImpl<$Res> implements $TodoModelCopyWith<$Res> {
     Object? isRecurring = freezed,
     Object? recurringType = null,
     Object? recurringEndDate = freezed,
-    Object? recurringDayOfWeek = freezed,
-    Object? recurringDayOfMonth = freezed,
     Object? parentTodoId = freezed,
     Object? checklistItem = null,
     Object? timerType = null,
@@ -205,6 +198,7 @@ class _$TodoModelCopyWithImpl<$Res> implements $TodoModelCopyWith<$Res> {
     Object? pomodoroLongBreakMinutes = freezed,
     Object? pomodoroCycle = freezed,
     Object? pomodoroCompletedCycle = freezed,
+    Object? isDeleted = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -259,14 +253,6 @@ class _$TodoModelCopyWithImpl<$Res> implements $TodoModelCopyWith<$Res> {
           ? _self.recurringEndDate
           : recurringEndDate // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      recurringDayOfWeek: freezed == recurringDayOfWeek
-          ? _self.recurringDayOfWeek
-          : recurringDayOfWeek // ignore: cast_nullable_to_non_nullable
-              as int?,
-      recurringDayOfMonth: freezed == recurringDayOfMonth
-          ? _self.recurringDayOfMonth
-          : recurringDayOfMonth // ignore: cast_nullable_to_non_nullable
-              as int?,
       parentTodoId: freezed == parentTodoId
           ? _self.parentTodoId
           : parentTodoId // ignore: cast_nullable_to_non_nullable
@@ -303,6 +289,10 @@ class _$TodoModelCopyWithImpl<$Res> implements $TodoModelCopyWith<$Res> {
           ? _self.pomodoroCompletedCycle
           : pomodoroCompletedCycle // ignore: cast_nullable_to_non_nullable
               as int?,
+      isDeleted: null == isDeleted
+          ? _self.isDeleted
+          : isDeleted // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -412,8 +402,6 @@ extension TodoModelPatterns on TodoModel {
             bool? isRecurring,
             RecurringType recurringType,
             DateTime? recurringEndDate,
-            int? recurringDayOfWeek,
-            int? recurringDayOfMonth,
             int? parentTodoId,
             List<TodoCheckListItemModel> checklistItem,
             TimerType timerType,
@@ -422,7 +410,8 @@ extension TodoModelPatterns on TodoModel {
             int? pomodoroShortBreakMinutes,
             int? pomodoroLongBreakMinutes,
             int? pomodoroCycle,
-            int? pomodoroCompletedCycle)?
+            int? pomodoroCompletedCycle,
+            bool isDeleted)?
         $default, {
     required TResult orElse(),
   }) {
@@ -443,8 +432,6 @@ extension TodoModelPatterns on TodoModel {
             _that.isRecurring,
             _that.recurringType,
             _that.recurringEndDate,
-            _that.recurringDayOfWeek,
-            _that.recurringDayOfMonth,
             _that.parentTodoId,
             _that.checklistItem,
             _that.timerType,
@@ -453,7 +440,8 @@ extension TodoModelPatterns on TodoModel {
             _that.pomodoroShortBreakMinutes,
             _that.pomodoroLongBreakMinutes,
             _that.pomodoroCycle,
-            _that.pomodoroCompletedCycle);
+            _that.pomodoroCompletedCycle,
+            _that.isDeleted);
       case _:
         return orElse();
     }
@@ -488,8 +476,6 @@ extension TodoModelPatterns on TodoModel {
             bool? isRecurring,
             RecurringType recurringType,
             DateTime? recurringEndDate,
-            int? recurringDayOfWeek,
-            int? recurringDayOfMonth,
             int? parentTodoId,
             List<TodoCheckListItemModel> checklistItem,
             TimerType timerType,
@@ -498,7 +484,8 @@ extension TodoModelPatterns on TodoModel {
             int? pomodoroShortBreakMinutes,
             int? pomodoroLongBreakMinutes,
             int? pomodoroCycle,
-            int? pomodoroCompletedCycle)
+            int? pomodoroCompletedCycle,
+            bool isDeleted)
         $default,
   ) {
     final _that = this;
@@ -518,8 +505,6 @@ extension TodoModelPatterns on TodoModel {
             _that.isRecurring,
             _that.recurringType,
             _that.recurringEndDate,
-            _that.recurringDayOfWeek,
-            _that.recurringDayOfMonth,
             _that.parentTodoId,
             _that.checklistItem,
             _that.timerType,
@@ -528,7 +513,8 @@ extension TodoModelPatterns on TodoModel {
             _that.pomodoroShortBreakMinutes,
             _that.pomodoroLongBreakMinutes,
             _that.pomodoroCycle,
-            _that.pomodoroCompletedCycle);
+            _that.pomodoroCompletedCycle,
+            _that.isDeleted);
     }
   }
 
@@ -560,8 +546,6 @@ extension TodoModelPatterns on TodoModel {
             bool? isRecurring,
             RecurringType recurringType,
             DateTime? recurringEndDate,
-            int? recurringDayOfWeek,
-            int? recurringDayOfMonth,
             int? parentTodoId,
             List<TodoCheckListItemModel> checklistItem,
             TimerType timerType,
@@ -570,7 +554,8 @@ extension TodoModelPatterns on TodoModel {
             int? pomodoroShortBreakMinutes,
             int? pomodoroLongBreakMinutes,
             int? pomodoroCycle,
-            int? pomodoroCompletedCycle)?
+            int? pomodoroCompletedCycle,
+            bool isDeleted)?
         $default,
   ) {
     final _that = this;
@@ -590,8 +575,6 @@ extension TodoModelPatterns on TodoModel {
             _that.isRecurring,
             _that.recurringType,
             _that.recurringEndDate,
-            _that.recurringDayOfWeek,
-            _that.recurringDayOfMonth,
             _that.parentTodoId,
             _that.checklistItem,
             _that.timerType,
@@ -600,7 +583,8 @@ extension TodoModelPatterns on TodoModel {
             _that.pomodoroShortBreakMinutes,
             _that.pomodoroLongBreakMinutes,
             _that.pomodoroCycle,
-            _that.pomodoroCompletedCycle);
+            _that.pomodoroCompletedCycle,
+            _that.isDeleted);
       case _:
         return null;
     }
@@ -624,8 +608,6 @@ class _TodoModel implements TodoModel {
       this.isRecurring,
       this.recurringType = RecurringType.daily,
       this.recurringEndDate,
-      this.recurringDayOfWeek,
-      this.recurringDayOfMonth,
       this.parentTodoId,
       final List<TodoCheckListItemModel> checklistItem = const [],
       this.timerType = TimerType.none,
@@ -634,7 +616,8 @@ class _TodoModel implements TodoModel {
       this.pomodoroShortBreakMinutes,
       this.pomodoroLongBreakMinutes,
       this.pomodoroCycle,
-      this.pomodoroCompletedCycle})
+      this.pomodoroCompletedCycle,
+      this.isDeleted = false})
       : _checklistItem = checklistItem;
   factory _TodoModel.fromJson(Map<String, dynamic> json) =>
       _$TodoModelFromJson(json);
@@ -670,12 +653,6 @@ class _TodoModel implements TodoModel {
   @override
   final DateTime? recurringEndDate;
   @override
-  final int? recurringDayOfWeek;
-// 1-7 for weekly (Monday = 1)
-  @override
-  final int? recurringDayOfMonth;
-// 1-31 for monthly
-  @override
   final int? parentTodoId;
   final List<TodoCheckListItemModel> _checklistItem;
   @override
@@ -708,6 +685,10 @@ class _TodoModel implements TodoModel {
 // Number of pomodoro cycles
   @override
   final int? pomodoroCompletedCycle;
+// Completed pomodoro cycles
+  @override
+  @JsonKey()
+  final bool isDeleted;
 
   /// Create a copy of TodoModel
   /// with the given fields replaced by the non-null parameter values.
@@ -750,10 +731,6 @@ class _TodoModel implements TodoModel {
                 other.recurringType == recurringType) &&
             (identical(other.recurringEndDate, recurringEndDate) ||
                 other.recurringEndDate == recurringEndDate) &&
-            (identical(other.recurringDayOfWeek, recurringDayOfWeek) ||
-                other.recurringDayOfWeek == recurringDayOfWeek) &&
-            (identical(other.recurringDayOfMonth, recurringDayOfMonth) ||
-                other.recurringDayOfMonth == recurringDayOfMonth) &&
             (identical(other.parentTodoId, parentTodoId) ||
                 other.parentTodoId == parentTodoId) &&
             const DeepCollectionEquality()
@@ -773,7 +750,9 @@ class _TodoModel implements TodoModel {
             (identical(other.pomodoroCycle, pomodoroCycle) ||
                 other.pomodoroCycle == pomodoroCycle) &&
             (identical(other.pomodoroCompletedCycle, pomodoroCompletedCycle) ||
-                other.pomodoroCompletedCycle == pomodoroCompletedCycle));
+                other.pomodoroCompletedCycle == pomodoroCompletedCycle) &&
+            (identical(other.isDeleted, isDeleted) ||
+                other.isDeleted == isDeleted));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -793,8 +772,6 @@ class _TodoModel implements TodoModel {
         isRecurring,
         recurringType,
         recurringEndDate,
-        recurringDayOfWeek,
-        recurringDayOfMonth,
         parentTodoId,
         const DeepCollectionEquality().hash(_checklistItem),
         timerType,
@@ -803,12 +780,13 @@ class _TodoModel implements TodoModel {
         pomodoroShortBreakMinutes,
         pomodoroLongBreakMinutes,
         pomodoroCycle,
-        pomodoroCompletedCycle
+        pomodoroCompletedCycle,
+        isDeleted
       ]);
 
   @override
   String toString() {
-    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, categoryId: $categoryId, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, recurringDayOfWeek: $recurringDayOfWeek, recurringDayOfMonth: $recurringDayOfMonth, parentTodoId: $parentTodoId, checklistItem: $checklistItem, timerType: $timerType, countupElapsedSeconds: $countupElapsedSeconds, pomodoroWorkMinutes: $pomodoroWorkMinutes, pomodoroShortBreakMinutes: $pomodoroShortBreakMinutes, pomodoroLongBreakMinutes: $pomodoroLongBreakMinutes, pomodoroCycle: $pomodoroCycle, pomodoroCompletedCycle: $pomodoroCompletedCycle)';
+    return 'TodoModel(id: $id, dueDate: $dueDate, title: $title, isCompleted: $isCompleted, description: $description, color: $color, categoryId: $categoryId, icon: $icon, createdAt: $createdAt, updatedAt: $updatedAt, isRecurring: $isRecurring, recurringType: $recurringType, recurringEndDate: $recurringEndDate, parentTodoId: $parentTodoId, checklistItem: $checklistItem, timerType: $timerType, countupElapsedSeconds: $countupElapsedSeconds, pomodoroWorkMinutes: $pomodoroWorkMinutes, pomodoroShortBreakMinutes: $pomodoroShortBreakMinutes, pomodoroLongBreakMinutes: $pomodoroLongBreakMinutes, pomodoroCycle: $pomodoroCycle, pomodoroCompletedCycle: $pomodoroCompletedCycle, isDeleted: $isDeleted)';
   }
 }
 
@@ -834,8 +812,6 @@ abstract mixin class _$TodoModelCopyWith<$Res>
       bool? isRecurring,
       RecurringType recurringType,
       DateTime? recurringEndDate,
-      int? recurringDayOfWeek,
-      int? recurringDayOfMonth,
       int? parentTodoId,
       List<TodoCheckListItemModel> checklistItem,
       TimerType timerType,
@@ -844,7 +820,8 @@ abstract mixin class _$TodoModelCopyWith<$Res>
       int? pomodoroShortBreakMinutes,
       int? pomodoroLongBreakMinutes,
       int? pomodoroCycle,
-      int? pomodoroCompletedCycle});
+      int? pomodoroCompletedCycle,
+      bool isDeleted});
 }
 
 /// @nodoc
@@ -872,8 +849,6 @@ class __$TodoModelCopyWithImpl<$Res> implements _$TodoModelCopyWith<$Res> {
     Object? isRecurring = freezed,
     Object? recurringType = null,
     Object? recurringEndDate = freezed,
-    Object? recurringDayOfWeek = freezed,
-    Object? recurringDayOfMonth = freezed,
     Object? parentTodoId = freezed,
     Object? checklistItem = null,
     Object? timerType = null,
@@ -883,6 +858,7 @@ class __$TodoModelCopyWithImpl<$Res> implements _$TodoModelCopyWith<$Res> {
     Object? pomodoroLongBreakMinutes = freezed,
     Object? pomodoroCycle = freezed,
     Object? pomodoroCompletedCycle = freezed,
+    Object? isDeleted = null,
   }) {
     return _then(_TodoModel(
       id: null == id
@@ -937,14 +913,6 @@ class __$TodoModelCopyWithImpl<$Res> implements _$TodoModelCopyWith<$Res> {
           ? _self.recurringEndDate
           : recurringEndDate // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      recurringDayOfWeek: freezed == recurringDayOfWeek
-          ? _self.recurringDayOfWeek
-          : recurringDayOfWeek // ignore: cast_nullable_to_non_nullable
-              as int?,
-      recurringDayOfMonth: freezed == recurringDayOfMonth
-          ? _self.recurringDayOfMonth
-          : recurringDayOfMonth // ignore: cast_nullable_to_non_nullable
-              as int?,
       parentTodoId: freezed == parentTodoId
           ? _self.parentTodoId
           : parentTodoId // ignore: cast_nullable_to_non_nullable
@@ -981,6 +949,10 @@ class __$TodoModelCopyWithImpl<$Res> implements _$TodoModelCopyWith<$Res> {
           ? _self.pomodoroCompletedCycle
           : pomodoroCompletedCycle // ignore: cast_nullable_to_non_nullable
               as int?,
+      isDeleted: null == isDeleted
+          ? _self.isDeleted
+          : isDeleted // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }

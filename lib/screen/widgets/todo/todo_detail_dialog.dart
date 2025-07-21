@@ -66,6 +66,7 @@ class _TodoDetailContent extends HookConsumerWidget {
               isRecurring: todo.isRecurring,
               recurringType: todo.recurringType,
               recurringEndDate: todo.recurringEndDate,
+              parentTodoId: todo.parentTodoId,
               // タイマー設定を引き継ぎ
               timerType: todo.timerType,
               countupElapsedSeconds: todo.countupElapsedSeconds,
@@ -485,7 +486,7 @@ class _TodoDetailContent extends HookConsumerWidget {
                         ),
                         onPressed: () async {
                           Navigator.of(context).pop();
-                          await TodoService().deleteTodo(realTodo.value.id);
+                          await TodoService().deleteTodo(realTodo.value.id, date: realTodo.value.dueDate);
                           onRefresh?.call();
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(

@@ -23,6 +23,7 @@ class TodoService {
     int? categoryId,
     bool? isRecurring,
     RecurringType? recurringType,
+    int? parentTodoId,
     DateTime? recurringEndDate,
     TimerType? timerType,
     int? countupElapsedSeconds,
@@ -43,6 +44,8 @@ class TodoService {
         createdAt: Value(now),
         updatedAt: Value(now),
         isRecurring: Value(isRecurring ?? false),
+        parentTodoId:
+            parentTodoId != null ? Value(parentTodoId) : const Value.absent(),
         recurringType: Value(recurringType?.value ?? RecurringType.daily.value),
         recurringEndDate: Value(recurringEndDate),
         timerType: Value(timerType?.name ?? TimerType.none.name),
@@ -146,8 +149,61 @@ class TodoService {
     return TodoModel.fromTodo(todo);
   }
 
-  Future<bool> deleteTodo(int id) async {
-    return await _todoTableRepository.delete(id);
+  Future<bool> deleteTodo(int id, {DateTime? date}) async {
+    // 仮想インスタンス（負のID）の場合
+    if (id < 0) {
+      return await deleteVirtualInstance(id, date ?? DateTime.now());
+    }
+    // 通常のTodoの場合は論理削除
+    return await _todoTableRepository.softDelete(id);
+  }
+
+  /// 仮想インスタンス（負のID）を削除する場合、論理削除として記録
+  Future<bool> deleteVirtualInstance(int virtualId, DateTime date) async {
+    // 仮想インスタンスの場合（負のID）、親IDを抽出
+    final parentTodoId = -virtualId;
+
+    // 親Todoの情報を取得
+    final todos = await _todoTableRepository.findAll();
+    final parentTodo = todos.firstWhere((t) => t.id == parentTodoId);
+
+    // 日付のみにする（時刻を除去）
+    final dateOnly = DateTime(date.year, date.month, date.day);
+
+    // その特定日に対応する削除済みTodoレコードを作成
+    final now = DateTime.now();
+    final companion = TodosCompanion(
+      title: Value(parentTodo.title),
+      description: Value(parentTodo.description),
+      dueDate: Value(DateTime(
+        dateOnly.year,
+        dateOnly.month,
+        dateOnly.day,
+        parentTodo.dueDate.hour,
+        parentTodo.dueDate.minute,
+      )),
+      isCompleted: const Value(false),
+      isDeleted: const Value(true), // 論理削除フラグを設定
+      color: Value(parentTodo.color),
+      icon: Value(parentTodo.icon),
+      categoryId: Value(parentTodo.categoryId),
+      createdAt: Value(now),
+      updatedAt: Value(now),
+      isRecurring: Value(parentTodo.isRecurring),
+      recurringType: Value(parentTodo.recurringType),
+      recurringEndDate: Value(parentTodo.recurringEndDate),
+      parentTodoId: Value(parentTodoId),
+      timerType: Value(parentTodo.timerType),
+      countupElapsedSeconds: Value(parentTodo.countupElapsedSeconds),
+      pomodoroWorkMinutes: Value(parentTodo.pomodoroWorkMinutes),
+      pomodoroShortBreakMinutes: Value(parentTodo.pomodoroShortBreakMinutes),
+      pomodoroLongBreakMinutes: Value(parentTodo.pomodoroLongBreakMinutes),
+      pomodoroCycle: Value(parentTodo.pomodoroCycle),
+      pomodoroCompletedCycle: Value(parentTodo.pomodoroCompletedCycle),
+    );
+
+    await _todoTableRepository.insert(companion);
+    return true;
   }
 
   Future<TodoModel?> updateTodoPomodoroSettings(
@@ -214,17 +270,6 @@ class TodoService {
     return TodoModel.fromTodo(updatedTodo);
   }
 
-  Future<List<TodoModel>> getTodosForTimer() async {
-    final todos = await _todoTableRepository.findAll();
-    return todos
-        .where((todo) =>
-            !todo.isCompleted &&
-            (todo.timerType == TimerType.pomodoro.name ||
-                todo.timerType == TimerType.countup.name))
-        .map((todo) => TodoModel.fromTodo(todo))
-        .toList();
-  }
-
   Future<bool> checkAndUpdateTodoCompletionByChecklist(int todoId) async {
     final checklistService = TodoCheckListItemService();
     final allItemsCompleted =
@@ -255,53 +300,34 @@ class TodoService {
     return todos.map((todo) => TodoModel.fromTodo(todo)).toList();
   }
 
-  Future<List<TodoModel>> getUpcomingTodos() async {
-    final today = DateTime.now();
-    final weekFromNow = today.add(const Duration(days: 7));
-    final todos = await _todoTableRepository.findUpcoming(today, weekFromNow);
-    return todos
-        .where((todo) {
-          final todoDate = todo.dueDate;
-          final isToday = todoDate.year == today.year &&
-              todoDate.month == today.month &&
-              todoDate.day == today.day;
-          return !isToday;
-        })
-        .map((todo) => TodoModel.fromTodo(todo))
-        .toList();
-  }
-
-  Future<List<TodoModel>> getFilteredTodos({
-    bool? isCompleted,
-    int? categoryId,
-  }) async {
-    final todos = await _todoTableRepository.findFiltered(
-      isCompleted: isCompleted,
-      categoryId: categoryId,
-    );
-    return todos.map((todo) => TodoModel.fromTodo(todo)).toList();
-  }
-
   Future<List<TodoModel>> getTodosForDate(DateTime date) async {
     final todos = await _todoTableRepository.findByDate(date);
     final allTodos = await _todoTableRepository.findAll();
     final List<TodoModel> result =
         todos.map((todo) => TodoModel.fromTodo(todo)).toList();
+
+    // その日の削除レコードを取得
+    final endOfDay = date.add(const Duration(days: 1));
+    final deletedRecords = await _getDeletedRecordsForPeriod(date, endOfDay);
+
     // 繰り返しTodoの仮想インスタンスも追加
     for (final todo in allTodos) {
       if (todo.isRecurring == true && todo.recurringType != null) {
-        if (_isRecurringOnDay(TodoModel.fromTodo(todo), date)) {
+        if (_isRecurringOnDayWithDeletedCheck(
+            TodoModel.fromTodo(todo), date, deletedRecords)) {
           // 既に通常Todoとして存在しない場合のみ追加
           final exists = result.any((t) =>
               t.title == todo.title &&
               t.dueDate.year == date.year &&
               t.dueDate.month == date.month &&
               t.dueDate.day == date.day);
+
           if (!exists) {
             result.add(TodoModel.fromTodo(todo).copyWith(
                 id: -todo.id, // 仮想インスタンスは負のIDで区別
                 dueDate: DateTime(date.year, date.month, date.day,
                     todo.dueDate.hour, todo.dueDate.minute),
+                parentTodoId: todo.id, // 親TodoのIDを設定
                 isCompleted: false));
           }
         }
@@ -319,6 +345,9 @@ class TodoService {
     final List<TodoModel> normalTodos = [];
     final firstDay = DateTime(month.year, month.month, 1);
     final lastDay = DateTime(month.year, month.month + 1, 0);
+
+    // 削除されたレコードを一括取得（月内の期間）
+    final deletedRecords = await _getDeletedRecordsForPeriod(firstDay, lastDay);
     // すべてのTodoのIDリストを作成
     final todoIds = todos.map((t) => t.id).toList();
     // 一括でチェックリストを取得
@@ -360,12 +389,13 @@ class TodoService {
       for (DateTime day = firstDay;
           !day.isAfter(lastDay);
           day = day.add(const Duration(days: 1))) {
-        if (_isRecurringOnDay(todo, day)) {
+        if (_isRecurringOnDayWithDeletedCheck(todo, day, deletedRecords)) {
           final instance = todo.copyWith(
             id: -todo.id, // 仮想インスタンスは負のIDで区別
             dueDate: DateTime(day.year, day.month, day.day, todo.dueDate.hour,
                 todo.dueDate.minute),
             isCompleted: false, // 仮想インスタンスは未完了扱い
+            parentTodoId: todo.id, // 親TodoのIDを設定
 
             checklistItem: checklistMap[todo.id] ?? [], // 親Todoのチェックリストをコピー
           );
@@ -378,17 +408,23 @@ class TodoService {
     return todosByDate;
   }
 
-  // 指定日が繰り返しTodoの該当日か判定
-  bool _isRecurringOnDay(TodoModel todo, DateTime day) {
+  // メモリ内削除チェック版の_isRecurringOnDay
+  bool _isRecurringOnDayWithDeletedCheck(
+      TodoModel todo, DateTime day, Map<String, Set<DateTime>> deletedRecords) {
     if (todo.isRecurring != true) return false;
     if (todo.recurringEndDate != null && day.isAfter(todo.recurringEndDate!)) {
       return false;
     }
-    
+
+    // 削除された日付かチェック（メモリ内）
+    final isDeleted = _isDateDeletedInMemory(todo.id, day, deletedRecords);
+    if (isDeleted) return false;
+
     // 日付のみで比較するため、時刻を0:00:00にする
     final dayOnly = DateTime(day.year, day.month, day.day);
-    final dueDateOnly = DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day);
-    
+    final dueDateOnly =
+        DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day);
+
     switch (todo.recurringType) {
       case RecurringType.daily:
         return !dayOnly.isBefore(dueDateOnly);
@@ -396,15 +432,42 @@ class TodoService {
         return !dayOnly.isBefore(dueDateOnly) &&
             day.weekday == todo.dueDate.weekday;
       case RecurringType.monthly:
-        return !dayOnly.isBefore(dueDateOnly) &&
-            day.day == todo.dueDate.day;
+        return !dayOnly.isBefore(dueDateOnly) && day.day == todo.dueDate.day;
       case RecurringType.monthlyLast:
         final lastDay = DateTime(day.year, day.month + 1, 0).day;
         return !dayOnly.isBefore(dueDateOnly) && day.day == lastDay;
     }
   }
 
-  DateTime? calculateNextRecurringDate(TodoModel todo) {
+  /// 指定期間内の削除されたレコードを一括取得
+  Future<Map<String, Set<DateTime>>> _getDeletedRecordsForPeriod(
+      DateTime start, DateTime end) async {
+    final deletedTodos =
+        await _todoTableRepository.findDeletedTodosForPeriod(start, end);
+
+    final Map<String, Set<DateTime>> deletedDates = {};
+    for (final todo in deletedTodos) {
+      final parentId = todo.parentTodoId!;
+      final dateOnly =
+          DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day);
+      final key = parentId.toString();
+      deletedDates[key] = deletedDates[key] ?? <DateTime>{};
+      deletedDates[key]!.add(dateOnly);
+    }
+
+    return deletedDates;
+  }
+
+  /// メモリ内で削除チェックを行う（効率化版）
+  bool _isDateDeletedInMemory(int parentTodoId, DateTime date,
+      Map<String, Set<DateTime>> deletedRecords) {
+    final key = parentTodoId.toString();
+    final dateOnly = DateTime(date.year, date.month, date.day);
+    return deletedRecords[key]?.contains(dateOnly) ?? false;
+  }
+
+  /// 繰り返しTodoの次の日付を計算（プライベートメソッド）
+  DateTime? _calculateNextRecurringDate(TodoModel todo) {
     if (todo.isRecurring != true) {
       return null;
     }
@@ -471,7 +534,7 @@ class TodoService {
       TodoModel originalTodo) async {
     if (originalTodo.isRecurring != true) return null;
 
-    final nextDate = calculateNextRecurringDate(originalTodo);
+    final nextDate = _calculateNextRecurringDate(originalTodo);
     if (nextDate == null) return null;
 
     // Check if we've passed the end date
@@ -497,6 +560,7 @@ class TodoService {
             ? originalTodo.recurringType as String
             : (originalTodo.recurringType).value,
       ),
+      parentTodoId: Value(originalTodo.id), // 親TodoのIDを設定
       recurringEndDate: Value(originalTodo.recurringEndDate),
       timerType: Value(originalTodo.timerType.name),
       countupElapsedSeconds: Value(originalTodo.countupElapsedSeconds),
@@ -515,274 +579,5 @@ class TodoService {
       updatedAt: now,
       isCompleted: false,
     );
-  }
-
-  Future<List<TodoModel>> generateUpcomingRecurringTodos() async {
-    final allTodos = await getTodo();
-    final now = DateTime.now();
-    final oneWeekFromNow = now.add(const Duration(days: 7));
-    final generatedTodos = <TodoModel>[];
-
-    for (final todo in allTodos) {
-      if (todo.isRecurring == true && !todo.isCompleted) {
-        var currentTodo = todo;
-
-        for (int i = 0; i < 3; i++) {
-          final nextDate = calculateNextRecurringDate(currentTodo);
-          if (nextDate == null || nextDate.isAfter(oneWeekFromNow)) break;
-
-          if (todo.recurringEndDate != null &&
-              nextDate.isAfter(todo.recurringEndDate!)) {
-            break;
-          }
-
-          final exists = allTodos.any((t) =>
-              t.title == todo.title &&
-              t.dueDate.year == nextDate.year &&
-              t.dueDate.month == nextDate.month &&
-              t.dueDate.day == nextDate.day &&
-              t.dueDate.hour == nextDate.hour &&
-              t.dueDate.minute == nextDate.minute);
-          if (!exists) {
-            final now = DateTime.now();
-            final companion = TodosCompanion(
-              title: Value(todo.title),
-              description: Value(todo.description),
-              dueDate: Value(nextDate),
-              isCompleted: const Value(false),
-              color: Value(todo.color),
-              icon: Value(todo.icon),
-              categoryId: Value(todo.categoryId),
-              createdAt: Value(now),
-              updatedAt: Value(now),
-              isRecurring: Value(todo.isRecurring ?? false),
-              recurringType: Value(
-                (todo.recurringType is String)
-                    ? todo.recurringType as String
-                    : (todo.recurringType).value,
-              ),
-              recurringEndDate: Value(todo.recurringEndDate),
-              // タイマー設定をコピー
-              timerType: Value(todo.timerType.name),
-              countupElapsedSeconds: Value(todo.countupElapsedSeconds),
-              pomodoroWorkMinutes: Value(todo.pomodoroWorkMinutes),
-              pomodoroShortBreakMinutes: Value(todo.pomodoroShortBreakMinutes),
-              pomodoroLongBreakMinutes: Value(todo.pomodoroLongBreakMinutes),
-              pomodoroCycle: Value(todo.pomodoroCycle),
-              pomodoroCompletedCycle: Value(todo.pomodoroCompletedCycle),
-            );
-            final id = await _todoTableRepository.insert(companion);
-
-            final nextInstance = todo.copyWith(
-              id: id,
-              isCompleted: false,
-              dueDate: nextDate,
-              createdAt: now,
-              updatedAt: now,
-            );
-            generatedTodos.add(nextInstance);
-            currentTodo = nextInstance;
-          } else {
-            break;
-          }
-        }
-      }
-    }
-
-    return generatedTodos;
-  }
-
-  /// 繰り返しTodoから指定日に最も近い未来の日付を算出
-  DateTime? getNextRecurringDateFromToday(
-      TodoModel recurringTodo, DateTime today) {
-    if (recurringTodo.isRecurring != true) return null;
-
-    // 今日以降の最初の繰り返し日を見つける
-    DateTime currentCheck = today;
-
-    // 最大90日先まで検索（無限ループを防ぐ）
-    for (int i = 0; i < 90; i++) {
-      if (_isRecurringOnDay(recurringTodo, currentCheck)) {
-        // 繰り返し終了日をチェック
-        if (recurringTodo.recurringEndDate != null &&
-            currentCheck.isAfter(recurringTodo.recurringEndDate!)) {
-          return null;
-        }
-
-        // 元のdue dateよりも前の日付はスキップ（日付のみで比較）
-        final currentCheckDateOnly = DateTime(currentCheck.year, currentCheck.month, currentCheck.day);
-        final dueDateOnly = DateTime(recurringTodo.dueDate.year, recurringTodo.dueDate.month, recurringTodo.dueDate.day);
-        if (currentCheckDateOnly.isBefore(dueDateOnly)) {
-          currentCheck = currentCheck.add(const Duration(days: 1));
-          continue;
-        }
-
-        // 今日以降の最初の該当日を返す（日付のみで比較）
-        final todayDateOnly = DateTime(today.year, today.month, today.day);
-        if (!currentCheckDateOnly.isBefore(todayDateOnly)) {
-          return DateTime(
-            currentCheck.year,
-            currentCheck.month,
-            currentCheck.day,
-            recurringTodo.dueDate.hour,
-            recurringTodo.dueDate.minute,
-          );
-        }
-      }
-      currentCheck = currentCheck.add(const Duration(days: 1));
-    }
-
-    return null;
-  }
-
-  /// parentTodoIdと日付で既存のTodoインスタンスを検索
-  Future<TodoModel?> findRecurringInstance(
-      int parentTodoId, DateTime targetDate) async {
-    final dateOnly =
-        DateTime(targetDate.year, targetDate.month, targetDate.day);
-
-    final todos = await _todoTableRepository.findAll();
-    for (final todo in todos) {
-      if (todo.parentTodoId == parentTodoId) {
-        final todoDateOnly =
-            DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day);
-        if (todoDateOnly.isAtSameMomentAs(dateOnly)) {
-          return TodoModel.fromTodo(todo);
-        }
-      }
-    }
-
-    return null;
-  }
-
-  /// 繰り返しTodoの新しいインスタンスを作成
-  Future<TodoModel> createRecurringInstance(
-      TodoModel parentTodo, DateTime targetDate) async {
-    final now = DateTime.now();
-    final companion = TodosCompanion(
-      title: Value(parentTodo.title),
-      description: Value(parentTodo.description),
-      dueDate: Value(DateTime(
-        targetDate.year,
-        targetDate.month,
-        targetDate.day,
-        parentTodo.dueDate.hour,
-        parentTodo.dueDate.minute,
-      )),
-      isCompleted: const Value(false),
-      color: Value(parentTodo.color),
-      icon: Value(parentTodo.icon),
-      categoryId: Value(parentTodo.categoryId),
-      createdAt: Value(now),
-      updatedAt: Value(now),
-      isRecurring: Value(parentTodo.isRecurring ?? false),
-      recurringType: Value(parentTodo.recurringType.value),
-      recurringEndDate: Value(parentTodo.recurringEndDate),
-      parentTodoId: Value(parentTodo.id),
-      timerType: Value(parentTodo.timerType.name),
-      countupElapsedSeconds: Value(parentTodo.countupElapsedSeconds),
-      pomodoroWorkMinutes: Value(parentTodo.pomodoroWorkMinutes),
-      pomodoroShortBreakMinutes: Value(parentTodo.pomodoroShortBreakMinutes),
-      pomodoroLongBreakMinutes: Value(parentTodo.pomodoroLongBreakMinutes),
-      pomodoroCycle: Value(parentTodo.pomodoroCycle),
-      pomodoroCompletedCycle: Value(parentTodo.pomodoroCompletedCycle),
-    );
-
-    final id = await _todoTableRepository.insert(companion);
-
-    return parentTodo.copyWith(
-      id: id,
-      dueDate: DateTime(
-        targetDate.year,
-        targetDate.month,
-        targetDate.day,
-        parentTodo.dueDate.hour,
-        parentTodo.dueDate.minute,
-      ),
-      createdAt: now,
-      updatedAt: now,
-      isCompleted: false,
-      parentTodoId: parentTodo.id, // 親TodoのIDを設定
-    );
-  }
-
-  /// 繰り返しTodoの表示フィルタリング（新しい実装）
-  /// - 今日以前かつ未完了のものは全て表示
-  /// - 明日以降のものは既存インスタンスがあればそれを表示、なければ最も近い日付の1件のみ作成して表示
-  Future<List<TodoModel>> getFilteredTodosWithRecurringDisplay({
-    required DateTime currentDate,
-    required List<TodoModel> todos,
-  }) async {
-    final result = <TodoModel>[];
-    final today =
-        DateTime(currentDate.year, currentDate.month, currentDate.day);
-
-    // 全てのTodoを取得（子インスタンス含む）
-    final allTodos = await _todoTableRepository.findAll();
-
-    // 繰り返しTodoと通常Todoを分別
-    final recurringParentTodos = <TodoModel>[];
-    final normalTodos = <TodoModel>[];
-
-    for (final todo in todos) {
-      if (todo.isRecurring == true && todo.parentTodoId == null) {
-        // 親の繰り返しTodoのみを処理（子インスタンスは除外）
-        recurringParentTodos.add(todo);
-      } else if (todo.parentTodoId == null) {
-        // parentTodoIdがnullの通常Todo（繰り返しではない）のみを追加
-        normalTodos.add(todo);
-      }
-      // parentTodoIdがnullでないもの（子インスタンス）は後で処理するため、ここでは無視
-    }
-
-    // 通常Todo（繰り返しではない）を追加
-    result.addAll(normalTodos);
-    result.addAll(recurringParentTodos);
-
-    // 繰り返しTodoを処理
-    for (final parentTodo in recurringParentTodos) {
-      // この親Todoに関連する全ての子インスタンスを取得
-      final allChildInstances =
-          allTodos.where((todo) => todo.parentTodoId == parentTodo.id).toList();
-
-      // 今日以前の未完了インスタンスを追加
-      final pastInstances = allChildInstances
-          .where((todo) =>
-              !todo.isCompleted &&
-              DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day)
-                  .isBefore(today))
-          .toList();
-
-      for (final instance in pastInstances) {
-        result.add(TodoModel.fromTodo(instance));
-      }
-
-      // 今日以降の既存インスタンスを取得
-      final futureInstances = allChildInstances
-          .where((todo) =>
-              DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day)
-                  .isAtSameMomentAs(today) ||
-              DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day)
-                  .isAfter(today))
-          .toList();
-
-      if (futureInstances.isNotEmpty) {
-        // 既存の未来インスタンスがある場合、最も近い日付のもの1件のみを追加
-        futureInstances.sort((a, b) => a.dueDate.compareTo(b.dueDate));
-        final nearestInstance = futureInstances.first;
-
-        result.add(TodoModel.fromTodo(nearestInstance));
-      } else {
-        // 既存の未来インスタンスがない場合のみ、新しいインスタンスを作成
-        final nextDate = getNextRecurringDateFromToday(parentTodo, today);
-        if (nextDate != null) {
-          final newInstance =
-              await createRecurringInstance(parentTodo, nextDate);
-          result.add(newInstance);
-        }
-      }
-    }
-
-    return result;
   }
 }

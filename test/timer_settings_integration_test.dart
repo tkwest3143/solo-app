@@ -18,10 +18,11 @@ void main() {
       container.dispose();
     });
 
-    test('timer should initialize with default work minutes from TimerSettings', () {
+    test('timer should initialize with default work minutes from TimerSettings',
+        () {
       // Get initial timer state
       final timerState = container.read(timerStateProvider);
-      
+
       // Should use TimerSettings default (25 minutes), not hardcoded value
       expect(timerState.remainingSeconds, 25 * 60);
       expect(timerState.settings.workMinutes, 25);
@@ -30,35 +31,37 @@ void main() {
     test('timer should update when settings are changed', () {
       // Get timer controller
       final timerController = container.read(timerStateProvider.notifier);
-      
+
       // Update timer settings to 40 minutes (as mentioned in the bug report)
-      final newSettings = TimerSettings(
+      const newSettings = TimerSettings(
         workMinutes: 40,
         shortBreakMinutes: 5,
         longBreakMinutes: 15,
         cyclesUntilLongBreak: 4,
       );
-      
+
       timerController.updateSettings(newSettings);
-      
+
       // Check that timer state reflects the new settings
       final updatedState = container.read(timerStateProvider);
       expect(updatedState.settings.workMinutes, 40);
       expect(updatedState.remainingSeconds, 40 * 60);
     });
 
-    test('settings integration should sync app settings with timer settings', () {
+    test('settings integration should sync app settings with timer settings',
+        () {
       // Initialize settings integration
       container.read(settingsIntegrationProvider);
-      final settingsIntegration = container.read(settingsIntegrationProvider.notifier);
-      
+      final settingsIntegration =
+          container.read(settingsIntegrationProvider.notifier);
+
       // Mock app settings with custom work minutes
-      final appSettings = AppSettings(defaultWorkMinutes: 35);
+      const appSettings = AppSettings(defaultWorkMinutes: 35);
       container.read(settingsStateProvider.notifier).state = appSettings;
-      
+
       // Initialize timer with settings
       settingsIntegration.initializeTimerWithSettings();
-      
+
       // Verify timer reflects the app settings
       final timerState = container.read(timerStateProvider);
       expect(timerState.settings.workMinutes, 35);

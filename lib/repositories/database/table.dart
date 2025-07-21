@@ -37,6 +37,8 @@ class Todos extends DefaultTableColumns {
   IntColumn get pomodoroLongBreakMinutes => integer().nullable()();
   IntColumn get pomodoroCycle => integer().nullable()();
   IntColumn get pomodoroCompletedCycle => integer().nullable()();
+  // 論理削除フラグ
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
 }
 
 class TodoCheckListItems extends DefaultTableColumns {

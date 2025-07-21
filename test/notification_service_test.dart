@@ -9,7 +9,7 @@ void main() {
       test('should create NotificationService instance', () {
         // Act
         final notificationService = NotificationService();
-        
+
         // Assert
         expect(notificationService, isA<NotificationService>());
       });
@@ -28,7 +28,8 @@ void main() {
 
         // Act & Assert - should complete without throwing
         expect(
-          () => notificationService.scheduleTodoDeadlineNotification(completedTodo),
+          () => notificationService
+              .scheduleTodoDeadlineNotification(completedTodo),
           returnsNormally,
         );
       });
@@ -105,8 +106,8 @@ void main() {
           longBreakMinutes: 15,
           cyclesUntilLongBreak: 4,
         );
-        
-        final timerSession = TimerSession(
+
+        const timerSession = TimerSession(
           mode: TimerMode.pomodoro,
           state: TimerStatus.running,
           currentPhase: PomodoroPhase.work,
@@ -132,8 +133,8 @@ void main() {
         // Arrange
         final notificationService = NotificationService();
         const timerSettings = TimerSettings();
-        
-        final pomodoroSession = TimerSession(
+
+        const pomodoroSession = TimerSession(
           mode: TimerMode.pomodoro,
           state: TimerStatus.completed,
           currentPhase: PomodoroPhase.work,
@@ -145,7 +146,7 @@ void main() {
           selectedTodoId: 1,
         );
 
-        final countUpSession = TimerSession(
+        const countUpSession = TimerSession(
           mode: TimerMode.countUp,
           state: TimerStatus.idle,
           currentPhase: PomodoroPhase.work,
@@ -185,7 +186,6 @@ void main() {
         );
       });
 
-
       test('should handle background phase change notifications', () async {
         // Arrange
         final notificationService = NotificationService();
@@ -195,9 +195,9 @@ void main() {
           longBreakMinutes: 15,
           cyclesUntilLongBreak: 4,
         );
-        
+
         // 作業完了→休憩開始の通知
-        final breakSession = TimerSession(
+        const breakSession = TimerSession(
           mode: TimerMode.pomodoro,
           state: TimerStatus.running,
           currentPhase: PomodoroPhase.shortBreak,
@@ -211,7 +211,7 @@ void main() {
         );
 
         // 休憩完了→作業開始の通知
-        final workSession = TimerSession(
+        const workSession = TimerSession(
           mode: TimerMode.pomodoro,
           state: TimerStatus.running,
           currentPhase: PomodoroPhase.work,
@@ -225,7 +225,7 @@ void main() {
         );
 
         // 長い休憩開始の通知
-        final longBreakSession = TimerSession(
+        const longBreakSession = TimerSession(
           mode: TimerMode.pomodoro,
           state: TimerStatus.running,
           currentPhase: PomodoroPhase.longBreak,
@@ -268,8 +268,8 @@ void main() {
         // Arrange
         final notificationService = NotificationService();
         const timerSettings = TimerSettings();
-        
-        final runningSession = TimerSession(
+
+        const runningSession = TimerSession(
           mode: TimerMode.pomodoro,
           state: TimerStatus.running,
           currentPhase: PomodoroPhase.work,
@@ -294,7 +294,8 @@ void main() {
         }
       });
 
-      test('should handle background timer synchronization correctly', () async {
+      test('should handle background timer synchronization correctly',
+          () async {
         // Arrange
         final notificationService = NotificationService();
         const timerSettings = TimerSettings(
@@ -303,9 +304,9 @@ void main() {
           longBreakMinutes: 1,
           cyclesUntilLongBreak: 2,
         );
-        
+
         // バックグラウンドで1分経過後のセッション
-        final sessionAfterBackground = TimerSession(
+        const sessionAfterBackground = TimerSession(
           mode: TimerMode.pomodoro,
           state: TimerStatus.running,
           currentPhase: PomodoroPhase.shortBreak, // 作業完了→休憩に移行
@@ -320,7 +321,7 @@ void main() {
         );
 
         // カウントアップで1分経過後のセッション
-        final countUpAfterBackground = TimerSession(
+        const countUpAfterBackground = TimerSession(
           mode: TimerMode.countUp,
           state: TimerStatus.running,
           currentPhase: PomodoroPhase.work,

@@ -35,6 +35,7 @@ sealed class TodoModel with _$TodoModel {
     int? pomodoroLongBreakMinutes, // For long break
     int? pomodoroCycle, // Number of pomodoro cycles
     int? pomodoroCompletedCycle, // Completed pomodoro cycles
+    @Default(false) bool isDeleted, // 論理削除フラグ
   }) = _TodoModel;
 
   factory TodoModel.fromJson(Map<String, dynamic> json) =>
@@ -67,6 +68,7 @@ sealed class TodoModel with _$TodoModel {
       pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
       pomodoroCycle: todo.pomodoroCycle,
       pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
+      isDeleted: todo.isDeleted,
     );
   }
 }

@@ -31,7 +31,7 @@ class HomePage extends HookConsumerWidget {
               const SizedBox(height: 24),
               // Quick Actions
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   'クイックアクション',
                   style: TextStyle(

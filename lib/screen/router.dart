@@ -20,7 +20,7 @@ class RouterDefinition {
   static Route root = Route(
       path: '/',
       name: '/',
-      builder: (context, state) => BulderWidget(child: const HomePage()));
+      builder: (context, state) => const BulderWidget(child: HomePage()));
 
   static Route timer = Route(
       path: '/timer',
@@ -35,7 +35,7 @@ class RouterDefinition {
   static Route menu = Route(
       path: '/menu',
       name: '/menu',
-      builder: (context, state) => BulderWidget(child: const MenuPage()));
+      builder: (context, state) => const BulderWidget(child: MenuPage()));
 
   static Route todoList = Route(
       path: '/todo-list',
@@ -51,12 +51,12 @@ class RouterDefinition {
   static Route settings = Route(
       path: '/settings',
       name: '/settings',
-      builder: (context, state) => BulderWidget(child: const SettingsPage()));
+      builder: (context, state) => const BulderWidget(child: SettingsPage()));
 
   static Route about = Route(
       path: '/about',
       name: '/about',
-      builder: (context, state) => BulderWidget(child: const AboutPage()));
+      builder: (context, state) => const BulderWidget(child: AboutPage()));
 }
 
 void nextRouting(BuildContext context, Route route) {
