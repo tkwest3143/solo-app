@@ -95,12 +95,12 @@ class TodoTableRepository {
         await (database.delete(database.todos)
               ..where((tbl) => tbl.parentTodoId.equals(parentTodoId)))
             .go();
-        
+
         // 親Todoを削除
         await (database.delete(database.todos)
               ..where((tbl) => tbl.id.equals(parentTodoId)))
             .go();
-        
+
         return true;
       } catch (e) {
         // トランザクションが自動的にロールバックされる

@@ -86,8 +86,11 @@ class TodayTodosWidget extends HookConsumerWidget {
         }
 
         final todayTodos = snapshot.data ?? [];
-        final incompleteTodos =
-            todayTodos.where((todo) => !todo.isCompleted).toList();
+        final incompleteTodos = todayTodos
+            .where((todo) =>
+                !todo.isCompleted &&
+                (todo.isRecurring == true && todo.parentTodoId == null))
+            .toList();
 
         if (incompleteTodos.isEmpty) {
           return Container(
