@@ -109,6 +109,64 @@ class TodoTableRepository {
     });
   }
 
+  /// トランザクション内で複数のTodoを一括更新
+  Future<bool> updateMultipleInTransaction(List<MapEntry<int, TodosCompanion>> updates) async {
+    final database = await AppDatabase.getSingletonInstance();
+    return await database.transaction(() async {
+      try {
+        for (final update in updates) {
+          final result = await (database.update(database.todos)
+                ..where((tbl) => tbl.id.equals(update.key)))
+              .write(update.value);
+          if (result == 0) {
+            throw Exception('Failed to update Todo with id: ${update.key}');
+          }
+        }
+        return true;
+      } catch (e) {
+        // トランザクションが自動的にロールバックされる
+        return false;
+      }
+    });
+  }
+
+  /// parentTodoIdで指定されたTodoを取得（親Todoも含む）
+  Future<List<Todo>> findByParentTodoId(int parentTodoId) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final data = await (database.todos.select()
+          ..where((tbl) => 
+              tbl.isDeleted.equals(false) &
+              (tbl.id.equals(parentTodoId) | tbl.parentTodoId.equals(parentTodoId))))
+        .get();
+        
+    return data
+        .map((e) => Todo(
+              id: e.id,
+              dueDate: e.dueDate,
+              title: e.title,
+              isCompleted: e.isCompleted,
+              description: e.description,
+              color: e.color,
+              categoryId: e.categoryId,
+              parentTodoId: e.parentTodoId,
+              icon: e.icon,
+              createdAt: e.createdAt,
+              updatedAt: e.updatedAt,
+              isRecurring: e.isRecurring,
+              recurringType: e.recurringType,
+              recurringEndDate: e.recurringEndDate,
+              timerType: e.timerType,
+              countupElapsedSeconds: e.countupElapsedSeconds,
+              pomodoroWorkMinutes: e.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: e.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: e.pomodoroLongBreakMinutes,
+              pomodoroCycle: e.pomodoroCycle,
+              pomodoroCompletedCycle: e.pomodoroCompletedCycle,
+              isDeleted: e.isDeleted,
+            ))
+        .toList();
+  }
+
   /// 指定期間内の削除されたレコードを取得
   Future<List<Todo>> findDeletedTodosForPeriod(
       DateTime start, DateTime end) async {

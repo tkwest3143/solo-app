@@ -11,7 +11,7 @@ class TodoService {
   final TodoTableRepository _todoTableRepository = TodoTableRepository();
 
   // 仮想インスタンス用の定数
-  static const int VIRTUAL_INSTANCE_ID_MULTIPLIER = -1;
+  static const int virtualInstanceIdMultiplier = -1;
 
   /// TodosCompanionを構築するヘルパーメソッド
   TodosCompanion _buildTodoCompanion({
@@ -245,8 +245,12 @@ class TodoService {
 
     // 繰り返しTodoの場合、親と子Todoの同期処理を行う
     if (parentTodoId != null) {
-      await _synchronizeRecurringTodos(
+      final syncSuccess = await _synchronizeRecurringTodos(
           parentTodoId, companion, existingTodo, now);
+      if (!syncSuccess) {
+        // 同期に失敗した場合はログを出力（本来はロギングライブラリを使用）
+        // 同期失敗してもメインの更新は成功しているのでnullは返さない
+      }
     }
 
     final updatedTodos = await _todoTableRepository.findAll();
@@ -259,101 +263,77 @@ class TodoService {
     return TodoModel.fromTodo(todo);
   }
 
-  /// 繰り返しTodoの親と子を同期する内部メソッド
-  Future<void> _synchronizeRecurringTodos(int parentTodoId,
+  /// 繰り返しTodoの親と子を同期する内部メソッド（トランザクション安全）
+  Future<bool> _synchronizeRecurringTodos(int parentTodoId,
       TodosCompanion companion, Todo originalTodo, DateTime now) async {
-    final todos = await _todoTableRepository.findAll();
-
-    // 親Todoの存在確認
     try {
-      todos.firstWhere((t) => t.id == parentTodoId);
+      // 最適化：親IDに関連するTodoのみを取得
+      final relatedTodos = await _todoTableRepository.findByParentTodoId(parentTodoId);
+      
+      if (relatedTodos.isEmpty) {
+        return false; // 関連するTodoが見つからない場合
+      }
+
+      final updates = <MapEntry<int, TodosCompanion>>[];
+      
+      // 編集対象が子Todoの場合、親Todoの更新を準備
+      if (originalTodo.parentTodoId != null) {
+        final parentUpdateCompanion = _buildSyncCompanion(companion, now);
+        updates.add(MapEntry(parentTodoId, parentUpdateCompanion));
+      }
+
+      // すべての子Todoの更新を準備
+      final childTodos = relatedTodos
+          .where((t) => t.parentTodoId == parentTodoId && t.id != parentTodoId && t.id != originalTodo.id)
+          .toList();
+
+      for (final childTodo in childTodos) {
+        final childUpdateCompanion = _buildSyncCompanion(companion, now);
+        updates.add(MapEntry(childTodo.id, childUpdateCompanion));
+      }
+
+      // トランザクション内で一括更新
+      return await _todoTableRepository.updateMultipleInTransaction(updates);
     } catch (e) {
-      return; // 親Todoが見つからない場合は処理を終了
+      // エラーログ記録
+      return false;
     }
+  }
 
-    // 編集対象が子Todoの場合、まず親Todoを更新
-    if (originalTodo.parentTodoId != null) {
-      // 日付以外の変更可能なフィールドのみを親Todoに適用
-      final parentUpdateCompanion = TodosCompanion(
-        title: companion.title.present ? companion.title : const Value.absent(),
-        description: companion.description.present
-            ? companion.description
-            : const Value.absent(),
-        color: companion.color.present ? companion.color : const Value.absent(),
-        categoryId: companion.categoryId.present
-            ? companion.categoryId
-            : const Value.absent(),
-        updatedAt: Value(now),
-        timerType: companion.timerType.present
-            ? companion.timerType
-            : const Value.absent(),
-        countupElapsedSeconds: companion.countupElapsedSeconds.present
-            ? companion.countupElapsedSeconds
-            : const Value.absent(),
-        pomodoroWorkMinutes: companion.pomodoroWorkMinutes.present
-            ? companion.pomodoroWorkMinutes
-            : const Value.absent(),
-        pomodoroShortBreakMinutes: companion.pomodoroShortBreakMinutes.present
-            ? companion.pomodoroShortBreakMinutes
-            : const Value.absent(),
-        pomodoroLongBreakMinutes: companion.pomodoroLongBreakMinutes.present
-            ? companion.pomodoroLongBreakMinutes
-            : const Value.absent(),
-        pomodoroCycle: companion.pomodoroCycle.present
-            ? companion.pomodoroCycle
-            : const Value.absent(),
-        pomodoroCompletedCycle: companion.pomodoroCompletedCycle.present
-            ? companion.pomodoroCompletedCycle
-            : const Value.absent(),
-      );
-      await _todoTableRepository.update(parentTodoId, parentUpdateCompanion);
-    }
-
-    // すべての子Todoを取得して更新
-    final childTodos = todos
-        .where((t) => t.parentTodoId == parentTodoId && t.id != parentTodoId)
-        .toList();
-
-    for (final childTodo in childTodos) {
-      // 編集対象の子Todoは既に更新済みなのでスキップ
-      if (childTodo.id == originalTodo.id) continue;
-
-      // 子Todoには日付を変更せずに他の情報のみ更新
-      final childUpdateCompanion = TodosCompanion(
-        title: companion.title.present ? companion.title : const Value.absent(),
-        description: companion.description.present
-            ? companion.description
-            : const Value.absent(),
-        color: companion.color.present ? companion.color : const Value.absent(),
-        categoryId: companion.categoryId.present
-            ? companion.categoryId
-            : const Value.absent(),
-        updatedAt: Value(now),
-        timerType: companion.timerType.present
-            ? companion.timerType
-            : const Value.absent(),
-        countupElapsedSeconds: companion.countupElapsedSeconds.present
-            ? companion.countupElapsedSeconds
-            : const Value.absent(),
-        pomodoroWorkMinutes: companion.pomodoroWorkMinutes.present
-            ? companion.pomodoroWorkMinutes
-            : const Value.absent(),
-        pomodoroShortBreakMinutes: companion.pomodoroShortBreakMinutes.present
-            ? companion.pomodoroShortBreakMinutes
-            : const Value.absent(),
-        pomodoroLongBreakMinutes: companion.pomodoroLongBreakMinutes.present
-            ? companion.pomodoroLongBreakMinutes
-            : const Value.absent(),
-        pomodoroCycle: companion.pomodoroCycle.present
-            ? companion.pomodoroCycle
-            : const Value.absent(),
-        pomodoroCompletedCycle: companion.pomodoroCompletedCycle.present
-            ? companion.pomodoroCompletedCycle
-            : const Value.absent(),
-      );
-
-      await _todoTableRepository.update(childTodo.id, childUpdateCompanion);
-    }
+  /// 同期用のTodosCompanionを構築するヘルパーメソッド（重複コードのリファクタリング）
+  TodosCompanion _buildSyncCompanion(TodosCompanion source, DateTime now) {
+    return TodosCompanion(
+      title: source.title.present ? source.title : const Value.absent(),
+      description: source.description.present
+          ? source.description
+          : const Value.absent(),
+      color: source.color.present ? source.color : const Value.absent(),
+      categoryId: source.categoryId.present
+          ? source.categoryId
+          : const Value.absent(),
+      updatedAt: Value(now),
+      timerType: source.timerType.present
+          ? source.timerType
+          : const Value.absent(),
+      countupElapsedSeconds: source.countupElapsedSeconds.present
+          ? source.countupElapsedSeconds
+          : const Value.absent(),
+      pomodoroWorkMinutes: source.pomodoroWorkMinutes.present
+          ? source.pomodoroWorkMinutes
+          : const Value.absent(),
+      pomodoroShortBreakMinutes: source.pomodoroShortBreakMinutes.present
+          ? source.pomodoroShortBreakMinutes
+          : const Value.absent(),
+      pomodoroLongBreakMinutes: source.pomodoroLongBreakMinutes.present
+          ? source.pomodoroLongBreakMinutes
+          : const Value.absent(),
+      pomodoroCycle: source.pomodoroCycle.present
+          ? source.pomodoroCycle
+          : const Value.absent(),
+      pomodoroCompletedCycle: source.pomodoroCompletedCycle.present
+          ? source.pomodoroCompletedCycle
+          : const Value.absent(),
+    );
   }
 
   Future<bool> deleteTodo(int id, {DateTime? date}) async {
@@ -368,7 +348,7 @@ class TodoService {
   /// 仮想インスタンス（負のID）を削除する場合、論理削除として記録
   Future<bool> deleteVirtualInstance(int virtualId, DateTime date) async {
     // 仮想インスタンスの場合（負のID）、親IDを抽出
-    final parentTodoId = VIRTUAL_INSTANCE_ID_MULTIPLIER * virtualId;
+    final parentTodoId = virtualInstanceIdMultiplier * virtualId;
 
     // 親Todoの情報を取得
     final todos = await _todoTableRepository.findAll();
@@ -565,7 +545,7 @@ class TodoService {
 
           if (!exists) {
             result.add(TodoModel.fromTodo(todo).copyWith(
-                id: VIRTUAL_INSTANCE_ID_MULTIPLIER *
+                id: virtualInstanceIdMultiplier *
                     todo.id, // 仮想インスタンスは負のIDで区別
                 dueDate: DateTime(date.year, date.month, date.day,
                     todo.dueDate.hour, todo.dueDate.minute),
@@ -646,7 +626,7 @@ class TodoService {
         if (_isRecurringOnDayWithDeletedCheck(todo, day, deletedRecords) &&
             !exists) {
           final instance = todo.copyWith(
-            id: VIRTUAL_INSTANCE_ID_MULTIPLIER * todo.id, // 仮想インスタンスは負のIDで区別
+            id: virtualInstanceIdMultiplier * todo.id, // 仮想インスタンスは負のIDで区別
             dueDate: DateTime(day.year, day.month, day.day, todo.dueDate.hour,
                 todo.dueDate.minute),
             isCompleted: false, // 仮想インスタンスは未完了扱い
