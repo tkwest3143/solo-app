@@ -128,292 +128,287 @@ class _TodoDetailContent extends HookConsumerWidget {
         left: 0,
         right: 0,
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.mediumShadowColor,
-              blurRadius: 24,
-              offset: const Offset(0, -8),
-            ),
-          ],
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.9,
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        child: FutureBuilder<CategoryModel?>(
-          future: realTodo.value.categoryId != null
-              ? CategoryService().getCategoryById(realTodo.value.categoryId!)
-              : Future.value(null),
-          builder: (context, snapshot) {
-            final category = snapshot.data;
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // カラー・カテゴリ
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.mediumShadowColor,
+                blurRadius: 24,
+                offset: const Offset(0, -8),
+              ),
+            ],
+          ),
+          child: FutureBuilder<CategoryModel?>(
+            future: realTodo.value.categoryId != null
+                ? CategoryService().getCategoryById(realTodo.value.categoryId!)
+                : Future.value(null),
+            builder: (context, snapshot) {
+              final category = snapshot.data;
+              return SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 16,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: color,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outline,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    if (category != null) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.category,
-                                size: 16,
-                                color: color.computeLuminance() > 0.5
-                                    ? Colors.black
-                                    : Colors.white),
-                            const SizedBox(width: 4),
-                            Text(
-                              category.title,
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryTextColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: 16),
-                // タイトル
-                Center(
-                  child: Text(
-                    todo.title,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primaryTextColor,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // 詳細カード
-                Card(
-                  elevation: 0,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .surface
-                      .withValues(alpha: 0.95),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    // カラー・カテゴリ
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              todo.isCompleted
-                                  ? Icons.check_circle
-                                  : Icons.radio_button_unchecked,
-                              color: todo.isCompleted
-                                  ? Theme.of(context).colorScheme.successColor
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .primaryTextColor,
+                        Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: color,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.outline,
+                              width: 2,
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              realTodo.value.isCompleted ? '完了済み' : '未完了',
-                              style: TextStyle(
-                                color: realTodo.value.isCompleted
-                                    ? Theme.of(context).colorScheme.successColor
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .primaryTextColor,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const Spacer(),
-                            Icon(Icons.schedule_rounded,
-                                size: 18,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryTextColor),
-                            const SizedBox(width: 4),
-                            Text(
-                              formatDate(realTodo.value.dueDate,
-                                  format: 'yyyy/MM/dd (EEE) HH:mm'),
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryTextColor,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                        if (realTodo.value.isRecurring == true) ...[
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Icon(Icons.repeat,
-                                  size: 16,
-                                  color: Theme.of(context).colorScheme.primary),
-                              const SizedBox(width: 4),
-                              Text(
-                                _getRecurringLabel(
-                                    realTodo.value.recurringType),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                        if (category != null) ...[
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                            ],
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.category,
+                                      size: 16,
+                                      color: color.computeLuminance() > 0.5
+                                          ? Colors.black
+                                          : Colors.white),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      category.title,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primaryTextColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                      overflow: TextOverflow.visible,
+                                      softWrap: true,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
-                        if (realTodo.value.description != null &&
-                            realTodo.value.description!.isNotEmpty) ...[
-                          const SizedBox(height: 14),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(Icons.notes,
-                                  size: 16,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .secondaryTextColor),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(
-                                  todo.description!,
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // タイトル
+                    Center(
+                      child: Text(
+                        todo.title,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primaryTextColor,
+                        ),
+                        overflow: TextOverflow.visible,
+                        softWrap: true,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // 詳細カード
+                    Card(
+                      elevation: 0,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surface
+                          .withValues(alpha: 0.95),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  todo.isCompleted
+                                      ? Icons.check_circle
+                                      : Icons.radio_button_unchecked,
+                                  color: todo.isCompleted
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .successColor
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .primaryTextColor,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  realTodo.value.isCompleted ? '完了済み' : '未完了',
+                                  style: TextStyle(
+                                    color: realTodo.value.isCompleted
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .successColor
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .primaryTextColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const Spacer(),
+                                Icon(Icons.schedule_rounded,
+                                    size: 18,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primaryTextColor),
+                                const SizedBox(width: 4),
+                                Text(
+                                  formatDate(realTodo.value.dueDate,
+                                      format: 'yyyy/MM/dd (EEE) HH:mm'),
                                   style: TextStyle(
                                     color: Theme.of(context)
                                         .colorScheme
-                                        .secondaryTextColor,
-                                    fontSize: 14,
+                                        .primaryTextColor,
+                                    fontSize: 13,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
-                        // Checklist items
-                        if (checklistItems.value.isNotEmpty)
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 14),
+                              ],
+                            ),
+                            if (realTodo.value.isRecurring == true) ...[
+                              const SizedBox(height: 10),
                               Row(
                                 children: [
-                                  Icon(Icons.checklist,
+                                  Icon(Icons.repeat,
                                       size: 16,
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .secondaryTextColor),
-                                  const SizedBox(width: 6),
+                                          .primary),
+                                  const SizedBox(width: 4),
                                   Text(
-                                    'チェックリスト (${checklistItems.value.where((item) => item.isCompleted).length}/${checklistItems.value.length})',
+                                    _getRecurringLabel(
+                                        realTodo.value.recurringType),
                                     style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondaryTextColor,
-                                      fontSize: 14,
+                                      fontSize: 12,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
-                              ...checklistItems.value.map((item) =>
-                                  _buildChecklistItemRow(context, item,
-                                      realTodo.value, refreshChecklistItems)),
                             ],
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                
-                // タイマー関連のタスクの場合、タイマーへのボタンを表示
-                if (realTodo.value.timerType != TimerType.none && !realTodo.value.isCompleted) ...[
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: Icon(
-                        realTodo.value.timerType == TimerType.pomodoro 
-                            ? Icons.timer 
-                            : Icons.timer_outlined,
-                        color: Theme.of(context).colorScheme.surface,
-                        size: 24,
-                      ),
-                      label: Text(
-                        realTodo.value.timerType == TimerType.pomodoro 
-                            ? 'ポモドーロタイマーを開始'
-                            : 'カウントアップタイマーを開始',
-                        style: const TextStyle(
-                          fontSize: 18, 
-                          fontWeight: FontWeight.bold
+                            if (realTodo.value.description != null &&
+                                realTodo.value.description!.isNotEmpty) ...[
+                              const SizedBox(height: 14),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(Icons.notes,
+                                      size: 16,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondaryTextColor),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      todo.description!,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondaryTextColor,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            // Checklist items
+                            if (checklistItems.value.isNotEmpty)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 14),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.checklist,
+                                          size: 16,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondaryTextColor),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'チェックリスト (${checklistItems.value.where((item) => item.isCompleted).length}/${checklistItems.value.length})',
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondaryTextColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  ...checklistItems.value.map((item) =>
+                                      _buildChecklistItemRow(
+                                          context,
+                                          item,
+                                          realTodo.value,
+                                          refreshChecklistItems)),
+                                ],
+                              ),
+                          ],
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.accentColor,
-                        foregroundColor: Theme.of(context).colorScheme.surface,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        // タイマー画面に遷移してこのTodoを選択し、適切なタイマーモードを設定
-                        final timerMode = realTodo.value.timerType == TimerType.pomodoro ? 'pomodoro' : 'countup';
-                        context.go('/timer?todoId=${realTodo.value.id}&mode=$timerMode');
-                      },
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                
-                // アクションボタン
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    if (!realTodo.value.isCompleted)
-                      Expanded(
+                    const SizedBox(height: 24),
+
+                    // タイマー関連のタスクの場合、タイマーへのボタンを表示
+                    if (realTodo.value.timerType != TimerType.none &&
+                        !realTodo.value.isCompleted) ...[
+                      SizedBox(
+                        width: double.infinity,
                         child: ElevatedButton.icon(
-                          icon: Icon(Icons.check,
-                              color: Theme.of(context).colorScheme.surface,
-                              size: 24),
-                          label: const Text('完了',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                          icon: Icon(
+                            realTodo.value.timerType == TimerType.pomodoro
+                                ? Icons.timer
+                                : Icons.timer_outlined,
+                            color: Theme.of(context).colorScheme.surface,
+                            size: 24,
+                          ),
+                          label: Text(
+                            realTodo.value.timerType == TimerType.pomodoro
+                                ? 'ポモドーロタイマーを開始'
+                                : 'カウントアップタイマーを開始',
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.visible,
+                            softWrap: true,
+                            textAlign: TextAlign.center,
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
-                                Theme.of(context).colorScheme.successColor,
+                                Theme.of(context).colorScheme.accentColor,
                             foregroundColor:
                                 Theme.of(context).colorScheme.surface,
                             shape: RoundedRectangleBorder(
@@ -421,115 +416,164 @@ class _TodoDetailContent extends HookConsumerWidget {
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 18),
                           ),
-                          onPressed: () async {
+                          onPressed: () {
                             Navigator.of(context).pop();
-                            await TodoService()
-                                .toggleTodoComplete(realTodo.value.id);
-                            onRefresh?.call();
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text(
-                                        '${realTodo.value.title}を完了にしました')),
-                              );
-                            }
+                            // タイマー画面に遷移してこのTodoを選択し、適切なタイマーモードを設定
+                            final timerMode =
+                                realTodo.value.timerType == TimerType.pomodoro
+                                    ? 'pomodoro'
+                                    : 'countup';
+                            context.go(
+                                '/timer?todoId=${realTodo.value.id}&mode=$timerMode');
                           },
                         ),
                       ),
-                    if (!realTodo.value.isCompleted) const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        icon: Icon(Icons.edit,
-                            color: Theme.of(context).colorScheme.surface,
-                            size: 24),
-                        label: const Text('編集',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.surface,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // アクションボタン
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        if (!realTodo.value.isCompleted)
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              icon: Icon(Icons.check,
+                                  color: Theme.of(context).colorScheme.surface,
+                                  size: 24),
+                              label: const Text('完了',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.successColor,
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.surface,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 18),
+                              ),
+                              onPressed: () async {
+                                Navigator.of(context).pop();
+                                await TodoService()
+                                    .toggleTodoComplete(realTodo.value.id);
+                                onRefresh?.call();
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            '${realTodo.value.title}を完了にしました',
+                                            overflow: TextOverflow.visible,
+                                            softWrap: true,)),
+                                  );
+                                }
+                              },
+                            ),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 18),
+                        if (!realTodo.value.isCompleted)
+                          const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            icon: Icon(Icons.edit,
+                                color: Theme.of(context).colorScheme.surface,
+                                size: 24),
+                            label: const Text('編集',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.surface,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 18),
+                            ),
+                            onPressed: () async {
+                              Navigator.of(context).pop();
+                              await AddTodoDialog.show(
+                                context,
+                                initialTodo: realTodo.value,
+                                onSaved: onRefresh,
+                              );
+                            },
+                          ),
                         ),
-                        onPressed: () async {
-                          Navigator.of(context).pop();
-                          await AddTodoDialog.show(
-                            context,
-                            initialTodo: realTodo.value,
-                            onSaved: onRefresh,
-                          );
-                        },
-                      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            icon: Icon(Icons.delete,
+                                color: Theme.of(context).colorScheme.surface,
+                                size: 24),
+                            label: const Text('削除',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.errorColor,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.surface,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 18),
+                            ),
+                            onPressed: () async {
+                              Navigator.of(context).pop();
+                              await TodoService().deleteTodo(realTodo.value.id,
+                                  date: realTodo.value.dueDate);
+                              onRefresh?.call();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          '${realTodo.value.title}を削除しました',
+                                          overflow: TextOverflow.visible,
+                                          softWrap: true,)),
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        icon: Icon(Icons.delete,
-                            color: Theme.of(context).colorScheme.surface,
-                            size: 24),
-                        label: const Text('削除',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.errorColor,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.surface,
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: Icon(Icons.close_rounded,
+                            color: Theme.of(context).colorScheme.mutedTextColor,
+                            size: 22),
+                        label: Text(
+                          '閉じる',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.mutedTextColor,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                              color:
+                                  Theme.of(context).colorScheme.mutedTextColor,
+                              width: 1.4),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        onPressed: () async {
-                          Navigator.of(context).pop();
-                          await TodoService().deleteTodo(realTodo.value.id, date: realTodo.value.dueDate);
-                          onRefresh?.call();
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content:
-                                      Text('${realTodo.value.title}を削除しました')),
-                            );
-                          }
-                        },
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(Icons.close_rounded,
-                        color: Theme.of(context).colorScheme.mutedTextColor,
-                        size: 22),
-                    label: Text(
-                      '閉じる',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.mutedTextColor,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(
-                          color: Theme.of(context).colorScheme.mutedTextColor,
-                          width: 1.4),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -575,7 +619,9 @@ class _TodoDetailContent extends HookConsumerWidget {
 
             if (wasCompleted && context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${todo.title}を完了にしました')),
+                SnackBar(content: Text('${todo.title}を完了にしました',
+                    overflow: TextOverflow.visible,
+                    softWrap: true,)),
               );
             }
 
@@ -646,7 +692,11 @@ class _TodoDetailContent extends HookConsumerWidget {
                           item.isCompleted ? TextDecoration.lineThrough : null,
                       decorationColor: Theme.of(context).colorScheme.outline,
                     ),
-                    child: Text(item.title),
+                    child: Text(
+                      item.title,
+                      overflow: TextOverflow.visible,
+                      softWrap: true,
+                    ),
                   ),
                 ),
                 if (!item.isCompleted)
