@@ -206,6 +206,35 @@ class TodoService {
     return true;
   }
 
+  /// 繰り返しTodoとその関連する全てのTodoを物理削除する
+  Future<bool> deleteAllRecurringTodos(int todoId) async {
+    try {
+      // 削除するTodoを取得
+      final todos = await _todoTableRepository.findAll();
+      final targetTodo = todos.firstWhere((t) => t.id == todoId);
+      
+      if (targetTodo.isRecurring) {
+        // 親Todoの場合（parentTodoIdがnull）
+        if (targetTodo.parentTodoId == null) {
+          // 自分を含む、parentTodoIdが自分のIDのTodoを全て削除
+          await _todoTableRepository.physicalDeleteByParentTodoId(todoId);
+          await _todoTableRepository.physicalDelete(todoId);
+        } else {
+          // 子Todoの場合、親IDを取得してその親と全ての子を削除
+          final parentTodoId = targetTodo.parentTodoId!;
+          await _todoTableRepository.physicalDeleteByParentTodoId(parentTodoId);
+          await _todoTableRepository.physicalDelete(parentTodoId);
+        }
+        return true;
+      } else {
+        // 繰り返しTodoではない場合は通常の削除
+        return await _todoTableRepository.physicalDelete(todoId);
+      }
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<TodoModel?> updateTodoPomodoroSettings(
     int todoId, {
     required int workMinutes,
