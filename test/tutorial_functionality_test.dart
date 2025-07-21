@@ -62,7 +62,7 @@ void main() {
         expect(find.text('スキップ'), findsOneWidget);
 
         // Verify first tutorial step is displayed
-        expect(find.text('Soloへようこそ！'), findsOneWidget);
+        expect(find.text('Solo Todoへようこそ！'), findsOneWidget);
         expect(find.text('このアプリは、あなたの生産性を向上させるための\nTodo管理とタイマー機能を提供します。'), findsOneWidget);
 
         // Verify navigation buttons
@@ -80,7 +80,7 @@ void main() {
         );
 
         // Verify first step
-        expect(find.text('Soloへようこそ！'), findsOneWidget);
+        expect(find.text('Solo Todoへようこそ！'), findsOneWidget);
 
         // Tap next button
         await tester.tap(find.text('次へ'));
@@ -88,7 +88,7 @@ void main() {
 
         // Verify second step
         expect(find.text('Todoの追加'), findsOneWidget);
-        expect(find.text('ホーム画面右下の＋ボタンをタップして\n新しいTodoを追加できます。'), findsOneWidget);
+        expect(find.text('Todo画面の新しいTodoを追加ボタンをタップして\n新しいTodoを追加できます。'), findsOneWidget);
 
         // Verify back button appears
         expect(find.text('戻る'), findsOneWidget);
@@ -111,7 +111,7 @@ void main() {
         }
 
         // Verify last step content
-        expect(find.text('カウントアップタイマー'), findsOneWidget);
+        expect(find.text('タイマー'), findsOneWidget);
         expect(find.text('始める'), findsOneWidget);
       });
 
@@ -137,7 +137,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Verify back on first step
-        expect(find.text('Soloへようこそ！'), findsOneWidget);
+        expect(find.text('Solo Todoへようこそ！'), findsOneWidget);
       });
 
       testWidgets('should have correct number of page indicators', (WidgetTester tester) async {

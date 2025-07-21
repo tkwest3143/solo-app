@@ -11,6 +11,91 @@ class TutorialPage extends HookConsumerWidget {
 
   final bool isFromMenu;
 
+  Widget _buildImageWithErrorHandling(
+      BuildContext context, int index, TutorialStep step) {
+    if (index == 0) {
+      // Welcome screen - show logo
+      return Image.asset(
+        'assets/icon/logo.png',
+        width: 200,
+        height: 200,
+        cacheWidth: 200,
+        cacheHeight: 200,
+        errorBuilder: (context, error, stackTrace) => _buildErrorFallback(context),
+      );
+    } else if (step.imagePlaceholder.endsWith('.png')) {
+      // Other screens - show specified images
+      return Image.asset(
+        'assets/icon/tutorial/${step.imagePlaceholder}',
+        width: 280,
+        height: 280,
+        cacheWidth: 280,
+        cacheHeight: 280,
+        fit: step.imagePlaceholder == 'todoList.png'
+            ? BoxFit.cover
+            : BoxFit.fitHeight,
+        errorBuilder: (context, error, stackTrace) => _buildErrorFallback(context),
+      );
+    } else {
+      // Fallback for placeholder text
+      return _buildTextFallback(context, step);
+    }
+  }
+
+  Widget _buildErrorFallback(BuildContext context) {
+    return Container(
+      width: 280,
+      height: 280,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.mutedTextColor.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.image_not_supported_outlined,
+            size: 48,
+            color: Theme.of(context).colorScheme.mutedTextColor,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '画像を読み込めませんでした',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.mutedTextColor,
+              fontSize: 14,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextFallback(BuildContext context, TutorialStep step) {
+    return Container(
+      width: 280,
+      height: 280,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: Text(
+          step.imagePlaceholder,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.mutedTextColor,
+            fontSize: 14,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pageController = usePageController();
@@ -20,7 +105,7 @@ class TutorialPage extends HookConsumerWidget {
     final tutorialSteps = [
       const TutorialStep(
         title: 'Solo Todoへようこそ！',
-        description: 'あなたの生産性を向上させるための\nTodoをチェックリストやタイマー機能などでサポートします。',
+        description: 'このアプリは、あなたの生産性を向上させるための\nTodo管理とタイマー機能を提供します。',
         imagePlaceholder: 'アプリのメイン画面の画像を追加',
       ),
       const TutorialStep(
@@ -82,34 +167,7 @@ class TutorialPage extends HookConsumerWidget {
 
     Widget buildTutorialImage(
         BuildContext context, int index, TutorialStep step) {
-      if (index == 0) {
-        // Welcome screen - show logo
-        return Image.asset(
-          'assets/icon/logo.png',
-          width: 200,
-          height: 200,
-        );
-      } else if (step.imagePlaceholder.endsWith('.png')) {
-        // Other screens - show specified images
-        return Image.asset(
-          'assets/icon/tutorial/${step.imagePlaceholder}',
-          width: 280,
-          height: 280,
-          fit: step.imagePlaceholder == 'todoList.png'
-              ? BoxFit.cover
-              : BoxFit.fitHeight,
-        );
-      } else {
-        // Fallback for placeholder text
-        return Text(
-          step.imagePlaceholder,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.mutedTextColor,
-            fontSize: 14,
-          ),
-        );
-      }
+      return _buildImageWithErrorHandling(context, index, step);
     }
 
     return Scaffold(
