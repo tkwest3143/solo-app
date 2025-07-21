@@ -56,6 +56,33 @@ class TodoService {
         pomodoroCycle: Value(pomodoroCycle),
         pomodoroCompletedCycle: Value(pomodoroCompletedCycle));
     final id = await _todoTableRepository.insert(companion);
+    
+    // 繰り返しTodoの場合、開始日の子Todoも作成
+    if (isRecurring == true && parentTodoId == null) {
+      final childCompanion = TodosCompanion(
+        title: Value(title),
+        description: Value(description),
+        dueDate: Value(dueDate),
+        isCompleted: const Value(false),
+        color: Value(color ?? 'blue'),
+        categoryId: Value(categoryId),
+        parentTodoId: Value(id), // 親TodoのIDを設定
+        createdAt: Value(now),
+        updatedAt: Value(now),
+        isRecurring: const Value(false), // 子Todoは繰り返しではない
+        recurringType: Value(recurringType?.value ?? RecurringType.daily.value),
+        recurringEndDate: Value(recurringEndDate),
+        timerType: Value(timerType?.name ?? TimerType.none.name),
+        countupElapsedSeconds: Value(countupElapsedSeconds),
+        pomodoroWorkMinutes: Value(pomodoroWorkMinutes),
+        pomodoroShortBreakMinutes: Value(pomodoroShortBreakMinutes),
+        pomodoroLongBreakMinutes: Value(pomodoroLongBreakMinutes),
+        pomodoroCycle: Value(pomodoroCycle),
+        pomodoroCompletedCycle: Value(pomodoroCompletedCycle),
+      );
+      await _todoTableRepository.insert(childCompanion);
+    }
+    
     return TodoModel(
       id: id,
       title: title,
@@ -353,8 +380,11 @@ class TodoService {
   Future<List<TodoModel>> getTodosForDate(DateTime date) async {
     final todos = await _todoTableRepository.findByDate(date);
     final allTodos = await _todoTableRepository.findAll();
-    final List<TodoModel> result =
-        todos.map((todo) => TodoModel.fromTodo(todo)).toList();
+    // 親Todo（isRecurring=trueかつparentTodoId=null）を除外
+    final List<TodoModel> result = todos
+        .where((todo) => !(todo.isRecurring == true && todo.parentTodoId == null))
+        .map((todo) => TodoModel.fromTodo(todo))
+        .toList();
 
     // その日の削除レコードを取得
     final endOfDay = date.add(const Duration(days: 1));
@@ -362,12 +392,12 @@ class TodoService {
 
     // 繰り返しTodoの仮想インスタンスも追加
     for (final todo in allTodos) {
-      if (todo.isRecurring == true && todo.recurringType != null) {
+      if (todo.isRecurring == true && todo.recurringType != null && todo.parentTodoId == null) {
         if (_isRecurringOnDayWithDeletedCheck(
             TodoModel.fromTodo(todo), date, deletedRecords)) {
           // 既に通常Todoとして存在しない場合のみ追加
           final exists = result.any((t) =>
-              t.title == todo.title &&
+              t.parentTodoId == todo.id &&
               t.dueDate.year == date.year &&
               t.dueDate.month == date.month &&
               t.dueDate.day == date.day);
@@ -410,15 +440,15 @@ class TodoService {
       checklistMap[item.todoId]!.add(item);
     }
     for (final todo in todos) {
-      if (todo.isRecurring == true && todo.recurringType != null) {
-        // 開始日がその月以前の繰り返しTodoを対象
+      if (todo.isRecurring == true && todo.recurringType != null && todo.parentTodoId == null) {
+        // 親Todo（繰り返し設定）の開始日がその月以前の場合を対象
         if (!todo.dueDate.isAfter(lastDay)) {
           recurringTodos.add(TodoModel.fromTodo(todo).copyWith(
             checklistItem: checklistMap[todo.id] ?? [],
           ));
         }
-      } else {
-        // 通常Todoはその月の日付のみ
+      } else if (!(todo.isRecurring == true && todo.parentTodoId == null)) {
+        // 親Todo以外（通常TodoまたはparentTodoIdが設定された子Todo）はその月の日付のみ
         if (todo.dueDate.year == month.year &&
             todo.dueDate.month == month.month) {
           normalTodos.add(TodoModel.fromTodo(todo).copyWith(
