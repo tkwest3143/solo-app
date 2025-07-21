@@ -525,7 +525,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                           const Spacer(),
                           Switch(
                             value: isRecurring.value,
-                            onChanged: (initialTodo != null && initialTodo!.isRecurring == true) 
+                            onChanged: (initialTodo != null &&
+                                    initialTodo!.isRecurring == true)
                                 ? null // 繰り返しTodoの編集時は無効化
                                 : (value) => isRecurring.value = value,
                             activeColor: Theme.of(context).colorScheme.primary,
@@ -549,7 +550,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                   child: Column(
                     children: [
                       _buildDateSelector(context, selectedDate,
-                          isRecurring.value, recurringType, 
+                          isRecurring.value, recurringType,
                           isEditMode: initialTodo != null),
                       const SizedBox(height: 12),
                       _buildTimeSelector(context, selectedTime),
@@ -1154,7 +1155,14 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
         child: ElevatedButton.icon(
           onPressed: onPressed,
           icon: Icon(icon),
-          label: Text(text),
+          label: Text(
+            text,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              letterSpacing: 0.5,
+            ),
+          ),
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Theme.of(context).colorScheme.surface,
@@ -1200,7 +1208,14 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: Text(leftText),
+              child: Text(
+                leftText,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -1215,7 +1230,14 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: Text(rightText),
+              child: Text(
+                rightText,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ),
           ),
         ],
@@ -1261,20 +1283,20 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                   child: Text(type.label),
                 );
               }).toList(),
-              onChanged: isEditMode 
+              onChanged: isEditMode
                   ? null // 繰り返しTodoの編集時は繰り返しタイプ変更を無効化
                   : (value) {
-                recurringType.value = value;
+                      recurringType.value = value;
 
-                // 「毎月最終日」が選択された場合、現在の日付を最終日に変更
-                if (value == RecurringType.monthlyLast) {
-                  final currentDate = selectedDate.value;
-                  // 翌月の1日から1日引いて最終日を取得
-                  final lastDayOfMonth =
-                      DateTime(currentDate.year, currentDate.month + 1, 0);
-                  selectedDate.value = lastDayOfMonth;
-                }
-              },
+                      // 「毎月最終日」が選択された場合、現在の日付を最終日に変更
+                      if (value == RecurringType.monthlyLast) {
+                        final currentDate = selectedDate.value;
+                        // 翌月の1日から1日引いて最終日を取得
+                        final lastDayOfMonth = DateTime(
+                            currentDate.year, currentDate.month + 1, 0);
+                        selectedDate.value = lastDayOfMonth;
+                      }
+                    },
             ),
           ),
         ),
@@ -1304,27 +1326,27 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
         ),
         const Spacer(),
         ElevatedButton(
-          onPressed: (isEditMode && isRecurring) 
+          onPressed: (isEditMode && isRecurring)
               ? null // 繰り返しTodoの編集時は日付変更を無効化
               : () async {
-            final pickedDate = await showDatePicker(
-              context: context,
-              initialDate: selectedDate.value,
-              firstDate: DateTime(2020),
-              lastDate: DateTime(2030),
-              selectableDayPredicate:
-                  recurringType.value == RecurringType.monthlyLast
-                      ? (DateTime date) {
-                          // 翌日の月が異なる場合、その日は月末日
-                          final nextDay = date.add(const Duration(days: 1));
-                          return date.month != nextDay.month;
-                        }
-                      : null,
-            );
-            if (pickedDate != null) {
-              selectedDate.value = pickedDate;
-            }
-          },
+                  final pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate.value,
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2030),
+                    selectableDayPredicate: recurringType.value ==
+                            RecurringType.monthlyLast
+                        ? (DateTime date) {
+                            // 翌日の月が異なる場合、その日は月末日
+                            final nextDay = date.add(const Duration(days: 1));
+                            return date.month != nextDay.month;
+                          }
+                        : null,
+                  );
+                  if (pickedDate != null) {
+                    selectedDate.value = pickedDate;
+                  }
+                },
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Theme.of(context).colorScheme.surface,
@@ -1334,7 +1356,12 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             elevation: 0,
           ),
-          child: const Text('日付を選択'),
+          child: const Text('日付を選択',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                letterSpacing: 0.5,
+              )),
         ),
       ],
     );
@@ -1376,7 +1403,14 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             elevation: 0,
           ),
-          child: const Text('時間を選択'),
+          child: const Text(
+            '時間を選択',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              letterSpacing: 0.5,
+            ),
+          ),
         ),
       ],
     );

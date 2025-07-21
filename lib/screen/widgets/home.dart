@@ -206,8 +206,9 @@ class TodayTodosWidget extends HookConsumerWidget {
                     child: Text(
                       'すべてのタスクを見る →',
                       style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
                         color: Theme.of(context).colorScheme.todayTagColor,
                       ),
                     ),
