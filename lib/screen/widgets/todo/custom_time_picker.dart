@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class CustomTimePicker extends StatefulWidget {
+class CustomTimePicker extends HookWidget {
   final TimeOfDay initialTime;
   final void Function(TimeOfDay) onTimeChanged;
 
@@ -10,27 +11,41 @@ class CustomTimePicker extends StatefulWidget {
     required this.onTimeChanged,
   });
 
-  @override
-  State<CustomTimePicker> createState() => _CustomTimePickerState();
-}
-
-class _CustomTimePickerState extends State<CustomTimePicker> {
-  late int selectedHour;
-  late int selectedMinute;
-
-  @override
-  void initState() {
-    super.initState();
-    selectedHour = widget.initialTime.hour;
-    // 5分単位に丸める
-    selectedMinute = (widget.initialTime.minute ~/ 5) * 5;
-  }
-
   List<int> get hoursList => List.generate(24, (index) => index);
   List<int> get minutesList => List.generate(12, (index) => index * 5);
 
   @override
   Widget build(BuildContext context) {
+    final selectedHour = useState(initialTime.hour);
+    final selectedMinute = useState((initialTime.minute ~/ 5) * 5);
+    final hourScrollController = useScrollController();
+    final minuteScrollController = useScrollController();
+
+    // Auto-scroll to selected values on initial load
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final hourIndex = selectedHour.value;
+        final minuteIndex = selectedMinute.value ~/ 5;
+        
+        if (hourScrollController.hasClients) {
+          hourScrollController.animateTo(
+            hourIndex * 56.0, // Approximate item height
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+        
+        if (minuteScrollController.hasClients) {
+          minuteScrollController.animateTo(
+            minuteIndex * 56.0, // Approximate item height
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+      return null;
+    }, []);
+
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -69,18 +84,17 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                         ),
                       ),
                       child: ListView.builder(
+                        controller: hourScrollController,
                         itemCount: hoursList.length,
                         itemBuilder: (context, index) {
                           final hour = hoursList[index];
-                          final isSelected = hour == selectedHour;
+                          final isSelected = hour == selectedHour.value;
                           return GestureDetector(
                             onTap: () {
-                              setState(() {
-                                selectedHour = hour;
-                              });
-                              widget.onTimeChanged(TimeOfDay(
-                                hour: selectedHour,
-                                minute: selectedMinute,
+                              selectedHour.value = hour;
+                              onTimeChanged(TimeOfDay(
+                                hour: selectedHour.value,
+                                minute: selectedMinute.value,
                               ));
                             },
                             child: Container(
@@ -145,18 +159,17 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                         ),
                       ),
                       child: ListView.builder(
+                        controller: minuteScrollController,
                         itemCount: minutesList.length,
                         itemBuilder: (context, index) {
                           final minute = minutesList[index];
-                          final isSelected = minute == selectedMinute;
+                          final isSelected = minute == selectedMinute.value;
                           return GestureDetector(
                             onTap: () {
-                              setState(() {
-                                selectedMinute = minute;
-                              });
-                              widget.onTimeChanged(TimeOfDay(
-                                hour: selectedHour,
-                                minute: selectedMinute,
+                              selectedMinute.value = minute;
+                              onTimeChanged(TimeOfDay(
+                                hour: selectedHour.value,
+                                minute: selectedMinute.value,
                               ));
                             },
                             child: Container(
@@ -222,7 +235,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '選択された時間: ${selectedHour.toString().padLeft(2, '0')}:${selectedMinute.toString().padLeft(2, '0')}',
+                  '選択された時間: ${selectedHour.value.toString().padLeft(2, '0')}:${selectedMinute.value.toString().padLeft(2, '0')}',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context).colorScheme.primary,
@@ -263,8 +276,8 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop(TimeOfDay(
-                      hour: selectedHour,
-                      minute: selectedMinute,
+                      hour: selectedHour.value,
+                      minute: selectedMinute.value,
                     ));
                   },
                   style: ElevatedButton.styleFrom(
