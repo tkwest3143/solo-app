@@ -5,6 +5,7 @@ import 'package:solo/screen/widgets/todo/category_add.dart';
 import 'package:solo/services/category_service.dart';
 import 'package:solo/enums/todo_color.dart';
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 class CategorySelectionDialog {
   static Future<CategoryModel?> show(
@@ -39,8 +40,8 @@ class _CategorySelectionDialogContent extends HookWidget {
     // 画面の70%を超えないよう制限
     double screenHeight = MediaQuery.of(context).size.height * 0.7;
     
-    // 最も小さい値を選択
-    return [calculatedHeight, maxHeight, screenHeight].reduce((a, b) => a < b ? a : b);
+    // 最も小さい値を選択（より読みやすい実装）
+    return math.min(math.min(calculatedHeight, maxHeight), screenHeight);
   }
 
   @override

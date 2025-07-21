@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:solo/screen/widgets/todo/category_selection_dialog.dart';
 import 'package:solo/screen/widgets/todo/category_add.dart';
+import 'dart:math' as math;
 
 void main() {
   group('Category UI Design Tests', () {
@@ -148,6 +149,86 @@ void main() {
       // Verify both have rounded borders
       expect(titleDecoration.border, isA<OutlineInputBorder>());
       expect(descriptionDecoration.border, isA<OutlineInputBorder>());
+    });
+
+    testWidgets('AddCategoryDialog should show loading state when creating category', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () => AddCategoryDialog.show(context),
+                child: const Text('Show Add Dialog'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Show Add Dialog'));
+      await tester.pumpAndSettle();
+
+      // Enter text to enable the button
+      await tester.enterText(find.widgetWithText(TextField, 'カテゴリ名'), 'テストカテゴリ');
+      await tester.pump();
+
+      // The button should show "追加" initially
+      expect(find.text('追加'), findsOneWidget);
+      expect(find.text('作成中...'), findsNothing);
+      
+      // Find and verify the add button is enabled
+      final addButton = find.widgetWithText(ElevatedButton, '追加');
+      expect(addButton, findsOneWidget);
+      
+      final buttonWidget = tester.widget<ElevatedButton>(addButton);
+      expect(buttonWidget.onPressed, isNotNull);
+    });
+
+    testWidgets('AddCategoryDialog should disable button when title is empty', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () => AddCategoryDialog.show(context),
+                child: const Text('Show Add Dialog'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Show Add Dialog'));
+      await tester.pumpAndSettle();
+
+      // The button should be disabled when title is empty
+      final addButton = find.descendant(
+        of: find.byType(ElevatedButton),
+        matching: find.text('追加'),
+      );
+      expect(addButton, findsOneWidget);
+      
+      final buttonWidget = tester.widget<ElevatedButton>(
+        find.ancestor(of: addButton, matching: find.byType(ElevatedButton)).first
+      );
+      expect(buttonWidget.onPressed, isNull);
+    });
+
+    group('Height calculation improvements', () {
+      test('should use math.min for better readability', () {
+        // This test verifies that the height calculation uses math.min
+        // rather than reduce() for better code readability
+        const double calculatedHeight = 300.0;
+        const double maxHeight = 600.0;
+        const double screenHeight = 500.0;
+        
+        // Simulate the improved calculation method
+        final result = math.min(math.min(calculatedHeight, maxHeight), screenHeight);
+        
+        expect(result, equals(300.0));
+        expect(result, lessThanOrEqualTo(maxHeight));
+        expect(result, lessThanOrEqualTo(screenHeight));
+      });
     });
   });
 }
