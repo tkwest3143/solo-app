@@ -431,6 +431,79 @@ class _TodoDetailContent extends HookConsumerWidget {
                       const SizedBox(height: 16),
                     ],
 
+                    // 繰り返しTodo全削除ボタン（繰り返しTodoの場合のみ表示）
+                    if (realTodo.value.isRecurring == true) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          icon: Icon(
+                            Icons.delete_forever,
+                            color: Theme.of(context).colorScheme.surface,
+                            size: 24,
+                          ),
+                          label: const Text(
+                            '全ての繰り返しTodoを削除',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.visible,
+                            softWrap: true,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.errorColor,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.surface,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                          ),
+                          onPressed: () async {
+                            // 確認ダイアログを表示
+                            final confirmed = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('確認'),
+                                content: Text(
+                                  '「${realTodo.value.title}」に関連する全ての繰り返しTodoを完全に削除しますか？\n\nこの操作は元に戻せません。',
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(false),
+                                    child: const Text('キャンセル'),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () => Navigator.of(context).pop(true),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Theme.of(context).colorScheme.errorColor,
+                                    ),
+                                    child: const Text('削除', style: TextStyle(color: Colors.white)),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (confirmed == true && context.mounted) {
+                              Navigator.of(context).pop();
+                              await TodoService().deleteAllRecurringTodos(realTodo.value.id);
+                              onRefresh?.call();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          '「${realTodo.value.title}」に関連する全ての繰り返しTodoを削除しました',
+                                          overflow: TextOverflow.visible,
+                                          softWrap: true,)),
+                                );
+                              }
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
                     // アクションボタン
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
