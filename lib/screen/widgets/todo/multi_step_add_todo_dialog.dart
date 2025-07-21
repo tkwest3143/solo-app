@@ -19,6 +19,24 @@ enum ManageType { normal, pomodoro, countup, checklist }
 
 enum DialogStep { title, repeatAndDate, management, categoryAndDetails }
 
+// ポモドーロタイマーのデフォルト値定数
+class _PomodoroDefaults {
+  static const int workMinutes = 25;
+  static const int shortBreakMinutes = 5;
+  static const int longBreakMinutes = 15;
+  static const int cycles = 4;
+  static const int completedCycles = 2;
+}
+
+// UI関連の定数
+class _UIConstants {
+  static const double managementGridHeight = 140.0;
+  static const double gridCrossAxisSpacing = 8.0;
+  static const double gridMainAxisSpacing = 4.0;
+  static const double gridAspectRatio = 2.5;
+  static const int gridCrossAxisCount = 2;
+}
+
 class MultiStepAddTodoDialog {
   static Future<void> show(
     BuildContext context, {
@@ -84,11 +102,14 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
     final isPomodoro = useState<bool>(false);
 
     // ポモドーロタイマー設定
-    final pomodoroWorkMinutes = useState<int>(25);
-    final pomodoroShortBreakMinutes = useState<int>(5);
-    final pomodoroLongBreakMinutes = useState<int>(15);
-    final pomodoroCycle = useState<int>(4);
-    final pomodoroCompletionCycles = useState<int>(2);
+    final pomodoroWorkMinutes = useState<int>(_PomodoroDefaults.workMinutes);
+    final pomodoroShortBreakMinutes =
+        useState<int>(_PomodoroDefaults.shortBreakMinutes);
+    final pomodoroLongBreakMinutes =
+        useState<int>(_PomodoroDefaults.longBreakMinutes);
+    final pomodoroCycle = useState<int>(_PomodoroDefaults.cycles);
+    final pomodoroCompletionCycles =
+        useState<int>(_PomodoroDefaults.completedCycles);
 
     // カウントアップタイマー設定
     final countupTargetMinutes = useState<int?>(null);
@@ -96,12 +117,59 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
     // 管理方法の選択肢
     final manageType = useState<ManageType>(ManageType.normal);
 
+    // 初期値設定（編集モードの場合は既存のtimerTypeから設定）
+    useEffect(() {
+      if (initialTodo != null) {
+        // 編集モードの場合、既存のtimerTypeに基づいてmanageTypeを設定
+        switch (initialTodo?.timerType) {
+          case TimerType.none:
+            // チェックリストアイテムの存在確認（null安全性を考慮）
+            final hasChecklistItems = initialTodo?.checklistItem != null &&
+                initialTodo!.checklistItem.isNotEmpty;
+            if (hasChecklistItems) {
+              manageType.value = ManageType.checklist;
+              checklistItems.value = initialTodo?.checklistItem ?? [];
+              checklistEnabled.value = true;
+            } else {
+              manageType.value = ManageType.normal;
+            }
+            break;
+          case TimerType.pomodoro:
+            manageType.value = ManageType.pomodoro;
+            isPomodoro.value = true;
+            // ポモドーロ設定を復元
+            pomodoroWorkMinutes.value = initialTodo?.pomodoroWorkMinutes ??
+                _PomodoroDefaults.workMinutes;
+            pomodoroShortBreakMinutes.value =
+                initialTodo?.pomodoroShortBreakMinutes ??
+                    _PomodoroDefaults.shortBreakMinutes;
+            pomodoroLongBreakMinutes.value =
+                initialTodo?.pomodoroLongBreakMinutes ??
+                    _PomodoroDefaults.longBreakMinutes;
+            pomodoroCycle.value =
+                initialTodo?.pomodoroCycle ?? _PomodoroDefaults.cycles;
+            pomodoroCompletionCycles.value =
+                initialTodo?.pomodoroCompletedCycle ??
+                    _PomodoroDefaults.completedCycles;
+            break;
+          case TimerType.countup:
+            manageType.value = ManageType.countup;
+            // カウントアップ設定を復元（秒を分に変換）
+            final countupTargetSeconds = initialTodo?.countupElapsedSeconds;
+            if (countupTargetSeconds != null) {
+              countupTargetMinutes.value = (countupTargetSeconds / 60).round();
+            }
+            break;
+          default:
+            manageType.value = ManageType.normal;
+        }
+      }
+      return null;
+    }, [initialTodo?.id, initialTodo?.timerType, initialTodo?.checklistItem]);
     // バリデーションエラー状態
     final titleError = useState<String?>(null);
     final descriptionError = useState<String?>(null);
     final checklistItemError = useState<String?>(null);
-
-    // 初期化と既存のuseEffectは省略...
 
     return Padding(
       padding: EdgeInsets.only(
@@ -348,7 +416,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                         style: const TextStyle(fontSize: 18),
                         maxLength: 30,
                         onChanged: (value) {
-                          titleError.value = InputValidation.validateTodoTitle(value);
+                          titleError.value =
+                              InputValidation.validateTodoTitle(value);
                         },
                         decoration: InputDecoration(
                           labelText: 'タイトル *',
@@ -442,7 +511,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                       ),
                       if (isRecurring.value) ...[
                         const SizedBox(height: 16),
-                        _buildRecurringTypeSelector(context, recurringType, selectedDate),
+                        _buildRecurringTypeSelector(
+                            context, recurringType, selectedDate),
                       ],
                     ],
                   ),
@@ -454,8 +524,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                 _SectionCard(
                   child: Column(
                     children: [
-                      _buildDateSelector(
-                          context, selectedDate, isRecurring.value, recurringType),
+                      _buildDateSelector(context, selectedDate,
+                          isRecurring.value, recurringType),
                       const SizedBox(height: 12),
                       _buildTimeSelector(context, selectedTime),
                     ],
@@ -500,25 +570,35 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'タスクの管理方法を選択してください',
+                  initialTodo != null ? 'タスクの詳細設定を変更できます' : 'タスクの管理方法を選択してください',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.primaryTextColor,
                   ),
                 ),
+                if (initialTodo != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    '※ 管理方法（通常、ポモドーロ、カウントアップ、チェックリスト）は編集時に変更できません',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.secondaryTextColor,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 24),
 
                 _buildSectionTitle(context, '管理方法'),
                 _SectionCard(
                   padding: 16,
                   child: SizedBox(
-                    height: 140,
+                    height: _UIConstants.managementGridHeight,
                     child: GridView.count(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 4,
-                      childAspectRatio: 2.5,
+                      crossAxisCount: _UIConstants.gridCrossAxisCount,
+                      crossAxisSpacing: _UIConstants.gridCrossAxisSpacing,
+                      mainAxisSpacing: _UIConstants.gridMainAxisSpacing,
+                      childAspectRatio: _UIConstants.gridAspectRatio,
                       physics: const NeverScrollableScrollPhysics(),
                       children: [
                         _buildManageTypeCard(
@@ -529,6 +609,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                           Theme.of(context).colorScheme.primary,
                           manageType.value,
                           (type) => manageType.value = type,
+                          isEditMode: initialTodo != null,
                         ),
                         _buildManageTypeCard(
                           context,
@@ -538,6 +619,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                           Theme.of(context).colorScheme.accentColor,
                           manageType.value,
                           (type) => manageType.value = type,
+                          isEditMode: initialTodo != null,
                         ),
                         _buildManageTypeCard(
                           context,
@@ -547,6 +629,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                           Theme.of(context).colorScheme.warningColor,
                           manageType.value,
                           (type) => manageType.value = type,
+                          isEditMode: initialTodo != null,
                         ),
                         _buildManageTypeCard(
                           context,
@@ -556,6 +639,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                           Theme.of(context).colorScheme.successColor,
                           manageType.value,
                           (type) => manageType.value = type,
+                          isEditMode: initialTodo != null,
                         ),
                       ],
                     ),
@@ -711,7 +795,9 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                                 controller: checklistInputController,
                                 maxLength: 30,
                                 onChanged: (value) {
-                                  checklistItemError.value = InputValidation.validateChecklistItem(value);
+                                  checklistItemError.value =
+                                      InputValidation.validateChecklistItem(
+                                          value);
                                 },
                                 decoration: InputDecoration(
                                   hintText: '新しいアイテムを追加',
@@ -726,7 +812,9 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                                   counterText: '',
                                 ),
                                 onSubmitted: (value) {
-                                  if (InputValidation.validateChecklistItem(value) == null) {
+                                  if (InputValidation.validateChecklistItem(
+                                          value) ==
+                                      null) {
                                     checklistItems.value = [
                                       ...checklistItems.value,
                                       TodoCheckListItemModel(
@@ -751,7 +839,9 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                               ),
                               onPressed: () {
                                 final value = checklistInputController.text;
-                                if (InputValidation.validateChecklistItem(value) == null) {
+                                if (InputValidation.validateChecklistItem(
+                                        value) ==
+                                    null) {
                                   checklistItems.value = [
                                     ...checklistItems.value,
                                     TodoCheckListItemModel(
@@ -841,7 +931,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                     controller: descriptionController,
                     maxLength: 200,
                     onChanged: (value) {
-                      descriptionError.value = InputValidation.validateTodoDescription(value);
+                      descriptionError.value =
+                          InputValidation.validateTodoDescription(value);
                     },
                     decoration: InputDecoration(
                       labelText: '詳細（オプション）',
@@ -1109,7 +1200,9 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
 
   // Implementation for helper widgets
   Widget _buildRecurringTypeSelector(
-      BuildContext context, ValueNotifier<RecurringType?> recurringType, ValueNotifier<DateTime> selectedDate) {
+      BuildContext context,
+      ValueNotifier<RecurringType?> recurringType,
+      ValueNotifier<DateTime> selectedDate) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1144,12 +1237,13 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
               }).toList(),
               onChanged: (value) {
                 recurringType.value = value;
-                
+
                 // 「毎月最終日」が選択された場合、現在の日付を最終日に変更
                 if (value == RecurringType.monthlyLast) {
                   final currentDate = selectedDate.value;
                   // 翌月の1日から1日引いて最終日を取得
-                  final lastDayOfMonth = DateTime(currentDate.year, currentDate.month + 1, 0);
+                  final lastDayOfMonth =
+                      DateTime(currentDate.year, currentDate.month + 1, 0);
                   selectedDate.value = lastDayOfMonth;
                 }
               },
@@ -1160,8 +1254,11 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
     );
   }
 
-  Widget _buildDateSelector(BuildContext context,
-      ValueNotifier<DateTime> selectedDate, bool isRecurring, ValueNotifier<RecurringType?> recurringType) {
+  Widget _buildDateSelector(
+      BuildContext context,
+      ValueNotifier<DateTime> selectedDate,
+      bool isRecurring,
+      ValueNotifier<RecurringType?> recurringType) {
     return Row(
       children: [
         Icon(
@@ -1184,13 +1281,14 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
               initialDate: selectedDate.value,
               firstDate: DateTime(2020),
               lastDate: DateTime(2030),
-              selectableDayPredicate: recurringType.value == RecurringType.monthlyLast
-                  ? (DateTime date) {
-                      // 翌日の月が異なる場合、その日は月末日
-                      final nextDay = date.add(const Duration(days: 1));
-                      return date.month != nextDay.month;
-                    }
-                  : null,
+              selectableDayPredicate:
+                  recurringType.value == RecurringType.monthlyLast
+                      ? (DateTime date) {
+                          // 翌日の月が異なる場合、その日は月末日
+                          final nextDay = date.add(const Duration(days: 1));
+                          return date.month != nextDay.month;
+                        }
+                      : null,
             );
             if (pickedDate != null) {
               selectedDate.value = pickedDate;
@@ -1302,7 +1400,10 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.mediumShadowColor.withValues(alpha: 0.1),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .mediumShadowColor
+                      .withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -1319,7 +1420,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                             onChanged(newValue < min ? min : newValue);
                           }
                         : null,
-                    borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+                    borderRadius: const BorderRadius.horizontal(
+                        left: Radius.circular(12)),
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       child: Icon(
@@ -1327,7 +1429,10 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                         size: 20,
                         color: value > min
                             ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+                            : Theme.of(context)
+                                .colorScheme
+                                .outline
+                                .withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -1343,11 +1448,15 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                     onChanged,
                   ),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
                     decoration: BoxDecoration(
                       border: Border.symmetric(
                         vertical: BorderSide(
-                          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outline
+                              .withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -1371,7 +1480,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                             onChanged(newValue > max ? max : newValue);
                           }
                         : null,
-                    borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
+                    borderRadius: const BorderRadius.horizontal(
+                        right: Radius.circular(12)),
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       child: Icon(
@@ -1379,7 +1489,10 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                         size: 20,
                         color: value < max
                             ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+                            : Theme.of(context)
+                                .colorScheme
+                                .outline
+                                .withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -1402,7 +1515,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
     Function(int) onChanged,
   ) async {
     final textController = TextEditingController(text: currentValue.toString());
-    
+
     await showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -1438,10 +1551,16 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
               const SizedBox(height: 24),
               Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.05),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surface
+                      .withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.3),
                     width: 2,
                   ),
                 ),
@@ -1472,7 +1591,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.secondaryTextColor,
+                          color:
+                              Theme.of(context).colorScheme.secondaryTextColor,
                         ),
                       ),
                     ],
@@ -1486,7 +1606,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
                     ),
                     child: const Text('キャンセル'),
                   ),
@@ -1494,20 +1615,24 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                   FilledButton(
                     onPressed: () {
                       final inputValue = int.tryParse(textController.text);
-                      if (inputValue != null && inputValue >= min && inputValue <= max) {
+                      if (inputValue != null &&
+                          inputValue >= min &&
+                          inputValue <= max) {
                         onChanged(inputValue);
                         Navigator.pop(context);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('$min〜$max$suffixの範囲で入力してください'),
-                            backgroundColor: Theme.of(context).colorScheme.errorColor,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.errorColor,
                           ),
                         );
                       }
                     },
                     style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -1595,21 +1720,32 @@ Widget _buildManageTypeCard(
   IconData icon,
   Color color,
   ManageType selectedType,
-  Function(ManageType) onTap,
-) {
+  Function(ManageType) onTap, {
+  bool isEditMode = false,
+}) {
   final isSelected = selectedType == type;
-  return GestureDetector(
-    onTap: () => onTap(type),
+  // 編集モード時はタイマータイプの変更を無効化
+  final isDisabled = isEditMode;
+
+  final cardWidget = GestureDetector(
+    onTap: isDisabled ? null : () => onTap(type),
     child: Container(
       decoration: BoxDecoration(
         color: isSelected
             ? color.withValues(alpha: 0.1)
-            : Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+            : isDisabled
+                ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.3)
+                : Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSelected
               ? color
-              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+              : isDisabled
+                  ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.2)
+                  : Theme.of(context)
+                      .colorScheme
+                      .outline
+                      .withValues(alpha: 0.3),
           width: isSelected ? 2 : 1,
         ),
         boxShadow: isSelected
@@ -1629,7 +1765,12 @@ Widget _buildManageTypeCard(
             icon,
             color: isSelected
                 ? color
-                : Theme.of(context).colorScheme.secondaryTextColor,
+                : isDisabled
+                    ? Theme.of(context)
+                        .colorScheme
+                        .outline
+                        .withValues(alpha: 0.5)
+                    : Theme.of(context).colorScheme.secondaryTextColor,
             size: 20,
           ),
           const SizedBox(height: 4),
@@ -1640,13 +1781,26 @@ Widget _buildManageTypeCard(
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               color: isSelected
                   ? color
-                  : Theme.of(context).colorScheme.secondaryTextColor,
+                  : isDisabled
+                      ? Theme.of(context)
+                          .colorScheme
+                          .outline
+                          .withValues(alpha: 0.5)
+                      : Theme.of(context).colorScheme.secondaryTextColor,
             ),
           ),
         ],
       ),
     ),
   );
+
+  // 編集モード時は説明用のツールチップを表示
+  return isDisabled
+      ? Tooltip(
+          message: '編集モードでは管理方法を変更できません',
+          child: cardWidget,
+        )
+      : cardWidget;
 }
 
 Widget _buildSectionTitle(BuildContext context, String title) => Padding(
