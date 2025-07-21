@@ -422,9 +422,9 @@ class _AppSettings implements AppSettings {
       this.defaultShortBreakMinutes = 5,
       this.defaultLongBreakMinutes = 15,
       this.defaultCyclesUntilLongBreak = 4,
-      this.todoDueDateNotificationsEnabled = false,
-      this.pomodoroCompletionNotificationsEnabled = false,
-      this.countUpTimerNotificationsEnabled = false,
+      this.todoDueDateNotificationsEnabled = true,
+      this.pomodoroCompletionNotificationsEnabled = true,
+      this.countUpTimerNotificationsEnabled = true,
       this.todoDeadlineRemindersEnabled = true,
       this.appUpdateNotificationsEnabled = true,
       this.countUpNotificationMinutes = 60});

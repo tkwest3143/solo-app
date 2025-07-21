@@ -17,11 +17,11 @@ _AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => _AppSettings(
       defaultCyclesUntilLongBreak:
           (json['defaultCyclesUntilLongBreak'] as num?)?.toInt() ?? 4,
       todoDueDateNotificationsEnabled:
-          json['todoDueDateNotificationsEnabled'] as bool? ?? false,
+          json['todoDueDateNotificationsEnabled'] as bool? ?? true,
       pomodoroCompletionNotificationsEnabled:
-          json['pomodoroCompletionNotificationsEnabled'] as bool? ?? false,
+          json['pomodoroCompletionNotificationsEnabled'] as bool? ?? true,
       countUpTimerNotificationsEnabled:
-          json['countUpTimerNotificationsEnabled'] as bool? ?? false,
+          json['countUpTimerNotificationsEnabled'] as bool? ?? true,
       todoDeadlineRemindersEnabled:
           json['todoDeadlineRemindersEnabled'] as bool? ?? true,
       appUpdateNotificationsEnabled:

@@ -17,9 +17,9 @@ sealed class AppSettings with _$AppSettings {
     @Default(4) int defaultCyclesUntilLongBreak,
 
     // Notification permissions
-    @Default(false) bool todoDueDateNotificationsEnabled,
-    @Default(false) bool pomodoroCompletionNotificationsEnabled,
-    @Default(false) bool countUpTimerNotificationsEnabled,
+    @Default(true) bool todoDueDateNotificationsEnabled,
+    @Default(true) bool pomodoroCompletionNotificationsEnabled,
+    @Default(true) bool countUpTimerNotificationsEnabled,
 
     // Notification preferences
     @Default(true) bool todoDeadlineRemindersEnabled,
