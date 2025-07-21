@@ -9,6 +9,7 @@ import 'package:solo/screen/widgets/todo/category_selection_dialog.dart';
 import 'package:solo/screen/widgets/todo/custom_time_picker.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/services/todo_checklist_item_service.dart';
+import 'package:solo/services/category_service.dart';
 import 'package:solo/utilities/date.dart';
 import 'package:solo/enums/todo_color.dart';
 import 'package:solo/enums/recurring_type.dart';
@@ -187,6 +188,20 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
       }
       return null;
     }, [initialTodo?.id, initialTodo?.timerType, initialTodo?.checklistItem]);
+
+    // カテゴリの初期化（編集モードの場合）
+    useEffect(() {
+      if (initialTodo?.categoryId != null) {
+        final categoryService = CategoryService();
+        categoryService.getCategoryById(initialTodo!.categoryId!).then((category) {
+          if (category != null) {
+            selectedCategory.value = category;
+          }
+        });
+      }
+      return null;
+    }, [initialTodo?.categoryId]);
+
     // バリデーションエラー状態
     final titleError = useState<String?>(null);
     final descriptionError = useState<String?>(null);
@@ -898,7 +913,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
         ),
         _buildDualBottomButtons(
           context,
-          '追加',
+          initialTodo != null ? '保存' : '追加',
           'カテゴリ、詳細の入力へ',
           onAdd,
           onNext,
@@ -985,7 +1000,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
         ),
         _buildBottomButton(
           context,
-          '追加',
+          initialTodo != null ? '保存' : '追加',
           onAdd,
           Icons.check,
         ),
@@ -1079,7 +1094,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
     // Create new todo or update existing todo
     final todoService = TodoService();
     late TodoModel savedTodo;
-    
+
     if (initialTodo != null) {
       // 編集モード: 既存のTodoを更新
       final updatedTodo = await todoService.updateTodo(
@@ -1103,8 +1118,9 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
         pomodoroLongBreakMinutes: selectedTimerType == TimerType.pomodoro
             ? pomodoroLongBreakMinutes.value
             : null,
-        pomodoroCycle:
-            selectedTimerType == TimerType.pomodoro ? pomodoroCycle.value : null,
+        pomodoroCycle: selectedTimerType == TimerType.pomodoro
+            ? pomodoroCycle.value
+            : null,
         pomodoroCompletedCycle: selectedTimerType == TimerType.pomodoro
             ? pomodoroCompletionCycles.value
             : null,
@@ -1114,7 +1130,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
             ? countupTargetMinutes.value! * 60
             : null,
       );
-      
+
       if (updatedTodo == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1146,8 +1162,9 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
         pomodoroLongBreakMinutes: selectedTimerType == TimerType.pomodoro
             ? pomodoroLongBreakMinutes.value
             : null,
-        pomodoroCycle:
-            selectedTimerType == TimerType.pomodoro ? pomodoroCycle.value : null,
+        pomodoroCycle: selectedTimerType == TimerType.pomodoro
+            ? pomodoroCycle.value
+            : null,
         pomodoroCompletedCycle: selectedTimerType == TimerType.pomodoro
             ? pomodoroCompletionCycles.value
             : null,

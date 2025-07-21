@@ -21,20 +21,20 @@ class TutorialPage extends HookConsumerWidget {
         height: 200,
         cacheWidth: 200,
         cacheHeight: 200,
-        errorBuilder: (context, error, stackTrace) => _buildErrorFallback(context),
+        errorBuilder: (context, error, stackTrace) =>
+            _buildErrorFallback(context),
       );
     } else if (step.imagePlaceholder.endsWith('.png')) {
       // Other screens - show specified images
       return Image.asset(
         'assets/icon/tutorial/${step.imagePlaceholder}',
-        width: 280,
         height: 280,
-        cacheWidth: 280,
         cacheHeight: 280,
         fit: step.imagePlaceholder == 'todoList.png'
             ? BoxFit.cover
             : BoxFit.fitHeight,
-        errorBuilder: (context, error, stackTrace) => _buildErrorFallback(context),
+        errorBuilder: (context, error, stackTrace) =>
+            _buildErrorFallback(context),
       );
     } else {
       // Fallback for placeholder text
@@ -50,7 +50,10 @@ class TutorialPage extends HookConsumerWidget {
         color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: Theme.of(context).colorScheme.mutedTextColor.withValues(alpha: 0.3),
+          color: Theme.of(context)
+              .colorScheme
+              .mutedTextColor
+              .withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -232,14 +235,14 @@ class TutorialPage extends HookConsumerWidget {
                           Text(
                             tutorialSteps[index].title,
                             style: TextStyle(
-                              fontSize: 28,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context)
                                   .colorScheme
                                   .primaryTextColor,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12),
 
                           // Description
                           Flexible(
@@ -254,7 +257,6 @@ class TutorialPage extends HookConsumerWidget {
                                 height: 1.5,
                               ),
                               maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
