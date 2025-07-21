@@ -13,6 +13,7 @@ import 'package:solo/enums/todo_color.dart';
 import 'package:solo/enums/recurring_type.dart';
 import 'package:solo/enums/timer_type.dart';
 import 'package:solo/screen/states/notification_state.dart';
+import 'package:solo/utilities/input_validation.dart';
 
 enum ManageType { normal, pomodoro, countup, checklist }
 
@@ -95,6 +96,11 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
     // 管理方法の選択肢
     final manageType = useState<ManageType>(ManageType.normal);
 
+    // バリデーションエラー状態
+    final titleError = useState<String?>(null);
+    final descriptionError = useState<String?>(null);
+    final checklistItemError = useState<String?>(null);
+
     // 初期化と既存のuseEffectは省略...
 
     return Padding(
@@ -147,6 +153,9 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                 pomodoroCompletionCycles,
                 countupTargetMinutes,
                 manageType,
+                titleError,
+                descriptionError,
+                checklistItemError,
               ),
             ),
           ],
@@ -217,12 +226,16 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
     ValueNotifier<int> pomodoroCompletionCycles,
     ValueNotifier<int?> countupTargetMinutes,
     ValueNotifier<ManageType> manageType,
+    ValueNotifier<String?> titleError,
+    ValueNotifier<String?> descriptionError,
+    ValueNotifier<String?> checklistItemError,
   ) {
     switch (currentStep.value) {
       case DialogStep.title:
         return _buildTitleStep(
           context,
           titleController,
+          titleError,
           () => _nextStep(context, currentStep, titleController),
         );
       case DialogStep.repeatAndDate:
@@ -249,6 +262,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
           countupTargetMinutes,
           checklistItems,
           checklistInputController,
+          checklistItemError,
           () => _saveTodo(
               context,
               ref,
@@ -276,6 +290,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
           ref,
           selectedCategory,
           descriptionController,
+          descriptionError,
           () => _saveTodo(
               context,
               ref,
@@ -302,6 +317,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
   Widget _buildTitleStep(
     BuildContext context,
     TextEditingController titleController,
+    ValueNotifier<String?> titleError,
     VoidCallback onNext,
   ) {
     return Column(
@@ -323,22 +339,33 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 _SectionCard(
-                  child: TextField(
-                    controller: titleController,
-                    autofocus: true,
-                    style: const TextStyle(fontSize: 18),
-                    decoration: InputDecoration(
-                      labelText: 'タイトル *',
-                      hintText: '例：プレゼン資料を作成する',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextField(
+                        controller: titleController,
+                        autofocus: true,
+                        style: const TextStyle(fontSize: 18),
+                        maxLength: 30,
+                        onChanged: (value) {
+                          titleError.value = InputValidation.validateTodoTitle(value);
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'タイトル *',
+                          hintText: '例：プレゼン資料を作成する',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withValues(alpha: 0.05),
+                          errorText: titleError.value,
+                          counterText: '',
+                        ),
                       ),
-                      filled: true,
-                      fillColor: Theme.of(context)
-                          .colorScheme
-                          .surface
-                          .withValues(alpha: 0.05),
-                    ),
+                    ],
                   ),
                 ),
               ],
@@ -460,6 +487,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
     ValueNotifier<int?> countupTargetMinutes,
     ValueNotifier<List<TodoCheckListItemModel>> checklistItems,
     TextEditingController checklistInputController,
+    ValueNotifier<String?> checklistItemError,
     VoidCallback onAdd,
     VoidCallback onNext,
   ) {
@@ -681,6 +709,10 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                             Expanded(
                               child: TextField(
                                 controller: checklistInputController,
+                                maxLength: 30,
+                                onChanged: (value) {
+                                  checklistItemError.value = InputValidation.validateChecklistItem(value);
+                                },
                                 decoration: InputDecoration(
                                   hintText: '新しいアイテムを追加',
                                   border: OutlineInputBorder(
@@ -690,9 +722,11 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                                     horizontal: 12,
                                     vertical: 8,
                                   ),
+                                  errorText: checklistItemError.value,
+                                  counterText: '',
                                 ),
                                 onSubmitted: (value) {
-                                  if (value.trim().isNotEmpty) {
+                                  if (InputValidation.validateChecklistItem(value) == null) {
                                     checklistItems.value = [
                                       ...checklistItems.value,
                                       TodoCheckListItemModel(
@@ -704,6 +738,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                                       ),
                                     ];
                                     checklistInputController.clear();
+                                    checklistItemError.value = null;
                                   }
                                 },
                               ),
@@ -716,7 +751,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                               ),
                               onPressed: () {
                                 final value = checklistInputController.text;
-                                if (value.trim().isNotEmpty) {
+                                if (InputValidation.validateChecklistItem(value) == null) {
                                   checklistItems.value = [
                                     ...checklistItems.value,
                                     TodoCheckListItemModel(
@@ -728,6 +763,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                                     ),
                                   ];
                                   checklistInputController.clear();
+                                  checklistItemError.value = null;
                                 }
                               },
                             ),
@@ -758,6 +794,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
     WidgetRef ref,
     ValueNotifier<CategoryModel?> selectedCategory,
     TextEditingController descriptionController,
+    ValueNotifier<String?> descriptionError,
     VoidCallback onAdd,
   ) {
     return Column(
@@ -802,6 +839,10 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                 _SectionCard(
                   child: TextField(
                     controller: descriptionController,
+                    maxLength: 200,
+                    onChanged: (value) {
+                      descriptionError.value = InputValidation.validateTodoDescription(value);
+                    },
                     decoration: InputDecoration(
                       labelText: '詳細（オプション）',
                       hintText: '追加の説明やメモを入力...',
@@ -813,6 +854,8 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                           .colorScheme
                           .surface
                           .withValues(alpha: 0.05),
+                      errorText: descriptionError.value,
+                      counterText: '',
                     ),
                     maxLines: 4,
                   ),

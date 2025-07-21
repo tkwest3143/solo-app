@@ -116,6 +116,8 @@ class TodoCard extends ConsumerWidget {
                           ? TextDecoration.lineThrough
                           : TextDecoration.none,
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                   ),
                 ),
                 if (isOverdue && !todo.isCompleted) ...[
@@ -232,12 +234,16 @@ class TodoCard extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        category.title,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: TodoColor.getColorFromString(category.color),
+                      Expanded(
+                        child: Text(
+                          category.title,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: TodoColor.getColorFromString(category.color),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
                     ],
