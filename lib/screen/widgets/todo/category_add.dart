@@ -20,6 +20,7 @@ class _AddCategoryDialogContent extends HookWidget {
     final titleController = useTextEditingController();
     final descriptionController = useTextEditingController();
     final selectedColor = useState<String>('blue');
+    final isCreating = useState<bool>(false);
 
     final isTitleNotEmpty = useListenableSelector(
       titleController,
@@ -57,19 +58,26 @@ class _AddCategoryDialogContent extends HookWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: titleController,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'カテゴリ名',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: TextField(
+                controller: titleController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'カテゴリ名',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context)
+                      .colorScheme
+                      .surface
+                      .withValues(alpha: 0.05),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 18, // より大きい縦方向パディングでラベルとの衝突を防ぐ
+                  ),
                 ),
-                filled: true,
-                fillColor: Theme.of(context)
-                    .colorScheme
-                    .surface
-                    .withValues(alpha: 0.05),
               ),
             ),
             const SizedBox(height: 16),
@@ -85,6 +93,10 @@ class _AddCategoryDialogContent extends HookWidget {
                     .colorScheme
                     .surface
                     .withValues(alpha: 0.05),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 18, // 一貫性のあるパディング
+                ),
               ),
               maxLines: 2,
             ),
@@ -157,27 +169,61 @@ class _AddCategoryDialogContent extends HookWidget {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          onPressed: isTitleNotEmpty
+          onPressed: (isTitleNotEmpty && !isCreating.value)
               ? () async {
-                  final categoryService = CategoryService();
-                  final newCategory = await categoryService.createCategory(
-                    title: titleController.text.trim(),
-                    description: descriptionController.text.trim().isEmpty
-                        ? null
-                        : descriptionController.text.trim(),
-                    color: selectedColor.value,
-                  );
-                  if (context.mounted) {
-                    Navigator.of(context).pop(newCategory);
+                  isCreating.value = true;
+                  try {
+                    final categoryService = CategoryService();
+                    final newCategory = await categoryService.createCategory(
+                      title: titleController.text.trim(),
+                      description: descriptionController.text.trim().isEmpty
+                          ? null
+                          : descriptionController.text.trim(),
+                      color: selectedColor.value,
+                    );
+                    if (context.mounted) {
+                      Navigator.of(context).pop(newCategory);
+                    }
+                  } catch (e) {
+                    isCreating.value = false;
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('カテゴリの作成に失敗しました: ${e.toString()}'),
+                          backgroundColor: Theme.of(context).colorScheme.errorColor,
+                        ),
+                      );
+                    }
                   }
                 }
               : null,
-          child: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              '追加',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: isCreating.value
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).colorScheme.surface,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        '作成中...',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  )
+                : const Text(
+                    '追加',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
           ),
         ),
       ],
