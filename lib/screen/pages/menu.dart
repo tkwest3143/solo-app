@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/router.dart';
@@ -171,6 +172,24 @@ class MenuPage extends HookConsumerWidget {
                                 Theme.of(context).colorScheme.surface,
                             onTap: () =>
                                 nextRouting(context, RouterDefinition.about),
+                            iconSize: 28,
+                          ),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // Tutorial Card
+                        SizedBox(
+                          width: double.infinity,
+                          child: MenuNavigationCard(
+                            title: 'チュートリアル',
+                            subtitle: 'アプリの使い方を確認',
+                            icon: Icons.help_outline_rounded,
+                            iconColor: Theme.of(context).colorScheme.primary,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.surface,
+                            onTap: () =>
+                                context.push('/tutorial?from=menu'),
                             iconSize: 28,
                           ),
                         ),

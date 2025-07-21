@@ -80,6 +80,11 @@ class SettingsState extends _$SettingsState {
     _saveSettings();
   }
 
+  void updateHasCompletedTutorial(bool completed) {
+    state = state.copyWith(hasCompletedTutorial: completed);
+    _saveSettings();
+  }
+
   void resetToDefaults() {
     state = const AppSettings();
     // Clear saved settings and save the new default state

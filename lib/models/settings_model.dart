@@ -27,6 +27,9 @@ sealed class AppSettings with _$AppSettings {
 
     // Count-up timer notification time (in minutes)
     @Default(60) int countUpNotificationMinutes,
+
+    // Tutorial completion flag
+    @Default(false) bool hasCompletedTutorial,
   }) = _AppSettings;
 
   factory AppSettings.fromJson(Map<String, dynamic> json) =>

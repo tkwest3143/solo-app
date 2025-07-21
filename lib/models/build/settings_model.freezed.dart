@@ -26,7 +26,8 @@ mixin _$AppSettings {
   bool get todoDeadlineRemindersEnabled;
   bool
       get appUpdateNotificationsEnabled; // Count-up timer notification time (in minutes)
-  int get countUpNotificationMinutes;
+  int get countUpNotificationMinutes; // Tutorial completion flag
+  bool get hasCompletedTutorial;
 
   /// Create a copy of AppSettings
   /// with the given fields replaced by the non-null parameter values.
@@ -47,7 +48,8 @@ mixin _$AppSettings {
                 other.themeMode == themeMode) &&
             (identical(other.defaultWorkMinutes, defaultWorkMinutes) ||
                 other.defaultWorkMinutes == defaultWorkMinutes) &&
-            (identical(other.defaultShortBreakMinutes, defaultShortBreakMinutes) ||
+            (identical(
+                    other.defaultShortBreakMinutes, defaultShortBreakMinutes) ||
                 other.defaultShortBreakMinutes == defaultShortBreakMinutes) &&
             (identical(other.defaultLongBreakMinutes, defaultLongBreakMinutes) ||
                 other.defaultLongBreakMinutes == defaultLongBreakMinutes) &&
@@ -57,8 +59,7 @@ mixin _$AppSettings {
             (identical(other.todoDueDateNotificationsEnabled, todoDueDateNotificationsEnabled) ||
                 other.todoDueDateNotificationsEnabled ==
                     todoDueDateNotificationsEnabled) &&
-            (identical(other.pomodoroCompletionNotificationsEnabled,
-                    pomodoroCompletionNotificationsEnabled) ||
+            (identical(other.pomodoroCompletionNotificationsEnabled, pomodoroCompletionNotificationsEnabled) ||
                 other.pomodoroCompletionNotificationsEnabled ==
                     pomodoroCompletionNotificationsEnabled) &&
             (identical(other.countUpTimerNotificationsEnabled, countUpTimerNotificationsEnabled) ||
@@ -70,9 +71,11 @@ mixin _$AppSettings {
             (identical(other.appUpdateNotificationsEnabled, appUpdateNotificationsEnabled) ||
                 other.appUpdateNotificationsEnabled ==
                     appUpdateNotificationsEnabled) &&
-            (identical(
-                    other.countUpNotificationMinutes, countUpNotificationMinutes) ||
-                other.countUpNotificationMinutes == countUpNotificationMinutes));
+            (identical(other.countUpNotificationMinutes, countUpNotificationMinutes) ||
+                other.countUpNotificationMinutes ==
+                    countUpNotificationMinutes) &&
+            (identical(other.hasCompletedTutorial, hasCompletedTutorial) ||
+                other.hasCompletedTutorial == hasCompletedTutorial));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -89,11 +92,12 @@ mixin _$AppSettings {
       countUpTimerNotificationsEnabled,
       todoDeadlineRemindersEnabled,
       appUpdateNotificationsEnabled,
-      countUpNotificationMinutes);
+      countUpNotificationMinutes,
+      hasCompletedTutorial);
 
   @override
   String toString() {
-    return 'AppSettings(themeMode: $themeMode, defaultWorkMinutes: $defaultWorkMinutes, defaultShortBreakMinutes: $defaultShortBreakMinutes, defaultLongBreakMinutes: $defaultLongBreakMinutes, defaultCyclesUntilLongBreak: $defaultCyclesUntilLongBreak, todoDueDateNotificationsEnabled: $todoDueDateNotificationsEnabled, pomodoroCompletionNotificationsEnabled: $pomodoroCompletionNotificationsEnabled, countUpTimerNotificationsEnabled: $countUpTimerNotificationsEnabled, todoDeadlineRemindersEnabled: $todoDeadlineRemindersEnabled, appUpdateNotificationsEnabled: $appUpdateNotificationsEnabled, countUpNotificationMinutes: $countUpNotificationMinutes)';
+    return 'AppSettings(themeMode: $themeMode, defaultWorkMinutes: $defaultWorkMinutes, defaultShortBreakMinutes: $defaultShortBreakMinutes, defaultLongBreakMinutes: $defaultLongBreakMinutes, defaultCyclesUntilLongBreak: $defaultCyclesUntilLongBreak, todoDueDateNotificationsEnabled: $todoDueDateNotificationsEnabled, pomodoroCompletionNotificationsEnabled: $pomodoroCompletionNotificationsEnabled, countUpTimerNotificationsEnabled: $countUpTimerNotificationsEnabled, todoDeadlineRemindersEnabled: $todoDeadlineRemindersEnabled, appUpdateNotificationsEnabled: $appUpdateNotificationsEnabled, countUpNotificationMinutes: $countUpNotificationMinutes, hasCompletedTutorial: $hasCompletedTutorial)';
   }
 }
 
@@ -114,7 +118,8 @@ abstract mixin class $AppSettingsCopyWith<$Res> {
       bool countUpTimerNotificationsEnabled,
       bool todoDeadlineRemindersEnabled,
       bool appUpdateNotificationsEnabled,
-      int countUpNotificationMinutes});
+      int countUpNotificationMinutes,
+      bool hasCompletedTutorial});
 }
 
 /// @nodoc
@@ -140,6 +145,7 @@ class _$AppSettingsCopyWithImpl<$Res> implements $AppSettingsCopyWith<$Res> {
     Object? todoDeadlineRemindersEnabled = null,
     Object? appUpdateNotificationsEnabled = null,
     Object? countUpNotificationMinutes = null,
+    Object? hasCompletedTutorial = null,
   }) {
     return _then(_self.copyWith(
       themeMode: null == themeMode
@@ -187,6 +193,10 @@ class _$AppSettingsCopyWithImpl<$Res> implements $AppSettingsCopyWith<$Res> {
           ? _self.countUpNotificationMinutes
           : countUpNotificationMinutes // ignore: cast_nullable_to_non_nullable
               as int,
+      hasCompletedTutorial: null == hasCompletedTutorial
+          ? _self.hasCompletedTutorial
+          : hasCompletedTutorial // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -293,7 +303,8 @@ extension AppSettingsPatterns on AppSettings {
             bool countUpTimerNotificationsEnabled,
             bool todoDeadlineRemindersEnabled,
             bool appUpdateNotificationsEnabled,
-            int countUpNotificationMinutes)?
+            int countUpNotificationMinutes,
+            bool hasCompletedTutorial)?
         $default, {
     required TResult orElse(),
   }) {
@@ -311,7 +322,8 @@ extension AppSettingsPatterns on AppSettings {
             _that.countUpTimerNotificationsEnabled,
             _that.todoDeadlineRemindersEnabled,
             _that.appUpdateNotificationsEnabled,
-            _that.countUpNotificationMinutes);
+            _that.countUpNotificationMinutes,
+            _that.hasCompletedTutorial);
       case _:
         return orElse();
     }
@@ -343,7 +355,8 @@ extension AppSettingsPatterns on AppSettings {
             bool countUpTimerNotificationsEnabled,
             bool todoDeadlineRemindersEnabled,
             bool appUpdateNotificationsEnabled,
-            int countUpNotificationMinutes)
+            int countUpNotificationMinutes,
+            bool hasCompletedTutorial)
         $default,
   ) {
     final _that = this;
@@ -360,7 +373,8 @@ extension AppSettingsPatterns on AppSettings {
             _that.countUpTimerNotificationsEnabled,
             _that.todoDeadlineRemindersEnabled,
             _that.appUpdateNotificationsEnabled,
-            _that.countUpNotificationMinutes);
+            _that.countUpNotificationMinutes,
+            _that.hasCompletedTutorial);
     }
   }
 
@@ -389,7 +403,8 @@ extension AppSettingsPatterns on AppSettings {
             bool countUpTimerNotificationsEnabled,
             bool todoDeadlineRemindersEnabled,
             bool appUpdateNotificationsEnabled,
-            int countUpNotificationMinutes)?
+            int countUpNotificationMinutes,
+            bool hasCompletedTutorial)?
         $default,
   ) {
     final _that = this;
@@ -406,7 +421,8 @@ extension AppSettingsPatterns on AppSettings {
             _that.countUpTimerNotificationsEnabled,
             _that.todoDeadlineRemindersEnabled,
             _that.appUpdateNotificationsEnabled,
-            _that.countUpNotificationMinutes);
+            _that.countUpNotificationMinutes,
+            _that.hasCompletedTutorial);
       case _:
         return null;
     }
@@ -427,7 +443,8 @@ class _AppSettings implements AppSettings {
       this.countUpTimerNotificationsEnabled = true,
       this.todoDeadlineRemindersEnabled = true,
       this.appUpdateNotificationsEnabled = true,
-      this.countUpNotificationMinutes = 60});
+      this.countUpNotificationMinutes = 60,
+      this.hasCompletedTutorial = false});
   factory _AppSettings.fromJson(Map<String, dynamic> json) =>
       _$AppSettingsFromJson(json);
 
@@ -469,6 +486,10 @@ class _AppSettings implements AppSettings {
   @override
   @JsonKey()
   final int countUpNotificationMinutes;
+// Tutorial completion flag
+  @override
+  @JsonKey()
+  final bool hasCompletedTutorial;
 
   /// Create a copy of AppSettings
   /// with the given fields replaced by the non-null parameter values.
@@ -494,7 +515,8 @@ class _AppSettings implements AppSettings {
                 other.themeMode == themeMode) &&
             (identical(other.defaultWorkMinutes, defaultWorkMinutes) ||
                 other.defaultWorkMinutes == defaultWorkMinutes) &&
-            (identical(other.defaultShortBreakMinutes, defaultShortBreakMinutes) ||
+            (identical(
+                    other.defaultShortBreakMinutes, defaultShortBreakMinutes) ||
                 other.defaultShortBreakMinutes == defaultShortBreakMinutes) &&
             (identical(other.defaultLongBreakMinutes, defaultLongBreakMinutes) ||
                 other.defaultLongBreakMinutes == defaultLongBreakMinutes) &&
@@ -504,8 +526,7 @@ class _AppSettings implements AppSettings {
             (identical(other.todoDueDateNotificationsEnabled, todoDueDateNotificationsEnabled) ||
                 other.todoDueDateNotificationsEnabled ==
                     todoDueDateNotificationsEnabled) &&
-            (identical(other.pomodoroCompletionNotificationsEnabled,
-                    pomodoroCompletionNotificationsEnabled) ||
+            (identical(other.pomodoroCompletionNotificationsEnabled, pomodoroCompletionNotificationsEnabled) ||
                 other.pomodoroCompletionNotificationsEnabled ==
                     pomodoroCompletionNotificationsEnabled) &&
             (identical(other.countUpTimerNotificationsEnabled, countUpTimerNotificationsEnabled) ||
@@ -517,9 +538,11 @@ class _AppSettings implements AppSettings {
             (identical(other.appUpdateNotificationsEnabled, appUpdateNotificationsEnabled) ||
                 other.appUpdateNotificationsEnabled ==
                     appUpdateNotificationsEnabled) &&
-            (identical(
-                    other.countUpNotificationMinutes, countUpNotificationMinutes) ||
-                other.countUpNotificationMinutes == countUpNotificationMinutes));
+            (identical(other.countUpNotificationMinutes, countUpNotificationMinutes) ||
+                other.countUpNotificationMinutes ==
+                    countUpNotificationMinutes) &&
+            (identical(other.hasCompletedTutorial, hasCompletedTutorial) ||
+                other.hasCompletedTutorial == hasCompletedTutorial));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -536,11 +559,12 @@ class _AppSettings implements AppSettings {
       countUpTimerNotificationsEnabled,
       todoDeadlineRemindersEnabled,
       appUpdateNotificationsEnabled,
-      countUpNotificationMinutes);
+      countUpNotificationMinutes,
+      hasCompletedTutorial);
 
   @override
   String toString() {
-    return 'AppSettings(themeMode: $themeMode, defaultWorkMinutes: $defaultWorkMinutes, defaultShortBreakMinutes: $defaultShortBreakMinutes, defaultLongBreakMinutes: $defaultLongBreakMinutes, defaultCyclesUntilLongBreak: $defaultCyclesUntilLongBreak, todoDueDateNotificationsEnabled: $todoDueDateNotificationsEnabled, pomodoroCompletionNotificationsEnabled: $pomodoroCompletionNotificationsEnabled, countUpTimerNotificationsEnabled: $countUpTimerNotificationsEnabled, todoDeadlineRemindersEnabled: $todoDeadlineRemindersEnabled, appUpdateNotificationsEnabled: $appUpdateNotificationsEnabled, countUpNotificationMinutes: $countUpNotificationMinutes)';
+    return 'AppSettings(themeMode: $themeMode, defaultWorkMinutes: $defaultWorkMinutes, defaultShortBreakMinutes: $defaultShortBreakMinutes, defaultLongBreakMinutes: $defaultLongBreakMinutes, defaultCyclesUntilLongBreak: $defaultCyclesUntilLongBreak, todoDueDateNotificationsEnabled: $todoDueDateNotificationsEnabled, pomodoroCompletionNotificationsEnabled: $pomodoroCompletionNotificationsEnabled, countUpTimerNotificationsEnabled: $countUpTimerNotificationsEnabled, todoDeadlineRemindersEnabled: $todoDeadlineRemindersEnabled, appUpdateNotificationsEnabled: $appUpdateNotificationsEnabled, countUpNotificationMinutes: $countUpNotificationMinutes, hasCompletedTutorial: $hasCompletedTutorial)';
   }
 }
 
@@ -563,7 +587,8 @@ abstract mixin class _$AppSettingsCopyWith<$Res>
       bool countUpTimerNotificationsEnabled,
       bool todoDeadlineRemindersEnabled,
       bool appUpdateNotificationsEnabled,
-      int countUpNotificationMinutes});
+      int countUpNotificationMinutes,
+      bool hasCompletedTutorial});
 }
 
 /// @nodoc
@@ -589,6 +614,7 @@ class __$AppSettingsCopyWithImpl<$Res> implements _$AppSettingsCopyWith<$Res> {
     Object? todoDeadlineRemindersEnabled = null,
     Object? appUpdateNotificationsEnabled = null,
     Object? countUpNotificationMinutes = null,
+    Object? hasCompletedTutorial = null,
   }) {
     return _then(_AppSettings(
       themeMode: null == themeMode
@@ -636,6 +662,10 @@ class __$AppSettingsCopyWithImpl<$Res> implements _$AppSettingsCopyWith<$Res> {
           ? _self.countUpNotificationMinutes
           : countUpNotificationMinutes // ignore: cast_nullable_to_non_nullable
               as int,
+      hasCompletedTutorial: null == hasCompletedTutorial
+          ? _self.hasCompletedTutorial
+          : hasCompletedTutorial // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
