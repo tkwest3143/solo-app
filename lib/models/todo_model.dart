@@ -68,7 +68,7 @@ sealed class TodoModel with _$TodoModel {
       pomodoroLongBreakMinutes: todo.pomodoroLongBreakMinutes,
       pomodoroCycle: todo.pomodoroCycle,
       pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
-      // isDeleted: todo.isDeleted ?? false, // Driftコード生成前のため一時的にコメントアウト
+      isDeleted: todo.isDeleted,
     );
   }
 }

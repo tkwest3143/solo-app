@@ -357,7 +357,7 @@ class TodoCard extends ConsumerWidget {
           TextButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              await TodoService().deleteTodo(todo.id);
+              await TodoService().deleteTodo(todo.id, date: todo.dueDate);
               onRefresh?.call();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(

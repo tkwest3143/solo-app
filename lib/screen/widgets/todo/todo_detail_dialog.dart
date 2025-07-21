@@ -485,7 +485,7 @@ class _TodoDetailContent extends HookConsumerWidget {
                         ),
                         onPressed: () async {
                           Navigator.of(context).pop();
-                          await TodoService().deleteTodo(realTodo.value.id);
+                          await TodoService().deleteTodo(realTodo.value.id, date: realTodo.value.dueDate);
                           onRefresh?.call();
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(

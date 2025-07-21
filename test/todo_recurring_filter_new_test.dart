@@ -13,7 +13,7 @@ void main() {
     });
 
     group('getNextRecurringDateFromToday', () {
-      test('毎日繰り返しで今日以降の最初の日付を正しく算出', () {
+      test('毎日繰り返しで今日以降の最初の日付を正しく算出', () async {
         // Arrange
         final today = DateTime(2024, 1, 15);
         final recurringTodo = TodoModel(
@@ -28,10 +28,12 @@ void main() {
           createdAt: DateTime(2024, 1, 10),
           updatedAt: DateTime(2024, 1, 10),
           timerType: TimerType.none,
+          isDeleted: false,
         );
 
         // Act
-        final result = todoService.getNextRecurringDateFromToday(recurringTodo, today);
+        final result = await todoService.getNextRecurringDateFromToday(
+            recurringTodo, today);
 
         // Assert
         expect(result, isNotNull);
@@ -42,7 +44,7 @@ void main() {
         expect(result.minute, equals(0));
       });
 
-      test('毎週繰り返しで次の該当曜日を正しく算出', () {
+      test('毎週繰り返しで次の該当曜日を正しく算出', () async {
         // Arrange
         final today = DateTime(2024, 1, 15); // 月曜日
         final recurringTodo = TodoModel(
@@ -57,10 +59,12 @@ void main() {
           createdAt: DateTime(2024, 1, 10),
           updatedAt: DateTime(2024, 1, 10),
           timerType: TimerType.none,
+          isDeleted: false,
         );
 
         // Act
-        final result = todoService.getNextRecurringDateFromToday(recurringTodo, today);
+        final result =
+            await todoService.getNextRecurringDateFromToday(recurringTodo, today);
 
         // Assert
         expect(result, isNotNull);
@@ -71,7 +75,7 @@ void main() {
         expect(result.minute, equals(30));
       });
 
-      test('毎月繰り返しで次の該当日を正しく算出', () {
+      test('毎月繰り返しで次の該当日を正しく算出', () async {
         // Arrange
         final today = DateTime(2024, 1, 15);
         final recurringTodo = TodoModel(
@@ -86,10 +90,12 @@ void main() {
           createdAt: DateTime(2023, 12, 20),
           updatedAt: DateTime(2023, 12, 20),
           timerType: TimerType.none,
+          isDeleted: false,
         );
 
         // Act
-        final result = todoService.getNextRecurringDateFromToday(recurringTodo, today);
+        final result =
+            await todoService.getNextRecurringDateFromToday(recurringTodo, today);
 
         // Assert
         expect(result, isNotNull);
@@ -100,7 +106,7 @@ void main() {
         expect(result.minute, equals(0));
       });
 
-      test('毎月最終日の繰り返しで次の月末を正しく算出', () {
+      test('毎月最終日の繰り返しで次の月末を正しく算出', () async {
         // Arrange
         final today = DateTime(2024, 1, 15);
         final recurringTodo = TodoModel(
@@ -115,10 +121,12 @@ void main() {
           createdAt: DateTime(2023, 12, 31),
           updatedAt: DateTime(2023, 12, 31),
           timerType: TimerType.none,
+          isDeleted: false,
         );
 
         // Act
-        final result = todoService.getNextRecurringDateFromToday(recurringTodo, today);
+        final result =
+            await todoService.getNextRecurringDateFromToday(recurringTodo, today);
 
         // Assert
         expect(result, isNotNull);
@@ -129,7 +137,7 @@ void main() {
         expect(result.minute, equals(59));
       });
 
-      test('繰り返し終了日を過ぎた場合はnullを返す', () {
+      test('繰り返し終了日を過ぎた場合はnullを返す', () async {
         // Arrange
         final today = DateTime(2024, 1, 15);
         final recurringTodo = TodoModel(
@@ -145,16 +153,18 @@ void main() {
           createdAt: DateTime(2024, 1, 1),
           updatedAt: DateTime(2024, 1, 1),
           timerType: TimerType.none,
+          isDeleted: false,
         );
 
         // Act
-        final result = todoService.getNextRecurringDateFromToday(recurringTodo, today);
+        final result =
+            await todoService.getNextRecurringDateFromToday(recurringTodo, today);
 
         // Assert
         expect(result, isNull);
       });
 
-      test('繰り返しではないTodoの場合はnullを返す', () {
+      test('繰り返しではないTodoの場合はnullを返す', () async {
         // Arrange
         final today = DateTime(2024, 1, 15);
         final normalTodo = TodoModel(
@@ -169,16 +179,18 @@ void main() {
           createdAt: DateTime(2024, 1, 10),
           updatedAt: DateTime(2024, 1, 10),
           timerType: TimerType.none,
+          isDeleted: false,
         );
 
         // Act
-        final result = todoService.getNextRecurringDateFromToday(normalTodo, today);
+        final result =
+            await todoService.getNextRecurringDateFromToday(normalTodo, today);
 
         // Assert
         expect(result, isNull);
       });
 
-      test('今日が繰り返し日の場合、今日の日付を返す', () {
+      test('今日が繰り返し日の場合、今日の日付を返す', () async {
         // Arrange
         final today = DateTime(2024, 1, 15); // 月曜日
         final recurringTodo = TodoModel(
@@ -193,10 +205,12 @@ void main() {
           createdAt: DateTime(2024, 1, 1),
           updatedAt: DateTime(2024, 1, 1),
           timerType: TimerType.none,
+          isDeleted: false,
         );
 
         // Act
-        final result = todoService.getNextRecurringDateFromToday(recurringTodo, today);
+        final result =
+            await todoService.getNextRecurringDateFromToday(recurringTodo, today);
 
         // Assert
         expect(result, isNotNull);
@@ -207,7 +221,7 @@ void main() {
         expect(result.minute, equals(0));
       });
 
-      test('今日が毎週の繰り返し曜日の場合、今日の日付を返す', () {
+      test('今日が毎週の繰り返し曜日の場合、今日の日付を返す', () async {
         // Arrange
         final today = DateTime(2024, 1, 17); // 水曜日
         final recurringTodo = TodoModel(
@@ -222,10 +236,12 @@ void main() {
           createdAt: DateTime(2024, 1, 3),
           updatedAt: DateTime(2024, 1, 3),
           timerType: TimerType.none,
+          isDeleted: false,
         );
 
         // Act
-        final result = todoService.getNextRecurringDateFromToday(recurringTodo, today);
+        final result =
+            await todoService.getNextRecurringDateFromToday(recurringTodo, today);
 
         // Assert
         expect(result, isNotNull);

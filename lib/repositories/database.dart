@@ -58,9 +58,70 @@ class TodoTableRepository {
 
   /// 論理削除（isDeletedフラグをtrueに設定）
   Future<bool> softDelete(int id) async {
-    // 現時点ではDriftコードが未生成のため、物理削除を使用
-    // TODO: Driftコード生成後に論理削除に変更
-    return await delete(id);
+    final database = await AppDatabase.getSingletonInstance();
+    final result = await (database.update(database.todos)
+          ..where((tbl) => tbl.id.equals(id)))
+        .write(TodosCompanion(
+          isDeleted: const Value(true),
+          updatedAt: Value(DateTime.now()),
+        ));
+    return result > 0;
+  }
+
+  /// 指定期間内の削除されたレコードを取得
+  Future<List<Todo>> findDeletedTodosForPeriod(DateTime start, DateTime end) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final data = await (database.todos.select()
+          ..where((tbl) => 
+              tbl.isDeleted.equals(true) &
+              tbl.parentTodoId.isNotNull() &
+              tbl.dueDate.isBiggerOrEqualValue(start) &
+              tbl.dueDate.isSmallerThanValue(end.add(const Duration(days: 1)))))
+        .get();
+    
+    return data
+        .map((e) => Todo(
+              id: e.id,
+              dueDate: e.dueDate,
+              title: e.title,
+              isCompleted: e.isCompleted,
+              description: e.description,
+              color: e.color,
+              categoryId: e.categoryId,
+              parentTodoId: e.parentTodoId,
+              icon: e.icon,
+              createdAt: e.createdAt,
+              updatedAt: e.updatedAt,
+              isRecurring: e.isRecurring,
+              recurringType: e.recurringType,
+              recurringEndDate: e.recurringEndDate,
+              timerType: e.timerType,
+              countupElapsedSeconds: e.countupElapsedSeconds,
+              pomodoroWorkMinutes: e.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: e.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: e.pomodoroLongBreakMinutes,
+              pomodoroCycle: e.pomodoroCycle,
+              pomodoroCompletedCycle: e.pomodoroCompletedCycle,
+              isDeleted: e.isDeleted,
+            ))
+        .toList();
+  }
+
+  /// 指定された親TodoIDと日付で削除済みレコードが存在するかチェック
+  Future<bool> isDateDeleted(int parentTodoId, DateTime date) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+    
+    final result = await (database.todos.select()
+          ..where((tbl) => 
+              tbl.parentTodoId.equals(parentTodoId) & 
+              tbl.isDeleted.equals(true) &
+              tbl.dueDate.isBiggerOrEqualValue(startOfDay) &
+              tbl.dueDate.isSmallerThanValue(endOfDay)))
+        .getSingleOrNull();
+    
+    return result != null;
   }
 
   Future<List<Todo>> findByDate(DateTime date) async {

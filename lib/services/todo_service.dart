@@ -146,10 +146,10 @@ class TodoService {
     return TodoModel.fromTodo(todo);
   }
 
-  Future<bool> deleteTodo(int id) async {
+  Future<bool> deleteTodo(int id, {DateTime? date}) async {
     // 仮想インスタンス（負のID）の場合
     if (id < 0) {
-      return await deleteVirtualInstance(id, DateTime.now());
+      return await deleteVirtualInstance(id, date ?? DateTime.now());
     }
     // 通常のTodoの場合は論理削除
     return await _todoTableRepository.softDelete(id);
@@ -160,13 +160,46 @@ class TodoService {
     // 仮想インスタンスの場合（負のID）、親IDを抽出
     final parentTodoId = -virtualId;
     
+    // 親Todoの情報を取得
+    final todos = await _todoTableRepository.findAll();
+    final parentTodo = todos.firstWhere((t) => t.id == parentTodoId);
+    
     // 日付のみにする（時刻を除去）
     final dateOnly = DateTime(date.year, date.month, date.day);
     
-    // 親Todoを論理削除済みとしてマーク（特定日のみ削除）
-    // ここでは親Todoに対する特定日の削除を記録する方法を実装
-    // 今回は簡易的に親TodoのisDeletedを更新する代わりに
-    // 仮想インスタンスの削除として処理
+    // その特定日に対応する削除済みTodoレコードを作成
+    final now = DateTime.now();
+    final companion = TodosCompanion(
+      title: Value(parentTodo.title),
+      description: Value(parentTodo.description),
+      dueDate: Value(DateTime(
+        dateOnly.year,
+        dateOnly.month,
+        dateOnly.day,
+        parentTodo.dueDate.hour,
+        parentTodo.dueDate.minute,
+      )),
+      isCompleted: const Value(false),
+      isDeleted: const Value(true), // 論理削除フラグを設定
+      color: Value(parentTodo.color),
+      icon: Value(parentTodo.icon),
+      categoryId: Value(parentTodo.categoryId),
+      createdAt: Value(now),
+      updatedAt: Value(now),
+      isRecurring: Value(parentTodo.isRecurring),
+      recurringType: Value(parentTodo.recurringType),
+      recurringEndDate: Value(parentTodo.recurringEndDate),
+      parentTodoId: Value(parentTodoId),
+      timerType: Value(parentTodo.timerType),
+      countupElapsedSeconds: Value(parentTodo.countupElapsedSeconds),
+      pomodoroWorkMinutes: Value(parentTodo.pomodoroWorkMinutes),
+      pomodoroShortBreakMinutes: Value(parentTodo.pomodoroShortBreakMinutes),
+      pomodoroLongBreakMinutes: Value(parentTodo.pomodoroLongBreakMinutes),
+      pomodoroCycle: Value(parentTodo.pomodoroCycle),
+      pomodoroCompletedCycle: Value(parentTodo.pomodoroCompletedCycle),
+    );
+    
+    await _todoTableRepository.insert(companion);
     return true;
   }
 
@@ -307,16 +340,22 @@ class TodoService {
     final allTodos = await _todoTableRepository.findAll();
     final List<TodoModel> result =
         todos.map((todo) => TodoModel.fromTodo(todo)).toList();
+    
+    // その日の削除レコードを取得
+    final endOfDay = date.add(const Duration(days: 1));
+    final deletedRecords = await _getDeletedRecordsForPeriod(date, endOfDay);
+    
     // 繰り返しTodoの仮想インスタンスも追加
     for (final todo in allTodos) {
       if (todo.isRecurring == true && todo.recurringType != null) {
-        if (_isRecurringOnDay(TodoModel.fromTodo(todo), date)) {
+        if (_isRecurringOnDayWithDeletedCheck(TodoModel.fromTodo(todo), date, deletedRecords)) {
           // 既に通常Todoとして存在しない場合のみ追加
           final exists = result.any((t) =>
               t.title == todo.title &&
               t.dueDate.year == date.year &&
               t.dueDate.month == date.month &&
               t.dueDate.day == date.day);
+          
           if (!exists) {
             result.add(TodoModel.fromTodo(todo).copyWith(
                 id: -todo.id, // 仮想インスタンスは負のIDで区別
@@ -339,6 +378,9 @@ class TodoService {
     final List<TodoModel> normalTodos = [];
     final firstDay = DateTime(month.year, month.month, 1);
     final lastDay = DateTime(month.year, month.month + 1, 0);
+    
+    // 削除されたレコードを一括取得（月内の期間）
+    final deletedRecords = await _getDeletedRecordsForPeriod(firstDay, lastDay);
     // すべてのTodoのIDリストを作成
     final todoIds = todos.map((t) => t.id).toList();
     // 一括でチェックリストを取得
@@ -380,7 +422,7 @@ class TodoService {
       for (DateTime day = firstDay;
           !day.isAfter(lastDay);
           day = day.add(const Duration(days: 1))) {
-        if (_isRecurringOnDay(todo, day)) {
+        if (_isRecurringOnDayWithDeletedCheck(todo, day, deletedRecords)) {
           final instance = todo.copyWith(
             id: -todo.id, // 仮想インスタンスは負のIDで区別
             dueDate: DateTime(day.year, day.month, day.day, todo.dueDate.hour,
@@ -398,12 +440,16 @@ class TodoService {
     return todosByDate;
   }
 
-  // 指定日が繰り返しTodoの該当日か判定
-  bool _isRecurringOnDay(TodoModel todo, DateTime day) {
+  // 指定日が繰り返しTodoの該当日か判定（削除された日付もチェック）
+  Future<bool> _isRecurringOnDay(TodoModel todo, DateTime day) async {
     if (todo.isRecurring != true) return false;
     if (todo.recurringEndDate != null && day.isAfter(todo.recurringEndDate!)) {
       return false;
     }
+    
+    // 削除された日付かチェック
+    final isDeleted = await _isDateDeleted(todo.id, day);
+    if (isDeleted) return false;
     
     // 日付のみで比較するため、時刻を0:00:00にする
     final dayOnly = DateTime(day.year, day.month, day.day);
@@ -422,6 +468,64 @@ class TodoService {
         final lastDay = DateTime(day.year, day.month + 1, 0).day;
         return !dayOnly.isBefore(dueDateOnly) && day.day == lastDay;
     }
+  }
+
+  // メモリ内削除チェック版の_isRecurringOnDay
+  bool _isRecurringOnDayWithDeletedCheck(TodoModel todo, DateTime day, Map<String, Set<DateTime>> deletedRecords) {
+    if (todo.isRecurring != true) return false;
+    if (todo.recurringEndDate != null && day.isAfter(todo.recurringEndDate!)) {
+      return false;
+    }
+    
+    // 削除された日付かチェック（メモリ内）
+    final isDeleted = _isDateDeletedInMemory(todo.id, day, deletedRecords);
+    if (isDeleted) return false;
+    
+    // 日付のみで比較するため、時刻を0:00:00にする
+    final dayOnly = DateTime(day.year, day.month, day.day);
+    final dueDateOnly = DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day);
+    
+    switch (todo.recurringType) {
+      case RecurringType.daily:
+        return !dayOnly.isBefore(dueDateOnly);
+      case RecurringType.weekly:
+        return !dayOnly.isBefore(dueDateOnly) &&
+            day.weekday == todo.dueDate.weekday;
+      case RecurringType.monthly:
+        return !dayOnly.isBefore(dueDateOnly) &&
+            day.day == todo.dueDate.day;
+      case RecurringType.monthlyLast:
+        final lastDay = DateTime(day.year, day.month + 1, 0).day;
+        return !dayOnly.isBefore(dueDateOnly) && day.day == lastDay;
+    }
+  }
+
+  /// 指定された親TodoIDと日付で削除済みレコードが存在するかチェック
+  Future<bool> _isDateDeleted(int parentTodoId, DateTime date) async {
+    return await _todoTableRepository.isDateDeleted(parentTodoId, date);
+  }
+
+  /// 指定期間内の削除されたレコードを一括取得
+  Future<Map<String, Set<DateTime>>> _getDeletedRecordsForPeriod(DateTime start, DateTime end) async {
+    final deletedTodos = await _todoTableRepository.findDeletedTodosForPeriod(start, end);
+    
+    final Map<String, Set<DateTime>> deletedDates = {};
+    for (final todo in deletedTodos) {
+      final parentId = todo.parentTodoId!;
+      final dateOnly = DateTime(todo.dueDate.year, todo.dueDate.month, todo.dueDate.day);
+      final key = parentId.toString();
+      deletedDates[key] = deletedDates[key] ?? <DateTime>{};
+      deletedDates[key]!.add(dateOnly);
+    }
+    
+    return deletedDates;
+  }
+
+  /// メモリ内で削除チェックを行う（効率化版）
+  bool _isDateDeletedInMemory(int parentTodoId, DateTime date, Map<String, Set<DateTime>> deletedRecords) {
+    final key = parentTodoId.toString();
+    final dateOnly = DateTime(date.year, date.month, date.day);
+    return deletedRecords[key]?.contains(dateOnly) ?? false;
   }
 
   DateTime? calculateNextRecurringDate(TodoModel todo) {
@@ -613,8 +717,8 @@ class TodoService {
   }
 
   /// 繰り返しTodoから指定日に最も近い未来の日付を算出
-  DateTime? getNextRecurringDateFromToday(
-      TodoModel recurringTodo, DateTime today) {
+  Future<DateTime?> getNextRecurringDateFromToday(
+      TodoModel recurringTodo, DateTime today) async {
     if (recurringTodo.isRecurring != true) return null;
 
     // 今日以降の最初の繰り返し日を見つける
@@ -622,7 +726,7 @@ class TodoService {
 
     // 最大90日先まで検索（無限ループを防ぐ）
     for (int i = 0; i < 90; i++) {
-      if (_isRecurringOnDay(recurringTodo, currentCheck)) {
+      if (await _isRecurringOnDay(recurringTodo, currentCheck)) {
         // 繰り返し終了日をチェック
         if (recurringTodo.recurringEndDate != null &&
             currentCheck.isAfter(recurringTodo.recurringEndDate!)) {
@@ -794,7 +898,7 @@ class TodoService {
         result.add(TodoModel.fromTodo(nearestInstance));
       } else {
         // 既存の未来インスタンスがない場合のみ、新しいインスタンスを作成
-        final nextDate = getNextRecurringDateFromToday(parentTodo, today);
+        final nextDate = await getNextRecurringDateFromToday(parentTodo, today);
         if (nextDate != null) {
           final newInstance =
               await createRecurringInstance(parentTodo, nextDate);
