@@ -2,7 +2,79 @@ import 'package:drift/drift.dart';
 import 'package:solo/repositories/database/drift.dart';
 
 class TodoTableRepository {
+  Future<Todo?> findById(int id) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final data = await (database.todos.select()
+          ..where((tbl) => tbl.id.equals(id)))
+        .getSingleOrNull();
+
+    if (data != null) {
+      return Todo(
+        id: data.id,
+        dueDate: data.dueDate,
+        title: data.title,
+        isCompleted: data.isCompleted,
+        description: data.description,
+        color: data.color,
+        categoryId: data.categoryId,
+        parentTodoId: data.parentTodoId,
+        icon: data.icon,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+        isRecurring: data.isRecurring,
+        recurringType: data.recurringType,
+        recurringEndDate: data.recurringEndDate,
+        timerType: data.timerType,
+        countupElapsedSeconds: data.countupElapsedSeconds,
+        pomodoroWorkMinutes: data.pomodoroWorkMinutes,
+        pomodoroShortBreakMinutes: data.pomodoroShortBreakMinutes,
+        pomodoroLongBreakMinutes: data.pomodoroLongBreakMinutes,
+        pomodoroCycle: data.pomodoroCycle,
+        pomodoroCompletedCycle: data.pomodoroCompletedCycle,
+        isDeleted: data.isDeleted,
+      );
+    }
+    return null;
+  }
+
   Future<List<Todo>> findAll() async {
+    final database = await AppDatabase.getSingletonInstance();
+    final data = await (database.todos.select()
+          ..where((tbl) => 
+              tbl.isDeleted.equals(false) &
+              // 繰り返しの親Todo（isRecurring=true かつ parentTodoId=null）を除外
+              (tbl.isRecurring.equals(true) & tbl.parentTodoId.isNull()).not()))
+        .get();
+    return data
+        .map((e) => Todo(
+              id: e.id,
+              dueDate: e.dueDate,
+              title: e.title,
+              isCompleted: e.isCompleted,
+              description: e.description,
+              color: e.color,
+              categoryId: e.categoryId,
+              parentTodoId: e.parentTodoId,
+              icon: e.icon,
+              createdAt: e.createdAt,
+              updatedAt: e.updatedAt,
+              isRecurring: e.isRecurring,
+              recurringType: e.recurringType,
+              recurringEndDate: e.recurringEndDate,
+              timerType: e.timerType,
+              countupElapsedSeconds: e.countupElapsedSeconds,
+              pomodoroWorkMinutes: e.pomodoroWorkMinutes,
+              pomodoroShortBreakMinutes: e.pomodoroShortBreakMinutes,
+              pomodoroLongBreakMinutes: e.pomodoroLongBreakMinutes,
+              pomodoroCycle: e.pomodoroCycle,
+              pomodoroCompletedCycle: e.pomodoroCompletedCycle,
+              isDeleted: e.isDeleted,
+            ))
+        .toList();
+  }
+
+  /// テスト用: 繰り返しの親Todoを含むすべてのTodoを取得
+  Future<List<Todo>> findAllIncludingParents() async {
     final database = await AppDatabase.getSingletonInstance();
     final data = await (database.todos.select()
           ..where((tbl) => tbl.isDeleted.equals(false)))
@@ -110,7 +182,8 @@ class TodoTableRepository {
   }
 
   /// トランザクション内で複数のTodoを一括更新
-  Future<bool> updateMultipleInTransaction(List<MapEntry<int, TodosCompanion>> updates) async {
+  Future<bool> updateMultipleInTransaction(
+      List<MapEntry<int, TodosCompanion>> updates) async {
     final database = await AppDatabase.getSingletonInstance();
     return await database.transaction(() async {
       try {
@@ -134,11 +207,12 @@ class TodoTableRepository {
   Future<List<Todo>> findByParentTodoId(int parentTodoId) async {
     final database = await AppDatabase.getSingletonInstance();
     final data = await (database.todos.select()
-          ..where((tbl) => 
+          ..where((tbl) =>
               tbl.isDeleted.equals(false) &
-              (tbl.id.equals(parentTodoId) | tbl.parentTodoId.equals(parentTodoId))))
+              (tbl.id.equals(parentTodoId) |
+                  tbl.parentTodoId.equals(parentTodoId))))
         .get();
-        
+
     return data
         .map((e) => Todo(
               id: e.id,

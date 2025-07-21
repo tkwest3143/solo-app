@@ -35,7 +35,7 @@ void main() {
       );
 
       // Get the created child Todo for 7/21
-      final todos = await todoService.getTodo();
+      final todos = await todoService.getTodoIncludingParents();
       final childTodo = todos.firstWhere(
         (t) => t.parentTodoId == parentTodo.id && t.id != parentTodo.id,
       );
@@ -52,7 +52,7 @@ void main() {
       expect(updatedChildTodo?.categoryId, equals(2));
 
       // 3. Verify that the parent Todo was also updated
-      final allTodos = await todoService.getTodo();
+      final allTodos = await todoService.getTodoIncludingParents();
       final updatedParentTodo = allTodos.firstWhere((t) => t.id == parentTodo.id);
       
       // This should pass after fix: parent Todo should also have the new category
@@ -80,7 +80,7 @@ void main() {
         recurringType: RecurringType.weekly,
       );
 
-      final initialTodos = await todoService.getTodo();
+      final initialTodos = await todoService.getTodoIncludingParents();
       final initialParentCount = initialTodos.where(
         (t) => t.isRecurring == true && t.parentTodoId == null,
       ).length;
@@ -98,7 +98,7 @@ void main() {
       );
 
       // 3. Verify that no new parent Todo was created
-      final updatedTodos = await todoService.getTodo();
+      final updatedTodos = await todoService.getTodoIncludingParents();
       final finalParentCount = updatedTodos.where(
         (t) => t.isRecurring == true && t.parentTodoId == null,
       ).length;
@@ -142,7 +142,7 @@ void main() {
       );
 
       // 3. Get all child Todos
-      final allTodos = await todoService.getTodo();
+      final allTodos = await todoService.getTodoIncludingParents();
       final childTodos = allTodos.where(
         (t) => t.parentTodoId == parentTodo.id && t.id != parentTodo.id,
       ).toList();
@@ -158,7 +158,7 @@ void main() {
       );
 
       // 5. Verify all child Todos and parent are updated
-      final updatedTodos = await todoService.getTodo();
+      final updatedTodos = await todoService.getTodoIncludingParents();
       final updatedParent = updatedTodos.firstWhere((t) => t.id == parentTodo.id);
       final updatedChildren = updatedTodos.where(
         (t) => t.parentTodoId == parentTodo.id && t.id != parentTodo.id,
@@ -205,7 +205,7 @@ void main() {
       expect(updatedParent, isNotNull);
 
       // 3. Verify that child Todos are also updated
-      final allTodos = await todoService.getTodo();
+      final allTodos = await todoService.getTodoIncludingParents();
       final childTodos = allTodos.where(
         (t) => t.parentTodoId == parentTodo.id && t.id != parentTodo.id,
       ).toList();

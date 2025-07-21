@@ -63,6 +63,12 @@ class TodoService {
     return todos.map((todo) => TodoModel.fromTodo(todo)).toList();
   }
 
+  /// テスト用: 繰り返しの親Todoを含むすべてのTodoを取得
+  Future<List<TodoModel>> getTodoIncludingParents() async {
+    final todos = await _todoTableRepository.findAllIncludingParents();
+    return todos.map((todo) => TodoModel.fromTodo(todo)).toList();
+  }
+
   Future<TodoModel> createTodo({
     required String title,
     String? description,
@@ -111,7 +117,7 @@ class TodoService {
         dueDate: dueDate,
         color: color,
         categoryId: categoryId,
-        isRecurring: false, // 子Todoは繰り返しではない
+        isRecurring: true, // 子Todoは繰り返しではない
         recurringType: recurringType,
         parentTodoId: id, // 親TodoのIDを設定
         recurringEndDate: recurringEndDate,
@@ -170,10 +176,12 @@ class TodoService {
       int? pomodoroCycle,
       int? pomodoroCompletedCycle}) async {
     // 既存のTodoを取得して編集制限をチェック
-    final todos = await _todoTableRepository.findAll();
     Todo? existingTodo;
     try {
-      existingTodo = todos.firstWhere((t) => t.id == id);
+      existingTodo = await _todoTableRepository.findById(id);
+      if (existingTodo == null) {
+        return null; // Todoが見つからない場合はnullを返す
+      }
     } catch (e) {
       return null;
     }
@@ -252,11 +260,12 @@ class TodoService {
         // 同期失敗してもメインの更新は成功しているのでnullは返さない
       }
     }
-
-    final updatedTodos = await _todoTableRepository.findAll();
     Todo? todo;
     try {
-      todo = updatedTodos.firstWhere((t) => t.id == id);
+      todo = await _todoTableRepository.findById(id);
+      if (todo == null) {
+        return null; // 更新後にTodoが見つからない場合はnullを返す
+      }
     } catch (e) {
       return null;
     }
@@ -268,14 +277,15 @@ class TodoService {
       TodosCompanion companion, Todo originalTodo, DateTime now) async {
     try {
       // 最適化：親IDに関連するTodoのみを取得
-      final relatedTodos = await _todoTableRepository.findByParentTodoId(parentTodoId);
-      
+      final relatedTodos =
+          await _todoTableRepository.findByParentTodoId(parentTodoId);
+
       if (relatedTodos.isEmpty) {
         return false; // 関連するTodoが見つからない場合
       }
 
       final updates = <MapEntry<int, TodosCompanion>>[];
-      
+
       // 編集対象が子Todoの場合、親Todoの更新を準備
       if (originalTodo.parentTodoId != null) {
         final parentUpdateCompanion = _buildSyncCompanion(companion, now);
@@ -284,7 +294,10 @@ class TodoService {
 
       // すべての子Todoの更新を準備
       final childTodos = relatedTodos
-          .where((t) => t.parentTodoId == parentTodoId && t.id != parentTodoId && t.id != originalTodo.id)
+          .where((t) =>
+              t.parentTodoId == parentTodoId &&
+              t.id != parentTodoId &&
+              t.id != originalTodo.id)
           .toList();
 
       for (final childTodo in childTodos) {
@@ -308,13 +321,11 @@ class TodoService {
           ? source.description
           : const Value.absent(),
       color: source.color.present ? source.color : const Value.absent(),
-      categoryId: source.categoryId.present
-          ? source.categoryId
-          : const Value.absent(),
+      categoryId:
+          source.categoryId.present ? source.categoryId : const Value.absent(),
       updatedAt: Value(now),
-      timerType: source.timerType.present
-          ? source.timerType
-          : const Value.absent(),
+      timerType:
+          source.timerType.present ? source.timerType : const Value.absent(),
       countupElapsedSeconds: source.countupElapsedSeconds.present
           ? source.countupElapsedSeconds
           : const Value.absent(),
@@ -351,8 +362,10 @@ class TodoService {
     final parentTodoId = virtualInstanceIdMultiplier * virtualId;
 
     // 親Todoの情報を取得
-    final todos = await _todoTableRepository.findAll();
-    final parentTodo = todos.firstWhere((t) => t.id == parentTodoId);
+    final parentTodo = await _todoTableRepository.findById(parentTodoId);
+    if (parentTodo == null) {
+      return false; // 親Todoが見つからない場合は削除できない
+    }
 
     // 日付のみにする（時刻を除去）
     final dateOnly = DateTime(date.year, date.month, date.day);
@@ -397,8 +410,10 @@ class TodoService {
   Future<bool> deleteAllRecurringTodos(int todoId) async {
     try {
       // 削除するTodoを取得
-      final todos = await _todoTableRepository.findAll();
-      final targetTodo = todos.firstWhere((t) => t.id == todoId);
+      final targetTodo = await _todoTableRepository.findById(todoId);
+      if (targetTodo == null) {
+        return false; // Todoが見つからない場合は削除できない
+      }
 
       if (targetTodo.isRecurring) {
         // 親Todoの場合（parentTodoIdがnull）
@@ -439,11 +454,8 @@ class TodoService {
   }
 
   Future<TodoModel?> toggleTodoComplete(int id) async {
-    final todos = await _todoTableRepository.findAll();
-    Todo? todo;
-    try {
-      todo = todos.firstWhere((t) => t.id == id);
-    } catch (e) {
+    final todo = await _todoTableRepository.findById(id);
+    if (todo == null) {
       return null;
     }
     final companion = TodosCompanion(
@@ -452,34 +464,22 @@ class TodoService {
     );
     final success = await _todoTableRepository.update(id, companion);
     if (!success) return null;
-    final updatedTodos = await _todoTableRepository.findAll();
-    Todo? updatedTodo;
-    try {
-      updatedTodo = updatedTodos.firstWhere((t) => t.id == id);
-    } catch (e) {
+    final updatedTodo = await _todoTableRepository.findById(id);
+    if (updatedTodo == null) {
       return null;
     }
     return TodoModel.fromTodo(updatedTodo);
   }
 
   Future<TodoModel?> completeTodoById(int id) async {
-    final todos = await _todoTableRepository.findAll();
-    try {
-      todos.firstWhere((t) => t.id == id);
-    } catch (e) {
-      return null;
-    }
     final companion = TodosCompanion(
       isCompleted: const Value(true),
       updatedAt: Value(DateTime.now()),
     );
     final success = await _todoTableRepository.update(id, companion);
     if (!success) return null;
-    final updatedTodos = await _todoTableRepository.findAll();
-    Todo? updatedTodo;
-    try {
-      updatedTodo = updatedTodos.firstWhere((t) => t.id == id);
-    } catch (e) {
+    final updatedTodo = await _todoTableRepository.findById(id);
+    if (updatedTodo == null) {
       return null;
     }
     return TodoModel.fromTodo(updatedTodo);
@@ -490,11 +490,8 @@ class TodoService {
     final allItemsCompleted =
         await checklistService.areAllCheckListItemsCompleted(todoId);
     if (allItemsCompleted) {
-      final todos = await _todoTableRepository.findAll();
-      Todo? todo;
-      try {
-        todo = todos.firstWhere((t) => t.id == todoId);
-      } catch (e) {
+      final todo = await _todoTableRepository.findById(todoId);
+      if (todo == null) {
         return false;
       }
       if (!todo.isCompleted) {
@@ -545,8 +542,7 @@ class TodoService {
 
           if (!exists) {
             result.add(TodoModel.fromTodo(todo).copyWith(
-                id: virtualInstanceIdMultiplier *
-                    todo.id, // 仮想インスタンスは負のIDで区別
+                id: virtualInstanceIdMultiplier * todo.id, // 仮想インスタンスは負のIDで区別
                 dueDate: DateTime(date.year, date.month, date.day,
                     todo.dueDate.hour, todo.dueDate.minute),
                 parentTodoId: todo.id, // 親TodoのIDを設定
