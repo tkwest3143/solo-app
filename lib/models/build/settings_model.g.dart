@@ -28,6 +28,7 @@ _AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => _AppSettings(
           json['appUpdateNotificationsEnabled'] as bool? ?? true,
       countUpNotificationMinutes:
           (json['countUpNotificationMinutes'] as num?)?.toInt() ?? 60,
+      hasCompletedTutorial: json['hasCompletedTutorial'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$AppSettingsToJson(_AppSettings instance) =>
@@ -46,6 +47,7 @@ Map<String, dynamic> _$AppSettingsToJson(_AppSettings instance) =>
       'todoDeadlineRemindersEnabled': instance.todoDeadlineRemindersEnabled,
       'appUpdateNotificationsEnabled': instance.appUpdateNotificationsEnabled,
       'countUpNotificationMinutes': instance.countUpNotificationMinutes,
+      'hasCompletedTutorial': instance.hasCompletedTutorial,
     };
 
 const _$ThemeModeEnumMap = {

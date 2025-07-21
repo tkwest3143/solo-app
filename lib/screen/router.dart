@@ -7,6 +7,7 @@ import 'package:solo/screen/pages/timer.dart';
 import 'package:solo/screen/pages/menu.dart';
 import 'package:solo/screen/pages/settings.dart';
 import 'package:solo/screen/pages/about.dart';
+import 'package:solo/screen/pages/tutorial.dart';
 import 'package:solo/screen/widgets/global.dart';
 
 class Route {
@@ -57,6 +58,13 @@ class RouterDefinition {
       path: '/about',
       name: '/about',
       builder: (context, state) => const BulderWidget(child: AboutPage()));
+
+  static Route tutorial = Route(
+      path: '/tutorial',
+      name: '/tutorial',
+      builder: (context, state) => BulderWidget(
+          child: TutorialPage(
+              isFromMenu: state.uri.queryParameters['from'] == 'menu')));
 }
 
 void nextRouting(BuildContext context, Route route) {
@@ -97,6 +105,10 @@ final appRouter = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouterDefinition.about.name,
             builder: RouterDefinition.about.builder,
+          ),
+          GoRoute(
+            path: RouterDefinition.tutorial.name,
+            builder: RouterDefinition.tutorial.builder,
           ),
         ],
       ),

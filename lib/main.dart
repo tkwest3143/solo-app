@@ -57,6 +57,13 @@ class MyApp extends HookConsumerWidget {
         await ref
             .read(notificationStateProvider.notifier)
             .scheduleTodayNotifications();
+
+        // Check if tutorial should be shown
+        final settings = ref.read(settingsStateProvider);
+        if (!settings.hasCompletedTutorial) {
+          // Navigate to tutorial page
+          router.go(RouterDefinition.tutorial.path);
+        }
       });
       return null;
     }, []);

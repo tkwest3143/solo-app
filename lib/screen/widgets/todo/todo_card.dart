@@ -239,7 +239,7 @@ class TodoCard extends ConsumerWidget {
                           category.title,
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.bold,
                             color: TodoColor.getColorFromString(category.color),
                           ),
                           overflow: TextOverflow.ellipsis,
