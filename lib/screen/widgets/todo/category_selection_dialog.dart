@@ -252,6 +252,8 @@ class _CategoryOption extends StatelessWidget {
                               ? Theme.of(context).colorScheme.primary
                               : Theme.of(context).colorScheme.primaryTextColor,
                         ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
                       if (description.isNotEmpty) ...[
                         const SizedBox(height: 4),
@@ -263,6 +265,8 @@ class _CategoryOption extends StatelessWidget {
                                 .colorScheme
                                 .secondaryTextColor,
                           ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
                         ),
                       ],
                     ],
