@@ -4,6 +4,7 @@ import 'package:solo/screen/colors.dart';
 import 'package:solo/models/category_model.dart';
 import 'package:solo/services/category_service.dart';
 import 'package:solo/enums/todo_color.dart';
+import 'package:solo/utilities/input_validation.dart';
 
 class AddCategoryDialog {
   static Future<CategoryModel?> show(BuildContext context) async {
@@ -22,9 +23,13 @@ class _AddCategoryDialogContent extends HookWidget {
     final selectedColor = useState<String>('blue');
     final isCreating = useState<bool>(false);
 
-    final isTitleNotEmpty = useListenableSelector(
+    // バリデーションエラー状態
+    final titleError = useState<String?>(null);
+    final descriptionError = useState<String?>(null);
+
+    final isTitleValid = useListenableSelector(
       titleController,
-      () => titleController.text.trim().isNotEmpty,
+      () => InputValidation.validateCategoryTitle(titleController.text) == null,
     );
 
     return AlertDialog(
@@ -63,6 +68,10 @@ class _AddCategoryDialogContent extends HookWidget {
               child: TextField(
                 controller: titleController,
                 autofocus: true,
+                maxLength: 30,
+                onChanged: (value) {
+                  titleError.value = InputValidation.validateCategoryTitle(value);
+                },
                 decoration: InputDecoration(
                   labelText: 'カテゴリ名',
                   border: OutlineInputBorder(
@@ -77,12 +86,18 @@ class _AddCategoryDialogContent extends HookWidget {
                     horizontal: 16,
                     vertical: 18, // より大きい縦方向パディングでラベルとの衝突を防ぐ
                   ),
+                  errorText: titleError.value,
+                  counterText: '',
                 ),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: descriptionController,
+              maxLength: 200,
+              onChanged: (value) {
+                descriptionError.value = InputValidation.validateCategoryDescription(value);
+              },
               decoration: InputDecoration(
                 labelText: '詳細 (オプション)',
                 border: OutlineInputBorder(
@@ -97,6 +112,8 @@ class _AddCategoryDialogContent extends HookWidget {
                   horizontal: 16,
                   vertical: 18, // 一貫性のあるパディング
                 ),
+                errorText: descriptionError.value,
+                counterText: '',
               ),
               maxLines: 2,
             ),
@@ -169,7 +186,7 @@ class _AddCategoryDialogContent extends HookWidget {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          onPressed: (isTitleNotEmpty && !isCreating.value)
+          onPressed: (isTitleValid && !isCreating.value)
               ? () async {
                   isCreating.value = true;
                   try {

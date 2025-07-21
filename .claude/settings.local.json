@@ -22,7 +22,10 @@
       "Bash(/Users/takanorinishi/fvm/versions/3.32.6/bin/flutter build appbundle)",
       "Bash(/Users/takanorinishi/fvm/versions/3.32.6/bin/flutter build appbundle --verbose)",
       "Bash(keytool:*)",
-      "Bash(dart format:*)"
+      "Bash(dart format:*)",
+      "Bash(curl:*)",
+      "Bash(git add:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": []
   }
