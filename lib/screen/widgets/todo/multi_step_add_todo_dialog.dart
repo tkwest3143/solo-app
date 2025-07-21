@@ -18,6 +18,24 @@ enum ManageType { normal, pomodoro, countup, checklist }
 
 enum DialogStep { title, repeatAndDate, management, categoryAndDetails }
 
+// ポモドーロタイマーのデフォルト値定数
+class _PomodoroDefaults {
+  static const int workMinutes = 25;
+  static const int shortBreakMinutes = 5;
+  static const int longBreakMinutes = 15;
+  static const int cycles = 4;
+  static const int completedCycles = 2;
+}
+
+// UI関連の定数
+class _UIConstants {
+  static const double managementGridHeight = 140.0;
+  static const double gridCrossAxisSpacing = 8.0;
+  static const double gridMainAxisSpacing = 4.0;
+  static const double gridAspectRatio = 2.5;
+  static const int gridCrossAxisCount = 2;
+}
+
 class MultiStepAddTodoDialog {
   static Future<void> show(
     BuildContext context, {
@@ -83,11 +101,11 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
     final isPomodoro = useState<bool>(false);
 
     // ポモドーロタイマー設定
-    final pomodoroWorkMinutes = useState<int>(25);
-    final pomodoroShortBreakMinutes = useState<int>(5);
-    final pomodoroLongBreakMinutes = useState<int>(15);
-    final pomodoroCycle = useState<int>(4);
-    final pomodoroCompletionCycles = useState<int>(2);
+    final pomodoroWorkMinutes = useState<int>(_PomodoroDefaults.workMinutes);
+    final pomodoroShortBreakMinutes = useState<int>(_PomodoroDefaults.shortBreakMinutes);
+    final pomodoroLongBreakMinutes = useState<int>(_PomodoroDefaults.longBreakMinutes);
+    final pomodoroCycle = useState<int>(_PomodoroDefaults.cycles);
+    final pomodoroCompletionCycles = useState<int>(_PomodoroDefaults.completedCycles);
 
     // カウントアップタイマー設定
     final countupTargetMinutes = useState<int?>(null);
@@ -101,7 +119,10 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
         // 編集モードの場合、既存のtimerTypeに基づいてmanageTypeを設定
         switch (initialTodo?.timerType) {
           case TimerType.none:
-            if (initialTodo?.checklistItem.isNotEmpty == true) {
+            // チェックリストアイテムの存在確認（null安全性を考慮）
+            final hasChecklistItems = initialTodo?.checklistItem != null && 
+                                    initialTodo!.checklistItem.isNotEmpty;
+            if (hasChecklistItems) {
               manageType.value = ManageType.checklist;
               checklistItems.value = initialTodo?.checklistItem ?? [];
               checklistEnabled.value = true;
@@ -113,11 +134,11 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
             manageType.value = ManageType.pomodoro;
             isPomodoro.value = true;
             // ポモドーロ設定を復元
-            pomodoroWorkMinutes.value = initialTodo?.pomodoroWorkMinutes ?? 25;
-            pomodoroShortBreakMinutes.value = initialTodo?.pomodoroShortBreakMinutes ?? 5;
-            pomodoroLongBreakMinutes.value = initialTodo?.pomodoroLongBreakMinutes ?? 15;
-            pomodoroCycle.value = initialTodo?.pomodoroCycle ?? 4;
-            pomodoroCompletionCycles.value = initialTodo?.pomodoroCompletedCycle ?? 2;
+            pomodoroWorkMinutes.value = initialTodo?.pomodoroWorkMinutes ?? _PomodoroDefaults.workMinutes;
+            pomodoroShortBreakMinutes.value = initialTodo?.pomodoroShortBreakMinutes ?? _PomodoroDefaults.shortBreakMinutes;
+            pomodoroLongBreakMinutes.value = initialTodo?.pomodoroLongBreakMinutes ?? _PomodoroDefaults.longBreakMinutes;
+            pomodoroCycle.value = initialTodo?.pomodoroCycle ?? _PomodoroDefaults.cycles;
+            pomodoroCompletionCycles.value = initialTodo?.pomodoroCompletedCycle ?? _PomodoroDefaults.completedCycles;
             break;
           case TimerType.countup:
             manageType.value = ManageType.countup;
@@ -132,7 +153,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
         }
       }
       return null;
-    }, [initialTodo]);
+    }, [initialTodo?.id, initialTodo?.timerType, initialTodo?.checklistItem]);
 
     // 初期化と既存のuseEffectは省略...
 
@@ -536,12 +557,12 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
                 _SectionCard(
                   padding: 16,
                   child: SizedBox(
-                    height: 140,
+                    height: _UIConstants.managementGridHeight,
                     child: GridView.count(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 4,
-                      childAspectRatio: 2.5,
+                      crossAxisCount: _UIConstants.gridCrossAxisCount,
+                      crossAxisSpacing: _UIConstants.gridCrossAxisSpacing,
+                      mainAxisSpacing: _UIConstants.gridMainAxisSpacing,
+                      childAspectRatio: _UIConstants.gridAspectRatio,
                       physics: const NeverScrollableScrollPhysics(),
                       children: [
                         _buildManageTypeCard(
@@ -1611,9 +1632,10 @@ Widget _buildManageTypeCard(
   bool isEditMode = false,
 }) {
   final isSelected = selectedType == type;
+  // 編集モード時はタイマータイプの変更を無効化
   final isDisabled = isEditMode;
   
-  return GestureDetector(
+  final cardWidget = GestureDetector(
     onTap: isDisabled ? null : () => onTap(type),
     child: Container(
       decoration: BoxDecoration(
@@ -1670,6 +1692,14 @@ Widget _buildManageTypeCard(
       ),
     ),
   );
+
+  // 編集モード時は説明用のツールチップを表示
+  return isDisabled
+      ? Tooltip(
+          message: '編集モードでは管理方法を変更できません',
+          child: cardWidget,
+        )
+      : cardWidget;
 }
 
 Widget _buildSectionTitle(BuildContext context, String title) => Padding(
