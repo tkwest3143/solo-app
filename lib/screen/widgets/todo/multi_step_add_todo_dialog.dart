@@ -1076,45 +1076,95 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
 
     final descriptionText = descriptionController.text.trim();
 
-    // Create new todo
-    final newTodo = await TodoService().createTodo(
-      title: titleController.text.trim(),
-      description: descriptionText.isEmpty ? null : descriptionText,
-      dueDate: dueDate,
-      color: selectedCategory.value?.color ?? 'blue',
-      categoryId: selectedCategory.value?.id,
-      isRecurring: isRecurring.value,
-      recurringType: isRecurring.value ? recurringType.value : null,
-      recurringEndDate: isRecurring.value ? recurringEndDate.value : null,
-      timerType: selectedTimerType,
-      // ポモドーロ設定を保存
-      pomodoroWorkMinutes: selectedTimerType == TimerType.pomodoro
-          ? pomodoroWorkMinutes.value
-          : null,
-      pomodoroShortBreakMinutes: selectedTimerType == TimerType.pomodoro
-          ? pomodoroShortBreakMinutes.value
-          : null,
-      pomodoroLongBreakMinutes: selectedTimerType == TimerType.pomodoro
-          ? pomodoroLongBreakMinutes.value
-          : null,
-      pomodoroCycle:
-          selectedTimerType == TimerType.pomodoro ? pomodoroCycle.value : null,
-      pomodoroCompletedCycle: selectedTimerType == TimerType.pomodoro
-          ? pomodoroCompletionCycles.value
-          : null,
-      // カウントアップ設定を保存
-      countupElapsedSeconds: selectedTimerType == TimerType.countup &&
-              countupTargetMinutes.value != null
-          ? countupTargetMinutes.value! * 60
-          : null,
-    );
+    // Create new todo or update existing todo
+    final todoService = TodoService();
+    late TodoModel savedTodo;
+    
+    if (initialTodo != null) {
+      // 編集モード: 既存のTodoを更新
+      final updatedTodo = await todoService.updateTodo(
+        initialTodo!.id,
+        title: titleController.text.trim(),
+        description: descriptionText.isEmpty ? null : descriptionText,
+        dueDate: dueDate,
+        color: selectedCategory.value?.color ?? 'blue',
+        categoryId: selectedCategory.value?.id,
+        isRecurring: isRecurring.value,
+        recurringType: isRecurring.value ? recurringType.value : null,
+        recurringEndDate: isRecurring.value ? recurringEndDate.value : null,
+        timerType: selectedTimerType,
+        // ポモドーロ設定を保存
+        pomodoroWorkMinutes: selectedTimerType == TimerType.pomodoro
+            ? pomodoroWorkMinutes.value
+            : null,
+        pomodoroShortBreakMinutes: selectedTimerType == TimerType.pomodoro
+            ? pomodoroShortBreakMinutes.value
+            : null,
+        pomodoroLongBreakMinutes: selectedTimerType == TimerType.pomodoro
+            ? pomodoroLongBreakMinutes.value
+            : null,
+        pomodoroCycle:
+            selectedTimerType == TimerType.pomodoro ? pomodoroCycle.value : null,
+        pomodoroCompletedCycle: selectedTimerType == TimerType.pomodoro
+            ? pomodoroCompletionCycles.value
+            : null,
+        // カウントアップ設定を保存
+        countupElapsedSeconds: selectedTimerType == TimerType.countup &&
+                countupTargetMinutes.value != null
+            ? countupTargetMinutes.value! * 60
+            : null,
+      );
+      
+      if (updatedTodo == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Todoの更新に失敗しました')),
+          );
+        }
+        return;
+      }
+      savedTodo = updatedTodo;
+    } else {
+      // 新規作成モード: 新しいTodoを作成
+      savedTodo = await todoService.createTodo(
+        title: titleController.text.trim(),
+        description: descriptionText.isEmpty ? null : descriptionText,
+        dueDate: dueDate,
+        color: selectedCategory.value?.color ?? 'blue',
+        categoryId: selectedCategory.value?.id,
+        isRecurring: isRecurring.value,
+        recurringType: isRecurring.value ? recurringType.value : null,
+        recurringEndDate: isRecurring.value ? recurringEndDate.value : null,
+        timerType: selectedTimerType,
+        // ポモドーロ設定を保存
+        pomodoroWorkMinutes: selectedTimerType == TimerType.pomodoro
+            ? pomodoroWorkMinutes.value
+            : null,
+        pomodoroShortBreakMinutes: selectedTimerType == TimerType.pomodoro
+            ? pomodoroShortBreakMinutes.value
+            : null,
+        pomodoroLongBreakMinutes: selectedTimerType == TimerType.pomodoro
+            ? pomodoroLongBreakMinutes.value
+            : null,
+        pomodoroCycle:
+            selectedTimerType == TimerType.pomodoro ? pomodoroCycle.value : null,
+        pomodoroCompletedCycle: selectedTimerType == TimerType.pomodoro
+            ? pomodoroCompletionCycles.value
+            : null,
+        // カウントアップ設定を保存
+        countupElapsedSeconds: selectedTimerType == TimerType.countup &&
+                countupTargetMinutes.value != null
+            ? countupTargetMinutes.value! * 60
+            : null,
+      );
+    }
 
     // Create checklist items for new todo
     final checklistService = TodoCheckListItemService();
     for (int i = 0; i < checklistItems.value.length; i++) {
       final item = checklistItems.value[i];
       await checklistService.createCheckListItem(
-        todoId: newTodo.id,
+        todoId: savedTodo.id,
         title: item.title,
         order: i,
       );
@@ -1123,7 +1173,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
     // スケジュール通知を設定
     await ref
         .read(notificationStateProvider.notifier)
-        .handleTodoCreated(newTodo);
+        .handleTodoCreated(savedTodo);
 
     if (context.mounted) {
       Navigator.of(context).pop();
