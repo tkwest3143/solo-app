@@ -68,6 +68,24 @@ class TodoTableRepository {
     return result > 0;
   }
 
+  /// 物理削除（レコードを完全に削除）
+  Future<bool> physicalDelete(int id) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final result = await (database.delete(database.todos)
+          ..where((tbl) => tbl.id.equals(id)))
+        .go();
+    return result > 0;
+  }
+
+  /// parentTodoIdで指定された全ての子Todoを物理削除
+  Future<bool> physicalDeleteByParentTodoId(int parentTodoId) async {
+    final database = await AppDatabase.getSingletonInstance();
+    final result = await (database.delete(database.todos)
+          ..where((tbl) => tbl.parentTodoId.equals(parentTodoId)))
+        .go();
+    return result > 0;
+  }
+
   /// 指定期間内の削除されたレコードを取得
   Future<List<Todo>> findDeletedTodosForPeriod(
       DateTime start, DateTime end) async {
