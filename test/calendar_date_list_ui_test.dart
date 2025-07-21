@@ -21,7 +21,7 @@ void main() {
         ProviderScope(
           child: MaterialApp(
             theme: ThemeData(),
-            home: Scaffold(
+            home: const Scaffold(
               body: CalendarPage(),
             ),
           ),
@@ -44,7 +44,7 @@ void main() {
         ProviderScope(
           child: MaterialApp(
             theme: ThemeData(),
-            home: Scaffold(
+            home: const Scaffold(
               body: CalendarPage(),
             ),
           ),
@@ -52,14 +52,14 @@ void main() {
       );
 
       // カレンダーの読み込み待ち
-      await tester.pumpAndSettle(Duration(seconds: 3));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
 
       // TableCalendarを探してタップ可能な日付を見つける
       final tableFinder = find.byType(TableCalendar);
 
       // TableCalendarが見つからない場合は、FutureBuilderの読み込みを待つ
       if (tableFinder.evaluate().isEmpty) {
-        await tester.pumpAndSettle(Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 2));
       }
 
       // まだ見つからない場合は、基本的な機能テストのみ実行
@@ -96,7 +96,7 @@ void main() {
         ProviderScope(
           child: MaterialApp(
             theme: ThemeData(),
-            home: Scaffold(
+            home: const Scaffold(
               body: CalendarPage(),
             ),
           ),
@@ -104,14 +104,14 @@ void main() {
       );
 
       // カレンダーの読み込み待ち
-      await tester.pumpAndSettle(Duration(seconds: 3));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
 
       // TableCalendarを探してタップ可能な日付を見つける
       final tableFinder = find.byType(TableCalendar);
 
       // TableCalendarが見つからない場合は、FutureBuilderの読み込みを待つ
       if (tableFinder.evaluate().isEmpty) {
-        await tester.pumpAndSettle(Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 2));
       }
 
       // まだ見つからない場合は、基本的な機能テストのみ実行
@@ -146,7 +146,7 @@ void main() {
         ProviderScope(
           child: MaterialApp(
             theme: ThemeData(),
-            home: Scaffold(
+            home: const Scaffold(
               body: CalendarPage(),
             ),
           ),
@@ -154,14 +154,14 @@ void main() {
       );
 
       // カレンダーの読み込み待ち
-      await tester.pumpAndSettle(Duration(seconds: 3));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
 
       // TableCalendarを探してタップ可能な日付を見つける
       final tableFinder = find.byType(TableCalendar);
 
       // TableCalendarが見つからない場合は、FutureBuilderの読み込みを待つ
       if (tableFinder.evaluate().isEmpty) {
-        await tester.pumpAndSettle(Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 2));
       }
 
       // まだ見つからない場合は、基本的な機能テストのみ実行
@@ -201,7 +201,7 @@ void main() {
         ProviderScope(
           child: MaterialApp(
             theme: ThemeData(),
-            home: Scaffold(
+            home: const Scaffold(
               body: CalendarPage(),
             ),
           ),
@@ -209,14 +209,14 @@ void main() {
       );
 
       // カレンダーの読み込み待ち
-      await tester.pumpAndSettle(Duration(seconds: 3));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
 
       // TableCalendarを探してタップ可能な日付を見つける
       final tableFinder = find.byType(TableCalendar);
 
       // TableCalendarが見つからない場合は、FutureBuilderの読み込みを待つ
       if (tableFinder.evaluate().isEmpty) {
-        await tester.pumpAndSettle(Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 2));
       }
 
       // まだ見つからない場合は、基本的な機能テストのみ実行
@@ -249,7 +249,7 @@ void main() {
         ProviderScope(
           child: MaterialApp(
             theme: ThemeData(),
-            home: Scaffold(
+            home: const Scaffold(
               body: CalendarPage(),
             ),
           ),
@@ -257,14 +257,14 @@ void main() {
       );
 
       // カレンダーの読み込み待ち
-      await tester.pumpAndSettle(Duration(seconds: 3));
+      await tester.pumpAndSettle(const Duration(seconds: 3));
 
       // TableCalendarを探してタップ可能な日付を見つける
       final tableFinder = find.byType(TableCalendar);
 
       // TableCalendarが見つからない場合は、FutureBuilderの読み込みを待つ
       if (tableFinder.evaluate().isEmpty) {
-        await tester.pumpAndSettle(Duration(seconds: 2));
+        await tester.pumpAndSettle(const Duration(seconds: 2));
       }
 
       // まだ見つからない場合は、基本的な機能テストのみ実行

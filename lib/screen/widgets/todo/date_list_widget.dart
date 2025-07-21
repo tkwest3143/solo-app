@@ -62,9 +62,9 @@ class DateListWidget extends HookConsumerWidget {
       void updateCenterDate() {
         if (scrollController.hasClients) {
           final viewportWidth = MediaQuery.of(context).size.width;
-          final itemWidth = 60.0; // 各日付アイテムの幅
-          final itemMargin = 8.0; // 左右のマージン（4 * 2）
-          final totalItemWidth = itemWidth + itemMargin;
+          const itemWidth = 60.0; // 各日付アイテムの幅
+          const itemMargin = 8.0; // 左右のマージン（4 * 2）
+          const totalItemWidth = itemWidth + itemMargin;
 
           // 実際の中央位置を計算（パディングを考慮）
           final centerOffset = scrollController.offset + (viewportWidth / 2);
@@ -263,9 +263,9 @@ class DateListWidget extends HookConsumerWidget {
           d.year == date.year && d.month == date.month && d.day == date.day);
 
       if (index >= 0) {
-        final itemWidth = 60.0; // 各日付アイテムの幅
-        final itemMargin = 8.0; // 左右のマージン（4 * 2）
-        final totalItemWidth = itemWidth + itemMargin;
+        const itemWidth = 60.0; // 各日付アイテムの幅
+        const itemMargin = 8.0; // 左右のマージン（4 * 2）
+        const totalItemWidth = itemWidth + itemMargin;
         final viewportWidth = MediaQuery.of(context).size.width;
         final targetOffset =
             index * totalItemWidth - (viewportWidth / 2) + (totalItemWidth / 2);

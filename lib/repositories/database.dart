@@ -62,23 +62,24 @@ class TodoTableRepository {
     final result = await (database.update(database.todos)
           ..where((tbl) => tbl.id.equals(id)))
         .write(TodosCompanion(
-          isDeleted: const Value(true),
-          updatedAt: Value(DateTime.now()),
-        ));
+      isDeleted: const Value(true),
+      updatedAt: Value(DateTime.now()),
+    ));
     return result > 0;
   }
 
   /// 指定期間内の削除されたレコードを取得
-  Future<List<Todo>> findDeletedTodosForPeriod(DateTime start, DateTime end) async {
+  Future<List<Todo>> findDeletedTodosForPeriod(
+      DateTime start, DateTime end) async {
     final database = await AppDatabase.getSingletonInstance();
     final data = await (database.todos.select()
-          ..where((tbl) => 
+          ..where((tbl) =>
               tbl.isDeleted.equals(true) &
               tbl.parentTodoId.isNotNull() &
               tbl.dueDate.isBiggerOrEqualValue(start) &
               tbl.dueDate.isSmallerThanValue(end.add(const Duration(days: 1)))))
         .get();
-    
+
     return data
         .map((e) => Todo(
               id: e.id,
@@ -112,15 +113,15 @@ class TodoTableRepository {
     final database = await AppDatabase.getSingletonInstance();
     final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
-    
+
     final result = await (database.todos.select()
-          ..where((tbl) => 
-              tbl.parentTodoId.equals(parentTodoId) & 
+          ..where((tbl) =>
+              tbl.parentTodoId.equals(parentTodoId) &
               tbl.isDeleted.equals(true) &
               tbl.dueDate.isBiggerOrEqualValue(startOfDay) &
               tbl.dueDate.isSmallerThanValue(endOfDay)))
         .getSingleOrNull();
-    
+
     return result != null;
   }
 

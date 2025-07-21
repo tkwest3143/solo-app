@@ -12,9 +12,9 @@ void main() {
         (WidgetTester tester) async {
       // Build the app with Riverpod
       await tester.pumpWidget(
-        ProviderScope(
+        const ProviderScope(
           child: MaterialApp(
-            home: const MenuPage(),
+            home: MenuPage(),
           ),
         ),
       );
@@ -67,9 +67,9 @@ void main() {
     testWidgets('Settings page displays correctly',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        ProviderScope(
+        const ProviderScope(
           child: MaterialApp(
-            home: const SettingsPage(),
+            home: SettingsPage(),
           ),
         ),
       );
@@ -82,9 +82,9 @@ void main() {
 
     testWidgets('About page displays correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
-        ProviderScope(
+        const ProviderScope(
           child: MaterialApp(
-            home: const AboutPage(),
+            home: AboutPage(),
           ),
         ),
       );

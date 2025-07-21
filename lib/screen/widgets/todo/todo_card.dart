@@ -1,7 +1,6 @@
 import 'package:solo/screen/colors.dart';
 import 'package:solo/models/todo_model.dart';
 import 'package:solo/models/category_model.dart';
-import 'package:solo/screen/widgets/todo/add_todo_dialog.dart';
 import 'package:solo/screen/widgets/todo/todo_detail_dialog.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/services/category_service.dart';
@@ -15,17 +14,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class TodoCard extends ConsumerWidget {
   final TodoModel todo;
-  final VoidCallback? onToggleComplete;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
   final VoidCallback? onRefresh;
 
   const TodoCard({
     super.key,
     required this.todo,
-    this.onToggleComplete,
-    this.onEdit,
-    this.onDelete,
     this.onRefresh,
   });
 
@@ -75,10 +68,12 @@ class TodoCard extends ConsumerWidget {
               children: [
                 GestureDetector(
                   onTap: () async {
-                    final updatedTodo = await TodoService().toggleTodoComplete(todo.id);
+                    final updatedTodo =
+                        await TodoService().toggleTodoComplete(todo.id);
                     if (updatedTodo != null) {
                       // 通知管理を更新
-                      await ref.read(notificationStateProvider.notifier)
+                      await ref
+                          .read(notificationStateProvider.notifier)
                           .handleTodoCompletionChange(updatedTodo);
                     }
                     onRefresh?.call();
@@ -166,14 +161,20 @@ class TodoCard extends ConsumerWidget {
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(6),
-                      color: Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.1),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .accentColor
+                          .withValues(alpha: 0.1),
                       border: Border.all(
-                        color: Theme.of(context).colorScheme.accentColor.withValues(alpha: 0.3),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .accentColor
+                            .withValues(alpha: 0.3),
                       ),
                     ),
                     child: Icon(
-                      todo.timerType == TimerType.pomodoro 
-                          ? Icons.timer 
+                      todo.timerType == TimerType.pomodoro
+                          ? Icons.timer
                           : Icons.timer_outlined,
                       size: 16,
                       color: Theme.of(context).colorScheme.accentColor,
@@ -181,54 +182,6 @@ class TodoCard extends ConsumerWidget {
                   ),
                 ],
                 const SizedBox(width: 8),
-                PopupMenuButton<String>(
-                  onSelected: (value) async {
-                    switch (value) {
-                      case 'edit':
-                        await AddTodoDialog.show(
-                          context,
-                          initialTodo: todo,
-                          onSaved: onRefresh,
-                        );
-                        break;
-                      case 'delete':
-                        _showDeleteConfirmation(context, todo);
-                        break;
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'edit',
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit, size: 16),
-                          SizedBox(width: 8),
-                          Text('編集'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete,
-                              size: 16,
-                              color: Theme.of(context).colorScheme.errorColor),
-                          SizedBox(width: 8),
-                          Text('削除',
-                              style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .errorColor)),
-                        ],
-                      ),
-                    ),
-                  ],
-                  child: Icon(
-                    Icons.more_vert,
-                    color: Theme.of(context).colorScheme.mutedTextColor,
-                  ),
-                ),
               ],
             ),
             if (todo.description != null && todo.description!.isNotEmpty) ...[
@@ -324,7 +277,7 @@ class TodoCard extends ConsumerWidget {
                   Text(
                     _getRecurringLabel(todo.recurringType),
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 12,
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w500,
                     ),
@@ -341,37 +294,5 @@ class TodoCard extends ConsumerWidget {
   String _getRecurringLabel(RecurringType? recurringType) {
     if (recurringType == null) return '';
     return recurringType.label;
-  }
-
-  void _showDeleteConfirmation(BuildContext context, TodoModel todo) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('削除確認'),
-        content: Text('「${todo.title}」を削除しますか？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('キャンセル'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await TodoService().deleteTodo(todo.id, date: todo.dueDate);
-              onRefresh?.call();
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${todo.title}を削除しました')),
-                );
-              }
-            },
-            child: Text(
-              '削除',
-              style: TextStyle(color: Theme.of(context).colorScheme.errorColor),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

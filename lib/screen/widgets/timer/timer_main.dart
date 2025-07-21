@@ -141,9 +141,9 @@ class TimerMainWidget extends HookConsumerWidget {
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: const TimerModeSwitch(),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: TimerModeSwitch(),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
