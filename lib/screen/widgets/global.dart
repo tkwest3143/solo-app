@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:solo/screen/colors.dart';
 import 'package:solo/screen/router.dart';
+import 'package:solo/screen/widgets/todo/custom_time_picker.dart';
 import 'package:solo/utilities/ad_mob_constant.dart';
 import 'package:solo/screen/states/timer_state.dart';
 import 'package:solo/models/timer_model.dart';
@@ -305,7 +306,7 @@ class TimeInputForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => showTimePicker(
+      onTap: () => showCustomTimePicker(
         context: context,
         initialTime: TimeOfDay.now(),
       ).then((time) {

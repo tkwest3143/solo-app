@@ -6,6 +6,7 @@ import 'package:solo/models/todo_model.dart';
 import 'package:solo/models/category_model.dart';
 import 'package:solo/models/todo_checklist_item_model.dart';
 import 'package:solo/screen/widgets/todo/category_selection_dialog.dart';
+import 'package:solo/screen/widgets/todo/custom_time_picker.dart';
 import 'package:solo/services/todo_service.dart';
 import 'package:solo/services/todo_checklist_item_service.dart';
 import 'package:solo/utilities/date.dart';
@@ -83,7 +84,27 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
       initialDate ?? initialTodo?.dueDate ?? DateTime.now(),
     );
     final selectedTime = useState<TimeOfDay>(
-      TimeOfDay.fromDateTime(initialTodo?.dueDate ?? DateTime.now()),
+      // 30分単位で切り上げ
+      (() {
+        final date = initialTodo?.dueDate ?? DateTime.now();
+        if (initialTodo?.dueDate != null) {
+          // 既存のdueDateがある場合はそのまま
+          return TimeOfDay(hour: date.hour, minute: date.minute);
+        }
+        int hour = date.hour;
+        int minute = date.minute;
+        if (minute == 0) {
+          // ちょうど00分ならそのまま
+          return TimeOfDay(hour: hour, minute: 0);
+        } else if (minute <= 30) {
+          // 1〜30分なら30分に
+          return TimeOfDay(hour: hour, minute: 30);
+        } else {
+          // 31分以降は次の時間の00分
+          hour = (hour + 1) % 24;
+          return TimeOfDay(hour: hour, minute: 0);
+        }
+      })(),
     );
     final selectedColor = useState<String>(initialTodo?.color ?? 'blue');
     final selectedCategory = useState<CategoryModel?>(null);
@@ -1338,7 +1359,7 @@ class _MultiStepAddTodoDialogContent extends HookConsumerWidget {
         const Spacer(),
         ElevatedButton(
           onPressed: () async {
-            final pickedTime = await showTimePicker(
+            final pickedTime = await showCustomTimePicker(
               context: context,
               initialTime: selectedTime.value,
             );
