@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:solo/screen/colors.dart';
 
@@ -175,58 +176,98 @@ class AboutPage extends HookConsumerWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
 
-                      // License button
-                      Center(
-                        child: TextButton.icon(
-                          onPressed: () {
-                            showLicensePage(
-                              context: context,
-                              applicationName: 'Solo',
-                              applicationVersion: '1.0.0',
-                              applicationIcon: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  gradient: LinearGradient(
-                                    colors: Theme.of(context)
-                                        .colorScheme
-                                        .primaryGradient,
-                                  ),
-                                ),
-                                child: Icon(
-                                  Icons.timer_rounded,
-                                  color: Theme.of(context).colorScheme.surface,
-                                  size: 32,
-                                ),
-                              ),
-                            );
-                          },
-                          icon: Icon(
-                            Icons.description_outlined,
-                            size: 16,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondaryTextColor,
-                          ),
-                          label: Text(
-                            'ライセンス情報',
-                            style: TextStyle(
-                              fontSize: 14,
+                      // Legal & Info Section
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Theme.of(context).colorScheme.surface,
+                          boxShadow: [
+                            BoxShadow(
                               color: Theme.of(context)
                                   .colorScheme
-                                  .secondaryTextColor,
+                                  .lightShadowColor,
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
                             ),
-                          ),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '法的情報',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .primaryTextColor,
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(
+                                'プライバシーポリシー',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Theme.of(context).colorScheme.primaryTextColor,
+                                ),
+                              ),
+                              trailing: Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.secondaryTextColor,
+                              ),
+                              onTap: () => context.push('/privacy-policy'),
+                            ),
+                            const Divider(),
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(
+                                'ライセンス情報',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Theme.of(context).colorScheme.primaryTextColor,
+                                ),
+                              ),
+                              trailing: Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.secondaryTextColor,
+                              ),
+                              onTap: () {
+                                showLicensePage(
+                                  context: context,
+                                  applicationName: 'Solo',
+                                  applicationVersion: '1.0.0',
+                                  applicationIcon: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      gradient: LinearGradient(
+                                        colors: Theme.of(context)
+                                            .colorScheme
+                                            .primaryGradient,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.timer_rounded,
+                                      color: Theme.of(context).colorScheme.surface,
+                                      size: 32,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ),
+
                     ],
                   ),
                 ),

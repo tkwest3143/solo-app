@@ -8,6 +8,7 @@ import 'package:solo/screen/pages/menu.dart';
 import 'package:solo/screen/pages/settings.dart';
 import 'package:solo/screen/pages/about.dart';
 import 'package:solo/screen/pages/tutorial.dart';
+import 'package:solo/screen/pages/privacy_policy.dart';
 import 'package:solo/screen/widgets/global.dart';
 
 class Route {
@@ -65,6 +66,11 @@ class RouterDefinition {
       builder: (context, state) => BulderWidget(
           child: TutorialPage(
               isFromMenu: state.uri.queryParameters['from'] == 'menu')));
+
+  static Route privacyPolicy = Route(
+      path: '/privacy-policy',
+      name: '/privacy-policy',
+      builder: (context, state) => const BulderWidget(child: PrivacyPolicyPage()));
 }
 
 void nextRouting(BuildContext context, Route route) {
@@ -109,6 +115,10 @@ final appRouter = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouterDefinition.tutorial.name,
             builder: RouterDefinition.tutorial.builder,
+          ),
+          GoRoute(
+            path: RouterDefinition.privacyPolicy.name,
+            builder: RouterDefinition.privacyPolicy.builder,
           ),
         ],
       ),
