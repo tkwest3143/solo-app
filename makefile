@@ -57,3 +57,6 @@ help:
 	@echo "  dg-upload-android-msg - Upload Android App Bundle with custom message"
 	@echo "  dg-upload-ios-msg  - Upload iOS with custom message"
 	@echo "  help               - Show this help message"
+
+release-build:
+	flutter build appbundle --release && flutter build ipa --release

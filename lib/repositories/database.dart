@@ -40,10 +40,7 @@ class TodoTableRepository {
   Future<List<Todo>> findAll() async {
     final database = await AppDatabase.getSingletonInstance();
     final data = await (database.todos.select()
-          ..where((tbl) => 
-              tbl.isDeleted.equals(false) &
-              // 繰り返しの親Todo（isRecurring=true かつ parentTodoId=null）を除外
-              (tbl.isRecurring.equals(true) & tbl.parentTodoId.isNull()).not()))
+          ..where((tbl) => tbl.isDeleted.equals(false)))
         .get();
     return data
         .map((e) => Todo(
