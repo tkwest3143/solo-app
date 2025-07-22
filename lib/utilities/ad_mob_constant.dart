@@ -13,9 +13,9 @@ class AdMobConstant {
       }
     } else {
       if (Platform.isAndroid) {
-        return 'ca-app-pub-1225956609476984~5878637275';
+        return 'ca-app-pub-1225956609476984/3215872963';
       } else if (Platform.isIOS) {
-        return 'ca-app-pub-1225956609476984~5199980429';
+        return 'ca-app-pub-1225956609476984/8969217932';
       }
     }
     throw UnsupportedError('Unsupported platform');
