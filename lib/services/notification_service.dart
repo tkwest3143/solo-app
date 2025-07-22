@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:solo/models/todo_model.dart';
 import 'package:solo/models/timer_model.dart';
 import 'package:solo/models/settings_model.dart';
+import 'package:solo/services/todo_service.dart';
+import 'package:solo/enums/timer_type.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -221,22 +224,15 @@ class NotificationService {
     );
   }
 
-  /// タイマー完了通知を表示
+  /// タイマー完了通知を表示（ポモドーロ用）
   Future<void> showTimerCompletionNotification({
     required TimerSession timerSession,
     String? todoTitle,
     AppSettings? settings,
   }) async {
-    // 設定に基づいて通知を制御
-    if (settings != null) {
-      if (timerSession.mode == TimerMode.pomodoro && 
-          !settings.pomodoroCompletionNotificationsEnabled) {
-        return;
-      }
-      if (timerSession.mode == TimerMode.countUp && 
-          !settings.countUpTimerNotificationsEnabled) {
-        return;
-      }
+    // 設定でポモドーロ完了通知が無効な場合は通知しない
+    if (settings != null && !settings.pomodoroCompletionNotificationsEnabled) {
+      return;
     }
 
     // 初期化されていない場合は早期リターン
@@ -244,23 +240,11 @@ class NotificationService {
       return;
     }
 
-    String title;
-    String body;
-
-    if (timerSession.mode == TimerMode.pomodoro) {
-      title = 'ポモドーロセッション完了';
-      body = todoTitle != null
-          ? '「$todoTitle」のポモドーロセッションが完了しました！'
-          : 'ポモドーロセッションが完了しました！';
-      body += '\n完了サイクル: ${timerSession.completedCycles}';
-    } else {
-      title = 'カウントアップタイマー';
-      final minutes = timerSession.elapsedSeconds ~/ 60;
-      final seconds = timerSession.elapsedSeconds % 60;
-      body = todoTitle != null
-          ? '「$todoTitle」: $minutes分$seconds秒経過'
-          : '$minutes分$seconds秒経過';
-    }
+    String title = 'ポモドーロセッション完了';
+    String body = todoTitle != null
+        ? '「$todoTitle」のポモドーロセッションが完了しました！'
+        : 'ポモドーロセッションが完了しました！';
+    body += '\n完了サイクル: ${timerSession.completedCycles}';
 
     await _flutterLocalNotificationsPlugin.show(
       _generateTimerNotificationId(),
@@ -281,6 +265,51 @@ class NotificationService {
         ),
       ),
       payload: 'timer_completion',
+    );
+  }
+
+  /// カウントアップタイマー完了通知を表示
+  Future<void> showCountUpCompletionNotification({
+    required TimerSession timerSession,
+    String? todoTitle,
+    AppSettings? settings,
+  }) async {
+    // 設定でカウントアップタイマー通知が無効な場合は通知しない
+    if (settings != null && !settings.countUpTimerNotificationsEnabled) {
+      return;
+    }
+
+    // 初期化されていない場合は早期リターン
+    if (!_isInitialized) {
+      return;
+    }
+
+    String title = 'カウントアップタイマー 目標時間達成';
+    final minutes = timerSession.elapsedSeconds ~/ 60;
+    final seconds = timerSession.elapsedSeconds % 60;
+    String body = todoTitle != null
+        ? '「$todoTitle」: 目標時間 $minutes分$seconds秒 を達成しました！'
+        : '目標時間 $minutes分$seconds秒 を達成しました！';
+
+    await _flutterLocalNotificationsPlugin.show(
+      _generateTimerNotificationId() + 1, // ポモドーロと区別するため+1
+      title,
+      body,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'countup_timer_completion_channel',
+          'カウントアップタイマー完了',
+          channelDescription: 'カウントアップタイマーの目標時間達成を通知します',
+          importance: Importance.max,
+          priority: Priority.max,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      payload: 'countup_timer_completion',
     );
   }
 
@@ -624,6 +653,15 @@ class NotificationService {
     String? todoTitle,
     AppSettings? settings,
   }) async {
+    // まず、目標時間達成通知をスケジュール
+    if (timerSession.selectedTodoId != null) {
+      await _scheduleCountUpTargetNotification(
+        timerSession: timerSession,
+        todoTitle: todoTitle,
+        settings: settings,
+      );
+    }
+
     // 設定から通知間隔を取得
     final notificationIntervalMinutes = settings?.countUpNotificationMinutes ?? 60;
 
@@ -661,6 +699,75 @@ class NotificationService {
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: 'background_timer_countup_$i',
       );
+    }
+  }
+
+  /// カウントアップタイマーの目標時間達成通知をスケジュール
+  Future<void> _scheduleCountUpTargetNotification({
+    required TimerSession timerSession,
+    String? todoTitle,
+    AppSettings? settings,
+  }) async {
+    // 設定でカウントアップタイマー通知が無効な場合は通知しない
+    if (settings != null && !settings.countUpTimerNotificationsEnabled) {
+      return;
+    }
+
+    // TodoServiceを使って目標時間を取得
+    try {
+      final todoService = TodoService();
+      final todos = await todoService.getTodo();
+      final todo = todos.firstWhere(
+        (t) => t.id == timerSession.selectedTodoId,
+        orElse: () => throw Exception('Todo not found'),
+      );
+
+      if (todo.timerType == TimerType.countup && 
+          todo.countupElapsedSeconds != null) {
+        // 目標時間までの残り秒数を計算
+        final remainingSeconds = todo.countupElapsedSeconds! - timerSession.elapsedSeconds;
+        
+        if (remainingSeconds > 0) {
+          // 目標時間の通知時刻を計算
+          final targetNotificationTime = DateTime.now().add(
+            Duration(seconds: remainingSeconds),
+          );
+
+          final targetMinutes = todo.countupElapsedSeconds! ~/ 60;
+          final targetSeconds = todo.countupElapsedSeconds! % 60;
+          final body = todoTitle != null
+              ? '「$todoTitle」: 目標時間 $targetMinutes分$targetSeconds秒 を達成しました！'
+              : '目標時間 $targetMinutes分$targetSeconds秒 を達成しました！';
+
+          await _flutterLocalNotificationsPlugin.zonedSchedule(
+            _generateBackgroundTimerNotificationId(99), // 目標時間達成通知用の特別なID
+            'カウントアップタイマー 目標時間達成',
+            body,
+            tz.TZDateTime.from(targetNotificationTime, tz.local),
+            const NotificationDetails(
+              android: AndroidNotificationDetails(
+                'countup_timer_completion_channel',
+                'カウントアップタイマー完了',
+                channelDescription: 'カウントアップタイマーの目標時間達成を通知します',
+                importance: Importance.max,
+                priority: Priority.max,
+              ),
+              iOS: DarwinNotificationDetails(
+                presentAlert: true,
+                presentBadge: true,
+                presentSound: true,
+              ),
+            ),
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            payload: 'countup_timer_target_reached',
+          );
+        }
+      }
+    } catch (e) {
+      // エラーハンドリング - デバッグ時のみログ出力
+      if (kDebugMode) {
+        print('Failed to schedule count up target notification: $e');
+      }
     }
   }
 

@@ -437,7 +437,19 @@ class TimerState extends _$TimerState {
             elapsedSeconds >= todo.countupElapsedSeconds!) {
           // 目標時間達成時にタイマーを停止
           _stopTimer();
-          state = state.copyWith(state: TimerStatus.idle);
+          state = state.copyWith(state: TimerStatus.completed);
+          
+          // フォアグラウンドの場合は音声再生、バックグラウンドの場合は通知
+          if (state.isInBackground != true) {
+            // フォアグラウンド：ポモドーロと同じ音を再生
+            _playTimerSound();
+          } else {
+            // バックグラウンド：カウントアップタイマー完了通知を表示
+            await _showCountUpCompletionNotification();
+          }
+          
+          // カウントアップタイマー完了時にTodoを完了にする
+          await _completeTodoIfSelected();
         }
       } catch (e) {
         // エラーハンドリング - デバッグ時のみログ出力
@@ -576,10 +588,8 @@ class TimerState extends _$TimerState {
   void stop() {
     _stopTimer();
 
-    // カウントアップタイマーの場合、停止時にTodoを完了にする
-    if (state.mode == TimerMode.countUp && state.elapsedSeconds > 0) {
-      _completeTodoIfSelected();
-    }
+    // カウントアップタイマーは目標時間達成時のみTodoを完了にするため、
+    // 手動停止時は完了にしない
 
     state = state.copyWith(state: TimerStatus.idle);
     _initializeSession();
@@ -697,8 +707,8 @@ class TimerState extends _$TimerState {
         elapsedSeconds: newElapsedSeconds,
       );
 
-      // 目標時間達成チェック
-      _checkCountUpTargetReached(newElapsedSeconds);
+      // 目標時間達成チェック（バックグラウンド復帰時専用）
+      _checkCountUpTargetReachedAfterBackground(newElapsedSeconds);
     } else {
       // ポモドーロモードの場合
       _syncPomodoroAfterBackground(elapsedSeconds);
@@ -848,6 +858,33 @@ class TimerState extends _$TimerState {
     }
   }
 
+  /// カウントアップタイマー完了時の通知
+  Future<void> _showCountUpCompletionNotification() async {
+    String? todoTitle;
+    if (state.selectedTodoId != null) {
+      try {
+        final todos = await TodoService().getTodo();
+        final todo = todos.firstWhere((t) => t.id == state.selectedTodoId);
+        todoTitle = todo.title;
+      } catch (e) {
+        // Todo取得に失敗した場合はnullのまま
+      }
+    }
+
+    try {
+      final settings = await SettingsService.loadSettings();
+      await _notificationService.showCountUpCompletionNotification(
+        timerSession: state,
+        todoTitle: todoTitle,
+        settings: settings,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('カウントアップタイマー完了通知の表示に失敗しました: $e');
+      }
+    }
+  }
+
   /// バックグラウンド通知をスケジュール
   Future<void> _scheduleBackgroundNotifications() async {
     TodoModel? todoModel;
@@ -902,6 +939,41 @@ class TimerState extends _$TimerState {
         }
         return true;
       }());
+    }
+  }
+
+  /// バックグラウンド復帰時のカウントアップタイマー目標時間達成チェック
+  Future<void> _checkCountUpTargetReachedAfterBackground(int elapsedSeconds) async {
+    if (state.selectedTodoId != null && state.state == TimerStatus.running) {
+      try {
+        final todos = await TodoService().getTodo();
+        final todo = todos.firstWhere(
+          (t) => t.id == state.selectedTodoId,
+          orElse: () => throw Exception('Todo not found'),
+        );
+
+        if (todo.timerType == TimerType.countup &&
+            todo.countupElapsedSeconds != null &&
+            elapsedSeconds >= todo.countupElapsedSeconds!) {
+          // 目標時間達成時にタイマーを停止
+          _stopTimer();
+          state = state.copyWith(state: TimerStatus.completed);
+          
+          // バックグラウンド復帰時は音声のみ再生（通知は既にバックグラウンドで表示済み）
+          _playTimerSound();
+          
+          // カウントアップタイマー完了時にTodoを完了にする
+          await _completeTodoIfSelected();
+        }
+      } catch (e) {
+        // エラーハンドリング - デバッグ時のみログ出力
+        assert(() {
+          if (kDebugMode) {
+            print('Failed to check target time after background: $e');
+          }
+          return true;
+        }());
+      }
     }
   }
 
