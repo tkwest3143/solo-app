@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/foundation.dart';
 
 class AdMobConstant {
@@ -19,5 +20,13 @@ class AdMobConstant {
       }
     }
     throw UnsupportedError('Unsupported platform');
+  }
+}
+
+Future<void> initATT() async {
+  if (await AppTrackingTransparency.trackingAuthorizationStatus ==
+      TrackingStatus.notDetermined) {
+    await Future.delayed(const Duration(milliseconds: 200));
+    await AppTrackingTransparency.requestTrackingAuthorization();
   }
 }

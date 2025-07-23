@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -10,6 +11,7 @@ import 'package:solo/screen/router.dart';
 import 'package:solo/screen/states/settings_state.dart';
 import 'package:solo/screen/states/settings_integration.dart';
 import 'package:solo/screen/states/notification_state.dart';
+import 'package:solo/utilities/ad_mob_constant.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +24,8 @@ void main() async {
 
   // Google Mobile Ads SDKの初期化
   await MobileAds.instance.initialize();
+  await initATT();
+  FlutterNativeSplash.remove();
 
   runApp(
     const ProviderScope(
