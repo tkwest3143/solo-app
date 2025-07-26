@@ -120,4 +120,20 @@ class NotificationState extends _$NotificationState {
   Future<void> handleTodoDeleted(int todoId) async {
     await cancelTodoNotification(todoId);
   }
+
+  /// バックグラウンドから復帰時に月が変わっているかチェックし、
+  /// 必要に応じて繰り返しTodoの通知を追加登録する
+  Future<void> checkAndUpdateRecurringNotifications() async {
+    if (!state) {
+      await initialize();
+    }
+    
+    try {
+      await _notificationService.checkAndUpdateRecurringNotifications();
+    } catch (e) {
+      if (kDebugMode) {
+        print('繰り返し通知の更新中にエラーが発生しました: $e');
+      }
+    }
+  }
 }

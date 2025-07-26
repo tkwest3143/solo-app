@@ -62,6 +62,11 @@ class MyApp extends HookConsumerWidget {
             .read(notificationStateProvider.notifier)
             .scheduleTodayNotifications();
 
+        // Check and update recurring notifications (for month change)
+        await ref
+            .read(notificationStateProvider.notifier)
+            .checkAndUpdateRecurringNotifications();
+
         // Check if tutorial should be shown
         final settings = ref.read(settingsStateProvider);
         if (!settings.hasCompletedTutorial) {

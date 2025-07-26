@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solo/models/todo_model.dart';
 import 'package:solo/models/timer_model.dart';
 import 'package:solo/models/settings_model.dart';
 import 'package:solo/services/todo_service.dart';
+import 'package:solo/services/settings_service.dart';
 import 'package:solo/enums/timer_type.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -225,6 +227,136 @@ class NotificationService {
   /// すべての通知をキャンセルする
   Future<void> cancelAllNotifications() async {
     await _flutterLocalNotificationsPlugin.cancelAll();
+  }
+
+  /// 月変更チェック用の最後のチェック日を保存/取得
+  static const String _lastMonthCheckKey = 'last_month_check';
+  
+  /// バックグラウンドから復帰時に月が変わっているかチェックし、
+  /// 必要に応じて繰り返しTodoの通知を追加登録する
+  Future<void> checkAndUpdateRecurringNotifications() async {
+    final now = DateTime.now();
+    final currentMonth = DateTime(now.year, now.month);
+    
+    // SharedPreferencesから最後のチェック日を取得
+    final prefs = await SharedPreferences.getInstance();
+    final lastCheckMillis = prefs.getInt(_lastMonthCheckKey);
+    
+    DateTime? lastCheckDate;
+    if (lastCheckMillis != null) {
+      lastCheckDate = DateTime.fromMillisecondsSinceEpoch(lastCheckMillis);
+    }
+    
+    // 月が変わっているかチェック
+    bool monthChanged = false;
+    if (lastCheckDate != null) {
+      final lastCheckMonth = DateTime(lastCheckDate.year, lastCheckDate.month);
+      monthChanged = currentMonth.isAfter(lastCheckMonth);
+    } else {
+      // 初回実行の場合は月変更として扱う
+      monthChanged = true;
+    }
+    
+    if (monthChanged) {
+      // 繰り返しTodoの通知を追加登録
+      await _addRecurringNotificationsForNextTwoMonths();
+      
+      // 最後のチェック日を更新
+      await prefs.setInt(_lastMonthCheckKey, now.millisecondsSinceEpoch);
+    }
+  }
+  
+  /// 今後2ヶ月分の繰り返しTodo通知を追加登録
+  Future<void> _addRecurringNotificationsForNextTwoMonths() async {
+    try {
+      // TodoServiceから繰り返しTodoを取得
+      final todoService = TodoService();
+      final allTodos = await todoService.getTodo();
+      
+      // 繰り返しTodoのみをフィルタリング
+      final recurringTodos = allTodos.where((todo) => 
+        todo.isRecurring == true && !todo.isCompleted && !todo.isDeleted).toList();
+      
+      // 設定を取得
+      final settings = await SettingsService.loadSettings();
+      
+      // 各繰り返しTodoに対して2ヶ月分の通知を追加
+      for (final todo in recurringTodos) {
+        await _addTwoMonthsNotificationsForRecurringTodo(todo, settings);
+      }
+      
+      if (kDebugMode) {
+        print('[NotificationService] Added notifications for ${recurringTodos.length} recurring todos');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('[NotificationService] Failed to add recurring notifications: $e');
+      }
+    }
+  }
+  
+  /// 特定の繰り返しTodoに対して2ヶ月分の通知を追加
+  Future<void> _addTwoMonthsNotificationsForRecurringTodo(TodoModel todo, AppSettings settings) async {
+    // 設定で期限日通知が無効な場合は何もしない
+    if (!settings.todoDueDateNotificationsEnabled) {
+      return;
+    }
+    
+    final now = DateTime.now();
+    final twoMonthsLater = DateTime(now.year, now.month + 2, now.day);
+    
+    // 現在から2ヶ月後までの期間で通知をスケジュール
+    DateTime currentDueDate = now;
+    int notificationCount = 0;
+    const maxNotifications = 100; // 通知の最大数を制限
+    
+    // 既存の通知IDの最大値を取得（重複を避けるため）
+    int baseNotificationId = _generateNotificationId(todo.id);
+    int startIndex = 1000; // 十分大きな値から開始
+    
+    while (currentDueDate.isBefore(twoMonthsLater) && notificationCount < maxNotifications) {
+      // 次回発生日を計算
+      currentDueDate = todo.getNextOccurrenceFrom(currentDueDate);
+      
+      // 期限の1時間前を計算
+      final notificationTime = currentDueDate.subtract(const Duration(hours: 1));
+      
+      // 未来の時間かつ指定期間内の場合のみ通知をスケジュール
+      if (notificationTime.isAfter(now) && currentDueDate.isBefore(twoMonthsLater)) {
+        // 繰り返しTodoの終了日が設定されている場合はチェック
+        if (todo.recurringEndDate != null && currentDueDate.isAfter(todo.recurringEndDate!)) {
+          break;
+        }
+        
+        // 一意のIDを生成（既存の通知と重複しないように）
+        final uniqueNotificationId = baseNotificationId + (startIndex + notificationCount) * 10000;
+        
+        await _flutterLocalNotificationsPlugin.zonedSchedule(
+          uniqueNotificationId,
+          'Todo期限のお知らせ',
+          '「${todo.title}」の期限まで1時間です',
+          tz.TZDateTime.from(notificationTime, tz.local),
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'todo_deadline_channel',
+              'Todo期限通知',
+              channelDescription: 'Todoの期限1時間前に通知します',
+              importance: Importance.high,
+              priority: Priority.high,
+            ),
+            iOS: DarwinNotificationDetails(
+              presentAlert: true,
+              presentBadge: true,
+              presentSound: true,
+            ),
+          ),
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          payload: 'todo_${todo.id}_monthly_auto_$notificationCount',
+        );
+        
+        notificationCount++;
+      }
+    }
   }
 
   /// 今日のTodoに対して通知をスケジュールする
