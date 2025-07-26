@@ -9,6 +9,7 @@ part 'build/todo_model.g.dart';
 
 @freezed
 sealed class TodoModel with _$TodoModel {
+  const TodoModel._();
   const factory TodoModel({
     required int id,
     required DateTime dueDate,
@@ -70,5 +71,75 @@ sealed class TodoModel with _$TodoModel {
       pomodoroCompletedCycle: todo.pomodoroCompletedCycle,
       isDeleted: todo.isDeleted,
     );
+  }
+
+  /// 次回の繰り返し発生日を計算する
+  DateTime getNextOccurrence() {
+    switch (recurringType) {
+      case RecurringType.daily:
+        return dueDate.add(const Duration(days: 1));
+      case RecurringType.weekly:
+        return dueDate.add(const Duration(days: 7));
+      case RecurringType.monthly:
+        // 月末処理を考慮
+        final nextMonth = DateTime(dueDate.year, dueDate.month + 1, 1);
+        final lastDayOfNextMonth =
+            DateTime(nextMonth.year, nextMonth.month + 1, 0);
+        final targetDay = dueDate.day;
+        return DateTime(
+          nextMonth.year,
+          nextMonth.month,
+          targetDay > lastDayOfNextMonth.day
+              ? lastDayOfNextMonth.day
+              : targetDay,
+          dueDate.hour,
+          dueDate.minute,
+        );
+      case RecurringType.monthlyLast:
+        // 次月の最終日を計算
+        final nextMonth = DateTime(dueDate.year, dueDate.month + 2, 0);
+        return DateTime(
+          nextMonth.year,
+          nextMonth.month,
+          nextMonth.day,
+          dueDate.hour,
+          dueDate.minute,
+        );
+    }
+  }
+
+  /// 指定した日付から次回の繰り返し発生日を計算する
+  DateTime getNextOccurrenceFrom(DateTime fromDate) {
+    switch (recurringType) {
+      case RecurringType.daily:
+        return fromDate.add(const Duration(days: 1));
+      case RecurringType.weekly:
+        return fromDate.add(const Duration(days: 7));
+      case RecurringType.monthly:
+        // 月末処理を考慮
+        final nextMonth = DateTime(fromDate.year, fromDate.month + 1, 1);
+        final lastDayOfNextMonth =
+            DateTime(nextMonth.year, nextMonth.month + 1, 0);
+        final targetDay = fromDate.day;
+        return DateTime(
+          nextMonth.year,
+          nextMonth.month,
+          targetDay > lastDayOfNextMonth.day
+              ? lastDayOfNextMonth.day
+              : targetDay,
+          fromDate.hour,
+          fromDate.minute,
+        );
+      case RecurringType.monthlyLast:
+        // 次月の最終日を計算
+        final nextMonth = DateTime(fromDate.year, fromDate.month + 2, 0);
+        return DateTime(
+          nextMonth.year,
+          nextMonth.month,
+          nextMonth.day,
+          fromDate.hour,
+          fromDate.minute,
+        );
+    }
   }
 }

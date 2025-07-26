@@ -83,7 +83,8 @@ class NotificationService {
   }
 
   /// Todoの期限1時間前に通知をスケジュールする
-  Future<void> scheduleTodoDeadlineNotification(TodoModel todo, {AppSettings? settings}) async {
+  Future<void> scheduleTodoDeadlineNotification(TodoModel todo,
+      {AppSettings? settings}) async {
     // 設定で期限日通知が無効な場合は通知しない
     if (settings != null && !settings.todoDueDateNotificationsEnabled) {
       return;
@@ -94,16 +95,27 @@ class NotificationService {
       return;
     }
 
+    // 初期化されていない場合は早期リターン（テスト環境対応）
+    if (!_isInitialized) {
+      return;
+    }
+
+    // 繰り返しTodoの場合は3ヶ月分の通知をスケジュール
+    if (todo.isRecurring == true) {
+      await _scheduleRecurringTodoNotifications(todo);
+    } else {
+      // 通常のTodoの場合は1回だけ通知をスケジュール
+      await _scheduleSingleTodoNotification(todo);
+    }
+  }
+
+  /// 単一のTodo通知をスケジュール
+  Future<void> _scheduleSingleTodoNotification(TodoModel todo) async {
     // 期限の1時間前を計算
     final notificationTime = todo.dueDate.subtract(const Duration(hours: 1));
 
     // 過去の時間の場合は通知しない
     if (notificationTime.isBefore(DateTime.now())) {
-      return;
-    }
-
-    // 初期化されていない場合は早期リターン（テスト環境対応）
-    if (!_isInitialized) {
       return;
     }
 
@@ -131,8 +143,67 @@ class NotificationService {
     );
   }
 
+  /// 繰り返しTodoの通知をスケジュール（3ヶ月分）
+  Future<void> _scheduleRecurringTodoNotifications(TodoModel todo) async {
+    final now = DateTime.now();
+    final threeMonthsLater = now.add(const Duration(days: 90));
+    
+    // 現在の期限日から開始
+    DateTime currentDueDate = todo.dueDate;
+    int notificationCount = 0;
+    const maxNotifications = 100; // 通知の最大数を制限
+
+    // TodoModelを一時的にコピーして次回発生日を計算
+    TodoModel tempTodo = todo;
+
+    while (currentDueDate.isBefore(threeMonthsLater) && notificationCount < maxNotifications) {
+      // 期限の1時間前を計算
+      final notificationTime = currentDueDate.subtract(const Duration(hours: 1));
+
+      // 未来の時間の場合のみ通知をスケジュール
+      if (notificationTime.isAfter(now)) {
+        // 繰り返しTodoの終了日が設定されている場合はチェック
+        if (todo.recurringEndDate != null && currentDueDate.isAfter(todo.recurringEndDate!)) {
+          break;
+        }
+
+        // 各発生に対して一意のIDを生成（todoId + 発生回数）
+        final uniqueNotificationId = _generateNotificationId(todo.id) + (notificationCount * 10000);
+
+        await _flutterLocalNotificationsPlugin.zonedSchedule(
+          uniqueNotificationId,
+          'Todo期限のお知らせ',
+          '「${todo.title}」の期限まで1時間です',
+          tz.TZDateTime.from(notificationTime, tz.local),
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'todo_deadline_channel',
+              'Todo期限通知',
+              channelDescription: 'Todoの期限1時間前に通知します',
+              importance: Importance.high,
+              priority: Priority.high,
+            ),
+            iOS: DarwinNotificationDetails(
+              presentAlert: true,
+              presentBadge: true,
+              presentSound: true,
+            ),
+          ),
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          payload: 'todo_${todo.id}_recurring_$notificationCount',
+        );
+
+        notificationCount++;
+      }
+
+      // 次の発生日を計算（TodoModelのメソッドを使用）
+      currentDueDate = tempTodo.getNextOccurrenceFrom(currentDueDate);
+    }
+  }
+
   /// 複数のTodoに対して一括で通知をスケジュールする
-  Future<void> scheduleAllTodoNotifications(List<TodoModel> todos, {AppSettings? settings}) async {
+  Future<void> scheduleAllTodoNotifications(List<TodoModel> todos,
+      {AppSettings? settings}) async {
     for (final todo in todos) {
       await scheduleTodoDeadlineNotification(todo, settings: settings);
     }
@@ -140,8 +211,15 @@ class NotificationService {
 
   /// 指定したTodoの通知をキャンセルする
   Future<void> cancelTodoNotification(int todoId) async {
+    // 通常のTodo通知をキャンセル
     await _flutterLocalNotificationsPlugin
         .cancel(_generateNotificationId(todoId));
+    
+    // 繰り返しTodoの場合は最大100個分の通知をキャンセル
+    for (int i = 0; i < 100; i++) {
+      final uniqueNotificationId = _generateNotificationId(todoId) + (i * 10000);
+      await _flutterLocalNotificationsPlugin.cancel(uniqueNotificationId);
+    }
   }
 
   /// すべての通知をキャンセルする
@@ -150,8 +228,8 @@ class NotificationService {
   }
 
   /// 今日のTodoに対して通知をスケジュールする
-  Future<void> scheduleTodayTodoNotifications(
-      List<TodoModel> todayTodos, {AppSettings? settings}) async {
+  Future<void> scheduleTodayTodoNotifications(List<TodoModel> todayTodos,
+      {AppSettings? settings}) async {
     // 今日のTodoのうち、未完了で期限が1時間以上先のものに対して通知をスケジュール
     final notifiableTodos = todayTodos.where((todo) {
       if (todo.isCompleted) return false;
@@ -332,11 +410,11 @@ class NotificationService {
   }) async {
     // 設定に基づいて通知を制御
     if (settings != null) {
-      if (timerSession.mode == TimerMode.pomodoro && 
+      if (timerSession.mode == TimerMode.pomodoro &&
           !settings.pomodoroCompletionNotificationsEnabled) {
         return;
       }
-      if (timerSession.mode == TimerMode.countUp && 
+      if (timerSession.mode == TimerMode.countUp &&
           !settings.countUpTimerNotificationsEnabled) {
         return;
       }
@@ -382,7 +460,9 @@ class NotificationService {
 
   /// 全フェーズの通知をスケジュール
   Future<void> _scheduleAllPhaseNotifications(
-      {required TimerSession timerSession, TodoModel? todo, AppSettings? settings}) async {
+      {required TimerSession timerSession,
+      TodoModel? todo,
+      AppSettings? settings}) async {
     int notificationIndex = 0;
     DateTime currentTime = DateTime.now();
 
@@ -394,14 +474,15 @@ class NotificationService {
 
     // 最大100個の通知を制限として設定
     const maxNotifications = 100;
-    
+
     // Todo完了サイクル数を取得
-    final targetCompletedCycles = todo?.pomodoroCycle;
+    // Todoがない場合は2回の長い休憩サイクルまでを目標とする
+    final targetCompletedCycles = todo?.pomodoroCycle ?? 2;
 
     while (notificationIndex < maxNotifications) {
       // 現在のフェーズの通知をスケジュール
       final phaseEndTime = currentTime.add(Duration(seconds: remainingSeconds));
-      
+
       // 通常のフェーズ通知をスケジュール
       await _schedulePhaseNotification(
         notificationIndex: notificationIndex,
@@ -410,7 +491,7 @@ class NotificationService {
         cycleInfo: _getCycleInfo(currentCycle, completedCycles),
         todo: todo,
       );
-      
+
       notificationIndex++;
 
       // 次のフェーズを計算
@@ -427,28 +508,32 @@ class NotificationService {
       }
 
       // 作業フェーズ→休憩フェーズの遷移時に、Todo完了サイクル数に達するかチェック
-      if (currentPhase == PomodoroPhase.work && 
-          targetCompletedCycles != null) {
+      if (currentPhase == PomodoroPhase.work) {
         // 作業フェーズ終了後の完了サイクル数を計算
         final nextCycle = currentCycle + 1;
-        final willCompleteCycle = nextCycle >= timerSession.settings.cyclesUntilLongBreak;
-        final newCompletedCycles = willCompleteCycle ? completedCycles + 1 : completedCycles;
-        
+        final willCompleteCycle =
+            nextCycle >= timerSession.settings.cyclesUntilLongBreak;
+        final newCompletedCycles =
+            willCompleteCycle ? completedCycles + 1 : completedCycles;
+
         if (newCompletedCycles >= targetCompletedCycles) {
           // 休憩フェーズの通知もスケジュールしてから、タイマー完了通知をスケジュール
-          final breakPhaseEndTime = phaseEndTime.add(Duration(seconds: _getSecondsForPhase(nextPhaseInfo.phase, timerSession.settings)));
-          
+          final breakPhaseEndTime = phaseEndTime.add(Duration(
+              seconds: _getSecondsForPhase(
+                  nextPhaseInfo.phase, timerSession.settings)));
+
           // 休憩フェーズの通知をスケジュール
           await _schedulePhaseNotification(
             notificationIndex: notificationIndex,
             notificationTime: breakPhaseEndTime,
             phase: nextPhaseInfo.phase,
-            cycleInfo: _getCycleInfo(nextPhaseInfo.currentCycle, nextPhaseInfo.completedCycles),
+            cycleInfo: _getCycleInfo(
+                nextPhaseInfo.currentCycle, nextPhaseInfo.completedCycles),
             todo: todo,
           );
-          
+
           notificationIndex++;
-          
+
           // タイマー完了通知をスケジュール（休憩終了時）
           await _scheduleTimerCompletionNotification(
             notificationIndex: notificationIndex,
@@ -456,14 +541,13 @@ class NotificationService {
             todo: todo,
             completedCycles: targetCompletedCycles,
           );
-          
+
           break; // タイマー完了時は以降の通知は不要
         }
       }
 
       // Todo完了サイクル数に達した場合は終了
-      if (targetCompletedCycles != null &&
-          nextPhaseInfo.completedCycles >= targetCompletedCycles) {
+      if (nextPhaseInfo.completedCycles >= targetCompletedCycles) {
         break;
       }
 
@@ -520,10 +604,9 @@ class NotificationService {
     int? completedCycles,
   }) async {
     String title = 'ポモドーロタイマー完了';
-    String body = todo != null 
-        ? '「${todo.title}」のタイマーが完了しました！'
-        : 'ポモドーロタイマーが完了しました！';
-    
+    String body =
+        todo != null ? '「${todo.title}」のタイマーが完了しました！' : 'ポモドーロタイマーが完了しました！';
+
     if (completedCycles != null) {
       body += '\n完了サイクル: $completedCycles';
     }
@@ -663,7 +746,8 @@ class NotificationService {
     }
 
     // 設定から通知間隔を取得
-    final notificationIntervalMinutes = settings?.countUpNotificationMinutes ?? 60;
+    final notificationIntervalMinutes =
+        settings?.countUpNotificationMinutes ?? 60;
 
     // 最大5つまで通知をスケジュール
     for (int i = 1; i <= 5; i++) {
@@ -722,11 +806,12 @@ class NotificationService {
         orElse: () => throw Exception('Todo not found'),
       );
 
-      if (todo.timerType == TimerType.countup && 
+      if (todo.timerType == TimerType.countup &&
           todo.countupElapsedSeconds != null) {
         // 目標時間までの残り秒数を計算
-        final remainingSeconds = todo.countupElapsedSeconds! - timerSession.elapsedSeconds;
-        
+        final remainingSeconds =
+            todo.countupElapsedSeconds! - timerSession.elapsedSeconds;
+
         if (remainingSeconds > 0) {
           // 目標時間の通知時刻を計算
           final targetNotificationTime = DateTime.now().add(

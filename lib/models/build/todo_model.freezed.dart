@@ -593,7 +593,7 @@ extension TodoModelPatterns on TodoModel {
 
 /// @nodoc
 @JsonSerializable()
-class _TodoModel implements TodoModel {
+class _TodoModel extends TodoModel {
   const _TodoModel(
       {required this.id,
       required this.dueDate,
@@ -618,7 +618,8 @@ class _TodoModel implements TodoModel {
       this.pomodoroCycle,
       this.pomodoroCompletedCycle,
       this.isDeleted = false})
-      : _checklistItem = checklistItem;
+      : _checklistItem = checklistItem,
+        super._();
   factory _TodoModel.fromJson(Map<String, dynamic> json) =>
       _$TodoModelFromJson(json);
 

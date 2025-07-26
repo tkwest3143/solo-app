@@ -6,7 +6,7 @@ part of '../timer_state.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$timerStateHash() => r'e66fc6ab5411d0e623217f00664c16e0d5f4d59f';
+String _$timerStateHash() => r'c92436aede0698ac3c8531b1b292d89d63ac6b9b';
 
 /// See also [TimerState].
 @ProviderFor(TimerState)
